@@ -58,7 +58,7 @@ public class MoveToSoccerBallAndTurn : MonoBehaviour
     {
         if (collision.gameObject.name == "soccer_ball")
         {
-            ball.GetComponent<Rigidbody>().AddForce(Vector3.forward * Force, ForceMode.Impulse);
+            ball.GetComponent<Rigidbody>().AddForce((mainCamera.transform.position - transform.position).normalized * Force, ForceMode.Impulse);
         }
     }
 }
