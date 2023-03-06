@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine.Animations.Rigging;
 using UnityEngine;
 
@@ -7,13 +8,18 @@ public class MoveToSoccerBallAndTurn : MonoBehaviour
 {
     public float speed;
     public Transform ball;
-    public Vector3 ballOnTheGround;
+    private Vector3 ballOnTheGround;
     public Transform mainCamera;
     public Rig animationRigging;
-    public Animator anim;
-    public Collider cl;
+    private Animator anim;
+    private Collider cl;
     private Vector3 correctPosition;
-    public float Force;
+    public Vector3 targetPosition;
+    public float force;
+    public bool getBall;
+    public bool travelWithBall;
+    public bool turn;
+    public Vector3 travelEndPos;
 
     private void Start()
     {
@@ -29,12 +35,28 @@ public class MoveToSoccerBallAndTurn : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+
+        anim.ResetTrigger("reachedBall");
+        cl.enabled = false;
         float step = speed * Time.deltaTime;
         transform.position = Vector3.MoveTowards(transform.position, correctPosition, step);
-        if (transform.position == correctPosition)
+        if (transform.position == correctPosition && getBall && travelWithBall)
+        {
+            TravelWithBall();
+        }
+
+        if (transform.position == travelEndPos)
+        {
+            travelWithBall = false;
+        }
+        if (transform.position == correctPosition && getBall && !travelWithBall)
         {
             cl.enabled = true;
-            TurnAround();
+            if (turn)
+            {
+                TurnAround();
+                turn = false;
+            }
             anim.SetTrigger("reachedBall");
         }
     }
@@ -48,17 +70,32 @@ public class MoveToSoccerBallAndTurn : MonoBehaviour
         return normalizedDirection * (distance);
     }
   
-
+    // Turn towards main player's camera.
     void TurnAround()
     {
         animationRigging.weight = 1;
     }
 
+    void TravelWithBall()
+    {
+        cl.enabled = true;
+        correctPosition = new Vector3(ball.transform.position.x, 0, ball.transform.position.z);
+        if (turn)
+        {
+            transform.LookAt(mainCamera);
+            //TurnAround();
+            turn = false;
+        }
+        force = 3;
+    }
+
     private void OnCollisionEnter(Collision collision)
     {
         if (collision.gameObject.name == "soccer_ball")
-        {
-            ball.GetComponent<Rigidbody>().AddForce((mainCamera.transform.position - transform.position).normalized * Force, ForceMode.Impulse);
+        { 
+            //targetPosition = Vector3.forward;
+            targetPosition = (mainCamera.transform.position - transform.position).normalized;
+            ball.GetComponent<Rigidbody>().AddForce(targetPosition * force, ForceMode.Impulse);
         }
     }
 }
