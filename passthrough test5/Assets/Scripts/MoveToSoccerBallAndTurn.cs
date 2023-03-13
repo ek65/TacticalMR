@@ -20,13 +20,14 @@ public class MoveToSoccerBallAndTurn : MonoBehaviour
     public bool travelWithBall;
     public bool turn;
     public Vector3 travelEndPos;
-    public bool waitBall;
-    public Vector3 runEndPos;
-    public bool runToPos;
-
 
     private void Start()
     {
+        ballOnTheGround.x = ball.transform.position.x;
+        ballOnTheGround.y = 0;
+        ballOnTheGround.z = ball.transform.position.z;
+        transform.LookAt(ballOnTheGround);
+        correctPosition = calculateCorrectPosition(transform.position, ballOnTheGround);
         anim = GetComponent<Animator>();
         cl = GetComponent<Collider>();
     }
@@ -34,14 +35,11 @@ public class MoveToSoccerBallAndTurn : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+
         anim.ResetTrigger("reachedBall");
         cl.enabled = false;
-        if (getBall)
-        {
-            float step = speed * Time.deltaTime;
-            transform.position = Vector3.MoveTowards(transform.position, correctPosition, step);
-        }
-
+        float step = speed * Time.deltaTime;
+        transform.position = Vector3.MoveTowards(transform.position, correctPosition, step);
         if (transform.position == correctPosition && getBall && travelWithBall)
         {
             TravelWithBall();
@@ -54,20 +52,13 @@ public class MoveToSoccerBallAndTurn : MonoBehaviour
         if (transform.position == correctPosition && getBall && !travelWithBall)
         {
             cl.enabled = true;
-            TurnAround();
+            if (turn)
+            {
+                TurnAround();
+                turn = false;
+            }
             anim.SetTrigger("reachedBall");
         }
-        
-        
-    }
-
-    public void RunToBall()
-    {
-        ballOnTheGround.x = ball.transform.position.x;
-        ballOnTheGround.y = 0;
-        ballOnTheGround.z = ball.transform.position.z;
-        transform.LookAt(ballOnTheGround);
-        correctPosition = calculateCorrectPosition(transform.position, ballOnTheGround);
     }
 
     Vector3 calculateCorrectPosition(Vector3 pos1, Vector3 pos2)
@@ -80,12 +71,12 @@ public class MoveToSoccerBallAndTurn : MonoBehaviour
     }
   
     // Turn towards main player's camera.
-    public void TurnAround()
+    void TurnAround()
     {
         animationRigging.weight = 1;
     }
 
-    public void TravelWithBall()
+    void TravelWithBall()
     {
         cl.enabled = true;
         correctPosition = new Vector3(ball.transform.position.x, 0, ball.transform.position.z);
