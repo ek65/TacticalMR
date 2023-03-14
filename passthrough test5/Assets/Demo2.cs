@@ -26,9 +26,10 @@ public class Demo2 : MonoBehaviour
     
     public enum player2Behavior
     {
-        player2WaitForBall,
         player2Idle1,
-        player2KickBallToPos
+        player2WaitForBall,
+        player2KickBallToPos,
+        player2Idle2
     };
 
     // Start is called before the first frame update
@@ -97,19 +98,25 @@ public class Demo2 : MonoBehaviour
 
     void Player2Behavior()
     {
+        //Debug.Log("p2 dist: " + player2.distToBall);
+        //Debug.Log("behavior: " + player2behavior);
         if (player2.action == MoveToSoccerBallAndTurn.Action.NOT_TAKING_ACTION 
             || player2.action == MoveToSoccerBallAndTurn.Action.TAKING_RECURRING_ACTION)
         {
             switch (player2behavior)
             {
+                case player2Behavior.player2Idle1:
+                    StartCoroutine(player2.IdleForSec(3));
+                    player2behavior = player2Behavior.player2WaitForBall;
+                    break;
                 case player2Behavior.player2WaitForBall:
                     player2.WaitForBall();
                     if (player2.distToBall == 0)
                     {
-                        player2behavior = player2Behavior.player2Idle1;
+                        player2behavior = player2Behavior.player2Idle2;
                     }
                     break;
-                case player2Behavior.player2Idle1:
+                case player2Behavior.player2Idle2:
                     StartCoroutine(player2.IdleForSec(3));
                     player2behavior = player2Behavior.player2KickBallToPos;
                     break;

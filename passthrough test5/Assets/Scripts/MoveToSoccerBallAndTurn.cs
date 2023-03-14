@@ -7,6 +7,9 @@ using UnityEngine.UIElements;
 
 public class MoveToSoccerBallAndTurn : MonoBehaviour
 {
+    public bool enemy;
+    public bool ally;
+    public Renderer shirt;
     public float speed;
     public Transform ball;
     public Vector3 ballOnTheGround;
@@ -35,6 +38,14 @@ public class MoveToSoccerBallAndTurn : MonoBehaviour
 
     private void Start()
     {
+        if (enemy)
+        {
+            shirt.material.SetColor("_Color", Color.red);
+        }
+        if (ally)
+        {
+            shirt.material.SetColor("_Color", Color.blue);
+        }
         // ballOnTheGround.x = ball.transform.position.x;
         // ballOnTheGround.y = 0;
         // ballOnTheGround.z = ball.transform.position.z;
