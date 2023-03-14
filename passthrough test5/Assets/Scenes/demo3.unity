@@ -4112,6 +4112,10 @@ PrefabInstance:
       propertyPath: m_WarningMessage
       value: 
       objectReference: {fileID: 0}
+    - target: {fileID: 3466955936134242283, guid: dfe7d340033cc40feb582afdc3e7e928, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3466955936329044983, guid: dfe7d340033cc40feb582afdc3e7e928, type: 3}
       propertyPath: m_Data.m_SourceObjects.m_Item0.transform
       value: 
@@ -4974,6 +4978,10 @@ PrefabInstance:
       propertyPath: mainCamera
       value: 
       objectReference: {fileID: 633987597}
+    - target: {fileID: 3466955936134242283, guid: dfe7d340033cc40feb582afdc3e7e928, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3466955936329044983, guid: dfe7d340033cc40feb582afdc3e7e928, type: 3}
       propertyPath: m_Data.m_SourceObjects.m_Item0.transform
       value: 
@@ -5459,6 +5467,10 @@ PrefabInstance:
       propertyPath: mainCamera
       value: 
       objectReference: {fileID: 633987597}
+    - target: {fileID: 3466955936134242283, guid: dfe7d340033cc40feb582afdc3e7e928, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3466955936329044983, guid: dfe7d340033cc40feb582afdc3e7e928, type: 3}
       propertyPath: m_Data.m_SourceObjects.m_Item0.transform
       value: 

@@ -64,7 +64,7 @@ public class Demo2 : MonoBehaviour
                     }
                     break;
                 case player1Behavior.player1Idle2:
-                    StartCoroutine(player1.IdleForSec(3));
+                    StartCoroutine(player1.IdleForSec(1));
                     player1behavior = player1Behavior.player1KickBallToPos1;
                     break;
                 case player1Behavior.player1KickBallToPos1:
@@ -117,7 +117,7 @@ public class Demo2 : MonoBehaviour
                     }
                     break;
                 case player2Behavior.player2Idle2:
-                    StartCoroutine(player2.IdleForSec(3));
+                    StartCoroutine(player2.IdleForSec(1));
                     player2behavior = player2Behavior.player2KickBallToPos;
                     break;
                 case player2Behavior.player2KickBallToPos:

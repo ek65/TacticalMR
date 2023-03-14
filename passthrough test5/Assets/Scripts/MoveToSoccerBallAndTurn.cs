@@ -183,6 +183,7 @@ public class MoveToSoccerBallAndTurn : MonoBehaviour
         ball.GetComponent<Rigidbody>().velocity = Vector3.zero;
         ball.GetComponent<Rigidbody>().angularVelocity = Vector3.zero;
         Vector3 temp = transform.position;
+        temp.y = transform.position.y + 0.1f;
         temp.x = transform.position.x;
         temp.z = transform.position.z;
         ball.transform.position = temp;
