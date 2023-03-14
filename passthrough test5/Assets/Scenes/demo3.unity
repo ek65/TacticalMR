@@ -139,6 +139,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 189b4c9bf1f341f428485e3ed904fd74, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!137 &75179651 stripped
+SkinnedMeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 6946124210074050230, guid: dfe7d340033cc40feb582afdc3e7e928, type: 3}
+  m_PrefabInstance: {fileID: 1675126033}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &96284633
 GameObject:
   m_ObjectHideFlags: 0
@@ -1195,6 +1200,11 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 482928741}
   m_CullTransparentMesh: 1
+--- !u!137 &496773010 stripped
+SkinnedMeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 6946124210074050230, guid: dfe7d340033cc40feb582afdc3e7e928, type: 3}
+  m_PrefabInstance: {fileID: 1960543610}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &528078288
 GameObject:
   m_ObjectHideFlags: 0
@@ -4075,9 +4085,17 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3466955936134242280, guid: dfe7d340033cc40feb582afdc3e7e928, type: 3}
+      propertyPath: enemy
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3466955936134242280, guid: dfe7d340033cc40feb582afdc3e7e928, type: 3}
       propertyPath: force
       value: 18
       objectReference: {fileID: 0}
+    - target: {fileID: 3466955936134242280, guid: dfe7d340033cc40feb582afdc3e7e928, type: 3}
+      propertyPath: shirt
+      value: 
+      objectReference: {fileID: 75179651}
     - target: {fileID: 3466955936134242280, guid: dfe7d340033cc40feb582afdc3e7e928, type: 3}
       propertyPath: getBall
       value: 0
@@ -4533,6 +4551,11 @@ MonoBehaviour:
           m_BoolArgument: 0
         m_CallState: 2
   m_IsOn: 0
+--- !u!137 &1802086833 stripped
+SkinnedMeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 6946124210074050230, guid: dfe7d340033cc40feb582afdc3e7e928, type: 3}
+  m_PrefabInstance: {fileID: 2128842283}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1822598842
 GameObject:
   m_ObjectHideFlags: 0
@@ -4928,6 +4951,10 @@ PrefabInstance:
       value: 126
       objectReference: {fileID: 0}
     - target: {fileID: 3466955936134242280, guid: dfe7d340033cc40feb582afdc3e7e928, type: 3}
+      propertyPath: ally
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3466955936134242280, guid: dfe7d340033cc40feb582afdc3e7e928, type: 3}
       propertyPath: ball
       value: 
       objectReference: {fileID: 2072957143}
@@ -4939,6 +4966,10 @@ PrefabInstance:
       propertyPath: force
       value: 22
       objectReference: {fileID: 0}
+    - target: {fileID: 3466955936134242280, guid: dfe7d340033cc40feb582afdc3e7e928, type: 3}
+      propertyPath: shirt
+      value: 
+      objectReference: {fileID: 496773010}
     - target: {fileID: 3466955936134242280, guid: dfe7d340033cc40feb582afdc3e7e928, type: 3}
       propertyPath: mainCamera
       value: 
@@ -5409,9 +5440,17 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1240726412}
     - target: {fileID: 3466955936134242280, guid: dfe7d340033cc40feb582afdc3e7e928, type: 3}
+      propertyPath: enemy
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3466955936134242280, guid: dfe7d340033cc40feb582afdc3e7e928, type: 3}
       propertyPath: force
       value: 22
       objectReference: {fileID: 0}
+    - target: {fileID: 3466955936134242280, guid: dfe7d340033cc40feb582afdc3e7e928, type: 3}
+      propertyPath: shirt
+      value: 
+      objectReference: {fileID: 1802086833}
     - target: {fileID: 3466955936134242280, guid: dfe7d340033cc40feb582afdc3e7e928, type: 3}
       propertyPath: speed
       value: 3
