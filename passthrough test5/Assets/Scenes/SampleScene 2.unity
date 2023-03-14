@@ -764,7 +764,8 @@ MonoBehaviour:
   passthrough: {fileID: 1225854044}
   button: 1
   button2: 2
-  controller: 66
+  controllerLeft: 1
+  controllerRight: 2
   colorMapGradient:
   - serializedVersion: 2
     key0: {r: 0, g: 0, b: 0, a: 1}
