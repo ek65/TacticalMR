@@ -87,13 +87,6 @@ public class MoveToSoccerBallAndTurn : MonoBehaviour
         //     anim.SetTrigger("reachedBall");
         // }
     }
-
-    public IEnumerator IdleForSec(int sec, System.Action<bool, bool> callback)
-    {
-        //Debug.Log("in here");
-        yield return new WaitForSeconds(sec);
-        callback(false, true);
-    }
     
     public IEnumerator IdleForSec(float sec)
     {
