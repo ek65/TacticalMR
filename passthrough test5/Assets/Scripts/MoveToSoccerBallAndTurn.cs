@@ -5,6 +5,7 @@ using UnityEngine.Animations.Rigging;
 using UnityEngine;
 using UnityEngine.UIElements;
 
+// TODO: Rename script, this is the player logic script
 public class MoveToSoccerBallAndTurn : MonoBehaviour
 {
     public bool enemy;
