@@ -123,6 +123,24 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &1064188542 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: b0ca7327736c3284598fd859b727ff0e, type: 3}
+  m_PrefabInstance: {fileID: 1734334414}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1064188543
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1064188542}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1c11bd1276a4c4ad789fc67be10d07f6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  stateName: receive_ball_slow
 --- !u!1 &1149298875
 GameObject:
   m_ObjectHideFlags: 0
@@ -272,6 +290,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: Shannon
       objectReference: {fileID: 0}
+    - target: {fileID: 5866666021909216657, guid: b0ca7327736c3284598fd859b727ff0e, type: 3}
+      propertyPath: m_Avatar
+      value: 
+      objectReference: {fileID: 9000000, guid: b0ca7327736c3284598fd859b727ff0e, type: 3}
+    - target: {fileID: 5866666021909216657, guid: b0ca7327736c3284598fd859b727ff0e, type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: 32d2a13aa84e6bb4e9961561488c5f4a, type: 2}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b0ca7327736c3284598fd859b727ff0e, type: 3}
 --- !u!1 &2105555279
