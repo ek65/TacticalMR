@@ -8,7 +8,8 @@ public class PassthroughManager : MonoBehaviour
     public OVRPassthroughLayer passthrough;
     public OVRInput.Button button;
     public OVRInput.Button button2;
-    public OVRInput.Controller controller;
+    public OVRInput.Controller controllerLeft;
+    public OVRInput.Controller controllerRight;
     public List<Gradient> colorMapGradient;
 
     // Start is called before the first frame update
@@ -21,14 +22,18 @@ public class PassthroughManager : MonoBehaviour
     void Update()
     {
         //Debug.Log("here");
-        if(OVRInput.GetDown(button,controller))
+        if(OVRInput.GetDown(button,controllerRight))
         {
             Debug.Log("button one down");
             passthrough.hidden = !passthrough.hidden;
         }
-        if(OVRInput.GetDown(button2,controller))
+        if(OVRInput.GetDown(button2,controllerLeft))
         {
-            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+            SceneManager.LoadScene("demo2");
+        }
+        if(OVRInput.GetDown(button2,controllerRight))
+        {
+            SceneManager.LoadScene("demo3");
         }
     }
 
