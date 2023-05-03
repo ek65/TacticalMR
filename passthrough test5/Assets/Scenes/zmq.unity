@@ -4088,7 +4088,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3466955936134242280, guid: dfe7d340033cc40feb582afdc3e7e928, type: 3}
       propertyPath: force
-      value: 15
+      value: 18
       objectReference: {fileID: 0}
     - target: {fileID: 3466955936134242280, guid: dfe7d340033cc40feb582afdc3e7e928, type: 3}
       propertyPath: shirt
