@@ -30,6 +30,8 @@ public class MoveToSoccerBallAndTurn : MonoBehaviour
     public Transform goal;
     public Action action;
 
+    private float kickDebounce;
+
     public enum Action
     {
         NOT_TAKING_ACTION,
@@ -109,7 +111,10 @@ public class MoveToSoccerBallAndTurn : MonoBehaviour
     public void MoveToBallThenLook(Vector3 lookAtPos)
     {
         action = Action.TAKING_RECURRING_ACTION;
-        anim.Play("Running");
+        if (distToBall > 0.1)
+        {
+            anim.Play("Running");
+        }
         transform.LookAt(ballOnTheGround);
         //correctPosition = calculateCorrectPosition(transform.position, ballOnTheGround);
 
@@ -117,6 +122,7 @@ public class MoveToSoccerBallAndTurn : MonoBehaviour
         transform.position = Vector3.MoveTowards(transform.position, ballOnTheGround, step);
         if (distToBall == 0)
         {
+            anim.StopPlayback();
             anim.Play("Idle");
             transform.LookAt(lookAtPos);
             action = Action.NOT_TAKING_ACTION;
@@ -144,7 +150,17 @@ public class MoveToSoccerBallAndTurn : MonoBehaviour
     {
         action = Action.TAKING_ACTION;
         targetPosition = pos;
-        anim.Play("Kick Soccerball");
+        kickDebounce += Time.deltaTime; 
+        if (distToBall < 0.1 && kickDebounce < 1) // don't run kick if it has been done within the past second
+        {
+            anim.Play("Kick Soccerball");
+        }
+
+        if (kickDebounce >= 1)
+        {
+            kickDebounce = 0;
+        }
+        
     }
 
     // called by animation event in "Kick Soccerball"
