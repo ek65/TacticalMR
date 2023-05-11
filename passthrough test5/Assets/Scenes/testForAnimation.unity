@@ -3637,6 +3637,7 @@ GameObject:
   - component: {fileID: 5866666020313197151}
   - component: {fileID: 5866666020313197156}
   - component: {fileID: 5866666020313197157}
+  - component: {fileID: 5866666020313197158}
   m_Layer: 0
   m_Name: Shannon
   m_TagString: Untagged
@@ -4981,6 +4982,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   acceleration: 2
   deceleration: 2
+  maxWalkVelocity: 0.75
+  maxRunVelocity: 2
+--- !u!114 &5866666020313197158
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 919132147532622495}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0fb8ccfb7ca42d741a61299fed8001eb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &5901213794133570702
 GameObject:
   m_ObjectHideFlags: 0
