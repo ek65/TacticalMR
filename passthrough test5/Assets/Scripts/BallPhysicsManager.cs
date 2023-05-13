@@ -53,4 +53,6 @@ public class BallPhysicsManager : MonoBehaviour
     // API for projectile motion
 
     // TODO: Motion with angular drag - implementing magnus effect
+
+    // TODO: rotate ball upon motion
 }

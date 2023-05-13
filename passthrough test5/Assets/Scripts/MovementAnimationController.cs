@@ -14,6 +14,8 @@ public class MovementAnimationController : MonoBehaviour
     public float maxWalkVelocity = 0.75f;
     public float maxRunVelocity = 2.0f;
 
+    public float translateSpeedFactor = 1.5f;
+
     bool forwardKey;
     bool leftKey;
     bool rightKey;
@@ -35,11 +37,15 @@ public class MovementAnimationController : MonoBehaviour
         rightKey = Input.GetKey(KeyCode.D);
         runKey = Input.GetKey(KeyCode.LeftShift);
 
+
         currMaxVelocity = runKey ? maxRunVelocity : maxWalkVelocity;
 
         ChangeVelocity();
         ResetVelocity();
-        LockVelocity();        
+        LockVelocity();
+
+        if (!isSingletonAnimation())
+            TranslateCharacter();
 
         animator.SetFloat("VelX", velx);
         animator.SetFloat("VelZ", velz);
@@ -47,7 +53,6 @@ public class MovementAnimationController : MonoBehaviour
 
     void ChangeVelocity()
     {
-        // v = u + at
         // increase velocity in forward direction
         if (forwardKey && velz < currMaxVelocity)
         {
@@ -151,5 +156,44 @@ public class MovementAnimationController : MonoBehaviour
         {
             velx = currMaxVelocity;     // round off to max walk velocity
         }
+    }
+
+    public Vector3 movement;
+    void TranslateCharacter()
+    {
+        movement = Vector3.zero;
+        if (forwardKey && !isSingletonAnimation() )
+        {
+            movement += transform.forward;
+            movement = new Vector3(velx * movement.x, 0, velz * movement.z);
+        }
+        if (rightKey && !isSingletonAnimation() )
+        {
+            movement += transform.right;
+            movement = new Vector3(velx * movement.x, 0, velz * movement.z);
+        }
+        if (leftKey && !isSingletonAnimation() )
+        {
+            movement -= transform.right;
+            movement = new Vector3(velx * movement.x * -1.0f, 0, velz * movement.z * -1.0f);
+        }
+
+        if (runKey)
+            translateSpeedFactor = 1.5f;
+
+        transform.Translate(movement * Time.deltaTime * translateSpeedFactor);
+    }
+
+    bool isSingletonAnimation()
+    {
+        bool pass = Input.GetKey(KeyCode.P);
+        bool receive = Input.GetKey(KeyCode.R);
+
+        if (pass || receive)
+        {
+            return true;
+        }
+
+        return false;
     }
 }
