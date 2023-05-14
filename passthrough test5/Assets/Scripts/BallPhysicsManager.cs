@@ -15,27 +15,46 @@ public class BallPhysicsManager : MonoBehaviour
     public PhysicMaterial ballMaterial;
 
     public Vector3 force = new Vector3(0, 0, 0);
-    public Vector3 targetPosition = new Vector3(0, 0, 0);
+    public Vector3 targetPosition = new Vector3(0, 0.22f, 0);
+
+    public float singletonForce = 50f;
 
     void Start()
     {
         rigidbody = GetComponent<Rigidbody>();
         dynamicFriction = gameObject.GetComponent<SphereCollider>().material.dynamicFriction;
-
     }
 
-    // TODO: Motion without angular drag
+    void FixedUpdate()
+    {
+        if (Input.GetKeyDown(KeyCode.UpArrow))
+        {
+            Debug.Log("Up");
+            rigidbody.AddForce(new Vector3(0, 0, singletonForce));
+        }
+        if (Input.GetKeyDown(KeyCode.DownArrow))
+        {
+            Debug.Log("Down");
+            rigidbody.AddForce(new Vector3(0, 0, -singletonForce));
+        }
+        if (Input.GetKeyDown(KeyCode.RightArrow))
+        {
+            Debug.Log("Right");
+            rigidbody.AddForce(new Vector3(singletonForce, 0, 0));
+        }
+        if (Input.GetKeyDown(KeyCode.LeftArrow))
+        {
+            Debug.Log("Left");
+            rigidbody.AddForce(new Vector3(-singletonForce, 0, 0));
+        }
+        if (Input.GetKeyDown(KeyCode.RightShift))
+        {
+            rigidbody.AddForce(new Vector3(0, 100, 0));
+            // TODO: How to decide the magnitude of vertical force
+        }
+    }
 
-    // API for motion in xz plane
-    // Pass - slow and fast
-    // dribbling - kick with less force, happenning continuously
-    // API for projectile motion
-
-    // TODO: Motion with angular drag - implementing magnus effect
-
-    // TODO: rotate ball upon motion
-
-    public void ImpartGroundedMotion()
+    public void ImpartMotionBasedOnTarget(bool isProjectile = false)
     {
         Vector3 direction = targetPosition - rigidbody.position;
         Vector3 normalizedDirection = direction.normalized;
@@ -49,6 +68,15 @@ public class BallPhysicsManager : MonoBehaviour
 
         force = force_magnitude * normalizedDirection;
 
+        if (isProjectile)
+        {
+            force = new Vector3(force.x, 100, force.y);
+        }
+
+        // TODO: How to decide the magnitude of vertical force
+
         rigidbody.AddForce(force);
     }
+
+    // TODO: Motion with angular drag - implementing magnus effect
 }
