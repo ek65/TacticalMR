@@ -4,7 +4,15 @@ using UnityEngine;
 
 public class SingletonAnimationTriggers : MonoBehaviour
 {
-    Animator animator; 
+    public static SingletonAnimationTriggers instance;
+
+    Animator animator;
+
+    public void Awake()
+    {
+        instance = this;
+    }
+
     void Start()
     {
         animator = GetComponent<Animator>();
