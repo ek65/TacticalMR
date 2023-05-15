@@ -22,6 +22,8 @@ public class MovementAnimationController : MonoBehaviour
     bool runKey;
     float currMaxVelocity;
 
+    public bool isTranslationAllowed = true;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -44,7 +46,7 @@ public class MovementAnimationController : MonoBehaviour
         ResetVelocity();
         LockVelocity();
 
-        if (!isSingletonAnimation())
+        if (isTranslationAllowed)
             TranslateCharacter();
 
         animator.SetFloat("VelX", velx);
@@ -96,7 +98,6 @@ public class MovementAnimationController : MonoBehaviour
         // reset sideway velocity
         if (!leftKey && !rightKey && velx != 0.0f && (velx > -0.05f && velx < 0.05f))
         {
-            Debug.Log("resetting x");
             velx = 0.0f;
         }
     }
@@ -162,17 +163,17 @@ public class MovementAnimationController : MonoBehaviour
     void TranslateCharacter()
     {
         movement = Vector3.zero;
-        if (forwardKey && !isSingletonAnimation() )
+        if (forwardKey)
         {
             movement += transform.forward;
             movement = new Vector3(velx * movement.x, 0, velz * movement.z);
         }
-        if (rightKey && !isSingletonAnimation() )
+        if (rightKey)
         {
             movement += transform.right;
             movement = new Vector3(velx * movement.x, 0, velz * movement.z);
         }
-        if (leftKey && !isSingletonAnimation() )
+        if (leftKey)
         {
             movement -= transform.right;
             movement = new Vector3(velx * movement.x * -1.0f, 0, velz * movement.z * -1.0f);
@@ -182,18 +183,5 @@ public class MovementAnimationController : MonoBehaviour
             translateSpeedFactor = 1.5f;
 
         transform.Translate(movement * Time.deltaTime * translateSpeedFactor);
-    }
-
-    bool isSingletonAnimation()
-    {
-        bool pass = Input.GetKey(KeyCode.P);
-        bool receive = Input.GetKey(KeyCode.R);
-
-        if (pass || receive)
-        {
-            return true;
-        }
-
-        return false;
     }
 }

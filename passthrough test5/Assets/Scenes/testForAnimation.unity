@@ -1554,7 +1554,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!1 &976506833717032587
 GameObject:
   m_ObjectHideFlags: 0
@@ -2708,7 +2708,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!1 &5650733293585676849
 GameObject:
   m_ObjectHideFlags: 0
@@ -2860,6 +2860,7 @@ MonoBehaviour:
   maxWalkVelocity: 0.75
   maxRunVelocity: 2
   translateSpeedFactor: 2
+  isTranslationAllowed: 1
   movement: {x: 0, y: 0, z: 0}
 --- !u!114 &5866666020313197158
 MonoBehaviour:
@@ -2873,6 +2874,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0fb8ccfb7ca42d741a61299fed8001eb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  clips:
+  - {fileID: 7400000, guid: b222e6b0f65a7d141956fbe55427dffe, type: 2}
+  - {fileID: 7400000, guid: e562da487c06ef949882d7bfae9bcc3e, type: 2}
 --- !u!1 &5901213794133570702
 GameObject:
   m_ObjectHideFlags: 0

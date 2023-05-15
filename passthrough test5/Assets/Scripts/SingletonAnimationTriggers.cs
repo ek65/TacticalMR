@@ -4,7 +4,9 @@ using UnityEngine;
 
 public class SingletonAnimationTriggers : MonoBehaviour
 {
-    Animator animator; 
+    Animator animator;
+    public AnimationClip[] clips;
+
     void Start()
     {
         animator = GetComponent<Animator>();
@@ -20,11 +22,32 @@ public class SingletonAnimationTriggers : MonoBehaviour
     {
         if (Input.GetKeyDown(key))
         {
-            animator.SetBool(keyCodeHash, true);
+            StartCoroutine(Trigger(keyCodeHash, key));            
         }
         if (Input.GetKeyUp(key))
         {
             animator.SetBool(keyCodeHash, false);
         }
+    }
+
+    IEnumerator Trigger(string keyCodeHash, KeyCode key)
+    {
+        gameObject.GetComponent<MovementAnimationController>().isTranslationAllowed = false;
+        animator.SetBool(keyCodeHash, true);
+
+        yield return new WaitForSeconds(WaitTime(keyCodeHash));
+
+        gameObject.GetComponent<MovementAnimationController>().isTranslationAllowed = true;
+    }
+
+    float WaitTime(string keyCodeHash)
+    {
+        int i = 0;
+        switch (keyCodeHash)
+        {
+            case "Pass": i = 0; break;
+            case "Receive": i = 1; break;
+        }
+        return clips[i].length;
     }
 }
