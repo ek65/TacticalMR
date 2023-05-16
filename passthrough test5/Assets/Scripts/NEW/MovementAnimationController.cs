@@ -4,6 +4,9 @@ using UnityEngine;
 
 public class MovementAnimationController : MonoBehaviour
 {
+    //Create Instance
+    public static MovementAnimationController intance;
+
     Animator animator;
     float velx = 0.0f;  // sideways direction, w.r.t local coordinates
     float velz = 0.0f;  // forward direction, w.r.t local coordinates
@@ -22,6 +25,10 @@ public class MovementAnimationController : MonoBehaviour
     bool runKey;
     float currMaxVelocity;
 
+    public void Awake()
+    {
+        intance = this;
+    }
     public bool isTranslationAllowed = true;
 
     // Start is called before the first frame update
