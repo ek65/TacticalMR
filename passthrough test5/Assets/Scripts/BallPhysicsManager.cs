@@ -29,22 +29,18 @@ public class BallPhysicsManager : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.UpArrow))
         {
-            Debug.Log("Up");
             rigidbody.AddForce(new Vector3(0, 0, singletonForce));
         }
         if (Input.GetKeyDown(KeyCode.DownArrow))
         {
-            Debug.Log("Down");
             rigidbody.AddForce(new Vector3(0, 0, -singletonForce));
         }
         if (Input.GetKeyDown(KeyCode.RightArrow))
         {
-            Debug.Log("Right");
             rigidbody.AddForce(new Vector3(singletonForce, 0, 0));
         }
         if (Input.GetKeyDown(KeyCode.LeftArrow))
         {
-            Debug.Log("Left");
             rigidbody.AddForce(new Vector3(-singletonForce, 0, 0));
         }
         if (Input.GetKeyDown(KeyCode.RightShift))
