@@ -4,23 +4,36 @@ using UnityEngine;
 
 public class SceneManager2v1 : MonoBehaviour
 {
-    [SerializeField] GameObject[] Players;
-    [SerializeField] GameObject SoccerBall;
+    public static SceneManager2v1 instance;
 
+    [SerializeField] GameObject[] AIPlayers;
+
+    public GameObject SoccerBall;
+    public GameObject UserPlayer;
     public bool isBallPosessed = false;
-
+    bool passed = true;
     private void Awake()
     {
-        Players = GameObject.FindGameObjectsWithTag("Player");
+        instance = this;
+        AIPlayers = GameObject.FindGameObjectsWithTag("AI Player");
     }
 
     // Start is called before the first frame update
     void Start()
     {
-        foreach(GameObject player in Players)
+        foreach(GameObject player in AIPlayers)
         {
             player.GetComponent<ActionLibrary>().MoveFromOnePositionToAnother(player.transform.position, SoccerBall.transform.position, true);
         }
     }
 
+    private void Update()
+    {
+        if (isBallPosessed && passed)
+        {
+            Debug.Log("Pass To teammate");
+            
+            passed = false;
+        }
+    }
 }

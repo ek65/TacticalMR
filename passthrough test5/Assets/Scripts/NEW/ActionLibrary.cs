@@ -10,14 +10,15 @@ public class ActionLibrary : MonoBehaviour
     [SerializeField] float playerRunnimgSpeed = 2f;
     [SerializeField] float timeDuration = 5f;
     [SerializeField] AnimationClip receiveAnimationClip;
-    [SerializeField] SceneManager2v1 sceneManager;
+
+    bool BallPossesed = false;
 
     // Start is called before the first frame update
     void Awake()
     {
         PlayersAnimator = GetComponent<Animator>();
     }
-
+    
     /// <summary>
     /// Moving a Player From One Point to Another
     /// </summary>
@@ -46,6 +47,8 @@ public class ActionLibrary : MonoBehaviour
         StartCoroutine(Lerp(init, final, towardsBall));
     }
 
+    #region Coroutines
+
     /// <summary>
     /// Moving Player from One Position to Another Lerping MOtion
     /// </summary>
@@ -66,7 +69,7 @@ public class ActionLibrary : MonoBehaviour
         if (towardsBall)
         {
             // Update Final posion wrt Balloffset
-            final -= new Vector3(ballOffSetDistance, 0, ballOffSetDistance);
+            //final -= new Vector3(ballOffSetDistance, 0, ballOffSetDistance);
 
             while (timeElapsed < timeDuration)
             {
@@ -81,23 +84,68 @@ public class ActionLibrary : MonoBehaviour
 
                 float transitionValue = (8f * (distance * (UpdatedDistance) - Mathf.Pow(UpdatedDistance, 2)) / Mathf.Pow(distance, 2));
 
-                PlayersAnimator.SetFloat("VelZ", transitionValue);
-                
-                transform.position = Vector3.Lerp(init, final,t);
-                timeElapsed += Time.deltaTime;
-                yield return null;
-            }
+                if (!SceneManager2v1.instance.isBallPosessed)
+                {
+                    PlayersAnimator.SetFloat("VelZ", transitionValue);
 
-            if (Vector3.Distance(this.transform.position, final) < 0.1f)
+                    transform.position = Vector3.Lerp(init, final, t);
+                    timeElapsed += Time.deltaTime;
+                    yield return null;
+                    
+                }
+                else
+                {
+                    // For sync the motion, delay is given here 
+                    yield return new WaitForSeconds(0.2f);
+                    break;
+                }
+            }
+            // Detect the player has ball or Not
+            if (BallPossesed)
             {
-                PlayersAnimator.SetBool("Receive", true);
-                yield return new WaitForSeconds(receiveAnimationClip.length);
-                PlayersAnimator.SetFloat("VelZ", 0);
-                PlayersAnimator.SetBool("Receive", false);
-
-                sceneManager.isBallPosessed = true;
+                transform.LookAt(SceneManager2v1.instance.UserPlayer.transform);
+                PlayersAnimator.SetBool("Pass", true);
+                yield return new WaitForSeconds(0.45f);
+                var SoccerBall = SceneManager2v1.instance.SoccerBall;
+                Vector3 BallPassDirection = SceneManager2v1.instance.UserPlayer.transform.position - SoccerBall.transform.position;
+                float speed = 0.2f;
+                SoccerBall.GetComponent<Rigidbody>().AddForce(BallPassDirection.x*speed,0,BallPassDirection.z*speed,ForceMode.Impulse);
             }
-                
+            else // IF Player dont have a Ball then Player stop at its position
+            {
+                PlayersAnimator.SetFloat("VelZ", 0f);
+            }
         }
     }
+    #endregion
+
+    #region Collision Detection
+
+    /// <summary>
+    /// Detect Player is Collide with the ball or not
+    /// </summary>
+    /// <param name="other"></param>
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("SoccerBall"))
+        {
+            Debug.Log("In region to pass ball");
+            SceneManager2v1.instance.isBallPosessed = BallPossesed = true;
+        }
+    }
+    #endregion
 }
+
+
+
+/*
+if (Vector3.Distance(this.transform.position, final) < 0.1f)
+{
+   PlayersAnimator.SetBool("Receive", true);
+   yield return new WaitForSeconds(receiveAnimationClip.length);
+   PlayersAnimator.SetFloat("VelZ", 0);
+   PlayersAnimator.SetBool("Receive", false);
+
+   sceneManager.isBallPosessed = true;
+}
+   */
