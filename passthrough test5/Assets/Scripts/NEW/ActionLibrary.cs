@@ -6,9 +6,11 @@ public class ActionLibrary : MonoBehaviour
 {
 
     [SerializeField] Animator PlayersAnimator;
-    [SerializeField] float ballOffSetDistance = 0.3f;
+    [SerializeField] float ballOffSetDistance = 0.01f;
     [SerializeField] float playerRunnimgSpeed = 2f;
     [SerializeField] float timeDuration = 5f;
+    [SerializeField] AnimationClip receiveAnimationClip;
+    [SerializeField] SceneManager2v1 sceneManager;
 
     // Start is called before the first frame update
     void Awake()
@@ -78,13 +80,24 @@ public class ActionLibrary : MonoBehaviour
                 #endregion
 
                 float transitionValue = (8f * (distance * (UpdatedDistance) - Mathf.Pow(UpdatedDistance, 2)) / Mathf.Pow(distance, 2));
-                
+
                 PlayersAnimator.SetFloat("VelZ", transitionValue);
+                
                 transform.position = Vector3.Lerp(init, final,t);
                 timeElapsed += Time.deltaTime;
                 yield return null;
             }
+
+            if (Vector3.Distance(this.transform.position, final) < 0.1f)
+            {
+                PlayersAnimator.SetBool("Receive", true);
+                yield return new WaitForSeconds(receiveAnimationClip.length);
+                PlayersAnimator.SetFloat("VelZ", 0);
+                PlayersAnimator.SetBool("Receive", false);
+
+                sceneManager.isBallPosessed = true;
+            }
+                
         }
     }
-
 }

@@ -5,13 +5,11 @@ using UnityEngine;
 public class SingletonAnimationTriggers : MonoBehaviour
 {
     public static SingletonAnimationTriggers instance;
-
-    Animator animator;
-
     public void Awake()
     {
         instance = this;
     }
+
     Animator animator;
     public AnimationClip[] clips;
 

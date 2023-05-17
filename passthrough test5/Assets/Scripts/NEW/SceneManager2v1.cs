@@ -7,6 +7,8 @@ public class SceneManager2v1 : MonoBehaviour
     [SerializeField] GameObject[] Players;
     [SerializeField] GameObject SoccerBall;
 
+    public bool isBallPosessed = false;
+
     private void Awake()
     {
         Players = GameObject.FindGameObjectsWithTag("Player");
@@ -17,7 +19,8 @@ public class SceneManager2v1 : MonoBehaviour
     {
         foreach(GameObject player in Players)
         {
-            player.GetComponent<ActionLibrary>().MoveFromOnePositionToAnother(player.transform.position,SoccerBall.transform.position,true);
+            player.GetComponent<ActionLibrary>().MoveFromOnePositionToAnother(player.transform.position, SoccerBall.transform.position, true);
         }
     }
+
 }
