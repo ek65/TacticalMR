@@ -135,17 +135,3 @@ public class ActionLibrary : MonoBehaviour
     }
     #endregion
 }
-
-
-
-/*
-if (Vector3.Distance(this.transform.position, final) < 0.1f)
-{
-   PlayersAnimator.SetBool("Receive", true);
-   yield return new WaitForSeconds(receiveAnimationClip.length);
-   PlayersAnimator.SetFloat("VelZ", 0);
-   PlayersAnimator.SetBool("Receive", false);
-
-   sceneManager.isBallPosessed = true;
-}
-   */

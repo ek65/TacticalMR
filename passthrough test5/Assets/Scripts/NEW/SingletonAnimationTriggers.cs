@@ -5,6 +5,9 @@ using UnityEngine;
 public class SingletonAnimationTriggers : MonoBehaviour
 {
     public static SingletonAnimationTriggers instance;
+    public GameObject soccerBall;
+
+    bool hasTriggered;
     public void Awake()
     {
         instance = this;
@@ -16,6 +19,7 @@ public class SingletonAnimationTriggers : MonoBehaviour
     void Start()
     {
         animator = GetComponent<Animator>();
+        hasTriggered = false;
     }
 
     void Update()
@@ -28,21 +32,23 @@ public class SingletonAnimationTriggers : MonoBehaviour
     {
         if (Input.GetKeyDown(key))
         {
-            StartCoroutine(Trigger(keyCodeHash, key));            
+            StartCoroutine(Trigger(keyCodeHash));            
         }
-        if (Input.GetKeyUp(key))
-        {
-            animator.SetBool(keyCodeHash, false);
-        }
+        //if (Input.GetKeyUp(key))
+        //{
+        //    animator.SetBool(keyCodeHash, false);
+        //}
     }
 
-    IEnumerator Trigger(string keyCodeHash, KeyCode key)
+    IEnumerator Trigger(string keyCodeHash)
     {
+        Debug.Log("triggerring" + keyCodeHash);
         gameObject.GetComponent<MovementAnimationController>().isTranslationAllowed = false;
         animator.SetBool(keyCodeHash, true);
 
         yield return new WaitForSeconds(WaitTime(keyCodeHash));
 
+        animator.SetBool(keyCodeHash, false);
         gameObject.GetComponent<MovementAnimationController>().isTranslationAllowed = true;
     }
 
@@ -55,5 +61,16 @@ public class SingletonAnimationTriggers : MonoBehaviour
             case "Receive": i = 1; break;
         }
         return clips[i].length;
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("SoccerBall") && !hasTriggered)
+        {
+            StartCoroutine(Trigger("Receive"));
+            soccerBall.GetComponent<Rigidbody>().isKinematic = true;
+            soccerBall.GetComponent<Rigidbody>().isKinematic = false;
+            hasTriggered = true;
+        }
     }
 }
