@@ -2,6 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// Manager script for 2v1 Scene
+/// </summary>
 public class SceneManager2v1 : MonoBehaviour
 {
     public static SceneManager2v1 instance;
@@ -32,7 +35,6 @@ public class SceneManager2v1 : MonoBehaviour
         if (isBallPosessed && passed)
         {
             Debug.Log("Pass To teammate");
-            
             passed = false;
         }
     }

@@ -2,23 +2,30 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// API for AI based Player Actions
+/// </summary>
 public class ActionLibrary : MonoBehaviour
 {
-
+    #region Serialized Fields
     [SerializeField] Animator PlayersAnimator;
     [SerializeField] float ballOffSetDistance = 0.01f;
     [SerializeField] float playerRunnimgSpeed = 2f;
     [SerializeField] float timeDuration = 5f;
     [SerializeField] AnimationClip receiveAnimationClip;
+    #endregion
 
+    #region Private Variables
     bool BallPossesed = false;
+    #endregion
 
     // Start is called before the first frame update
     void Awake()
     {
         PlayersAnimator = GetComponent<Animator>();
     }
-    
+
+    #region Move From One Position to Another methods 
     /// <summary>
     /// Moving a Player From One Point to Another
     /// </summary>
@@ -30,7 +37,7 @@ public class ActionLibrary : MonoBehaviour
     }
 
     /// <summary>
-    /// Moving  Player from his Position to towards The Ball
+    /// Moving Player from one Position to towards The Ball
     /// </summary>
     /// <param name="init"></param>
     /// <param name="final"></param>
@@ -41,14 +48,19 @@ public class ActionLibrary : MonoBehaviour
         StartCoroutine(Lerp(init, final, towardsBall));
     }
 
+    /// <summary>
+    /// Moving player from its initial position to towards the Ball
+    /// </summary>
+    /// <param name="final"></param>
+    /// <param name="towardsBall"></param>
     public void MoveFromOnePositionToAnother(Vector3 final, bool towardsBall)
     {
         Vector3 init = transform.position;
         StartCoroutine(Lerp(init, final, towardsBall));
     }
+    #endregion
 
     #region Coroutines
-
     /// <summary>
     /// Moving Player from One Position to Another Lerping MOtion
     /// </summary>
@@ -120,7 +132,6 @@ public class ActionLibrary : MonoBehaviour
     #endregion
 
     #region Collision Detection
-
     /// <summary>
     /// Detect Player is Collide with the ball or not
     /// </summary>
