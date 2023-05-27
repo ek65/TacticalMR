@@ -12,9 +12,9 @@ public class ActionAPI : MonoBehaviour
     {
         playerAnimator = this.GetComponent<Animator>();
         
-        Vector3 currPos = this.transform.position;
-        Vector3 finalPos = new Vector3(currPos.x + 10f, currPos.y, currPos.z + 10f);
-        DribbleFromOnePositionToAnother(currPos, finalPos);
+        //Vector3 currPos = this.transform.position;
+        //Vector3 finalPos = new Vector3(currPos.x + 10f, currPos.y, currPos.z + 10f);
+        //DribbleFromOnePositionToAnother(currPos, finalPos);
     }
 
     public void MoveFromOnePositionToAnother(Vector3 init, Vector3 final)
@@ -131,5 +131,6 @@ public class ActionAPI : MonoBehaviour
         return delay;
     }
 
-    //TODO: stop or pause translation while movement and dribbling if any of the singleton animation is trigerred
+    // TODO: stop or pause translation while movement and dribbling if any of the singleton animation is trigerred
+    // TODO: Generate test cases to test all the APIs
 }
