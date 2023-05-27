@@ -1408,7 +1408,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 249545101}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a59949d840450f64cbc3a559fe2b0381, type: 3}
   m_Name: 
@@ -1646,6 +1646,7 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!4 &328230108
 Transform:
   m_ObjectHideFlags: 0
@@ -2366,6 +2367,7 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!4 &575746542
 Transform:
   m_ObjectHideFlags: 0
@@ -8360,8 +8362,8 @@ GameObject:
   m_Component:
   - component: {fileID: 4115364274363638367}
   - component: {fileID: 4509809109095826797}
-  - component: {fileID: 4509809109095826798}
   - component: {fileID: 4509809109095826799}
+  - component: {fileID: 4509809109095826800}
   m_Layer: 0
   m_Name: Team1P1
   m_TagString: AI Player
@@ -8718,7 +8720,7 @@ Animator:
   m_GameObject: {fileID: 3627480914939312357}
   m_Enabled: 1
   m_Avatar: {fileID: 9000000, guid: b0ca7327736c3284598fd859b727ff0e, type: 3}
-  m_Controller: {fileID: 9100000, guid: eb5ca129a0e91d344962d82bf833385c, type: 2}
+  m_Controller: {fileID: 9100000, guid: 6a3c69fe045b056468b37adf55f606a6, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 1
@@ -8728,23 +8730,7 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
---- !u!114 &4509809109095826798
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3627480914939312357}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 89c80aade3475924aa0ee612abdf2d70, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  PlayersAnimator: {fileID: 0}
-  ballOffSetDistance: 0.01
-  playerRunnimgSpeed: 2
-  timeDuration: 5
-  receiveAnimationClip: {fileID: 0}
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!65 &4509809109095826799
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -8758,6 +8744,19 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 0.38, y: 0.21, z: 0.23}
   m_Center: {x: 0.06, y: 0.08, z: 0.12}
+--- !u!114 &4509809109095826800
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3627480914939312357}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 35bcac9dd1874c44d9e8101253d74932, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  animator: {fileID: 4509809109095826797}
 --- !u!114 &4509809109278581794
 MonoBehaviour:
   m_ObjectHideFlags: 0
