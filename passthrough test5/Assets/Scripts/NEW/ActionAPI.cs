@@ -4,35 +4,75 @@ using UnityEngine;
 
 public class ActionAPI : MonoBehaviour
 {
-    [SerializeField] Animator animator;
+    [SerializeField] Animator playerAnimator;
+    [SerializeField] float playerRunningSpeed = 2f;
+    [SerializeField] float timeDuration = 5f;
+    
 
     // Bollean 
     //-> Dribble 6 
     //-> Movement 2 
-    
+
     // Method with Paramenter
-    // Movmeent (Gameobject ,init , final) -> Fromn One pos to another
-    // Dribble (Gameobject ,init , final) -> Fromn One pos to another Dribble 
-    
-    void Ground_Pass_Slow()
-    {
-        animator.SetBool("GroundPassSlow", true);
-    }
 
-    void CloseAnimation(string setFalse)
+    private void Start()
     {
-        animator.SetBool(setFalse, false);
-    }
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        Ground_Pass_Slow();
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
+        playerAnimator = this.GetComponent<Animator>();
         
+        Vector3 currPos = this.transform.position;
+        Vector3 finalPos = new Vector3(currPos.x + 10f, currPos.y, currPos.z + 10f);
+        DribbleFromOnePositionToAnother(currPos, finalPos);
+    }
+
+
+    public void MoveFromOnePositionToAnother(Vector3 init, Vector3 final)
+    {
+        string currAnimationController = playerAnimator.runtimeAnimatorController.name;
+        if (currAnimationController != "Movement")
+        {
+            RuntimeAnimatorController newController = Resources.Load("Animation/Movement", typeof(RuntimeAnimatorController)) as RuntimeAnimatorController;
+            playerAnimator.runtimeAnimatorController = newController;
+        }
+        StartCoroutine(Lerp(init, final));
+    }
+
+    public void DribbleFromOnePositionToAnother(Vector3 init, Vector3 final)
+    {
+        string currAnimationController = playerAnimator.runtimeAnimatorController.name;
+        if (currAnimationController != "Dribbling")
+        {
+            RuntimeAnimatorController newController = Resources.Load("Animation/Dribbling", typeof(RuntimeAnimatorController)) as RuntimeAnimatorController;
+            playerAnimator.runtimeAnimatorController = newController;
+        }
+        StartCoroutine(Lerp(init, final));
+    }
+
+    IEnumerator Lerp(Vector3 init, Vector3 final)
+    {
+        final.y = init.y; // Don't Update Y Coordinate
+        transform.LookAt(final);  // for Look At final position
+
+        float timeElapsed = 0;
+        float distance = Vector3.Distance(init, final);
+        timeDuration = 2f * distance / playerRunningSpeed;
+
+        while (timeElapsed < timeDuration)
+        {
+            float t = timeElapsed / timeDuration;
+            t = t * t * (3f - 2f * t);
+            float UpdatedDistance = Vector3.Distance(init, transform.position);
+
+            #region For Mathematical Reference
+            // parabola Equation if used (x-5)^2 = -4(25/8)(y-2) => y = -2/25(x^2 - 10x)  (in this Max Distance 10)
+            // parabola Equation if used (x-(d/2))^2 = -4((d/2)^2/8)(y-2)) => y = (8 (d x - x^2))/d^2
+            #endregion
+
+            float transitionValue = (8f * (distance * (UpdatedDistance) - Mathf.Pow(UpdatedDistance, 2)) / Mathf.Pow(distance, 2));
+
+            playerAnimator.SetFloat("VelZ", transitionValue);
+            transform.position = Vector3.Lerp(init, final, t);
+            timeElapsed += Time.deltaTime;
+            yield return null;
+        }
     }
 }
