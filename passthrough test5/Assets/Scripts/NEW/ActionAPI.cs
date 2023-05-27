@@ -7,13 +7,6 @@ public class ActionAPI : MonoBehaviour
     [SerializeField] Animator playerAnimator;
     [SerializeField] float playerRunningSpeed = 2f;
     [SerializeField] float timeDuration = 5f;
-    
-
-    // Bollean 
-    //-> Dribble 6 
-    //-> Movement 2 
-
-    // Method with Paramenter
 
     private void Start()
     {
@@ -23,7 +16,6 @@ public class ActionAPI : MonoBehaviour
         Vector3 finalPos = new Vector3(currPos.x + 10f, currPos.y, currPos.z + 10f);
         DribbleFromOnePositionToAnother(currPos, finalPos);
     }
-
 
     public void MoveFromOnePositionToAnother(Vector3 init, Vector3 final)
     {
@@ -70,9 +62,74 @@ public class ActionAPI : MonoBehaviour
             float transitionValue = (8f * (distance * (UpdatedDistance) - Mathf.Pow(UpdatedDistance, 2)) / Mathf.Pow(distance, 2));
 
             playerAnimator.SetFloat("VelZ", transitionValue);
+            
             transform.position = Vector3.Lerp(init, final, t);
             timeElapsed += Time.deltaTime;
             yield return null;
         }
     }
+
+    // TODO: movement in left only
+    // TODO: movement in right only
+    // TODO: movement in back direction only
+    // TODO: movement with any value of velx and velz
+    // (there can be a single function doing all this, or may not be)
+
+    void ReceiveBall()
+    {
+        StartCoroutine(Trigger("Receive"));
+    }
+
+    void TackleBall()
+    {
+        StartCoroutine(Trigger("StrongTackle"));
+    }
+
+    void GroundPassSlow()
+    {
+        StartCoroutine(Trigger("GroundPassSlow"));
+    }
+
+    void GroundPassFast()
+    {
+        StartCoroutine(Trigger("GroundPassFast"));
+    }
+
+    void AirPass()
+    {
+        StartCoroutine(Trigger("AirPass"));
+    }
+
+    void ChipSideways()
+    {
+        StartCoroutine(Trigger("ChipSideways"));
+    }
+    void ChipFront()
+    {
+        StartCoroutine(Trigger("ChipFront"));
+    }
+
+    void Kick()
+    {
+        StartCoroutine(Trigger("Kick"));
+    }
+
+    IEnumerator Trigger(string keyCodeHash)
+    {
+        // gameObject.GetComponent<MovementAnimationController>().isTranslationAllowed = false;
+        playerAnimator.SetBool(keyCodeHash, true);
+        yield return new WaitForSeconds(WaitTime());
+        playerAnimator.SetBool(keyCodeHash, false);
+        //gameObject.GetComponent<MovementAnimationController>().isTranslationAllowed = true;
+    }
+
+    float WaitTime()
+    {
+        float animationLength = GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).length;
+        float animationSpeed = GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).speed;
+        float delay = animationLength * animationSpeed;
+        return delay;
+    }
+
+    //TODO: stop or pause translation while movement and dribbling if any of the singleton animation is trigerred
 }
