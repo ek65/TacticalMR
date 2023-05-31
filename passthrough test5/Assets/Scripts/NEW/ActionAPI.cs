@@ -4,10 +4,19 @@ using UnityEngine;
 
 public enum Direction
 {
+    front,
     back,
     left,
     right
 }
+
+/// <summary>
+/// front, back, left, right
+/// front and right
+/// front and left
+/// back and right
+/// back and left
+/// </summary>
 
 public class ActionAPI : MonoBehaviour
 {
@@ -26,13 +35,6 @@ public class ActionAPI : MonoBehaviour
         //DribbleFromOnePositionToAnother(currPos, finalPos);
     }
 
-
-    // Done - TODO: movement in left only
-    // Done - TODO: movement in right only
-    // Done - TODO: movement in back direction only
-    // TODO: movement with any value of velx and velz
-    // (there can be a single function doing all this, or may not be)
-
     #region Methods 
 
     /// <summary>
@@ -42,28 +44,7 @@ public class ActionAPI : MonoBehaviour
     /// <param name="final">Final Position</param>
     public void MoveFromOnePositionToAnother(Vector3 init, Vector3 final)
     {
-        string currAnimationController = playerAnimator.runtimeAnimatorController.name;
-        if (currAnimationController != "Movement")
-        {
-            RuntimeAnimatorController newController = Resources.Load("Animation/Movement", typeof(RuntimeAnimatorController)) as RuntimeAnimatorController;
-            playerAnimator.runtimeAnimatorController = newController;
-        }
-        StartCoroutine(Lerp(init, final));
-    }
-
-    /// <summary>
-    /// Dribbling between two points 
-    /// </summary>
-    /// <param name="init">Initial(Starting) position</param>
-    /// <param name="final">Final(End) position</param>
-    public void DribbleFromOnePositionToAnother(Vector3 init, Vector3 final)
-    {
-        string currAnimationController = playerAnimator.runtimeAnimatorController.name;
-        if (currAnimationController != "Dribbling")
-        {
-            RuntimeAnimatorController newController = Resources.Load("Animation/Dribbling", typeof(RuntimeAnimatorController)) as RuntimeAnimatorController;
-            playerAnimator.runtimeAnimatorController = newController;
-        }
+        SetAnimController("Movement");
         StartCoroutine(Lerp(init, final));
     }
 
@@ -73,14 +54,9 @@ public class ActionAPI : MonoBehaviour
     /// <param name="init">Initial Position</param>
     /// <param name="final">Final Position</param>
     /// <param name="dir">Direction Left or Right</param>
-    void StrafJog(Vector3 init,Vector3 final,Direction dir)
+    void StrafJog(Vector3 init, Vector3 final, Direction dir)
     {
-        string currAnimationController = playerAnimator.runtimeAnimatorController.name;
-        if (currAnimationController != "Movement")
-        {
-            RuntimeAnimatorController newController = Resources.Load("Animation/Movement", typeof(RuntimeAnimatorController)) as RuntimeAnimatorController;
-            playerAnimator.runtimeAnimatorController = newController;
-        }
+        SetAnimController("Movement");
         StartCoroutine(Lerp(init, final, dir));
     }
 
@@ -93,13 +69,19 @@ public class ActionAPI : MonoBehaviour
     void MoveBack(Vector3 init, Vector3 final)
     {
         Direction dir = Direction.back;
-        string currAnimationController = playerAnimator.runtimeAnimatorController.name;
-        if (currAnimationController != "Movement")
-        {
-            RuntimeAnimatorController newController = Resources.Load("Animation/Movement", typeof(RuntimeAnimatorController)) as RuntimeAnimatorController;
-            playerAnimator.runtimeAnimatorController = newController;
-        }
+        SetAnimController("Movement");
         StartCoroutine(Lerp(init, final, dir));
+    }
+
+    /// <summary>
+    /// Dribbling between two points 
+    /// </summary>
+    /// <param name="init">Initial(Starting) position</param>
+    /// <param name="final">Final(End) position</param>
+    public void DribbleFromOnePositionToAnother(Vector3 init, Vector3 final)
+    {
+        SetAnimController("Dribbling");
+        StartCoroutine(Lerp(init, final));
     }
 
     void ReceiveBall()
@@ -150,17 +132,6 @@ public class ActionAPI : MonoBehaviour
         StartCoroutine(Trigger("Kick"));
     }
 
-    float WaitTime()
-    {
-        float animationLength = GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).length;
-        float animationSpeed = GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).speed;
-        float delay = animationLength * animationSpeed;
-        return delay;
-    }
-
-    // Done - TODO: stop or pause translation while movement and dribbling if any of the singleton animation is trigerred
-    // TODO: Generate test cases to test all the APIs
-
     #endregion
 
     #region Coroutine
@@ -202,7 +173,7 @@ public class ActionAPI : MonoBehaviour
             //Condition to Stop Continuous Movement
             if (stopMovement)
             {
-                stopMovement = false;
+                // stopMovement = false;
                 playerAnimator.SetFloat("VelZ", 0);
                 StopCoroutine(Lerp(init,transform.position));
             }
@@ -257,20 +228,6 @@ public class ActionAPI : MonoBehaviour
     }
 
     /// <summary>
-    /// Coroutine that is responsible for Triggering actions 
-    /// </summary>
-    /// <param name="keyCodeHash"></param>
-    /// <returns></returns>
-    IEnumerator Trigger(string keyCodeHash)
-    {
-        // gameObject.GetComponent<MovementAnimationController>().isTranslationAllowed = false;
-        playerAnimator.SetBool(keyCodeHash, true);
-        yield return new WaitForSeconds(WaitTime());
-        playerAnimator.SetBool(keyCodeHash, false);
-        //gameObject.GetComponent<MovementAnimationController>().isTranslationAllowed = true;
-    }
-
-    /// <summary>
     /// Digonal Lerping - Incomplete
     /// </summary>
     /// <param name="init"></param>
@@ -317,6 +274,38 @@ public class ActionAPI : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Triggering Singleton Animations 
+    /// </summary>
+    /// <param name="keyCodeHash"></param>
+    /// <returns></returns>
+    IEnumerator Trigger(string keyCodeHash)
+    {
+        playerAnimator.SetBool(keyCodeHash, true);
+        yield return new WaitForSeconds(WaitTime());
+        playerAnimator.SetBool(keyCodeHash, false);
+        stopMovement = false;
+    }
+
     #endregion
 
+    float WaitTime()
+    {
+        float animationLength = GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).length;
+        float animationSpeed = GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).speed;
+        float delay = animationLength * animationSpeed;
+        return delay;
+    }
+
+    void SetAnimController(string controllerHashCode)
+    {
+        string currAnimationController = playerAnimator.runtimeAnimatorController.name;
+        if (currAnimationController != controllerHashCode)
+        {
+            RuntimeAnimatorController newController = Resources.Load("Animation/" + controllerHashCode, typeof(RuntimeAnimatorController)) as RuntimeAnimatorController;
+            playerAnimator.runtimeAnimatorController = newController;
+        }
+    }
+
+    // TODO: Generate test cases to test all the APIs
 }
