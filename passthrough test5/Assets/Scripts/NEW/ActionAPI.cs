@@ -23,13 +23,21 @@ public class ActionAPI : MonoBehaviour
     [SerializeField] Animator playerAnimator;
     [SerializeField] float playerRunningSpeed = 2f;
     [SerializeField] float timeDuration = 5f;
-    
+
+    [SerializeField] Transform init;
+    [SerializeField] Transform final;
+
+
     bool stopMovement = false;
 
     private void Start()
     {
         playerAnimator = this.GetComponent<Animator>();
-        
+
+        init = transform;
+
+        StartCoroutine(LerpDiagonally(init.position, final.position));
+
         //Vector3 currPos = this.transform.position;
         //Vector3 finalPos = new Vector3(currPos.x + 10f, currPos.y, currPos.z + 10f);
         //DribbleFromOnePositionToAnother(currPos, finalPos);
@@ -237,28 +245,52 @@ public class ActionAPI : MonoBehaviour
     {
         final.y = init.y; // Don't Update Y Coordinate
 
-        transform.LookAt(final);  // for Look At final position
+        //transform.LookAt(final);  // for Look At final position
 
         float timeElapsed = 0;
+        
         float distance = Vector3.Distance(init, final);
+        
+        float distanceX = Mathf.Abs(init.x - final.x);
+        float distanceZ  = Mathf.Abs(init.z - final.z);
+        Debug.Log("Distance wrt Axis - " + distanceX + " : " + distanceZ);
+
         timeDuration = 2f * distance / playerRunningSpeed;
 
         while (timeElapsed < timeDuration)
         {
             float t = timeElapsed / timeDuration;
             t = t * t * (3f - 2f * t);
-            float UpdatedDistance = Vector3.Distance(init, transform.position);
+            
+            //float UpdatedDistance = Vector3.Distance(init, transform.position);
 
-            #region For Mathematical Reference
-            // parabola Equation if used (x-5)^2 = -4(25/8)(y-2) => y = -2/25(x^2 - 10x)  (in this Max Distance 10)
-            // parabola Equation if used (x-(d/2))^2 = -4((d/2)^2/8)(y-2)) => y = (8 (d x - x^2))/d^2
-            #endregion
+            float UpdatedDistanceX = Mathf.Abs(init.x - transform.position.x);
+            float UpdatedDistanceZ = Mathf.Abs(init.z - transform.position.z);
 
-            float transitionValueZ = (8f * (distance * (UpdatedDistance) - Mathf.Pow(UpdatedDistance, 2)) / Mathf.Pow(distance, 2));
-            float transitionValueX = (8f * (distance * (UpdatedDistance) - Mathf.Pow(UpdatedDistance, 2)) / Mathf.Pow(distance, 2));
+            float transitionValueZ;
+            if (distanceZ != 0)
+                transitionValueZ = (8f * (distanceZ * (UpdatedDistanceZ) - Mathf.Pow(UpdatedDistanceZ, 2)) / Mathf.Pow(distanceZ, 2));
+            else
+                transitionValueZ = 0;
 
-            playerAnimator.SetFloat("VelZ", transitionValueZ);
-            playerAnimator.SetFloat("VelX", transitionValueX);
+            float transitionValueX;
+            if (distanceX != 0)
+                transitionValueX = (8f * (distanceX * (UpdatedDistanceX) - Mathf.Pow(UpdatedDistanceX, 2)) / Mathf.Pow(distanceX, 2));
+            else
+                transitionValueX = 0;
+
+            Debug.Log("TRansition Values -  X : " + transitionValueX + " :: Z : " + transitionValueZ);
+
+
+            if (final.z > init.z) 
+                playerAnimator.SetFloat("VelZ", transitionValueX);
+            else
+                playerAnimator.SetFloat("VelZ", -transitionValueX);
+
+            if (final.x > init.x) 
+                playerAnimator.SetFloat("VelX", transitionValueZ);
+            else
+                playerAnimator.SetFloat("VelX", -transitionValueZ);
 
             transform.position = Vector3.Lerp(init, final, t);
             timeElapsed += Time.deltaTime;
