@@ -17,17 +17,25 @@ public class ActionAPI : MonoBehaviour
     private void Start()
     {
         playerAnimator = this.GetComponent<Animator>();
-        UnitTestMovement();
+        //UnitTestMovement();
+        //UnitTestDribble();
+        //ReceiveBall();
     }
 
     #region Unit Tests
     void UnitTestMovement()
     {
         Vector2 unitVector = new Vector2(0, 0);
+
         unitVector.x = Mathf.Sin(transform.rotation.eulerAngles.y * Mathf.Deg2Rad);
         unitVector.y = Mathf.Cos(transform.rotation.eulerAngles.y * Mathf.Deg2Rad);
 
         MoveFromOnePositionToAnother(init.position, final.position, unitVector);
+    }
+
+    void UnitTestDribble()
+    {
+        DribbleFromOnePositionToAnother(init.position, final.position);
     }
 
     #endregion
