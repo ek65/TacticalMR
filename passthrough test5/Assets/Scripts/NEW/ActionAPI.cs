@@ -114,6 +114,8 @@ public class ActionAPI : MonoBehaviour
     {
         float quadrant = RelativeQuadrant(init, final, unitVector);
 
+        Debug.Log("quadrant: " + quadrant);
+
         int xSign = 0;
         int zSign = 0;
 
@@ -128,6 +130,8 @@ public class ActionAPI : MonoBehaviour
             case 3.5f : xSign = 0; zSign = -1; break;
             case 4.0f : xSign = 1; zSign = -1; break;
         }
+
+        Debug.Log(xSign + ", " + zSign); 
 
         final.y = init.y;
 
@@ -148,11 +152,15 @@ public class ActionAPI : MonoBehaviour
             float UpdatedDistanceX = Mathf.Abs(init.x - transform.position.x);
             float UpdatedDistanceZ = Mathf.Abs(init.z - transform.position.z);
 
-            float transitionValueZ = (8f * (distanceZ * (UpdatedDistanceZ) - Mathf.Pow(UpdatedDistanceZ, 2)) / Mathf.Pow(distanceZ, 2));
-            float transitionValueX = (8f * (distanceX * (UpdatedDistanceX) - Mathf.Pow(UpdatedDistanceX, 2)) / Mathf.Pow(distanceX, 2));
+            float transitionValueZ = zSign;
+            if (transitionValueZ != 0)
+                transitionValueZ *= (8f * (distanceZ * (UpdatedDistanceZ) - Mathf.Pow(UpdatedDistanceZ, 2)) / Mathf.Pow(distanceZ, 2));
+            float transitionValueX = xSign;
+            if (transitionValueX != 0)
+                transitionValueX *= (8f * (distanceX * (UpdatedDistanceX) - Mathf.Pow(UpdatedDistanceX, 2)) / Mathf.Pow(distanceX, 2));
 
-            playerAnimator.SetFloat("VelZ", transitionValueX * zSign);
-            playerAnimator.SetFloat("VelX", transitionValueZ * xSign);
+            playerAnimator.SetFloat("VelX", transitionValueX);
+            playerAnimator.SetFloat("VelZ", transitionValueZ);
 
             transform.position = Vector3.Lerp(init, final, t);
             timeElapsed += Time.deltaTime;
@@ -258,7 +266,7 @@ public class ActionAPI : MonoBehaviour
         float rotatedYB = shiftedObjectBPosition.x * Mathf.Sin(angle) + shiftedObjectBPosition.y * Mathf.Cos(angle);
 
         // Determine the quadrant of object B
-        float quadrant = 1;
+        float quadrant = 0.5f;
         if (rotatedXB > 0 && rotatedYB == 0)
             quadrant = 0.5f;
         else if (rotatedXB == 0 && rotatedYB > 0)
@@ -267,7 +275,7 @@ public class ActionAPI : MonoBehaviour
             quadrant = 2.5f;
         else if (rotatedXB == 0 && rotatedYB < 0)
             quadrant = 3.5f;
-        if (rotatedXB > 0 && rotatedYB > 0)
+        else if (rotatedXB > 0 && rotatedYB > 0)
             quadrant = 1.0f;
         else if (rotatedXB < 0 && rotatedYB > 0)
             quadrant = 2.0f;
