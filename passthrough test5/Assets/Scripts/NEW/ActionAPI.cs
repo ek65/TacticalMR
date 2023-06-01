@@ -207,7 +207,7 @@ public class ActionAPI : MonoBehaviour
             {
                 // stopMovement = false;
                 playerAnimator.SetFloat("VelZ", 0);
-                StopCoroutine(Lerp(init, transform.position));
+                StopCoroutine(DribbleLerp(init, transform.position));
             }
         }
     }
