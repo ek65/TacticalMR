@@ -1,22 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
-
-public enum Direction
-{
-    front,
-    back,
-    left,
-    right
-}
-
-/// <summary>
-/// front, back, left, right
-/// front and right
-/// front and left
-/// back and right
-/// back and left
-/// </summary>
 
 public class ActionAPI : MonoBehaviour
 {
@@ -27,70 +12,47 @@ public class ActionAPI : MonoBehaviour
     [SerializeField] Transform init;
     [SerializeField] Transform final;
 
-
     bool stopMovement = false;
 
     private void Start()
     {
         playerAnimator = this.GetComponent<Animator>();
-
-        init = transform;
-
-        StartCoroutine(LerpDiagonally(init.position, final.position));
-
-        //Vector3 currPos = this.transform.position;
-        //Vector3 finalPos = new Vector3(currPos.x + 10f, currPos.y, currPos.z + 10f);
-        //DribbleFromOnePositionToAnother(currPos, finalPos);
+        UnitTestMovement();
     }
 
-    #region Methods 
+    #region Unit Tests
+    void UnitTestMovement()
+    {
+        Vector2 unitVector = new Vector2(0, 0);
+        unitVector.x = Mathf.Sin(transform.rotation.eulerAngles.y * Mathf.Deg2Rad);
+        unitVector.y = Mathf.Cos(transform.rotation.eulerAngles.y * Mathf.Deg2Rad);
 
-    /// <summary>
-    /// Method/API to Move player from One Position to another
-    /// </summary>
+        MoveFromOnePositionToAnother(init.position, final.position, unitVector);
+    }
+
+    #endregion
+
+    #region API Methods for BlendTrees
+
+    /// <summary> Method/API to Move player from One Position to another </summary>
     /// <param name="init">Initial Position</param>
     /// <param name="final">Final Position</param>
-    public void MoveFromOnePositionToAnother(Vector3 init, Vector3 final)
+    /// <param name="unitVector">Unit Vector where the player is facing</param>
+    public void MoveFromOnePositionToAnother(Vector3 init, Vector3 final, Vector2 unitVector)
     {
         SetAnimController("Movement");
-        StartCoroutine(Lerp(init, final));
+        StartCoroutine(MovementLerp(init, final, unitVector));
     }
 
-    /// <summary>
-    /// Straf Jogging Method along Either Direction left or Right
-    /// </summary>
-    /// <param name="init">Initial Position</param>
-    /// <param name="final">Final Position</param>
-    /// <param name="dir">Direction Left or Right</param>
-    void StrafJog(Vector3 init, Vector3 final, Direction dir)
-    {
-        SetAnimController("Movement");
-        StartCoroutine(Lerp(init, final, dir));
-    }
-
-    /// <summary>
-    /// Jog Backward rectilinear Movement
-    /// </summary>
-    /// <param name="init"></param>
-    /// <param name="final"></param>
-    /// <param name="dir"></param>
-    void MoveBack(Vector3 init, Vector3 final)
-    {
-        Direction dir = Direction.back;
-        SetAnimController("Movement");
-        StartCoroutine(Lerp(init, final, dir));
-    }
-
-    /// <summary>
-    /// Dribbling between two points 
-    /// </summary>
-    /// <param name="init">Initial(Starting) position</param>
-    /// <param name="final">Final(End) position</param>
     public void DribbleFromOnePositionToAnother(Vector3 init, Vector3 final)
     {
         SetAnimController("Dribbling");
-        StartCoroutine(Lerp(init, final));
+        StartCoroutine(DribbleLerp(init, final));
     }
+
+    #endregion
+
+    #region API Methods for Singleton Animations
 
     void ReceiveBall()
     {
@@ -142,15 +104,77 @@ public class ActionAPI : MonoBehaviour
 
     #endregion
 
-    #region Coroutine
+    #region Helper Coroutines
 
-    /// <summary>
-    /// Lerp motion Coroutine that allows player to move from one point to another
-    /// </summary>
+    /// <summary> Lerp motion Coroutine that allows player to move from one point to another </summary>
     /// <param name="init">Initial point</param>
     /// <param name="final">Final point</param>
-    /// <returns></returns>
-    IEnumerator Lerp(Vector3 init, Vector3 final)
+    /// <param name="unitVector">Unit Vector where the player is facing</param>
+    IEnumerator MovementLerp(Vector3 init, Vector3 final, Vector2 unitVector)
+    {
+        float quadrant = RelativeQuadrant(init, final, unitVector);
+
+        int xSign = 0;
+        int zSign = 0;
+
+        switch (quadrant)
+        {
+            case 0.5f : xSign = 1; zSign = 0; break;
+            case 1.0f : xSign = 1; zSign = 1; break;
+            case 1.5f : xSign = 0; zSign = 1; break;
+            case 2.0f : xSign = -1; zSign = 1; break;
+            case 2.5f : xSign = -1; zSign = 0; break;
+            case 3.0f : xSign = -1; zSign = -1; break;
+            case 3.5f : xSign = 0; zSign = -1; break;
+            case 4.0f : xSign = 1; zSign = -1; break;
+        }
+
+        final.y = init.y;
+
+        float timeElapsed = 0;
+
+        float distance = Vector3.Distance(init, final);
+
+        float distanceX = Mathf.Abs(init.x - final.x);
+        float distanceZ = Mathf.Abs(init.z - final.z);
+
+        timeDuration = 2f * distance / playerRunningSpeed;
+
+        while (timeElapsed < timeDuration)
+        {
+            float t = timeElapsed / timeDuration;
+            t = t * t * (3f - 2f * t);
+
+            float UpdatedDistanceX = Mathf.Abs(init.x - transform.position.x);
+            float UpdatedDistanceZ = Mathf.Abs(init.z - transform.position.z);
+
+            float transitionValueZ = (8f * (distanceZ * (UpdatedDistanceZ) - Mathf.Pow(UpdatedDistanceZ, 2)) / Mathf.Pow(distanceZ, 2));
+            float transitionValueX = (8f * (distanceX * (UpdatedDistanceX) - Mathf.Pow(UpdatedDistanceX, 2)) / Mathf.Pow(distanceX, 2));
+
+            playerAnimator.SetFloat("VelZ", transitionValueX * zSign);
+            playerAnimator.SetFloat("VelX", transitionValueZ * xSign);
+
+            transform.position = Vector3.Lerp(init, final, t);
+            timeElapsed += Time.deltaTime;
+            yield return null;
+
+            //Condition to Stop Continuous Movement
+            if (stopMovement)
+            {
+                stopMovement = false;
+                playerAnimator.SetFloat("VelZ", 0);
+                playerAnimator.SetFloat("VelX", 0);
+                StopCoroutine(MovementLerp(init, transform.position, unitVector));
+            }
+        }
+
+        yield return null;
+    }
+
+    /// <summary> Lerp motion Coroutine that allows player to move from one point to another </summary>
+    /// <param name="init">Initial point</param>
+    /// <param name="final">Final point</param>
+    IEnumerator DribbleLerp(Vector3 init, Vector3 final)
     {
         final.y = init.y; // Don't Update Y Coordinate
         transform.LookAt(final);  // for Look At final position
@@ -173,7 +197,7 @@ public class ActionAPI : MonoBehaviour
             float transitionValue = (8f * (distance * (UpdatedDistance) - Mathf.Pow(UpdatedDistance, 2)) / Mathf.Pow(distance, 2));
 
             playerAnimator.SetFloat("VelZ", transitionValue);
-            
+
             transform.position = Vector3.Lerp(init, final, t);
             timeElapsed += Time.deltaTime;
             yield return null;
@@ -183,134 +207,13 @@ public class ActionAPI : MonoBehaviour
             {
                 // stopMovement = false;
                 playerAnimator.SetFloat("VelZ", 0);
-                StopCoroutine(Lerp(init,transform.position));
-            }
-        }
-    }
-
-    /// <summary>
-    /// This motion is along the strafe LEft or right. 
-    /// Lerp motion Coroutine that allows player to move from one point to another.
-    /// </summary>
-    /// <param name="init">Initial Point</param>
-    /// <param name="final">Final Point</param>
-    /// <param name="dir">Direction (Left or Right)</param>
-    /// <returns></returns>
-    IEnumerator Lerp(Vector3 init, Vector3 final,Direction dir)
-    {
-        final.y = init.y; // Don't Update Y Coordinate
-        transform.LookAt(final);  // for Look At final position
-
-        float timeElapsed = 0;
-        float distance = Vector3.Distance(init, final);
-        timeDuration = 2f * distance / playerRunningSpeed;
-
-        while (timeElapsed < timeDuration)
-        {
-            float t = timeElapsed / timeDuration;
-            t = t * t * (3f - 2f * t);
-            float UpdatedDistance = Vector3.Distance(init, transform.position);
-
-
-            // Strafe jogging along left
-            if (dir == Direction.left) playerAnimator.SetFloat("VelX", -2);
-            
-            // Strafe jogging along Right
-            if (dir == Direction.right) playerAnimator.SetFloat("VelX", 2);
-
-            // Jog Backward 
-            if (dir == Direction.back) playerAnimator.SetFloat("VelZ", -2);
-
-            transform.position = Vector3.Lerp(init, final, t);
-            timeElapsed += Time.deltaTime;
-            yield return null;
-
-            //Condition to Stop Continuous Movement
-            if (stopMovement)
-            {
-                stopMovement = false;
-                playerAnimator.SetFloat("VelZ", 0);
                 StopCoroutine(Lerp(init, transform.position));
             }
         }
     }
 
-    /// <summary>
-    /// Digonal Lerping - Incomplete
-    /// </summary>
-    /// <param name="init"></param>
-    /// <param name="final"></param>
-    /// <returns></returns>
-    IEnumerator LerpDiagonally(Vector3 init, Vector3 final)
-    {
-        final.y = init.y; // Don't Update Y Coordinate
-
-        //transform.LookAt(final);  // for Look At final position
-
-        float timeElapsed = 0;
-        
-        float distance = Vector3.Distance(init, final);
-        
-        float distanceX = Mathf.Abs(init.x - final.x);
-        float distanceZ  = Mathf.Abs(init.z - final.z);
-        Debug.Log("Distance wrt Axis - " + distanceX + " : " + distanceZ);
-
-        timeDuration = 2f * distance / playerRunningSpeed;
-
-        while (timeElapsed < timeDuration)
-        {
-            float t = timeElapsed / timeDuration;
-            t = t * t * (3f - 2f * t);
-            
-            //float UpdatedDistance = Vector3.Distance(init, transform.position);
-
-            float UpdatedDistanceX = Mathf.Abs(init.x - transform.position.x);
-            float UpdatedDistanceZ = Mathf.Abs(init.z - transform.position.z);
-
-            float transitionValueZ;
-            if (distanceZ != 0)
-                transitionValueZ = (8f * (distanceZ * (UpdatedDistanceZ) - Mathf.Pow(UpdatedDistanceZ, 2)) / Mathf.Pow(distanceZ, 2));
-            else
-                transitionValueZ = 0;
-
-            float transitionValueX;
-            if (distanceX != 0)
-                transitionValueX = (8f * (distanceX * (UpdatedDistanceX) - Mathf.Pow(UpdatedDistanceX, 2)) / Mathf.Pow(distanceX, 2));
-            else
-                transitionValueX = 0;
-
-            Debug.Log("TRansition Values -  X : " + transitionValueX + " :: Z : " + transitionValueZ);
-
-
-            if (final.z > init.z) 
-                playerAnimator.SetFloat("VelZ", transitionValueX);
-            else
-                playerAnimator.SetFloat("VelZ", -transitionValueX);
-
-            if (final.x > init.x) 
-                playerAnimator.SetFloat("VelX", transitionValueZ);
-            else
-                playerAnimator.SetFloat("VelX", -transitionValueZ);
-
-            transform.position = Vector3.Lerp(init, final, t);
-            timeElapsed += Time.deltaTime;
-            yield return null;
-
-            //Condition to Stop Continuous Movement
-            if (stopMovement)
-            {
-                stopMovement = false;
-                playerAnimator.SetFloat("VelZ", 0);
-                StopCoroutine(Lerp(init, transform.position));
-            }
-        }
-    }
-
-    /// <summary>
-    /// Triggering Singleton Animations 
-    /// </summary>
-    /// <param name="keyCodeHash"></param>
-    /// <returns></returns>
+    /// <summary> Triggering Singleton Animations </summary>
+    /// <param name="keyCodeHash">Animation name</param>
     IEnumerator Trigger(string keyCodeHash)
     {
         playerAnimator.SetBool(keyCodeHash, true);
@@ -320,6 +223,8 @@ public class ActionAPI : MonoBehaviour
     }
 
     #endregion
+
+    #region Helper Methods
 
     float WaitTime()
     {
@@ -339,5 +244,40 @@ public class ActionAPI : MonoBehaviour
         }
     }
 
-    // TODO: Generate test cases to test all the APIs
+    float RelativeQuadrant(Vector3 init, Vector3 final, Vector2 unitVector)
+    {
+        // Shift the origin to object A
+        Vector2 objectAPosition = new Vector2(init.x, init.z); ;
+        Vector2 objectBPosition = new Vector2(final.x, final.z); ;
+
+        Vector2 shiftedObjectBPosition = objectBPosition - objectAPosition;
+
+        float angle = Mathf.Atan2(unitVector.x, unitVector.y);
+
+        float rotatedXB = shiftedObjectBPosition.x * Mathf.Cos(angle) - shiftedObjectBPosition.y * Mathf.Sin(angle);
+        float rotatedYB = shiftedObjectBPosition.x * Mathf.Sin(angle) + shiftedObjectBPosition.y * Mathf.Cos(angle);
+
+        // Determine the quadrant of object B
+        float quadrant = 1;
+        if (rotatedXB > 0 && rotatedYB == 0)
+            quadrant = 0.5f;
+        else if (rotatedXB == 0 && rotatedYB > 0)
+            quadrant = 1.5f;
+        else if (rotatedXB < 0 && rotatedYB == 0)
+            quadrant = 2.5f;
+        else if (rotatedXB == 0 && rotatedYB < 0)
+            quadrant = 3.5f;
+        if (rotatedXB > 0 && rotatedYB > 0)
+            quadrant = 1.0f;
+        else if (rotatedXB < 0 && rotatedYB > 0)
+            quadrant = 2.0f;
+        else if (rotatedXB < 0 && rotatedYB < 0)
+            quadrant = 3.0f;
+        else
+            quadrant = 4.0f;
+
+        return quadrant;
+    }
+
+    #endregion
 }
