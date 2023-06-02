@@ -3,6 +3,15 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 
+/*
+ * ToDo - 
+ * 1. Add Input Arguments in Singleton Methods - Yash 
+ * 2. Update Movement Script wrt boolean based on LookAt() - Mihir
+ * 3. Add Actons :- 1. Pass a Ball to Teammate by throwing 
+ *               2. Blocking shots
+ *               for third point we Need to Find the Required Animation and then Implement it 
+ * 4. Blend Tree for Goolkeeper and APIs
+ */
 public class ActionAPI : MonoBehaviour
 {
     [SerializeField] Animator playerAnimator;
