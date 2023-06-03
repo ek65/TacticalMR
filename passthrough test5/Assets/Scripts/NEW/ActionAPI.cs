@@ -23,12 +23,14 @@ public class ActionAPI : MonoBehaviour
 
     bool stopMovement = false;
 
+    string transitionTo = "t";
+
     private void Start()
     {
         playerAnimator = this.GetComponent<Animator>();
         //UnitTestMovement();
         //UnitTestDribble();
-        //ReceiveBall();
+        ReceiveBall();
     }
 
     #region Unit Tests
@@ -74,49 +76,49 @@ public class ActionAPI : MonoBehaviour
     void ReceiveBall()
     {
         stopMovement = true;
-        StartCoroutine(Trigger("Receive"));
+        StartCoroutine(Trigger(transitionTo + "Receive"));
     }
 
     void TackleBall()
     {
         stopMovement = true;
-        StartCoroutine(Trigger("StrongTackle"));
+        StartCoroutine(Trigger(transitionTo + "StrongTackle"));
     }
 
     void GroundPassSlow()
     {
         stopMovement = true;
-        StartCoroutine(Trigger("GroundPassSlow"));
+        StartCoroutine(Trigger(transitionTo + "GroundPassSlow"));
     }
 
     void GroundPassFast()
     {
         stopMovement = true;
-        StartCoroutine(Trigger("GroundPassFast"));
+        StartCoroutine(Trigger(transitionTo + "GroundPassFast"));
     }
 
     void AirPass()
     {
         stopMovement = true;
-        StartCoroutine(Trigger("AirPass"));
+        StartCoroutine(Trigger(transitionTo + "AirPass"));
     }
 
     void ChipSideways()
     {
         stopMovement = true;
-        StartCoroutine(Trigger("ChipSideways"));
+        StartCoroutine(Trigger(transitionTo + "ChipSideways"));
     }
 
     void ChipFront()
     {
         stopMovement = true;
-        StartCoroutine(Trigger("ChipFront"));
+        StartCoroutine(Trigger(transitionTo + "ChipFront"));
     }
 
-    void Kick()
+    void Shoot()
     {
         stopMovement = true;
-        StartCoroutine(Trigger("Kick"));
+        StartCoroutine(Trigger(transitionTo + "Shoot"));
     }
 
     #endregion
@@ -241,6 +243,7 @@ public class ActionAPI : MonoBehaviour
     /// <param name="keyCodeHash">Animation name</param>
     IEnumerator Trigger(string keyCodeHash)
     {
+        keyCodeHash = keyCodeHash.Substring(1);
         playerAnimator.SetBool(keyCodeHash, true);
         yield return new WaitForSeconds(WaitTime());
         playerAnimator.SetBool(keyCodeHash, false);
