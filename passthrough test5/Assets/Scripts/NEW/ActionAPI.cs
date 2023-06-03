@@ -2,16 +2,24 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using static UnityEditor.ShaderData;
 
 /*
  * ToDo - 
- * 1. Add Input Arguments in Singleton Methods - Yash 
+ * 1. Add Input Arguments in Singleton Methods - Yash --------------------------------> DONE
  * 2. Update Movement Script wrt boolean based on LookAt() - Mihir
  * 3. Add Actons :- 1. Pass a Ball to Teammate by throwing 
  *               2. Blocking shots
  *               for third point we Need to Find the Required Animation and then Implement it 
  * 4. Blend Tree for Goolkeeper and APIs
+ * 
+ * 
+ * NEW
+ *  Test singleton animations with ball
+ *  new function for look at, which is smoother
  */
+
+
 public class ActionAPI : MonoBehaviour
 {
     [SerializeField] Animator playerAnimator;
@@ -20,17 +28,25 @@ public class ActionAPI : MonoBehaviour
 
     [SerializeField] Transform init;
     [SerializeField] Transform final;
+    [SerializeField] GameObject soccerBall;
 
     bool stopMovement = false;
-
     string transitionTo = "t";
+
+    float forceFactor = 12.5f;
+    float weakPassForce = 1f;
+    float strongPassForce = 2f;
+    float airPassForce = 3f;
+    float chipForce = 1.5f;
+    float shootForce = 4f;
 
     private void Start()
     {
         playerAnimator = this.GetComponent<Animator>();
+
         //UnitTestMovement();
         //UnitTestDribble();
-        ReceiveBall();
+        TackleBall();
     }
 
     #region Unit Tests
@@ -85,40 +101,71 @@ public class ActionAPI : MonoBehaviour
         StartCoroutine(Trigger(transitionTo + "StrongTackle"));
     }
 
-    void GroundPassSlow()
+    void GroundPassSlow(Vector3 passTo)
     {
         stopMovement = true;
         StartCoroutine(Trigger(transitionTo + "GroundPassSlow"));
+
+        transform.LookAt(passTo);
+        MoveBall(passTo, 0, weakPassForce);
     }
 
-    void GroundPassFast()
+    void GroundPassFast(Vector3 passTo)
     {
         stopMovement = true;
         StartCoroutine(Trigger(transitionTo + "GroundPassFast"));
+
+        transform.LookAt(passTo);
+        MoveBall(passTo, 0, strongPassForce);
     }
 
-    void AirPass()
+    void AirPass(Vector3 passTo, float aerialOffset)
     {
         stopMovement = true;
         StartCoroutine(Trigger(transitionTo + "AirPass"));
+
+        transform.LookAt(passTo);
+        MoveBall(passTo, aerialOffset, airPassForce);
     }
 
-    void ChipSideways()
+    void ChipLeft(Vector3 passTo, float aerialOffset)
     {
         stopMovement = true;
-        StartCoroutine(Trigger(transitionTo + "ChipSideways"));
+        StartCoroutine(Trigger(transitionTo + "ChipLeft"));
+
+        MoveBall(passTo, aerialOffset, chipForce);
     }
 
-    void ChipFront()
+    void ChipRight(Vector3 passTo, float aerialOffset)
+    {
+        stopMovement = true;
+        StartCoroutine(Trigger(transitionTo + "ChipRight"));
+
+        MoveBall(passTo, aerialOffset, chipForce);
+    }
+
+    void ChipFront(Vector3 passTo, float aerialOffset)
     {
         stopMovement = true;
         StartCoroutine(Trigger(transitionTo + "ChipFront"));
+
+        transform.LookAt(passTo);
+        MoveBall(passTo, aerialOffset, chipForce);
     }
 
-    void Shoot()
+    void Shoot(Vector3 shootAt, float aerialOffset = 0)
     {
         stopMovement = true;
         StartCoroutine(Trigger(transitionTo + "Shoot"));
+
+        transform.LookAt(shootAt);
+        MoveBall(shootAt, aerialOffset, shootForce);
+    }
+
+    void MoveBall(Vector3 xzDir, float yDir, float forceMagnitude)
+    {
+        Vector3 forceDirection = new Vector3(xzDir.x, yDir, xzDir.z);
+        soccerBall.GetComponent<Rigidbody>().AddForce(forceDirection * forceMagnitude * forceFactor);
     }
 
     #endregion
