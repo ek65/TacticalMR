@@ -294,18 +294,30 @@ public class ActionAPI : MonoBehaviour
 
     IEnumerator BallHeader(Vector3 init, Vector3 final, Vector2 unitVector, float aerialOffset)
     {
-        // play header animation
+        Vector2 objectAPosition = new Vector2(init.x, init.z); ;
+        Vector2 objectBPosition = new Vector2(final.x, final.z); ;
+
+        Vector2 shiftedObjectBPosition = objectBPosition - objectAPosition;
+
         float angle = Mathf.Atan2(unitVector.x, unitVector.y);
-        float velZ = Mathf.Cos(angle);
-        float velX = Mathf.Sin(angle);
+
+        // rotate object B wrt object A
+        float rotatedXB = shiftedObjectBPosition.x * Mathf.Cos(angle) - shiftedObjectBPosition.y * Mathf.Sin(angle);
+        float rotatedYB = shiftedObjectBPosition.x * Mathf.Sin(angle) + shiftedObjectBPosition.y * Mathf.Cos(angle);
+
+        float newAngle = Mathf.Atan2(rotatedXB, rotatedYB);
+        float velZ = Mathf.Cos(newAngle);
+        float velX = Mathf.Sin(newAngle);
 
         playerAnimator.SetFloat("VelZ", velZ);
         playerAnimator.SetFloat("VelX", velX);
-        
+
+        yield return new WaitForSeconds(1.1f);
+
         // move ball
         MoveBall(final, aerialOffset, airPassForce);
 
-        yield return new WaitForSeconds(WaitTime());
+        yield return new WaitForSeconds(WaitTime() - 1f);
 
         playerAnimator.SetFloat("VelZ", 0);
         playerAnimator.SetFloat("VelX", 0);
@@ -357,6 +369,7 @@ public class ActionAPI : MonoBehaviour
 
         float angle = Mathf.Atan2(unitVector.x, unitVector.y);
 
+        // rotate object B wrt object A
         float rotatedXB = shiftedObjectBPosition.x * Mathf.Cos(angle) - shiftedObjectBPosition.y * Mathf.Sin(angle);
         float rotatedYB = shiftedObjectBPosition.x * Mathf.Sin(angle) + shiftedObjectBPosition.y * Mathf.Cos(angle);
 
