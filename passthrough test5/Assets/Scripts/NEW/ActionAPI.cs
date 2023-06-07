@@ -43,10 +43,7 @@ public class ActionAPI : MonoBehaviour
     private void Start()
     {
         playerAnimator = this.GetComponent<Animator>();
-
-        //UnitTestMovement();
-        //UnitTestDribble();
-        TackleBall();
+        UnitTestHeader();
     }
 
     #region Unit Tests
@@ -63,6 +60,17 @@ public class ActionAPI : MonoBehaviour
     void UnitTestDribble()
     {
         DribbleFromOnePositionToAnother(init.position, final.position);
+    }
+
+    void UnitTestHeader()
+    {
+        Debug.Log("testing header");
+        Vector2 unitVector = new Vector2(0, 0);
+
+        unitVector.x = Mathf.Sin(transform.rotation.eulerAngles.y * Mathf.Deg2Rad);
+        unitVector.y = Mathf.Cos(transform.rotation.eulerAngles.y * Mathf.Deg2Rad);
+
+        BallHeaderShoot(init.position, final.position, unitVector, 0);
     }
 
     #endregion
@@ -83,6 +91,12 @@ public class ActionAPI : MonoBehaviour
     {
         SetAnimController("Dribbling");
         StartCoroutine(DribbleLerp(init, final));
+    }
+
+    public void BallHeaderShoot(Vector3 init, Vector3 final, Vector2 unitVector, float aerialOffset)
+    {
+        SetAnimController("Headers");
+        StartCoroutine(BallHeader(init, final, unitVector, aerialOffset));
     }
 
     #endregion
@@ -162,12 +176,6 @@ public class ActionAPI : MonoBehaviour
         MoveBall(shootAt, aerialOffset, shootForce);
     }
 
-    void MoveBall(Vector3 xzDir, float yDir, float forceMagnitude)
-    {
-        Vector3 forceDirection = new Vector3(xzDir.x, yDir, xzDir.z);
-        soccerBall.GetComponent<Rigidbody>().AddForce(forceDirection * forceMagnitude * forceFactor);
-    }
-
     #endregion
 
     #region Helper Coroutines
@@ -179,8 +187,6 @@ public class ActionAPI : MonoBehaviour
     IEnumerator MovementLerp(Vector3 init, Vector3 final, Vector2 unitVector)
     {
         float quadrant = RelativeQuadrant(init, final, unitVector);
-
-        Debug.Log("quadrant: " + quadrant);
 
         int xSign = 0;
         int zSign = 0;
@@ -286,14 +292,36 @@ public class ActionAPI : MonoBehaviour
         }
     }
 
+    IEnumerator BallHeader(Vector3 init, Vector3 final, Vector2 unitVector, float aerialOffset)
+    {
+        // play header animation
+        float angle = Mathf.Atan2(unitVector.x, unitVector.y);
+        float velZ = Mathf.Cos(angle);
+        float velX = Mathf.Sin(angle);
+
+        playerAnimator.SetFloat("VelZ", velZ);
+        playerAnimator.SetFloat("VelX", velX);
+        
+        // move ball
+        MoveBall(final, aerialOffset, airPassForce);
+
+        yield return new WaitForSeconds(WaitTime());
+
+        playerAnimator.SetFloat("VelZ", 0);
+        playerAnimator.SetFloat("VelX", 0);
+
+    }
+
     /// <summary> Triggering Singleton Animations </summary>
     /// <param name="keyCodeHash">Animation name</param>
     IEnumerator Trigger(string keyCodeHash)
     {
         keyCodeHash = keyCodeHash.Substring(1);
+
         playerAnimator.SetBool(keyCodeHash, true);
         yield return new WaitForSeconds(WaitTime());
         playerAnimator.SetBool(keyCodeHash, false);
+
         stopMovement = false;
     }
 
@@ -352,6 +380,12 @@ public class ActionAPI : MonoBehaviour
             quadrant = 4.0f;
 
         return quadrant;
+    }
+
+    void MoveBall(Vector3 xzDir, float yDir, float forceMagnitude)
+    {
+        Vector3 forceDirection = new Vector3(xzDir.x, yDir, xzDir.z);
+        soccerBall.GetComponent<Rigidbody>().AddForce(forceDirection * forceMagnitude * forceFactor);
     }
 
     #endregion
