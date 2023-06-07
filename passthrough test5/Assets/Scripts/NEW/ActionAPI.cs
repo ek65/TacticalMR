@@ -96,7 +96,7 @@ public class ActionAPI : MonoBehaviour
     public void BallHeaderShoot(Vector3 init, Vector3 final, Vector2 unitVector, float aerialOffset)
     {
         SetAnimController("Headers");
-        StartCoroutine(BallHeader(init, final, unitVector, aerialOffset));
+        StartCoroutine(BallHeaderOrThrow(init, final, unitVector, aerialOffset));
     }
 
     #endregion
@@ -174,6 +174,15 @@ public class ActionAPI : MonoBehaviour
 
         transform.LookAt(shootAt);
         MoveBall(shootAt, aerialOffset, shootForce);
+    }
+
+    void BallThrow(Vector3 passTo, float aerialOffset)
+    {
+        stopMovement = true;
+        StartCoroutine(Trigger(transitionTo + "BallThrow"));
+
+        transform.LookAt(passTo);
+        MoveBall(passTo, aerialOffset, airPassForce);
     }
 
     #endregion
@@ -292,7 +301,7 @@ public class ActionAPI : MonoBehaviour
         }
     }
 
-    IEnumerator BallHeader(Vector3 init, Vector3 final, Vector2 unitVector, float aerialOffset)
+    IEnumerator BallHeaderOrThrow(Vector3 init, Vector3 final, Vector2 unitVector, float aerialOffset)
     {
         Vector2 objectAPosition = new Vector2(init.x, init.z); ;
         Vector2 objectBPosition = new Vector2(final.x, final.z); ;
