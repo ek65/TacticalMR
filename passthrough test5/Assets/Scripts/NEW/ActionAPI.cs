@@ -5,9 +5,6 @@ using UnityEngine;
 using static UnityEditor.ShaderData;
 
 /*
- * ToDo - 
- * 1. Add Input Arguments in Singleton Methods - Yash --------------------------------> DONE
- * 2. Update Movement Script wrt boolean based on LookAt() - Mihir
  * 3. Add Actons :- 1. Pass a Ball to Teammate by throwing 
  *               2. Blocking shots
  *               for third point we Need to Find the Required Animation and then Implement it 
@@ -54,7 +51,7 @@ public class ActionAPI : MonoBehaviour
         unitVector.x = Mathf.Sin(transform.rotation.eulerAngles.y * Mathf.Deg2Rad);
         unitVector.y = Mathf.Cos(transform.rotation.eulerAngles.y * Mathf.Deg2Rad);
 
-        MoveFromOnePositionToAnother(init.position, final.position, unitVector);
+        MoveFromOnePositionToAnother(init.position, final.position, unitVector,false);
     }
 
     void UnitTestDribble()
@@ -81,10 +78,10 @@ public class ActionAPI : MonoBehaviour
     /// <param name="init">Initial Position</param>
     /// <param name="final">Final Position</param>
     /// <param name="unitVector">Unit Vector where the player is facing</param>
-    public void MoveFromOnePositionToAnother(Vector3 init, Vector3 final, Vector2 unitVector)
+    public void MoveFromOnePositionToAnother(Vector3 init, Vector3 final, Vector2 unitVector,bool lookAt)
     {
         SetAnimController("Movement");
-        StartCoroutine(MovementLerp(init, final, unitVector));
+        StartCoroutine(MovementLerp(init, final, unitVector,lookAt));
     }
 
     public void DribbleFromOnePositionToAnother(Vector3 init, Vector3 final)
@@ -185,6 +182,8 @@ public class ActionAPI : MonoBehaviour
         MoveBall(passTo, aerialOffset, airPassForce);
     }
 
+
+
     #endregion
 
     #region Helper Coroutines
@@ -193,70 +192,97 @@ public class ActionAPI : MonoBehaviour
     /// <param name="init">Initial point</param>
     /// <param name="final">Final point</param>
     /// <param name="unitVector">Unit Vector where the player is facing</param>
-    IEnumerator MovementLerp(Vector3 init, Vector3 final, Vector2 unitVector)
+    IEnumerator MovementLerp(Vector3 init, Vector3 final, Vector2 unitVector,bool lookAt)
     {
-        float quadrant = RelativeQuadrant(init, final, unitVector);
-
-        int xSign = 0;
-        int zSign = 0;
-
-        switch (quadrant)
-        {
-            case 0.5f : xSign = 1; zSign = 0; break;
-            case 1.0f : xSign = 1; zSign = 1; break;
-            case 1.5f : xSign = 0; zSign = 1; break;
-            case 2.0f : xSign = -1; zSign = 1; break;
-            case 2.5f : xSign = -1; zSign = 0; break;
-            case 3.0f : xSign = -1; zSign = -1; break;
-            case 3.5f : xSign = 0; zSign = -1; break;
-            case 4.0f : xSign = 1; zSign = -1; break;
-        }
-
-        Debug.Log(xSign + ", " + zSign); 
-
         final.y = init.y;
-
         float timeElapsed = 0;
-
         float distance = Vector3.Distance(init, final);
-
-        float distanceX = Mathf.Abs(init.x - final.x);
-        float distanceZ = Mathf.Abs(init.z - final.z);
 
         timeDuration = 2f * distance / playerRunningSpeed;
 
-        while (timeElapsed < timeDuration)
+        if (!lookAt)
         {
-            float t = timeElapsed / timeDuration;
-            t = t * t * (3f - 2f * t);
+            float quadrant = RelativeQuadrant(init, final, unitVector);
 
-            float UpdatedDistanceX = Mathf.Abs(init.x - transform.position.x);
-            float UpdatedDistanceZ = Mathf.Abs(init.z - transform.position.z);
+            int xSign = 0;
+            int zSign = 0;
 
-            float transitionValueZ = zSign;
-            if (transitionValueZ != 0)
-                transitionValueZ *= (8f * (distanceZ * (UpdatedDistanceZ) - Mathf.Pow(UpdatedDistanceZ, 2)) / Mathf.Pow(distanceZ, 2));
-            float transitionValueX = xSign;
-            if (transitionValueX != 0)
-                transitionValueX *= (8f * (distanceX * (UpdatedDistanceX) - Mathf.Pow(UpdatedDistanceX, 2)) / Mathf.Pow(distanceX, 2));
-
-            playerAnimator.SetFloat("VelX", transitionValueX);
-            playerAnimator.SetFloat("VelZ", transitionValueZ);
-
-            transform.position = Vector3.Lerp(init, final, t);
-            timeElapsed += Time.deltaTime;
-            yield return null;
-
-            //Condition to Stop Continuous Movement
-            if (stopMovement)
+            switch (quadrant)
             {
-                stopMovement = false;
-                playerAnimator.SetFloat("VelZ", 0);
-                playerAnimator.SetFloat("VelX", 0);
-                StopCoroutine(MovementLerp(init, transform.position, unitVector));
+                case 0.5f: xSign = 1; zSign = 0; break;
+                case 1.0f: xSign = 1; zSign = 1; break;
+                case 1.5f: xSign = 0; zSign = 1; break;
+                case 2.0f: xSign = -1; zSign = 1; break;
+                case 2.5f: xSign = -1; zSign = 0; break;
+                case 3.0f: xSign = -1; zSign = -1; break;
+                case 3.5f: xSign = 0; zSign = -1; break;
+                case 4.0f: xSign = 1; zSign = -1; break;
+            }
+
+            Debug.Log(xSign + ", " + zSign);
+
+            float distanceX = Mathf.Abs(init.x - final.x);
+            float distanceZ = Mathf.Abs(init.z - final.z);
+
+            while (timeElapsed < timeDuration)
+            {
+                float t = timeElapsed / timeDuration;
+                t = t * t * (3f - 2f * t);
+
+                float UpdatedDistanceX = Mathf.Abs(init.x - transform.position.x);
+                float UpdatedDistanceZ = Mathf.Abs(init.z - transform.position.z);
+
+                float transitionValueZ = zSign;
+                if (transitionValueZ != 0)
+                    transitionValueZ *= (8f * (distanceZ * (UpdatedDistanceZ) - Mathf.Pow(UpdatedDistanceZ, 2)) / Mathf.Pow(distanceZ, 2));
+                float transitionValueX = xSign;
+                if (transitionValueX != 0)
+                    transitionValueX *= (8f * (distanceX * (UpdatedDistanceX) - Mathf.Pow(UpdatedDistanceX, 2)) / Mathf.Pow(distanceX, 2));
+
+                playerAnimator.SetFloat("VelX", transitionValueX);
+                playerAnimator.SetFloat("VelZ", transitionValueZ);
+
+                transform.position = Vector3.Lerp(init, final, t);
+                timeElapsed += Time.deltaTime;
+                yield return null;
+
+                //Condition to Stop Continuous Movement
+                if (stopMovement)
+                {
+                    stopMovement = false;
+                    playerAnimator.SetFloat("VelZ", 0);
+                    playerAnimator.SetFloat("VelX", 0);
+                    StopCoroutine(MovementLerp(init, transform.position, unitVector,lookAt));
+                }
             }
         }
+        else
+        {
+            while (timeElapsed < timeDuration)
+            {
+                float t = timeElapsed / timeDuration;
+                t = t * t * (3f - 2f * t);
 
+                float UpdatedDistance = Vector3.Distance(init,transform.position);
+
+                float transitionValue = (8f * (distance * (UpdatedDistance) - Mathf.Pow(UpdatedDistance, 2)) / Mathf.Pow(distance, 2));
+
+                playerAnimator.SetFloat("VelZ", transitionValue);
+
+                transform.position = Vector3.Lerp(init, final, t);
+                timeElapsed += Time.deltaTime;
+                yield return null;
+
+                //Condition to Stop Continuous Movement
+                if (stopMovement)
+                {
+                    stopMovement = false;
+                    playerAnimator.SetFloat("VelZ", 0);
+                    playerAnimator.SetFloat("VelX", 0);
+                    StopCoroutine(MovementLerp(init, transform.position, unitVector, lookAt));
+                }
+            }
+        }
         yield return null;
     }
 
