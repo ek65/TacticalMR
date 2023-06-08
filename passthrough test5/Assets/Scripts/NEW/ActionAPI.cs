@@ -16,7 +16,6 @@ using static UnityEditor.ShaderData;
  *  new function for look at, which is smoother
  */
 
-
 public class ActionAPI : MonoBehaviour
 {
     [SerializeField] Animator playerAnimator;
@@ -41,7 +40,7 @@ public class ActionAPI : MonoBehaviour
     {
         playerAnimator = this.GetComponent<Animator>();
         //UnitTestHeader();
-        MoveFromOnePositionToAnother(init, final, new Vector2(0, 0), true);
+        //MoveFromOnePositionToAnother(init, final, new Vector2(0, 0), true);
     }
 
     #region Unit Tests
@@ -182,6 +181,78 @@ public class ActionAPI : MonoBehaviour
         transform.LookAt(passTo);
         MoveBall(passTo, aerialOffset, airPassForce);
     }
+
+    #region GoolKeeperSigletonMethods
+
+    void BodyBlockLeftSide()
+    {
+        stopMovement = true;
+        StartCoroutine(Trigger(transitionTo + "BodyBlockLeftSide"));
+    }
+    void BodyBlockRightSide()
+    {
+        stopMovement = true;
+        StartCoroutine(Trigger(transitionTo + "BodyBlockRightSide"));
+    }
+
+    void CatchFastBall()
+    {
+        stopMovement = true;
+        StartCoroutine(Trigger(transitionTo + "CatchFastBall"));
+    }
+    void CatchStraightUpBall()
+    {
+        stopMovement = true;
+        StartCoroutine(Trigger(transitionTo + "CatchStraightUpBall"));
+    }
+    void CatchSlowBall()
+    {
+        stopMovement = true;
+        StartCoroutine(Trigger(transitionTo + "CatchSlowBall"));
+
+    }
+    void DropKickShot(Vector3 passTo, float aerialOffset)
+    {
+        stopMovement = true;
+        StartCoroutine(Trigger(transitionTo + "DropKick"));
+
+        transform.LookAt(passTo);
+        MoveBall(passTo, aerialOffset, airPassForce);
+    }
+    void OverHandThrow(Vector3 passTo, float aerialOffset)
+    {
+        stopMovement = true;
+        StartCoroutine(Trigger(transitionTo + "OverHandThrow"));
+
+        transform.LookAt(passTo);
+        MoveBall(passTo, aerialOffset, airPassForce);
+    }
+    void RollingBallPass(Vector3 passTo)
+    {
+        stopMovement = true;
+        StartCoroutine(Trigger(transitionTo + "RollingBallPass"));
+
+        transform.LookAt(passTo);
+        MoveBall(passTo, 0, weakPassForce);
+    }
+    void PlacingAndLongPass(Vector3 passTo, float aerialOffset)
+    {
+        stopMovement = true;
+        StartCoroutine(Trigger(transitionTo + "PlacingAndLongPass"));
+
+        transform.LookAt(passTo);
+        MoveBall(passTo, aerialOffset, airPassForce);
+    }
+
+    void PlacingAndShortPass(Vector3 passTo)
+    {
+        stopMovement = true;
+        StartCoroutine(Trigger(transitionTo + "PlacingAndShortPass"));
+
+        transform.LookAt(passTo);
+        MoveBall(passTo, 0, weakPassForce);
+    }
+    #endregion
 
     #endregion
 
