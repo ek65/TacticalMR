@@ -41,18 +41,20 @@ public class ActionAPI : MonoBehaviour
     {
         playerAnimator = this.GetComponent<Animator>();
         //UnitTestHeader();
-        MoveFromOnePositionToAnother(init, final, new Vector2(0, 0), true);
+        //MoveFromOnePositionToAnother(init, final, new Vector2(0, 0), true);
+
+        UnitTestMovement(true);
     }
 
     #region Unit Tests
-    void UnitTestMovement()
+    void UnitTestMovement(bool lookAt)
     {
         Vector2 unitVector = new Vector2(0, 0);
 
         unitVector.x = Mathf.Sin(transform.rotation.eulerAngles.y * Mathf.Deg2Rad);
         unitVector.y = Mathf.Cos(transform.rotation.eulerAngles.y * Mathf.Deg2Rad);
 
-        MoveFromOnePositionToAnother(init.gameObject, final.gameObject, unitVector,false);
+        MoveFromOnePositionToAnother(init.gameObject, final.gameObject, unitVector, lookAt);
     }
 
     void UnitTestDribble()
@@ -259,27 +261,13 @@ public class ActionAPI : MonoBehaviour
         }
         else
         {
-            Vector3 FinalDirection = final - init;
-            Vector3 initUnitVector = new Vector3(unitVector.x, 0, unitVector.y);
-            float angle = Vector3.Angle(initUnitVector, FinalDirection);
-            Debug.Log("Angle - " + angle + " UnitVector : " + initUnitVector + " Final : " + FinalDirection);
-            float rotateTime = 0;
-            float duration = 5f;
-            Debug.Log("Here");
-            Quaternion initR = initObj.transform.rotation;
-            Quaternion finalR = Quaternion.Euler(initR.x, angle, initR.z);
+            //Vector2 finalFacingDirection = new Vector2(final.x - init.x, final.z - init.z);
+            //float angle = Vector2.Angle(unitVector, finalFacingDirection);
+            //transform.Rotate(Vector3.up, angle);
 
-            transform.rotation = finalR;
+            transform.LookAt(final);
 
-            /*while (rotateTime < duration)
-            {
-                float t = rotateTime / duration;
-                transform.rotation = Quaternion.Slerp(initR, finalR, t);
-                rotateTime += Time.deltaTime;
-                Debug.Log("Here 2");
-            }*/
-
-            /*while (timeElapsed < timeDuration)
+            while (timeElapsed < timeDuration)
             {
                 float t = timeElapsed / timeDuration;
                 t = t * t * (3f - 2f * t);
@@ -302,7 +290,7 @@ public class ActionAPI : MonoBehaviour
                     playerAnimator.SetFloat("VelX", 0);
                     StopCoroutine(MovementLerp(initObj, gameObject, unitVector, lookAt));
                 }
-            }*/
+            }
         }
         yield return null;
     }
