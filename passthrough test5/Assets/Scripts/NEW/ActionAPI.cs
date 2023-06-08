@@ -39,6 +39,9 @@ public class ActionAPI : MonoBehaviour
     private void Start()
     {
         playerAnimator = this.GetComponent<Animator>();
+
+        if (gameObject.tag == "Goolkeeper") SetAnimController("GoolKeeper");
+
         //UnitTestHeader();
         //MoveFromOnePositionToAnother(init, final, new Vector2(0, 0), true);
     }
