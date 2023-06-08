@@ -23,8 +23,8 @@ public class ActionAPI : MonoBehaviour
     [SerializeField] float playerRunningSpeed = 2f;
     [SerializeField] float timeDuration = 5f;
 
-    [SerializeField] Transform init;
-    [SerializeField] Transform final;
+    [SerializeField] GameObject init;
+    [SerializeField] GameObject final;
     [SerializeField] GameObject soccerBall;
 
     bool stopMovement = false;
@@ -40,7 +40,8 @@ public class ActionAPI : MonoBehaviour
     private void Start()
     {
         playerAnimator = this.GetComponent<Animator>();
-        UnitTestHeader();
+        //UnitTestHeader();
+        MoveFromOnePositionToAnother(init, final, new Vector2(0, 0), true);
     }
 
     #region Unit Tests
@@ -51,12 +52,12 @@ public class ActionAPI : MonoBehaviour
         unitVector.x = Mathf.Sin(transform.rotation.eulerAngles.y * Mathf.Deg2Rad);
         unitVector.y = Mathf.Cos(transform.rotation.eulerAngles.y * Mathf.Deg2Rad);
 
-        MoveFromOnePositionToAnother(init.position, final.position, unitVector,false);
+        MoveFromOnePositionToAnother(init.gameObject, final.gameObject, unitVector,false);
     }
 
     void UnitTestDribble()
     {
-        DribbleFromOnePositionToAnother(init.position, final.position);
+        DribbleFromOnePositionToAnother(init.transform.position, final.transform.position);
     }
 
     void UnitTestHeader()
@@ -67,7 +68,7 @@ public class ActionAPI : MonoBehaviour
         unitVector.x = Mathf.Sin(transform.rotation.eulerAngles.y * Mathf.Deg2Rad);
         unitVector.y = Mathf.Cos(transform.rotation.eulerAngles.y * Mathf.Deg2Rad);
 
-        BallHeaderShoot(init.position, final.position, unitVector, 0);
+        BallHeaderShoot(init.transform.position, final.transform.position, unitVector, 0);
     }
 
     #endregion
@@ -78,7 +79,7 @@ public class ActionAPI : MonoBehaviour
     /// <param name="init">Initial Position</param>
     /// <param name="final">Final Position</param>
     /// <param name="unitVector">Unit Vector where the player is facing</param>
-    public void MoveFromOnePositionToAnother(Vector3 init, Vector3 final, Vector2 unitVector,bool lookAt)
+    public void MoveFromOnePositionToAnother(GameObject init, GameObject final, Vector2 unitVector,bool lookAt)
     {
         SetAnimController("Movement");
         StartCoroutine(MovementLerp(init, final, unitVector,lookAt));
@@ -182,8 +183,6 @@ public class ActionAPI : MonoBehaviour
         MoveBall(passTo, aerialOffset, airPassForce);
     }
 
-
-
     #endregion
 
     #region Helper Coroutines
@@ -192,8 +191,10 @@ public class ActionAPI : MonoBehaviour
     /// <param name="init">Initial point</param>
     /// <param name="final">Final point</param>
     /// <param name="unitVector">Unit Vector where the player is facing</param>
-    IEnumerator MovementLerp(Vector3 init, Vector3 final, Vector2 unitVector,bool lookAt)
+    IEnumerator MovementLerp(GameObject initObj, GameObject finalObj, Vector2 unitVector, bool lookAt)
     {
+        Vector3 init = initObj.transform.position;
+        Vector3 final = finalObj.transform.position;
         final.y = init.y;
         float timeElapsed = 0;
         float distance = Vector3.Distance(init, final);
@@ -252,13 +253,33 @@ public class ActionAPI : MonoBehaviour
                     stopMovement = false;
                     playerAnimator.SetFloat("VelZ", 0);
                     playerAnimator.SetFloat("VelX", 0);
-                    StopCoroutine(MovementLerp(init, transform.position, unitVector,lookAt));
+                    StopCoroutine(MovementLerp(initObj, gameObject, unitVector,lookAt));
                 }
             }
         }
         else
         {
-            while (timeElapsed < timeDuration)
+            Vector3 FinalDirection = final - init;
+            Vector3 initUnitVector = new Vector3(unitVector.x, 0, unitVector.y);
+            float angle = Vector3.Angle(initUnitVector, FinalDirection);
+            Debug.Log("Angle - " + angle + " UnitVector : " + initUnitVector + " Final : " + FinalDirection);
+            float rotateTime = 0;
+            float duration = 5f;
+            Debug.Log("Here");
+            Quaternion initR = initObj.transform.rotation;
+            Quaternion finalR = Quaternion.Euler(initR.x, angle, initR.z);
+
+            transform.rotation = finalR;
+
+            /*while (rotateTime < duration)
+            {
+                float t = rotateTime / duration;
+                transform.rotation = Quaternion.Slerp(initR, finalR, t);
+                rotateTime += Time.deltaTime;
+                Debug.Log("Here 2");
+            }*/
+
+            /*while (timeElapsed < timeDuration)
             {
                 float t = timeElapsed / timeDuration;
                 t = t * t * (3f - 2f * t);
@@ -279,9 +300,9 @@ public class ActionAPI : MonoBehaviour
                     stopMovement = false;
                     playerAnimator.SetFloat("VelZ", 0);
                     playerAnimator.SetFloat("VelX", 0);
-                    StopCoroutine(MovementLerp(init, transform.position, unitVector, lookAt));
+                    StopCoroutine(MovementLerp(initObj, gameObject, unitVector, lookAt));
                 }
-            }
+            }*/
         }
         yield return null;
     }
