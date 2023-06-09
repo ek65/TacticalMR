@@ -2192,7 +2192,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!65 &328230105
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -2226,7 +2226,6 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
-  m_WriteDefaultValuesOnDisable: 0
 --- !u!4 &328230108
 Transform:
   m_ObjectHideFlags: 0
@@ -3061,7 +3060,6 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
-  m_WriteDefaultValuesOnDisable: 0
 --- !u!4 &575746542
 Transform:
   m_ObjectHideFlags: 0
@@ -5853,7 +5851,7 @@ GameObject:
   - component: {fileID: 1154403444}
   m_Layer: 0
   m_Name: GoolKeeper
-  m_TagString: Goolkeeper
+  m_TagString: Goalkeeper
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -5896,7 +5894,6 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
-  m_WriteDefaultValuesOnDisable: 0
 --- !u!4 &1154403447
 Transform:
   m_ObjectHideFlags: 0
@@ -12054,7 +12051,6 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
-  m_WriteDefaultValuesOnDisable: 0
 --- !u!65 &4509809109095826799
 BoxCollider:
   m_ObjectHideFlags: 0

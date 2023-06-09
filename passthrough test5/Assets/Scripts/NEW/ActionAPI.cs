@@ -35,9 +35,11 @@ public class ActionAPI : MonoBehaviour
     {
         playerAnimator = this.GetComponent<Animator>();
 
-        if (gameObject.tag == "Goolkeeper") SetAnimController("GoolKeeper");
+        if (gameObject.tag == "Goalkeeper") SetAnimController("GoalKeeper");
 
-        UnitTestMovement(true);
+        //UnitTestMovement(true);
+
+        ReceiveBall();
 
     }
     void UnitTestMovement(bool lookAt)
@@ -82,20 +84,24 @@ public class ActionAPI : MonoBehaviour
     void ReceiveBall()
     {
         stopMovement = true;
-        StartCoroutine(Trigger(transitionTo + "Receive"));
+        playerAnimator.SetTrigger("Receive");
+        
+        //StartCoroutine(Trigger(transitionTo + "Receive"));
     }
 
     void TackleBall()
     {
         stopMovement = true;
-        StartCoroutine(Trigger(transitionTo + "StrongTackle"));
+        playerAnimator.SetTrigger("StrongTackle");
+        //StartCoroutine(Trigger(transitionTo + "StrongTackle"));
     }
 
     void GroundPassSlow(GameObject initObj, GameObject finalObj)
     {
         Vector3 passTo = finalObj.transform.position;
         stopMovement = true;
-        StartCoroutine(Trigger(transitionTo + "GroundPassSlow"));
+        playerAnimator.SetTrigger("GroundPassSlow");
+        //StartCoroutine(Trigger(transitionTo + "GroundPassSlow"));
 
         LookTowards(initObj, finalObj, initObj.transform.forward);
         MoveBall(passTo, 0, weakPassForce);
@@ -105,7 +111,8 @@ public class ActionAPI : MonoBehaviour
     {
         Vector3 passTo = finalObj.transform.position;
         stopMovement = true;
-        StartCoroutine(Trigger(transitionTo + "GroundPassFast"));
+        playerAnimator.SetTrigger("GroundPassFast");
+        //StartCoroutine(Trigger(transitionTo + "GroundPassFast"));
 
         LookTowards(initObj, finalObj, initObj.transform.forward);
         MoveBall(passTo, 0, strongPassForce);
@@ -115,7 +122,8 @@ public class ActionAPI : MonoBehaviour
     {
         Vector3 passTo = finalObj.transform.position;
         stopMovement = true;
-        StartCoroutine(Trigger(transitionTo + "AirPass"));
+        playerAnimator.SetTrigger("AirPass");
+        //StartCoroutine(Trigger(transitionTo + "AirPass"));
 
         LookTowards(initObj, finalObj, initObj.transform.forward);
         MoveBall(passTo, aerialOffset, airPassForce);
@@ -124,7 +132,8 @@ public class ActionAPI : MonoBehaviour
     void ChipLeft(Vector3 passTo, float aerialOffset)
     {
         stopMovement = true;
-        StartCoroutine(Trigger(transitionTo + "ChipLeft"));
+        playerAnimator.SetTrigger("ChipLeft");
+        //StartCoroutine(Trigger(transitionTo + "ChipLeft"));
 
         MoveBall(passTo, aerialOffset, chipForce);
     }
@@ -132,7 +141,8 @@ public class ActionAPI : MonoBehaviour
     void ChipRight(Vector3 passTo, float aerialOffset)
     {
         stopMovement = true;
-        StartCoroutine(Trigger(transitionTo + "ChipRight"));
+        playerAnimator.SetTrigger("ChipRight");
+        //StartCoroutine(Trigger(transitionTo + "ChipRight"));
 
         MoveBall(passTo, aerialOffset, chipForce);
     }
@@ -141,7 +151,8 @@ public class ActionAPI : MonoBehaviour
     {
         Vector3 passTo = finalObj.transform.position;
         stopMovement = true;
-        StartCoroutine(Trigger(transitionTo + "ChipFront"));
+        playerAnimator.SetTrigger("ChipFront");
+        //StartCoroutine(Trigger(transitionTo + "ChipFront"));
 
         LookTowards(initObj, finalObj, initObj.transform.forward);
         MoveBall(passTo, aerialOffset, chipForce);
@@ -151,7 +162,8 @@ public class ActionAPI : MonoBehaviour
     {
         Vector3 shootAt = finalObj.transform.position;
         stopMovement = true;
-        StartCoroutine(Trigger(transitionTo + "Shoot"));
+        playerAnimator.SetTrigger("Shoot");
+        //StartCoroutine(Trigger(transitionTo + "Shoot"));
 
         LookTowards(initObj, finalObj, initObj.transform.forward);
         MoveBall(shootAt, aerialOffset, shootForce);
@@ -161,7 +173,8 @@ public class ActionAPI : MonoBehaviour
     {
         Vector3 passTo = finalObj.transform.position;
         stopMovement = true;
-        StartCoroutine(Trigger(transitionTo + "BallThrow"));
+        playerAnimator.SetTrigger("BallThrow");
+        //StartCoroutine(Trigger(transitionTo + "BallThrow"));
 
         LookTowards(initObj, finalObj, initObj.transform.forward);
         MoveBall(passTo, aerialOffset, airPassForce);
@@ -173,34 +186,40 @@ public class ActionAPI : MonoBehaviour
     void BodyBlockLeftSide()
     {
         stopMovement = true;
-        StartCoroutine(Trigger(transitionTo + "BodyBlockLeftSide"));
+        playerAnimator.SetTrigger("BodyBlockLeftSide");
+        //StartCoroutine(Trigger(transitionTo + "BodyBlockLeftSide"));
     }
     void BodyBlockRightSide()
     {
         stopMovement = true;
-        StartCoroutine(Trigger(transitionTo + "BodyBlockRightSide"));
+        playerAnimator.SetTrigger("BodyBlockRightSide");
+        //StartCoroutine(Trigger(transitionTo + "BodyBlockRightSide"));
     }
     void CatchFastBall()
     {
         stopMovement = true;
-        StartCoroutine(Trigger(transitionTo + "CatchFastBall"));
+        playerAnimator.SetTrigger("CatchFastBall");
+        //StartCoroutine(Trigger(transitionTo + "CatchFastBall"));
     }
     void CatchStraightUpBall()
     {
         stopMovement = true;
-        StartCoroutine(Trigger(transitionTo + "CatchStraightUpBall"));
+        playerAnimator.SetTrigger("CatchStraightUpBall");
+        //StartCoroutine(Trigger(transitionTo + "CatchStraightUpBall"));
     }
     void CatchSlowBall()
     {
         stopMovement = true;
-        StartCoroutine(Trigger(transitionTo + "CatchSlowBall"));
+        playerAnimator.SetTrigger("CatchSlowBall");
+        //StartCoroutine(Trigger(transitionTo + "CatchSlowBall"));
 
     }
     void DropKickShot(GameObject initObj, GameObject finalObj, float aerialOffset)
     {
         Vector3 passTo = finalObj.transform.position;
         stopMovement = true;
-        StartCoroutine(Trigger(transitionTo + "DropKick"));
+        playerAnimator.SetTrigger("DropKick");
+        //StartCoroutine(Trigger(transitionTo + "DropKick"));
 
         LookTowards(initObj, finalObj, initObj.transform.forward);
         MoveBall(passTo, aerialOffset, airPassForce);
@@ -209,7 +228,8 @@ public class ActionAPI : MonoBehaviour
     {
         Vector3 passTo = finalObj.transform.position;
         stopMovement = true;
-        StartCoroutine(Trigger(transitionTo + "OverHandThrow"));
+        playerAnimator.SetTrigger("OverHandThrow");
+        //StartCoroutine(Trigger(transitionTo + "OverHandThrow"));
 
         LookTowards(initObj, finalObj, initObj.transform.forward);
         MoveBall(passTo, aerialOffset, airPassForce);
@@ -218,7 +238,8 @@ public class ActionAPI : MonoBehaviour
     {
         Vector3 passTo = finalObj.transform.position;
         stopMovement = true;
-        StartCoroutine(Trigger(transitionTo + "RollingBallPass"));
+        playerAnimator.SetTrigger("RollingBallPass");
+        //StartCoroutine(Trigger(transitionTo + "RollingBallPass"));
 
         LookTowards(initObj, finalObj, initObj.transform.forward);
         MoveBall(passTo, 0, weakPassForce);
@@ -227,7 +248,8 @@ public class ActionAPI : MonoBehaviour
     {
         Vector3 passTo = finalObj.transform.position;
         stopMovement = true;
-        StartCoroutine(Trigger(transitionTo + "PlacingAndLongPass"));
+        playerAnimator.SetTrigger("PlacingAndLongPass");
+        //StartCoroutine(Trigger(transitionTo + "PlacingAndLongPass"));
 
         LookTowards(initObj, finalObj, initObj.transform.forward);
         MoveBall(passTo, aerialOffset, airPassForce);
@@ -236,7 +258,8 @@ public class ActionAPI : MonoBehaviour
     {
         Vector3 passTo = finalObj.transform.position;
         stopMovement = true;
-        StartCoroutine(Trigger(transitionTo + "PlacingAndShortPass"));
+        playerAnimator.SetTrigger("PlacingAndShortPass");
+        //StartCoroutine(Trigger(transitionTo + "PlacingAndShortPass"));
 
         LookTowards(initObj, finalObj, initObj.transform.forward);
         MoveBall(passTo, 0, weakPassForce);

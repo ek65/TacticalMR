@@ -6,7 +6,7 @@ TagManager:
   tags:
   - SoccerBall
   - AI Player
-  - Goolkeeper
+  - Goalkeeper
   layers:
   - Default
   - TransparentFX
