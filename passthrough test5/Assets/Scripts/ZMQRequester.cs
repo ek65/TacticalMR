@@ -5,7 +5,7 @@ using UnityEngine;
 using System.Threading;
 
 
-public class ZMQTest : RunAbleThread
+public class ZMQRequester : RunAbleThread
 {
     private string ip;
     private string port;
@@ -15,7 +15,7 @@ public class ZMQTest : RunAbleThread
     private string outData;
     private bool readyToCommunicate;
 
-    public ZMQTest(string ip, string port, bool isServer)
+    public ZMQRequester(string ip, string port, bool isServer)
     {
         this.ip = ip;
         this.port = port;
@@ -114,6 +114,19 @@ public class ZMQTest : RunAbleThread
             }
         }
         
+    }
+    
+    public string GetData()
+    {
+        return data;
+    }
+    public void SetSendData(string message)
+    {
+        outData = message;
+    }
+    public void SetReady(bool b)
+    {
+        readyToCommunicate = b;
     }
 
 }

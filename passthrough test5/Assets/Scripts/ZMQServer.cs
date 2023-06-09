@@ -12,7 +12,7 @@ public class ZMQServer : MonoBehaviour
 
     public GameObject obj;
     // Start is called before the first frame update
-    private ZMQTest zmq;
+    private ZMQRequester zmq;
         
     void Start()
     {
@@ -22,7 +22,7 @@ public class ZMQServer : MonoBehaviour
         }
 
         bool isServer = true;
-        zmq = new ZMQTest(ip, port, isServer);
+        zmq = new ZMQRequester(ip, port, isServer);
         zmq.Start();
         
     }

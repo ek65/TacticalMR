@@ -23,7 +23,7 @@ class UnityMessageServer:
         self.sendData = SendData()
         self.isClient = True
         self.HUD = HUD()
-        self.disc = None
+        self.ball = None
         self.HumanPlayers = dict()
         self.humanSavedControllerData = [None] * 2
         self.ScenicPlayers = []
@@ -155,14 +155,14 @@ class UnityMessageServer:
             obj.rightController = ControllerInputData(False,False,False,False,False,False,False)
             obj.leftController = ControllerInputData(False,False,False,False,False,False,False)
             return game_object
-        elif obj.gameObjectType == "disc":
+        elif obj.gameObjectType == "ball":
             game_object = gameObject(position, rotation)
             obj.gameObject = game_object
-            obj.gameObject.model = Model(1,1, (255,255,255,1), "Disc")
+            obj.gameObject.model = Model(1,1, (255,255,255,1), "Ball")
             self.sendData.addToQueue(obj.gameObject)
             self.sendData.control, self.sendData.addObject = True, True
-            self.disc = game_object
-            return self.disc
+            self.ball = game_object
+            return self.ball
         elif obj.isVrObject:
             game_object = gameObject(position, rotation)
             obj.gameObject = game_object
@@ -178,10 +178,10 @@ class UnityMessageServer:
         if isinstance(data, UnityJSON):
             human_players = data.tick_data.human_players
             scenic_players = data.tick_data.scenic_players
-            disc = data.tick_data.disc
+            ball = data.tick_data.ball
             scenic_objects = data.tick_data.scenic_objects
-            if self.disc is not None:
-                self.disc.ConvertFromJson(disc)
+            if self.ball is not None:
+                self.ball.ConvertFromJson(ball)
             if (len(scenic_players) == len(self.ScenicPlayers)):
                 k = 0
                 while k < len(scenic_players):
@@ -232,9 +232,9 @@ class UnityMessageServer:
             )
 
             return values
-        elif obj.gameObjectType == "disc":
-            if self.disc is not None:
-                obj.gameObject = self.disc
+        elif obj.gameObjectType == "ball":
+            if self.ball is not None:
+                obj.gameObject = self.ball
             else:
                 values = dict(
                     position=(0,0,0),
@@ -250,7 +250,8 @@ class UnityMessageServer:
                 )
                 return values
             game_object = obj.gameObject
-            stored_game_object = self.disc
+            stored_game_object = self.ball
+            print(self.ball.rotation[3])
             position = stored_game_object.position
             rotation = stored_game_object.rotation
             velocity = stored_game_object.velocity
@@ -304,7 +305,7 @@ class UnityMessageServer:
                 topSurface = None
             )
             return values
-        elif obj.isVrObject:
+        elif obj.isUnityObject:
             #It must be a scenicObj
             game_object = obj.gameObject
             stored_game_object = self.objects[int(game_object.tag)]
@@ -353,8 +354,8 @@ class gameObject:
     wallHeading : Vector
     pushMagnitude : float
 
-    holdingDisc : bool
-    discHeading : Vector
+    holdingBall : bool
+    ballHeading : Vector
     throwMagnitude : float
 
     brake : bool
@@ -394,7 +395,7 @@ class gameObject:
         self.transformPosition = Vector(0,0,0)
         self.topSpeed = 4.0
         self.catchRadius = 2.0
-        self.holdingDisc = False
+        self.holdingBall = False
         self.holdingWall = False
         self.brake = False
         self.velocityStop = False
@@ -408,7 +409,7 @@ class gameObject:
         self.clientID = 0
         self.wallHeading = Vector(0,0,0)
         self.pushMagnitude = 0.0
-        self.discHeading = Vector(0,0,0)
+        self.ballHeading = Vector(0,0,0)
         self.throwMagnitude = 0.0
 
         self.mercunaPosition = Vector(0,0,0)
@@ -437,18 +438,6 @@ class gameObject:
     # Functions that take in values from the actions and update the variables of the gameObject #
     # Call, within actions.py, using "obj.gameObject.func()" to access                          #
     #############################################################################################
-
-    def ThrowSide(self, throwSide, holdingDisc, discHeading, throwMagnitude):
-        self.throwSide = throwSide
-        self.holdingDisc = holdingDisc
-        self.discHeading = discHeading
-        self.throwMagnitude = throwMagnitude
-
-    def ThrowTop(self, throwTop, holdingDisc, discHeading, throwMagnitude):
-            self.throwTop = throwTop
-            self.holdingDisc = holdingDisc
-            self.discHeading = discHeading
-            self.throwMagnitude = throwMagnitude
 
     # For demo purpose, might need to update later 
     def DoPunch(self, punch):
@@ -741,15 +730,15 @@ class ControllerInputData:
         return result
 
 @dataclass
-class Disc:
+class Ball:
     movement_data: MovementData
     clientID: int
     @staticmethod
-    def from_dict(obj: Any) -> 'Disc':
+    def from_dict(obj: Any) -> 'Ball':
         assert isinstance(obj, dict)
         movement_data = MovementData.from_dict(obj.get("movementData"))
         clientID = from_int(obj.get("clientID"))
-        return Disc(movement_data, clientID)
+        return Ball(movement_data, clientID)
 
     def to_dict(self) -> dict:
         result: dict = {}
@@ -782,7 +771,7 @@ class ScenicPlayer:
 @dataclass
 class TickData:
     num_players: int
-    disc: Disc
+    ball: Ball
     human_players: List[ScenicPlayer]
     scenic_players: List[ScenicPlayer]
     scenic_objects: List[ScenicPlayer]
@@ -791,16 +780,16 @@ class TickData:
     def from_dict(obj: Any) -> 'TickData':
         assert isinstance(obj, dict)
         num_players = from_int(obj.get("numPlayers"))
-        disc = Disc.from_dict(obj.get("Disc"))
+        ball = Ball.from_dict(obj.get("Ball"))
         human_players = from_list(ScenicPlayer.from_dict, obj.get("HumanPlayers"))
         scenic_players = from_list(ScenicPlayer.from_dict, obj.get("ScenicPlayers"))
         scenic_objects = from_list(ScenicPlayer.from_dict, obj.get("ScenicObjects"))
-        return TickData(num_players, disc, human_players, scenic_players, scenic_objects)
+        return TickData(num_players, ball, human_players, scenic_players, scenic_objects)
 
     def to_dict(self) -> dict:
         result: dict = {}
         result["numPlayers"] = from_int(self.num_players)
-        result["Disc"] = to_class(Disc, self.disc)
+        result["Ball"] = to_class(Ball, self.ball)
         result["HumanPlayers"] = from_list(lambda x: to_class(ScenicPlayer, x), self.human_players)
         result["ScenicPlayers"] = from_list(lambda x: to_class(ScenicPlayer, x), self.scenic_players)
         result["ScenicObjects"] = from_list(lambda x: to_class(ScenicPlayer, x), self.scenic_objects)

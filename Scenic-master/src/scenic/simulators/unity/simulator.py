@@ -48,7 +48,7 @@ class UnitySimulation(Simulation):
         return gameObject
     def getProperties(self, obj, properties):
         unityActor = obj.gameObject
-        if not obj.gameObjectType == "disc" and unityActor is None:
+        if not obj.gameObjectType == "ball" and unityActor is None:
             values = dict(
             position=(0,0,0),
             #heading= float(0),
