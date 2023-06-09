@@ -39,7 +39,7 @@ public class ActionAPI : MonoBehaviour
 
         //UnitTestMovement(true);
 
-        ReceiveBall();
+        GroundPassSlow(init, final);
 
     }
     void UnitTestMovement(bool lookAt)
@@ -100,33 +100,35 @@ public class ActionAPI : MonoBehaviour
     {
         Vector3 passTo = finalObj.transform.position;
         stopMovement = true;
+
+        LookTowards(initObj, finalObj, new Vector2(initObj.transform.forward.x, initObj.transform.forward.z));
         playerAnimator.SetTrigger("GroundPassSlow");
         //StartCoroutine(Trigger(transitionTo + "GroundPassSlow"));
 
-        LookTowards(initObj, finalObj, initObj.transform.forward);
-        MoveBall(passTo, 0, weakPassForce);
+        //MoveBall(passTo, 0, weakPassForce);
     }
 
     void GroundPassFast(GameObject initObj, GameObject finalObj)
     {
         Vector3 passTo = finalObj.transform.position;
         stopMovement = true;
+
+        LookTowards(initObj, finalObj, new Vector2(initObj.transform.forward.x, initObj.transform.forward.z));
         playerAnimator.SetTrigger("GroundPassFast");
         //StartCoroutine(Trigger(transitionTo + "GroundPassFast"));
-
-        LookTowards(initObj, finalObj, initObj.transform.forward);
-        MoveBall(passTo, 0, strongPassForce);
+        //MoveBall(passTo, 0, strongPassForce);
     }
 
     void AirPass(GameObject initObj, GameObject finalObj, float aerialOffset)
     {
         Vector3 passTo = finalObj.transform.position;
         stopMovement = true;
+
+        LookTowards(initObj, finalObj, new Vector2(initObj.transform.forward.x, initObj.transform.forward.z));
         playerAnimator.SetTrigger("AirPass");
         //StartCoroutine(Trigger(transitionTo + "AirPass"));
 
-        LookTowards(initObj, finalObj, initObj.transform.forward);
-        MoveBall(passTo, aerialOffset, airPassForce);
+        //MoveBall(passTo, aerialOffset, airPassForce);
     }
 
     void ChipLeft(Vector3 passTo, float aerialOffset)
@@ -135,7 +137,7 @@ public class ActionAPI : MonoBehaviour
         playerAnimator.SetTrigger("ChipLeft");
         //StartCoroutine(Trigger(transitionTo + "ChipLeft"));
 
-        MoveBall(passTo, aerialOffset, chipForce);
+        //MoveBall(passTo, aerialOffset, chipForce);
     }
 
     void ChipRight(Vector3 passTo, float aerialOffset)
@@ -144,40 +146,39 @@ public class ActionAPI : MonoBehaviour
         playerAnimator.SetTrigger("ChipRight");
         //StartCoroutine(Trigger(transitionTo + "ChipRight"));
 
-        MoveBall(passTo, aerialOffset, chipForce);
+        //MoveBall(passTo, aerialOffset, chipForce);
     }
 
     void ChipFront(GameObject initObj, GameObject finalObj, float aerialOffset)
     {
         Vector3 passTo = finalObj.transform.position;
         stopMovement = true;
+        LookTowards(initObj, finalObj, new Vector2(initObj.transform.forward.x, initObj.transform.forward.z));
         playerAnimator.SetTrigger("ChipFront");
         //StartCoroutine(Trigger(transitionTo + "ChipFront"));
 
-        LookTowards(initObj, finalObj, initObj.transform.forward);
-        MoveBall(passTo, aerialOffset, chipForce);
+        //MoveBall(passTo, aerialOffset, chipForce);
     }
 
     void Shoot(GameObject initObj, GameObject finalObj, float aerialOffset = 0)
     {
         Vector3 shootAt = finalObj.transform.position;
         stopMovement = true;
+        LookTowards(initObj, finalObj, new Vector2(initObj.transform.forward.x, initObj.transform.forward.z));
         playerAnimator.SetTrigger("Shoot");
         //StartCoroutine(Trigger(transitionTo + "Shoot"));
 
-        LookTowards(initObj, finalObj, initObj.transform.forward);
-        MoveBall(shootAt, aerialOffset, shootForce);
+        //MoveBall(shootAt, aerialOffset, shootForce);
     }
 
     void BallThrow(GameObject initObj, GameObject finalObj, float aerialOffset)
     {
         Vector3 passTo = finalObj.transform.position;
         stopMovement = true;
+        LookTowards(initObj, finalObj, new Vector2(initObj.transform.forward.x, initObj.transform.forward.z));
         playerAnimator.SetTrigger("BallThrow");
         //StartCoroutine(Trigger(transitionTo + "BallThrow"));
-
-        LookTowards(initObj, finalObj, initObj.transform.forward);
-        MoveBall(passTo, aerialOffset, airPassForce);
+        //MoveBall(passTo, aerialOffset, airPassForce);
     }
     #endregion
 
@@ -218,51 +219,51 @@ public class ActionAPI : MonoBehaviour
     {
         Vector3 passTo = finalObj.transform.position;
         stopMovement = true;
+        LookTowards(initObj, finalObj, new Vector2(initObj.transform.forward.x, initObj.transform.forward.z));
         playerAnimator.SetTrigger("DropKick");
         //StartCoroutine(Trigger(transitionTo + "DropKick"));
 
-        LookTowards(initObj, finalObj, initObj.transform.forward);
-        MoveBall(passTo, aerialOffset, airPassForce);
+        //MoveBall(passTo, aerialOffset, airPassForce);
     }
     void OverHandThrow(GameObject initObj, GameObject finalObj, float aerialOffset)
     {
         Vector3 passTo = finalObj.transform.position;
         stopMovement = true;
+        LookTowards(initObj, finalObj, new Vector2(initObj.transform.forward.x, initObj.transform.forward.z));
         playerAnimator.SetTrigger("OverHandThrow");
         //StartCoroutine(Trigger(transitionTo + "OverHandThrow"));
 
-        LookTowards(initObj, finalObj, initObj.transform.forward);
-        MoveBall(passTo, aerialOffset, airPassForce);
+        //MoveBall(passTo, aerialOffset, airPassForce);
     }
     void RollingBallPass(GameObject initObj, GameObject finalObj)
     {
         Vector3 passTo = finalObj.transform.position;
         stopMovement = true;
+        LookTowards(initObj, finalObj, new Vector2(initObj.transform.forward.x, initObj.transform.forward.z));
         playerAnimator.SetTrigger("RollingBallPass");
         //StartCoroutine(Trigger(transitionTo + "RollingBallPass"));
 
-        LookTowards(initObj, finalObj, initObj.transform.forward);
-        MoveBall(passTo, 0, weakPassForce);
+        //MoveBall(passTo, 0, weakPassForce);
     }
     void PlacingAndLongPass(GameObject initObj, GameObject finalObj, float aerialOffset)
     {
         Vector3 passTo = finalObj.transform.position;
         stopMovement = true;
+        LookTowards(initObj, finalObj, new Vector2(initObj.transform.forward.x, initObj.transform.forward.z));
         playerAnimator.SetTrigger("PlacingAndLongPass");
         //StartCoroutine(Trigger(transitionTo + "PlacingAndLongPass"));
 
-        LookTowards(initObj, finalObj, initObj.transform.forward);
-        MoveBall(passTo, aerialOffset, airPassForce);
+        //MoveBall(passTo, aerialOffset, airPassForce);
     }
     void PlacingAndShortPass(GameObject initObj, GameObject finalObj)
     {
         Vector3 passTo = finalObj.transform.position;
         stopMovement = true;
+        LookTowards(initObj, finalObj, new Vector2(initObj.transform.forward.x, initObj.transform.forward.z));
         playerAnimator.SetTrigger("PlacingAndShortPass");
+        
         //StartCoroutine(Trigger(transitionTo + "PlacingAndShortPass"));
-
-        LookTowards(initObj, finalObj, initObj.transform.forward);
-        MoveBall(passTo, 0, weakPassForce);
+        //MoveBall(passTo, 0, weakPassForce);
     }
     #endregion
 
@@ -380,7 +381,7 @@ public class ActionAPI : MonoBehaviour
         Vector3 init = initObj.transform.position;
         Vector3 final = finalObj.transform.position;
         final.y = init.y; // Don't Update Y Coordinate
-        LookTowards(initObj, finalObj, initObj.transform.forward);
+        LookTowards(initObj, finalObj, new Vector2 (initObj.transform.forward.x, initObj.transform.forward.z));
 
         float timeElapsed = 0;
         float distance = Vector3.Distance(init, final);
@@ -433,7 +434,7 @@ public class ActionAPI : MonoBehaviour
         yield return new WaitForSeconds(1.1f);
 
         // move ball
-        MoveBall(final, aerialOffset, airPassForce);
+        //MoveBall(final, aerialOffset, airPassForce);
 
         yield return new WaitForSeconds(WaitTime() - 1f);
 
@@ -528,10 +529,10 @@ public class ActionAPI : MonoBehaviour
         float angle = Vector2.Angle(unitVector, finalFacingDirection);
         float rotationDirection = Mathf.Sign(Vector3.Dot(unitVector, finalFacingDirection));
 
-        StartCoroutine(RotateCoroutine(initObj, angle, rotationDirection, 1f));        
+        StartCoroutine(RotateCoroutine(initObj, angle, rotationDirection, 0.4f));        
     }
 
-    IEnumerator RotateCoroutine(GameObject initObj, float angle, float rotationDirection, float duration = 1f)
+    IEnumerator RotateCoroutine(GameObject initObj, float angle, float rotationDirection, float duration)
     {
         float currentRotation = 0.0f;
         float rotationPerSecond = angle / duration;
@@ -553,6 +554,5 @@ public class ActionAPI : MonoBehaviour
 
         yield return null;
     }
-
     #endregion
 }
