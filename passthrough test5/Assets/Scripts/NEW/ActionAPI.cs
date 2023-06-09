@@ -1,24 +1,15 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.ConstrainedExecution;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UIElements;
 using static UnityEditor.ShaderData;
 
-/*
- * ToDo - 
- * 1. Add Input Arguments in Singleton Methods - Yash --------------------------------> DONE
- * 2. Update Movement Script wrt boolean based on LookAt() - Mihir
- * 3. Add Actons :- 1. Pass a Ball to Teammate by throwing 
- *               2. Blocking shots
- *               for third point we Need to Find the Required Animation and then Implement it 
- * 4. Blend Tree for Goolkeeper and APIs
- * 
- * 
- * NEW
- *  Test singleton animations with ball
- *  new function for look at, which is smoother
- */
-
+#region For Mathematical Reference
+// parabola Equation if used (x-5)^2 = -4(25/8)(y-2) => y = -2/25(x^2 - 10x)  (in this Max Distance 10)
+// parabola Equation if used (x-(d/2))^2 = -4((d/2)^2/8)(y-2)) => y = (8 (d x - x^2))/d^2
+#endregion
 
 public class ActionAPI : MonoBehaviour
 {
@@ -26,14 +17,14 @@ public class ActionAPI : MonoBehaviour
     [SerializeField] float playerRunningSpeed = 2f;
     [SerializeField] float timeDuration = 5f;
 
-    [SerializeField] Transform init;
-    [SerializeField] Transform final;
+    [SerializeField] GameObject init;
+    [SerializeField] GameObject final;
     [SerializeField] GameObject soccerBall;
 
     bool stopMovement = false;
     string transitionTo = "t";
 
-    float forceFactor = 12.5f;
+    float forceFactor = 1f;
     float weakPassForce = 1f;
     float strongPassForce = 2f;
     float airPassForce = 3f;
@@ -43,37 +34,21 @@ public class ActionAPI : MonoBehaviour
     private void Start()
     {
         playerAnimator = this.GetComponent<Animator>();
-        UnitTestHeader();
-    }
 
-    #region Unit Tests
-    void UnitTestMovement()
+        if (gameObject.tag == "Goolkeeper") SetAnimController("GoolKeeper");
+
+        UnitTestMovement(true);
+
+    }
+    void UnitTestMovement(bool lookAt)
     {
         Vector2 unitVector = new Vector2(0, 0);
 
         unitVector.x = Mathf.Sin(transform.rotation.eulerAngles.y * Mathf.Deg2Rad);
         unitVector.y = Mathf.Cos(transform.rotation.eulerAngles.y * Mathf.Deg2Rad);
 
-        MoveFromOnePositionToAnother(init.position, final.position, unitVector);
+        MoveFromOnePositionToAnother(init.gameObject, final.gameObject, unitVector, lookAt);
     }
-
-    void UnitTestDribble()
-    {
-        DribbleFromOnePositionToAnother(init.position, final.position);
-    }
-
-    void UnitTestHeader()
-    {
-        Debug.Log("testing header");
-        Vector2 unitVector = new Vector2(0, 0);
-
-        unitVector.x = Mathf.Sin(transform.rotation.eulerAngles.y * Mathf.Deg2Rad);
-        unitVector.y = Mathf.Cos(transform.rotation.eulerAngles.y * Mathf.Deg2Rad);
-
-        BallHeaderShoot(init.position, final.position, unitVector, 0);
-    }
-
-    #endregion
 
     #region API Methods for BlendTrees
 
@@ -81,13 +56,13 @@ public class ActionAPI : MonoBehaviour
     /// <param name="init">Initial Position</param>
     /// <param name="final">Final Position</param>
     /// <param name="unitVector">Unit Vector where the player is facing</param>
-    public void MoveFromOnePositionToAnother(Vector3 init, Vector3 final, Vector2 unitVector)
+    public void MoveFromOnePositionToAnother(GameObject init, GameObject final, Vector2 unitVector,bool lookAt)
     {
         SetAnimController("Movement");
-        StartCoroutine(MovementLerp(init, final, unitVector));
+        StartCoroutine(MovementLerp(init, final, unitVector, lookAt));
     }
 
-    public void DribbleFromOnePositionToAnother(Vector3 init, Vector3 final)
+    public void DribbleFromOnePositionToAnother(GameObject init, GameObject final)
     {
         SetAnimController("Dribbling");
         StartCoroutine(DribbleLerp(init, final));
@@ -96,13 +71,14 @@ public class ActionAPI : MonoBehaviour
     public void BallHeaderShoot(Vector3 init, Vector3 final, Vector2 unitVector, float aerialOffset)
     {
         SetAnimController("Headers");
-        StartCoroutine(BallHeaderOrThrow(init, final, unitVector, aerialOffset));
+        StartCoroutine(BallHeader(init, final, unitVector, aerialOffset));
     }
 
     #endregion
 
     #region API Methods for Singleton Animations
 
+    #region PlayersSingletonMethods
     void ReceiveBall()
     {
         stopMovement = true;
@@ -115,30 +91,33 @@ public class ActionAPI : MonoBehaviour
         StartCoroutine(Trigger(transitionTo + "StrongTackle"));
     }
 
-    void GroundPassSlow(Vector3 passTo)
+    void GroundPassSlow(GameObject initObj, GameObject finalObj)
     {
+        Vector3 passTo = finalObj.transform.position;
         stopMovement = true;
         StartCoroutine(Trigger(transitionTo + "GroundPassSlow"));
 
-        transform.LookAt(passTo);
+        LookTowards(initObj, finalObj, initObj.transform.forward);
         MoveBall(passTo, 0, weakPassForce);
     }
 
-    void GroundPassFast(Vector3 passTo)
+    void GroundPassFast(GameObject initObj, GameObject finalObj)
     {
+        Vector3 passTo = finalObj.transform.position;
         stopMovement = true;
         StartCoroutine(Trigger(transitionTo + "GroundPassFast"));
 
-        transform.LookAt(passTo);
+        LookTowards(initObj, finalObj, initObj.transform.forward);
         MoveBall(passTo, 0, strongPassForce);
     }
 
-    void AirPass(Vector3 passTo, float aerialOffset)
+    void AirPass(GameObject initObj, GameObject finalObj, float aerialOffset)
     {
+        Vector3 passTo = finalObj.transform.position;
         stopMovement = true;
         StartCoroutine(Trigger(transitionTo + "AirPass"));
 
-        transform.LookAt(passTo);
+        LookTowards(initObj, finalObj, initObj.transform.forward);
         MoveBall(passTo, aerialOffset, airPassForce);
     }
 
@@ -158,32 +137,111 @@ public class ActionAPI : MonoBehaviour
         MoveBall(passTo, aerialOffset, chipForce);
     }
 
-    void ChipFront(Vector3 passTo, float aerialOffset)
+    void ChipFront(GameObject initObj, GameObject finalObj, float aerialOffset)
     {
+        Vector3 passTo = finalObj.transform.position;
         stopMovement = true;
         StartCoroutine(Trigger(transitionTo + "ChipFront"));
 
-        transform.LookAt(passTo);
+        LookTowards(initObj, finalObj, initObj.transform.forward);
         MoveBall(passTo, aerialOffset, chipForce);
     }
 
-    void Shoot(Vector3 shootAt, float aerialOffset = 0)
+    void Shoot(GameObject initObj, GameObject finalObj, float aerialOffset = 0)
     {
+        Vector3 shootAt = finalObj.transform.position;
         stopMovement = true;
         StartCoroutine(Trigger(transitionTo + "Shoot"));
 
-        transform.LookAt(shootAt);
+        LookTowards(initObj, finalObj, initObj.transform.forward);
         MoveBall(shootAt, aerialOffset, shootForce);
     }
 
-    void BallThrow(Vector3 passTo, float aerialOffset)
+    void BallThrow(GameObject initObj, GameObject finalObj, float aerialOffset)
     {
+        Vector3 passTo = finalObj.transform.position;
         stopMovement = true;
         StartCoroutine(Trigger(transitionTo + "BallThrow"));
 
-        transform.LookAt(passTo);
+        LookTowards(initObj, finalObj, initObj.transform.forward);
         MoveBall(passTo, aerialOffset, airPassForce);
     }
+    #endregion
+
+    #region GoalKeeper SingletonMethods
+
+    void BodyBlockLeftSide()
+    {
+        stopMovement = true;
+        StartCoroutine(Trigger(transitionTo + "BodyBlockLeftSide"));
+    }
+    void BodyBlockRightSide()
+    {
+        stopMovement = true;
+        StartCoroutine(Trigger(transitionTo + "BodyBlockRightSide"));
+    }
+    void CatchFastBall()
+    {
+        stopMovement = true;
+        StartCoroutine(Trigger(transitionTo + "CatchFastBall"));
+    }
+    void CatchStraightUpBall()
+    {
+        stopMovement = true;
+        StartCoroutine(Trigger(transitionTo + "CatchStraightUpBall"));
+    }
+    void CatchSlowBall()
+    {
+        stopMovement = true;
+        StartCoroutine(Trigger(transitionTo + "CatchSlowBall"));
+
+    }
+    void DropKickShot(GameObject initObj, GameObject finalObj, float aerialOffset)
+    {
+        Vector3 passTo = finalObj.transform.position;
+        stopMovement = true;
+        StartCoroutine(Trigger(transitionTo + "DropKick"));
+
+        LookTowards(initObj, finalObj, initObj.transform.forward);
+        MoveBall(passTo, aerialOffset, airPassForce);
+    }
+    void OverHandThrow(GameObject initObj, GameObject finalObj, float aerialOffset)
+    {
+        Vector3 passTo = finalObj.transform.position;
+        stopMovement = true;
+        StartCoroutine(Trigger(transitionTo + "OverHandThrow"));
+
+        LookTowards(initObj, finalObj, initObj.transform.forward);
+        MoveBall(passTo, aerialOffset, airPassForce);
+    }
+    void RollingBallPass(GameObject initObj, GameObject finalObj)
+    {
+        Vector3 passTo = finalObj.transform.position;
+        stopMovement = true;
+        StartCoroutine(Trigger(transitionTo + "RollingBallPass"));
+
+        LookTowards(initObj, finalObj, initObj.transform.forward);
+        MoveBall(passTo, 0, weakPassForce);
+    }
+    void PlacingAndLongPass(GameObject initObj, GameObject finalObj, float aerialOffset)
+    {
+        Vector3 passTo = finalObj.transform.position;
+        stopMovement = true;
+        StartCoroutine(Trigger(transitionTo + "PlacingAndLongPass"));
+
+        LookTowards(initObj, finalObj, initObj.transform.forward);
+        MoveBall(passTo, aerialOffset, airPassForce);
+    }
+    void PlacingAndShortPass(GameObject initObj, GameObject finalObj)
+    {
+        Vector3 passTo = finalObj.transform.position;
+        stopMovement = true;
+        StartCoroutine(Trigger(transitionTo + "PlacingAndShortPass"));
+
+        LookTowards(initObj, finalObj, initObj.transform.forward);
+        MoveBall(passTo, 0, weakPassForce);
+    }
+    #endregion
 
     #endregion
 
@@ -193,80 +251,113 @@ public class ActionAPI : MonoBehaviour
     /// <param name="init">Initial point</param>
     /// <param name="final">Final point</param>
     /// <param name="unitVector">Unit Vector where the player is facing</param>
-    IEnumerator MovementLerp(Vector3 init, Vector3 final, Vector2 unitVector)
+    IEnumerator MovementLerp(GameObject initObj, GameObject finalObj, Vector2 unitVector, bool lookAt)
     {
-        float quadrant = RelativeQuadrant(init, final, unitVector);
-
-        int xSign = 0;
-        int zSign = 0;
-
-        switch (quadrant)
-        {
-            case 0.5f : xSign = 1; zSign = 0; break;
-            case 1.0f : xSign = 1; zSign = 1; break;
-            case 1.5f : xSign = 0; zSign = 1; break;
-            case 2.0f : xSign = -1; zSign = 1; break;
-            case 2.5f : xSign = -1; zSign = 0; break;
-            case 3.0f : xSign = -1; zSign = -1; break;
-            case 3.5f : xSign = 0; zSign = -1; break;
-            case 4.0f : xSign = 1; zSign = -1; break;
-        }
-
-        Debug.Log(xSign + ", " + zSign); 
-
+        Vector3 init = initObj.transform.position;
+        Vector3 final = finalObj.transform.position;
         final.y = init.y;
-
         float timeElapsed = 0;
-
         float distance = Vector3.Distance(init, final);
-
-        float distanceX = Mathf.Abs(init.x - final.x);
-        float distanceZ = Mathf.Abs(init.z - final.z);
 
         timeDuration = 2f * distance / playerRunningSpeed;
 
-        while (timeElapsed < timeDuration)
+        if (!lookAt)
         {
-            float t = timeElapsed / timeDuration;
-            t = t * t * (3f - 2f * t);
+            float quadrant = RelativeQuadrant(init, final, unitVector);
 
-            float UpdatedDistanceX = Mathf.Abs(init.x - transform.position.x);
-            float UpdatedDistanceZ = Mathf.Abs(init.z - transform.position.z);
+            int xSign = 0;
+            int zSign = 0;
 
-            float transitionValueZ = zSign;
-            if (transitionValueZ != 0)
-                transitionValueZ *= (8f * (distanceZ * (UpdatedDistanceZ) - Mathf.Pow(UpdatedDistanceZ, 2)) / Mathf.Pow(distanceZ, 2));
-            float transitionValueX = xSign;
-            if (transitionValueX != 0)
-                transitionValueX *= (8f * (distanceX * (UpdatedDistanceX) - Mathf.Pow(UpdatedDistanceX, 2)) / Mathf.Pow(distanceX, 2));
-
-            playerAnimator.SetFloat("VelX", transitionValueX);
-            playerAnimator.SetFloat("VelZ", transitionValueZ);
-
-            transform.position = Vector3.Lerp(init, final, t);
-            timeElapsed += Time.deltaTime;
-            yield return null;
-
-            //Condition to Stop Continuous Movement
-            if (stopMovement)
+            switch (quadrant)
             {
-                stopMovement = false;
-                playerAnimator.SetFloat("VelZ", 0);
-                playerAnimator.SetFloat("VelX", 0);
-                StopCoroutine(MovementLerp(init, transform.position, unitVector));
+                case 0.5f: xSign = 1; zSign = 0; break;
+                case 1.0f: xSign = 1; zSign = 1; break;
+                case 1.5f: xSign = 0; zSign = 1; break;
+                case 2.0f: xSign = -1; zSign = 1; break;
+                case 2.5f: xSign = -1; zSign = 0; break;
+                case 3.0f: xSign = -1; zSign = -1; break;
+                case 3.5f: xSign = 0; zSign = -1; break;
+                case 4.0f: xSign = 1; zSign = -1; break;
+            }
+
+            Debug.Log(xSign + ", " + zSign);
+
+            float distanceX = Mathf.Abs(init.x - final.x);
+            float distanceZ = Mathf.Abs(init.z - final.z);
+
+            while (timeElapsed < timeDuration)
+            {
+                float t = timeElapsed / timeDuration;
+                t = t * t * (3f - 2f * t);
+
+                float UpdatedDistanceX = Mathf.Abs(init.x - transform.position.x);
+                float UpdatedDistanceZ = Mathf.Abs(init.z - transform.position.z);
+
+                float transitionValueZ = zSign;
+                if (transitionValueZ != 0)
+                    transitionValueZ *= (8f * (distanceZ * (UpdatedDistanceZ) - Mathf.Pow(UpdatedDistanceZ, 2)) / Mathf.Pow(distanceZ, 2));
+                float transitionValueX = xSign;
+                if (transitionValueX != 0)
+                    transitionValueX *= (8f * (distanceX * (UpdatedDistanceX) - Mathf.Pow(UpdatedDistanceX, 2)) / Mathf.Pow(distanceX, 2));
+
+                playerAnimator.SetFloat("VelX", transitionValueX);
+                playerAnimator.SetFloat("VelZ", transitionValueZ);
+
+                transform.position = Vector3.Lerp(init, final, t);
+                timeElapsed += Time.deltaTime;
+                yield return null;
+
+                //Condition to Stop Continuous Movement
+                if (stopMovement)
+                {
+                    stopMovement = false;
+                    playerAnimator.SetFloat("VelZ", 0);
+                    playerAnimator.SetFloat("VelX", 0);
+                    StopCoroutine(MovementLerp(initObj, gameObject, unitVector,lookAt));
+                }
             }
         }
+        else
+        {
+            LookTowards(initObj, finalObj, unitVector);
 
+            while (timeElapsed < timeDuration)
+            {
+                float t = timeElapsed / timeDuration;
+                t = t * t * (3f - 2f * t);
+
+                float UpdatedDistance = Vector3.Distance(init,transform.position);
+
+                float transitionValue = (8f * (distance * (UpdatedDistance) - Mathf.Pow(UpdatedDistance, 2)) / Mathf.Pow(distance, 2));
+
+                playerAnimator.SetFloat("VelZ", transitionValue);
+
+                transform.position = Vector3.Lerp(init, final, t);
+                timeElapsed += Time.deltaTime;
+                yield return null;
+
+                //Condition to Stop Continuous Movement
+                if (stopMovement)
+                {
+                    stopMovement = false;
+                    playerAnimator.SetFloat("VelZ", 0);
+                    playerAnimator.SetFloat("VelX", 0);
+                    StopCoroutine(MovementLerp(initObj, gameObject, unitVector, lookAt));
+                }
+            }
+        }
         yield return null;
     }
 
     /// <summary> Lerp motion Coroutine that allows player to move from one point to another </summary>
     /// <param name="init">Initial point</param>
     /// <param name="final">Final point</param>
-    IEnumerator DribbleLerp(Vector3 init, Vector3 final)
+    IEnumerator DribbleLerp(GameObject initObj, GameObject finalObj)
     {
+        Vector3 init = initObj.transform.position;
+        Vector3 final = finalObj.transform.position;
         final.y = init.y; // Don't Update Y Coordinate
-        transform.LookAt(final);  // for Look At final position
+        LookTowards(initObj, finalObj, initObj.transform.forward);
 
         float timeElapsed = 0;
         float distance = Vector3.Distance(init, final);
@@ -277,11 +368,6 @@ public class ActionAPI : MonoBehaviour
             float t = timeElapsed / timeDuration;
             t = t * t * (3f - 2f * t);
             float UpdatedDistance = Vector3.Distance(init, transform.position);
-
-            #region For Mathematical Reference
-            // parabola Equation if used (x-5)^2 = -4(25/8)(y-2) => y = -2/25(x^2 - 10x)  (in this Max Distance 10)
-            // parabola Equation if used (x-(d/2))^2 = -4((d/2)^2/8)(y-2)) => y = (8 (d x - x^2))/d^2
-            #endregion
 
             float transitionValue = (8f * (distance * (UpdatedDistance) - Mathf.Pow(UpdatedDistance, 2)) / Mathf.Pow(distance, 2));
 
@@ -296,12 +382,12 @@ public class ActionAPI : MonoBehaviour
             {
                 // stopMovement = false;
                 playerAnimator.SetFloat("VelZ", 0);
-                StopCoroutine(DribbleLerp(init, transform.position));
+                StopCoroutine(DribbleLerp(initObj, finalObj));
             }
         }
     }
 
-    IEnumerator BallHeaderOrThrow(Vector3 init, Vector3 final, Vector2 unitVector, float aerialOffset)
+    IEnumerator BallHeader(Vector3 init, Vector3 final, Vector2 unitVector, float aerialOffset)
     {
         Vector2 objectAPosition = new Vector2(init.x, init.z); ;
         Vector2 objectBPosition = new Vector2(final.x, final.z); ;
@@ -408,6 +494,41 @@ public class ActionAPI : MonoBehaviour
     {
         Vector3 forceDirection = new Vector3(xzDir.x, yDir, xzDir.z);
         soccerBall.GetComponent<Rigidbody>().AddForce(forceDirection * forceMagnitude * forceFactor);
+    }
+
+    void LookTowards(GameObject initObj, GameObject finalObj, Vector2 unitVector)
+    {
+        Vector3 final = finalObj.transform.position;
+        Vector3 init = initObj.transform.position;
+        Vector2 finalFacingDirection = new Vector2(final.x - init.x, final.z - init.z);
+
+        float angle = Vector2.Angle(unitVector, finalFacingDirection);
+        float rotationDirection = Mathf.Sign(Vector3.Dot(unitVector, finalFacingDirection));
+
+        StartCoroutine(RotateCoroutine(initObj, angle, rotationDirection, 1f));        
+    }
+
+    IEnumerator RotateCoroutine(GameObject initObj, float angle, float rotationDirection, float duration = 1f)
+    {
+        float currentRotation = 0.0f;
+        float rotationPerSecond = angle / duration;
+
+        while(currentRotation < angle)
+        {
+            
+            // Calculate the incremental rotation for this frame
+            float rotationIncrement = rotationPerSecond * Time.deltaTime;
+            currentRotation += rotationIncrement;
+
+            if (rotationDirection == -1)
+                initObj.transform.Rotate(Vector3.up, rotationIncrement);
+            else if (rotationDirection == 1)
+                initObj.transform.Rotate(Vector3.down, rotationIncrement);
+
+            yield return null;
+        }
+
+        yield return null;
     }
 
     #endregion
