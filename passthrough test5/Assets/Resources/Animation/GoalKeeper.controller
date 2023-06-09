@@ -70,7 +70,7 @@ AnimatorStateTransition:
   m_Name: 
   m_Conditions:
   - m_ConditionMode: 2
-    m_ConditionEvent: CatchFastBall
+    m_ConditionEvent: CatchGroundBall
     m_EventTreshold: 0
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: -8253839289077066268}
@@ -95,7 +95,7 @@ AnimatorStateTransition:
   m_Name: 
   m_Conditions:
   - m_ConditionMode: 1
-    m_ConditionEvent: CatchSlowBall
+    m_ConditionEvent: CatchBallInFront
     m_EventTreshold: 0
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: 8457149269948464147}
@@ -351,7 +351,7 @@ AnimatorStateTransition:
   m_Name: 
   m_Conditions:
   - m_ConditionMode: 1
-    m_ConditionEvent: CatchStraightUpBall
+    m_ConditionEvent: CatchBallInTheAir
     m_EventTreshold: 0
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: 4591106145424020627}
@@ -415,7 +415,7 @@ AnimatorStateTransition:
   m_Name: 
   m_Conditions:
   - m_ConditionMode: 2
-    m_ConditionEvent: CatchSlowBall
+    m_ConditionEvent: CatchBallInFront
     m_EventTreshold: 0
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: -8253839289077066268}
@@ -514,19 +514,19 @@ AnimatorController:
     m_DefaultInt: 0
     m_DefaultBool: 0
     m_Controller: {fileID: 0}
-  - m_Name: CatchFastBall
+  - m_Name: CatchGroundBall
     m_Type: 9
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
     m_Controller: {fileID: 0}
-  - m_Name: CatchStraightUpBall
+  - m_Name: CatchBallInTheAir
     m_Type: 9
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
     m_Controller: {fileID: 0}
-  - m_Name: CatchSlowBall
+  - m_Name: CatchBallInFront
     m_Type: 9
     m_DefaultFloat: 0
     m_DefaultInt: 0
@@ -636,7 +636,7 @@ AnimatorStateTransition:
   m_Name: 
   m_Conditions:
   - m_ConditionMode: 2
-    m_ConditionEvent: CatchStraightUpBall
+    m_ConditionEvent: CatchBallInTheAir
     m_EventTreshold: 0
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: -8253839289077066268}
@@ -684,7 +684,7 @@ AnimatorState:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Goalkeeper Catch fastBall
+  m_Name: CatchGroundBall
   m_Speed: 1
   m_CycleOffset: 0
   m_Transitions:
@@ -713,7 +713,7 @@ AnimatorStateTransition:
   m_Name: 
   m_Conditions:
   - m_ConditionMode: 1
-    m_ConditionEvent: CatchFastBall
+    m_ConditionEvent: CatchGroundBall
     m_EventTreshold: 0
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: 3042622873400180598}
@@ -813,7 +813,7 @@ AnimatorState:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Goalkeeper Catch straight Up
+  m_Name: CatchBallInTheAir
   m_Speed: 1
   m_CycleOffset: 0
   m_Transitions:
@@ -946,7 +946,7 @@ AnimatorState:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Goalkeeper Slow Catch
+  m_Name: CatchBallInFront
   m_Speed: 1
   m_CycleOffset: 0
   m_Transitions:

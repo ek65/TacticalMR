@@ -2216,7 +2216,7 @@ Animator:
   m_GameObject: {fileID: 328230104}
   m_Enabled: 1
   m_Avatar: {fileID: 9000000, guid: b0ca7327736c3284598fd859b727ff0e, type: 3}
-  m_Controller: {fileID: 9100000, guid: e918d2ad6334e144893385438d3b2b14, type: 2}
+  m_Controller: {fileID: 9100000, guid: 5088c03042be23144a95da87a1f00955, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 1
@@ -2226,6 +2226,7 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!4 &328230108
 Transform:
   m_ObjectHideFlags: 0
@@ -3060,6 +3061,7 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!4 &575746542
 Transform:
   m_ObjectHideFlags: 0
@@ -4659,7 +4661,7 @@ Transform:
   m_GameObject: {fileID: 950387830}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 6.22, y: 0, z: -12.3}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 1, y: 17.529, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 943164479}
@@ -5894,6 +5896,7 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!4 &1154403447
 Transform:
   m_ObjectHideFlags: 0
@@ -12051,6 +12054,7 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!65 &4509809109095826799
 BoxCollider:
   m_ObjectHideFlags: 0
