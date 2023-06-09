@@ -101,10 +101,9 @@ public class ActionAPI : MonoBehaviour
         Vector3 passTo = finalObj.transform.position;
         stopMovement = true;
 
-        LookTowards(initObj, finalObj, new Vector2(initObj.transform.forward.x, initObj.transform.forward.z));
-        playerAnimator.SetTrigger("GroundPassSlow");
+        LookTowards(initObj, finalObj, new Vector2(initObj.transform.forward.x, initObj.transform.forward.z), "GroundPassSlow");
+        
         //StartCoroutine(Trigger(transitionTo + "GroundPassSlow"));
-
         //MoveBall(passTo, 0, weakPassForce);
     }
 
@@ -113,8 +112,8 @@ public class ActionAPI : MonoBehaviour
         Vector3 passTo = finalObj.transform.position;
         stopMovement = true;
 
-        LookTowards(initObj, finalObj, new Vector2(initObj.transform.forward.x, initObj.transform.forward.z));
-        playerAnimator.SetTrigger("GroundPassFast");
+        LookTowards(initObj, finalObj, new Vector2(initObj.transform.forward.x, initObj.transform.forward.z), "GroundPassFast");
+        
         //StartCoroutine(Trigger(transitionTo + "GroundPassFast"));
         //MoveBall(passTo, 0, strongPassForce);
     }
@@ -124,8 +123,8 @@ public class ActionAPI : MonoBehaviour
         Vector3 passTo = finalObj.transform.position;
         stopMovement = true;
 
-        LookTowards(initObj, finalObj, new Vector2(initObj.transform.forward.x, initObj.transform.forward.z));
-        playerAnimator.SetTrigger("AirPass");
+        LookTowards(initObj, finalObj, new Vector2(initObj.transform.forward.x, initObj.transform.forward.z), "AirPass");
+        //playerAnimator.SetTrigger("AirPass");
         //StartCoroutine(Trigger(transitionTo + "AirPass"));
 
         //MoveBall(passTo, aerialOffset, airPassForce);
@@ -153,8 +152,7 @@ public class ActionAPI : MonoBehaviour
     {
         Vector3 passTo = finalObj.transform.position;
         stopMovement = true;
-        LookTowards(initObj, finalObj, new Vector2(initObj.transform.forward.x, initObj.transform.forward.z));
-        playerAnimator.SetTrigger("ChipFront");
+        LookTowards(initObj, finalObj, new Vector2(initObj.transform.forward.x, initObj.transform.forward.z), "ChipFront");
         //StartCoroutine(Trigger(transitionTo + "ChipFront"));
 
         //MoveBall(passTo, aerialOffset, chipForce);
@@ -164,8 +162,7 @@ public class ActionAPI : MonoBehaviour
     {
         Vector3 shootAt = finalObj.transform.position;
         stopMovement = true;
-        LookTowards(initObj, finalObj, new Vector2(initObj.transform.forward.x, initObj.transform.forward.z));
-        playerAnimator.SetTrigger("Shoot");
+        LookTowards(initObj, finalObj, new Vector2(initObj.transform.forward.x, initObj.transform.forward.z), "Shoot");
         //StartCoroutine(Trigger(transitionTo + "Shoot"));
 
         //MoveBall(shootAt, aerialOffset, shootForce);
@@ -175,8 +172,7 @@ public class ActionAPI : MonoBehaviour
     {
         Vector3 passTo = finalObj.transform.position;
         stopMovement = true;
-        LookTowards(initObj, finalObj, new Vector2(initObj.transform.forward.x, initObj.transform.forward.z));
-        playerAnimator.SetTrigger("BallThrow");
+        LookTowards(initObj, finalObj, new Vector2(initObj.transform.forward.x, initObj.transform.forward.z), "BallThrow");
         //StartCoroutine(Trigger(transitionTo + "BallThrow"));
         //MoveBall(passTo, aerialOffset, airPassForce);
     }
@@ -219,8 +215,7 @@ public class ActionAPI : MonoBehaviour
     {
         Vector3 passTo = finalObj.transform.position;
         stopMovement = true;
-        LookTowards(initObj, finalObj, new Vector2(initObj.transform.forward.x, initObj.transform.forward.z));
-        playerAnimator.SetTrigger("DropKick");
+        LookTowards(initObj, finalObj, new Vector2(initObj.transform.forward.x, initObj.transform.forward.z), "DropKick");
         //StartCoroutine(Trigger(transitionTo + "DropKick"));
 
         //MoveBall(passTo, aerialOffset, airPassForce);
@@ -229,8 +224,7 @@ public class ActionAPI : MonoBehaviour
     {
         Vector3 passTo = finalObj.transform.position;
         stopMovement = true;
-        LookTowards(initObj, finalObj, new Vector2(initObj.transform.forward.x, initObj.transform.forward.z));
-        playerAnimator.SetTrigger("OverHandThrow");
+        LookTowards(initObj, finalObj, new Vector2(initObj.transform.forward.x, initObj.transform.forward.z), "OverHandThrow");
         //StartCoroutine(Trigger(transitionTo + "OverHandThrow"));
 
         //MoveBall(passTo, aerialOffset, airPassForce);
@@ -239,8 +233,7 @@ public class ActionAPI : MonoBehaviour
     {
         Vector3 passTo = finalObj.transform.position;
         stopMovement = true;
-        LookTowards(initObj, finalObj, new Vector2(initObj.transform.forward.x, initObj.transform.forward.z));
-        playerAnimator.SetTrigger("RollingBallPass");
+        LookTowards(initObj, finalObj, new Vector2(initObj.transform.forward.x, initObj.transform.forward.z), "RollingBallPass");
         //StartCoroutine(Trigger(transitionTo + "RollingBallPass"));
 
         //MoveBall(passTo, 0, weakPassForce);
@@ -249,8 +242,7 @@ public class ActionAPI : MonoBehaviour
     {
         Vector3 passTo = finalObj.transform.position;
         stopMovement = true;
-        LookTowards(initObj, finalObj, new Vector2(initObj.transform.forward.x, initObj.transform.forward.z));
-        playerAnimator.SetTrigger("PlacingAndLongPass");
+        LookTowards(initObj, finalObj, new Vector2(initObj.transform.forward.x, initObj.transform.forward.z), "PlacingAndLongPass");
         //StartCoroutine(Trigger(transitionTo + "PlacingAndLongPass"));
 
         //MoveBall(passTo, aerialOffset, airPassForce);
@@ -259,8 +251,7 @@ public class ActionAPI : MonoBehaviour
     {
         Vector3 passTo = finalObj.transform.position;
         stopMovement = true;
-        LookTowards(initObj, finalObj, new Vector2(initObj.transform.forward.x, initObj.transform.forward.z));
-        playerAnimator.SetTrigger("PlacingAndShortPass");
+        LookTowards(initObj, finalObj, new Vector2(initObj.transform.forward.x, initObj.transform.forward.z), "PlacingAndShortPass");
         
         //StartCoroutine(Trigger(transitionTo + "PlacingAndShortPass"));
         //MoveBall(passTo, 0, weakPassForce);
@@ -343,7 +334,7 @@ public class ActionAPI : MonoBehaviour
         }
         else
         {
-            LookTowards(initObj, finalObj, unitVector);
+            LookTowards(initObj, finalObj, unitVector,null);
 
             while (timeElapsed < timeDuration)
             {
@@ -381,7 +372,7 @@ public class ActionAPI : MonoBehaviour
         Vector3 init = initObj.transform.position;
         Vector3 final = finalObj.transform.position;
         final.y = init.y; // Don't Update Y Coordinate
-        LookTowards(initObj, finalObj, new Vector2 (initObj.transform.forward.x, initObj.transform.forward.z));
+        LookTowards(initObj, finalObj, new Vector2 (initObj.transform.forward.x, initObj.transform.forward.z),null);
 
         float timeElapsed = 0;
         float distance = Vector3.Distance(init, final);
@@ -520,7 +511,7 @@ public class ActionAPI : MonoBehaviour
         soccerBall.GetComponent<Rigidbody>().AddForce(forceDirection * forceMagnitude * forceFactor);
     }
 
-    void LookTowards(GameObject initObj, GameObject finalObj, Vector2 unitVector)
+    void LookTowards(GameObject initObj, GameObject finalObj, Vector2 unitVector,string keyCode)
     {
         Vector3 final = finalObj.transform.position;
         Vector3 init = initObj.transform.position;
@@ -529,10 +520,10 @@ public class ActionAPI : MonoBehaviour
         float angle = Vector2.Angle(unitVector, finalFacingDirection);
         float rotationDirection = Mathf.Sign(Vector3.Dot(unitVector, finalFacingDirection));
 
-        StartCoroutine(RotateCoroutine(initObj, angle, rotationDirection, 0.4f));        
+        StartCoroutine(RotateCoroutine(initObj, angle, rotationDirection, 0.8f,keyCode));        
     }
 
-    IEnumerator RotateCoroutine(GameObject initObj, float angle, float rotationDirection, float duration)
+    IEnumerator RotateCoroutine(GameObject initObj, float angle, float rotationDirection, float duration,string keyCode)
     {
         float currentRotation = 0.0f;
         float rotationPerSecond = angle / duration;
@@ -551,6 +542,7 @@ public class ActionAPI : MonoBehaviour
 
             yield return null;
         }
+        if (keyCode != null) playerAnimator.SetTrigger(keyCode);
 
         yield return null;
     }
