@@ -1,20 +1,15 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.ConstrainedExecution;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UIElements;
 using static UnityEditor.ShaderData;
 
-/*
- * 3. Add Actons :- 1. Pass a Ball to Teammate by throwing 
- *               2. Blocking shots
- *               for third point we Need to Find the Required Animation and then Implement it 
- * 4. Blend Tree for Goolkeeper and APIs
- * 
- * 
- * NEW
- *  Test singleton animations with ball
- *  new function for look at, which is smoother
- */
+#region For Mathematical Reference
+// parabola Equation if used (x-5)^2 = -4(25/8)(y-2) => y = -2/25(x^2 - 10x)  (in this Max Distance 10)
+// parabola Equation if used (x-(d/2))^2 = -4((d/2)^2/8)(y-2)) => y = (8 (d x - x^2))/d^2
+#endregion
 
 public class ActionAPI : MonoBehaviour
 {
@@ -29,7 +24,7 @@ public class ActionAPI : MonoBehaviour
     bool stopMovement = false;
     string transitionTo = "t";
 
-    float forceFactor = 12.5f;
+    float forceFactor = 1f;
     float weakPassForce = 1f;
     float strongPassForce = 2f;
     float airPassForce = 3f;
@@ -42,9 +37,9 @@ public class ActionAPI : MonoBehaviour
 
         if (gameObject.tag == "Goolkeeper") SetAnimController("GoolKeeper");
 
-    }
+        UnitTestMovement(true);
 
-    #region Unit Tests
+    }
     void UnitTestMovement(bool lookAt)
     {
         Vector2 unitVector = new Vector2(0, 0);
@@ -55,24 +50,6 @@ public class ActionAPI : MonoBehaviour
         MoveFromOnePositionToAnother(init.gameObject, final.gameObject, unitVector, lookAt);
     }
 
-    void UnitTestDribble()
-    {
-        DribbleFromOnePositionToAnother(init.transform.position, final.transform.position);
-    }
-
-    void UnitTestHeader()
-    {
-        Debug.Log("testing header");
-        Vector2 unitVector = new Vector2(0, 0);
-
-        unitVector.x = Mathf.Sin(transform.rotation.eulerAngles.y * Mathf.Deg2Rad);
-        unitVector.y = Mathf.Cos(transform.rotation.eulerAngles.y * Mathf.Deg2Rad);
-
-        BallHeaderShoot(init.transform.position, final.transform.position, unitVector, 0);
-    }
-
-    #endregion
-
     #region API Methods for BlendTrees
 
     /// <summary> Method/API to Move player from One Position to another </summary>
@@ -82,10 +59,10 @@ public class ActionAPI : MonoBehaviour
     public void MoveFromOnePositionToAnother(GameObject init, GameObject final, Vector2 unitVector,bool lookAt)
     {
         SetAnimController("Movement");
-        StartCoroutine(MovementLerp(init, final, unitVector,lookAt));
+        StartCoroutine(MovementLerp(init, final, unitVector, lookAt));
     }
 
-    public void DribbleFromOnePositionToAnother(Vector3 init, Vector3 final)
+    public void DribbleFromOnePositionToAnother(GameObject init, GameObject final)
     {
         SetAnimController("Dribbling");
         StartCoroutine(DribbleLerp(init, final));
@@ -94,7 +71,7 @@ public class ActionAPI : MonoBehaviour
     public void BallHeaderShoot(Vector3 init, Vector3 final, Vector2 unitVector, float aerialOffset)
     {
         SetAnimController("Headers");
-        StartCoroutine(BallHeaderOrThrow(init, final, unitVector, aerialOffset));
+        StartCoroutine(BallHeader(init, final, unitVector, aerialOffset));
     }
 
     #endregion
@@ -114,30 +91,33 @@ public class ActionAPI : MonoBehaviour
         StartCoroutine(Trigger(transitionTo + "StrongTackle"));
     }
 
-    void GroundPassSlow(Vector3 passTo)
+    void GroundPassSlow(GameObject initObj, GameObject finalObj)
     {
+        Vector3 passTo = finalObj.transform.position;
         stopMovement = true;
         StartCoroutine(Trigger(transitionTo + "GroundPassSlow"));
 
-        lookTowards(passTo);
+        LookTowards(initObj, finalObj, initObj.transform.forward);
         MoveBall(passTo, 0, weakPassForce);
     }
 
-    void GroundPassFast(Vector3 passTo)
+    void GroundPassFast(GameObject initObj, GameObject finalObj)
     {
+        Vector3 passTo = finalObj.transform.position;
         stopMovement = true;
         StartCoroutine(Trigger(transitionTo + "GroundPassFast"));
 
-        lookTowards(passTo);
+        LookTowards(initObj, finalObj, initObj.transform.forward);
         MoveBall(passTo, 0, strongPassForce);
     }
 
-    void AirPass(Vector3 passTo, float aerialOffset)
+    void AirPass(GameObject initObj, GameObject finalObj, float aerialOffset)
     {
+        Vector3 passTo = finalObj.transform.position;
         stopMovement = true;
         StartCoroutine(Trigger(transitionTo + "AirPass"));
 
-        lookTowards(passTo);
+        LookTowards(initObj, finalObj, initObj.transform.forward);
         MoveBall(passTo, aerialOffset, airPassForce);
     }
 
@@ -157,35 +137,38 @@ public class ActionAPI : MonoBehaviour
         MoveBall(passTo, aerialOffset, chipForce);
     }
 
-    void ChipFront(Vector3 passTo, float aerialOffset)
+    void ChipFront(GameObject initObj, GameObject finalObj, float aerialOffset)
     {
+        Vector3 passTo = finalObj.transform.position;
         stopMovement = true;
         StartCoroutine(Trigger(transitionTo + "ChipFront"));
 
-        lookTowards(passTo);
+        LookTowards(initObj, finalObj, initObj.transform.forward);
         MoveBall(passTo, aerialOffset, chipForce);
     }
 
-    void Shoot(Vector3 shootAt, float aerialOffset = 0)
+    void Shoot(GameObject initObj, GameObject finalObj, float aerialOffset = 0)
     {
+        Vector3 shootAt = finalObj.transform.position;
         stopMovement = true;
         StartCoroutine(Trigger(transitionTo + "Shoot"));
 
-        lookTowards(shootAt);
+        LookTowards(initObj, finalObj, initObj.transform.forward);
         MoveBall(shootAt, aerialOffset, shootForce);
     }
 
-    void BallThrow(Vector3 passTo, float aerialOffset)
+    void BallThrow(GameObject initObj, GameObject finalObj, float aerialOffset)
     {
+        Vector3 passTo = finalObj.transform.position;
         stopMovement = true;
         StartCoroutine(Trigger(transitionTo + "BallThrow"));
 
-        lookTowards(passTo);
+        LookTowards(initObj, finalObj, initObj.transform.forward);
         MoveBall(passTo, aerialOffset, airPassForce);
     }
     #endregion
 
-    #region GoolKeeperSigletonMethods
+    #region GoalKeeper SingletonMethods
 
     void BodyBlockLeftSide()
     {
@@ -213,44 +196,49 @@ public class ActionAPI : MonoBehaviour
         StartCoroutine(Trigger(transitionTo + "CatchSlowBall"));
 
     }
-    void DropKickShot(Vector3 passTo, float aerialOffset)
+    void DropKickShot(GameObject initObj, GameObject finalObj, float aerialOffset)
     {
+        Vector3 passTo = finalObj.transform.position;
         stopMovement = true;
         StartCoroutine(Trigger(transitionTo + "DropKick"));
 
-        lookTowards(passTo);
+        LookTowards(initObj, finalObj, initObj.transform.forward);
         MoveBall(passTo, aerialOffset, airPassForce);
     }
-    void OverHandThrow(Vector3 passTo, float aerialOffset)
+    void OverHandThrow(GameObject initObj, GameObject finalObj, float aerialOffset)
     {
+        Vector3 passTo = finalObj.transform.position;
         stopMovement = true;
         StartCoroutine(Trigger(transitionTo + "OverHandThrow"));
 
-        lookTowards(passTo);
+        LookTowards(initObj, finalObj, initObj.transform.forward);
         MoveBall(passTo, aerialOffset, airPassForce);
     }
-    void RollingBallPass(Vector3 passTo)
+    void RollingBallPass(GameObject initObj, GameObject finalObj)
     {
+        Vector3 passTo = finalObj.transform.position;
         stopMovement = true;
         StartCoroutine(Trigger(transitionTo + "RollingBallPass"));
 
-        lookTowards(passTo);
+        LookTowards(initObj, finalObj, initObj.transform.forward);
         MoveBall(passTo, 0, weakPassForce);
     }
-    void PlacingAndLongPass(Vector3 passTo, float aerialOffset)
+    void PlacingAndLongPass(GameObject initObj, GameObject finalObj, float aerialOffset)
     {
+        Vector3 passTo = finalObj.transform.position;
         stopMovement = true;
         StartCoroutine(Trigger(transitionTo + "PlacingAndLongPass"));
 
-        lookTowards(passTo);
+        LookTowards(initObj, finalObj, initObj.transform.forward);
         MoveBall(passTo, aerialOffset, airPassForce);
     }
-    void PlacingAndShortPass(Vector3 passTo)
+    void PlacingAndShortPass(GameObject initObj, GameObject finalObj)
     {
+        Vector3 passTo = finalObj.transform.position;
         stopMovement = true;
         StartCoroutine(Trigger(transitionTo + "PlacingAndShortPass"));
 
-        lookTowards(passTo);
+        LookTowards(initObj, finalObj, initObj.transform.forward);
         MoveBall(passTo, 0, weakPassForce);
     }
     #endregion
@@ -331,11 +319,7 @@ public class ActionAPI : MonoBehaviour
         }
         else
         {
-            //Vector2 finalFacingDirection = new Vector2(final.x - init.x, final.z - init.z);
-            //float angle = Vector2.Angle(unitVector, finalFacingDirection);
-            //transform.Rotate(Vector3.up, angle);
-
-            lookTowards(final);
+            LookTowards(initObj, finalObj, unitVector);
 
             while (timeElapsed < timeDuration)
             {
@@ -368,10 +352,12 @@ public class ActionAPI : MonoBehaviour
     /// <summary> Lerp motion Coroutine that allows player to move from one point to another </summary>
     /// <param name="init">Initial point</param>
     /// <param name="final">Final point</param>
-    IEnumerator DribbleLerp(Vector3 init, Vector3 final)
+    IEnumerator DribbleLerp(GameObject initObj, GameObject finalObj)
     {
+        Vector3 init = initObj.transform.position;
+        Vector3 final = finalObj.transform.position;
         final.y = init.y; // Don't Update Y Coordinate
-        lookTowards(final);  // for Look At final position
+        LookTowards(initObj, finalObj, initObj.transform.forward);
 
         float timeElapsed = 0;
         float distance = Vector3.Distance(init, final);
@@ -382,11 +368,6 @@ public class ActionAPI : MonoBehaviour
             float t = timeElapsed / timeDuration;
             t = t * t * (3f - 2f * t);
             float UpdatedDistance = Vector3.Distance(init, transform.position);
-
-            #region For Mathematical Reference
-            // parabola Equation if used (x-5)^2 = -4(25/8)(y-2) => y = -2/25(x^2 - 10x)  (in this Max Distance 10)
-            // parabola Equation if used (x-(d/2))^2 = -4((d/2)^2/8)(y-2)) => y = (8 (d x - x^2))/d^2
-            #endregion
 
             float transitionValue = (8f * (distance * (UpdatedDistance) - Mathf.Pow(UpdatedDistance, 2)) / Mathf.Pow(distance, 2));
 
@@ -401,12 +382,12 @@ public class ActionAPI : MonoBehaviour
             {
                 // stopMovement = false;
                 playerAnimator.SetFloat("VelZ", 0);
-                StopCoroutine(DribbleLerp(init, transform.position));
+                StopCoroutine(DribbleLerp(initObj, finalObj));
             }
         }
     }
 
-    IEnumerator BallHeaderOrThrow(Vector3 init, Vector3 final, Vector2 unitVector, float aerialOffset)
+    IEnumerator BallHeader(Vector3 init, Vector3 final, Vector2 unitVector, float aerialOffset)
     {
         Vector2 objectAPosition = new Vector2(init.x, init.z); ;
         Vector2 objectBPosition = new Vector2(final.x, final.z); ;
@@ -515,12 +496,39 @@ public class ActionAPI : MonoBehaviour
         soccerBall.GetComponent<Rigidbody>().AddForce(forceDirection * forceMagnitude * forceFactor);
     }
 
-    void lookTowards(Vector3 coords)
+    void LookTowards(GameObject initObj, GameObject finalObj, Vector2 unitVector)
     {
-        //Vector2 finalFacingDirection = new Vector2(final.x - init.x, final.z - init.z);
-        //float angle = Vector2.Angle(unitVector, finalFacingDirection);
-        //transform.Rotate(Vector3.up, angle);
-        transform.LookAt(coords);
+        Vector3 final = finalObj.transform.position;
+        Vector3 init = initObj.transform.position;
+        Vector2 finalFacingDirection = new Vector2(final.x - init.x, final.z - init.z);
+
+        float angle = Vector2.Angle(unitVector, finalFacingDirection);
+        float rotationDirection = Mathf.Sign(Vector3.Dot(unitVector, finalFacingDirection));
+
+        StartCoroutine(RotateCoroutine(initObj, angle, rotationDirection, 1f));        
+    }
+
+    IEnumerator RotateCoroutine(GameObject initObj, float angle, float rotationDirection, float duration = 1f)
+    {
+        float currentRotation = 0.0f;
+        float rotationPerSecond = angle / duration;
+
+        while(currentRotation < angle)
+        {
+            
+            // Calculate the incremental rotation for this frame
+            float rotationIncrement = rotationPerSecond * Time.deltaTime;
+            currentRotation += rotationIncrement;
+
+            if (rotationDirection == -1)
+                initObj.transform.Rotate(Vector3.up, rotationIncrement);
+            else if (rotationDirection == 1)
+                initObj.transform.Rotate(Vector3.down, rotationIncrement);
+
+            yield return null;
+        }
+
+        yield return null;
     }
 
     #endregion
