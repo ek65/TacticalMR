@@ -373,55 +373,55 @@ AnimatorController:
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
-    m_Controller: {fileID: 0}
+    m_Controller: {fileID: 9100000}
   - m_Name: VelZ
     m_Type: 1
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
-    m_Controller: {fileID: 0}
+    m_Controller: {fileID: 9100000}
   - m_Name: GroundPassSlow
     m_Type: 4
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
-    m_Controller: {fileID: 0}
+    m_Controller: {fileID: 9100000}
   - m_Name: GroundPassFast
     m_Type: 4
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
-    m_Controller: {fileID: 0}
+    m_Controller: {fileID: 9100000}
   - m_Name: AirPass
     m_Type: 4
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
-    m_Controller: {fileID: 0}
+    m_Controller: {fileID: 9100000}
   - m_Name: ChipLeft
     m_Type: 4
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
-    m_Controller: {fileID: 0}
+    m_Controller: {fileID: 9100000}
   - m_Name: ChipFront
     m_Type: 4
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
-    m_Controller: {fileID: 0}
+    m_Controller: {fileID: 9100000}
   - m_Name: Shoot
     m_Type: 4
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
-    m_Controller: {fileID: 0}
+    m_Controller: {fileID: 9100000}
   - m_Name: ChipRight
     m_Type: 4
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
-    m_Controller: {fileID: 0}
+    m_Controller: {fileID: 9100000}
   m_AnimatorLayers:
   - serializedVersion: 5
     m_Name: Base Layer
@@ -667,25 +667,25 @@ AnimatorStateMachine:
     m_Position: {x: 250, y: 90, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 1509645498828268046}
-    m_Position: {x: 190, y: -50, z: 0}
+    m_Position: {x: 100, y: 0, z: 0}
   - serializedVersion: 1
     m_State: {fileID: -2430599406104671809}
-    m_Position: {x: 220, y: 240, z: 0}
+    m_Position: {x: 280, y: 240, z: 0}
   - serializedVersion: 1
     m_State: {fileID: -4274045379473108957}
-    m_Position: {x: 450, y: 220, z: 0}
+    m_Position: {x: 510, y: 190, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 8064929332603106242}
-    m_Position: {x: 400, y: -100, z: 0}
+    m_Position: {x: 280, y: -70, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 3328007046582163805}
-    m_Position: {x: 460, y: 0, z: 0}
+    m_Position: {x: 510, y: -20, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 5627125248314052808}
-    m_Position: {x: 42.284927, y: 172.61563, z: 0}
+    m_Position: {x: 100, y: 180, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 8730256399851864211}
-    m_Position: {x: 490, y: 110, z: 0}
+    m_Position: {x: 530, y: 100, z: 0}
   m_ChildStateMachines: []
   m_AnyStateTransitions: []
   m_EntryTransitions: []

@@ -42,10 +42,6 @@ public class ActionAPI : MonoBehaviour
 
         if (gameObject.tag == "Goolkeeper") SetAnimController("GoolKeeper");
 
-        //UnitTestHeader();
-        //MoveFromOnePositionToAnother(init, final, new Vector2(0, 0), true);
-
-        UnitTestMovement(true);
     }
 
     #region Unit Tests
@@ -105,6 +101,7 @@ public class ActionAPI : MonoBehaviour
 
     #region API Methods for Singleton Animations
 
+    #region PlayersSingletonMethods
     void ReceiveBall()
     {
         stopMovement = true;
@@ -122,7 +119,7 @@ public class ActionAPI : MonoBehaviour
         stopMovement = true;
         StartCoroutine(Trigger(transitionTo + "GroundPassSlow"));
 
-        transform.LookAt(passTo);
+        lookTowards(passTo);
         MoveBall(passTo, 0, weakPassForce);
     }
 
@@ -131,7 +128,7 @@ public class ActionAPI : MonoBehaviour
         stopMovement = true;
         StartCoroutine(Trigger(transitionTo + "GroundPassFast"));
 
-        transform.LookAt(passTo);
+        lookTowards(passTo);
         MoveBall(passTo, 0, strongPassForce);
     }
 
@@ -140,7 +137,7 @@ public class ActionAPI : MonoBehaviour
         stopMovement = true;
         StartCoroutine(Trigger(transitionTo + "AirPass"));
 
-        transform.LookAt(passTo);
+        lookTowards(passTo);
         MoveBall(passTo, aerialOffset, airPassForce);
     }
 
@@ -165,7 +162,7 @@ public class ActionAPI : MonoBehaviour
         stopMovement = true;
         StartCoroutine(Trigger(transitionTo + "ChipFront"));
 
-        transform.LookAt(passTo);
+        lookTowards(passTo);
         MoveBall(passTo, aerialOffset, chipForce);
     }
 
@@ -174,7 +171,7 @@ public class ActionAPI : MonoBehaviour
         stopMovement = true;
         StartCoroutine(Trigger(transitionTo + "Shoot"));
 
-        transform.LookAt(shootAt);
+        lookTowards(shootAt);
         MoveBall(shootAt, aerialOffset, shootForce);
     }
 
@@ -183,9 +180,10 @@ public class ActionAPI : MonoBehaviour
         stopMovement = true;
         StartCoroutine(Trigger(transitionTo + "BallThrow"));
 
-        transform.LookAt(passTo);
+        lookTowards(passTo);
         MoveBall(passTo, aerialOffset, airPassForce);
     }
+    #endregion
 
     #region GoolKeeperSigletonMethods
 
@@ -199,7 +197,6 @@ public class ActionAPI : MonoBehaviour
         stopMovement = true;
         StartCoroutine(Trigger(transitionTo + "BodyBlockRightSide"));
     }
-
     void CatchFastBall()
     {
         stopMovement = true;
@@ -221,7 +218,7 @@ public class ActionAPI : MonoBehaviour
         stopMovement = true;
         StartCoroutine(Trigger(transitionTo + "DropKick"));
 
-        transform.LookAt(passTo);
+        lookTowards(passTo);
         MoveBall(passTo, aerialOffset, airPassForce);
     }
     void OverHandThrow(Vector3 passTo, float aerialOffset)
@@ -229,7 +226,7 @@ public class ActionAPI : MonoBehaviour
         stopMovement = true;
         StartCoroutine(Trigger(transitionTo + "OverHandThrow"));
 
-        transform.LookAt(passTo);
+        lookTowards(passTo);
         MoveBall(passTo, aerialOffset, airPassForce);
     }
     void RollingBallPass(Vector3 passTo)
@@ -237,7 +234,7 @@ public class ActionAPI : MonoBehaviour
         stopMovement = true;
         StartCoroutine(Trigger(transitionTo + "RollingBallPass"));
 
-        transform.LookAt(passTo);
+        lookTowards(passTo);
         MoveBall(passTo, 0, weakPassForce);
     }
     void PlacingAndLongPass(Vector3 passTo, float aerialOffset)
@@ -245,16 +242,15 @@ public class ActionAPI : MonoBehaviour
         stopMovement = true;
         StartCoroutine(Trigger(transitionTo + "PlacingAndLongPass"));
 
-        transform.LookAt(passTo);
+        lookTowards(passTo);
         MoveBall(passTo, aerialOffset, airPassForce);
     }
-
     void PlacingAndShortPass(Vector3 passTo)
     {
         stopMovement = true;
         StartCoroutine(Trigger(transitionTo + "PlacingAndShortPass"));
 
-        transform.LookAt(passTo);
+        lookTowards(passTo);
         MoveBall(passTo, 0, weakPassForce);
     }
     #endregion
@@ -339,7 +335,7 @@ public class ActionAPI : MonoBehaviour
             //float angle = Vector2.Angle(unitVector, finalFacingDirection);
             //transform.Rotate(Vector3.up, angle);
 
-            transform.LookAt(final);
+            lookTowards(final);
 
             while (timeElapsed < timeDuration)
             {
@@ -375,7 +371,7 @@ public class ActionAPI : MonoBehaviour
     IEnumerator DribbleLerp(Vector3 init, Vector3 final)
     {
         final.y = init.y; // Don't Update Y Coordinate
-        transform.LookAt(final);  // for Look At final position
+        lookTowards(final);  // for Look At final position
 
         float timeElapsed = 0;
         float distance = Vector3.Distance(init, final);
@@ -517,6 +513,14 @@ public class ActionAPI : MonoBehaviour
     {
         Vector3 forceDirection = new Vector3(xzDir.x, yDir, xzDir.z);
         soccerBall.GetComponent<Rigidbody>().AddForce(forceDirection * forceMagnitude * forceFactor);
+    }
+
+    void lookTowards(Vector3 coords)
+    {
+        //Vector2 finalFacingDirection = new Vector2(final.x - init.x, final.z - init.z);
+        //float angle = Vector2.Angle(unitVector, finalFacingDirection);
+        //transform.Rotate(Vector3.up, angle);
+        transform.LookAt(coords);
     }
 
     #endregion

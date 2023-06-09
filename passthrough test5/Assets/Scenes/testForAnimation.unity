@@ -527,8 +527,6 @@ GameObject:
   m_Component:
   - component: {fileID: 48710700}
   - component: {fileID: 48710703}
-  - component: {fileID: 48710702}
-  - component: {fileID: 48710701}
   m_Layer: 0
   m_Name: Ch38_Shoes
   m_TagString: Untagged
@@ -551,32 +549,6 @@ Transform:
   m_Father: {fileID: 1154403447}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!65 &48710701
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 48710699}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 0
-  serializedVersion: 2
-  m_Size: {x: 0.12870598, y: 0.12791175, z: 0.29497528}
-  m_Center: {x: -0.03513241, y: 0.023331404, z: 0.10638523}
---- !u!65 &48710702
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 48710699}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 0
-  serializedVersion: 2
-  m_Size: {x: 0.13074684, y: 0.12791175, z: 0.29497528}
-  m_Center: {x: 0.18416405, y: 0.023331407, z: 0.10638523}
 --- !u!137 &48710703
 SkinnedMeshRenderer:
   m_ObjectHideFlags: 0
@@ -2220,7 +2192,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!65 &328230105
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -5878,7 +5850,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1154403447}
   - component: {fileID: 1154403446}
-  - component: {fileID: 1154403445}
   - component: {fileID: 1154403444}
   m_Layer: 0
   m_Name: GoolKeeper
@@ -5886,7 +5857,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &1154403444
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5903,21 +5874,8 @@ MonoBehaviour:
   playerRunningSpeed: 2
   timeDuration: 5
   init: {fileID: 1154403447}
-  final: {fileID: 950387831}
+  final: {fileID: 950387830}
   soccerBall: {fileID: 5629360564501149551}
---- !u!65 &1154403445
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1154403443}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 1
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 0.38, y: 0.21, z: 0.23}
-  m_Center: {x: 0.06, y: 0.08, z: 0.12}
 --- !u!95 &1154403446
 Animator:
   serializedVersion: 5
@@ -10064,7 +10022,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1993664214}
   m_LocalRotation: {x: 0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0, y: 0, z: 0}
+  m_LocalPosition: {x: -0.007, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
