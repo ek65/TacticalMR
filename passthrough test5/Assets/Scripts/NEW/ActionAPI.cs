@@ -204,10 +204,14 @@ public class ActionAPI : MonoBehaviour
         playerAnimator.SetTrigger("CatchStraightUpBall");
         //StartCoroutine(Trigger(transitionTo + "CatchStraightUpBall"));
     }
+
+    //methods for Goolkeeper movvement (lefty or right)
+
     void CatchSlowBall()
     {
         stopMovement = true;
         playerAnimator.SetTrigger("CatchSlowBall");
+        //-> Ball Interation 
         //StartCoroutine(Trigger(transitionTo + "CatchSlowBall"));
 
     }
