@@ -13,7 +13,7 @@ using static UnityEditor.ShaderData;
 
 public class ActionAPI : MonoBehaviour
 {
-    [SerializeField] Animator playerAnimator;
+    // [SerializeField] Animator playerAnimator;
     [SerializeField] float playerRunningSpeed = 2f;
     [SerializeField] float timeDuration = 5f;
 
@@ -33,9 +33,9 @@ public class ActionAPI : MonoBehaviour
 
     private void Start()
     {
-        playerAnimator = this.GetComponent<Animator>();
+        // playerAnimator = this.GetComponent<Animator>();
 
-        if (gameObject.tag == "Goalkeeper") SetAnimController("GoalKeeper");
+        //if (gameObject.tag == "Goalkeeper") SetAnimController("GoalKeeper");
 
     }
     //void UnitTestMovement(bool lookAt)
@@ -49,22 +49,22 @@ public class ActionAPI : MonoBehaviour
     //}
 
     #region API Methods for BlendTrees
-    public void MoveFromOnePositionToAnother(GameObject init, Vector3 destinationPosition, bool lookAt)
+    public void MoveFromOnePositionToAnother(GameObject selfPlayer, Vector3 destinationPosition, bool lookAt)
     {
-        SetAnimController("Movement");
-        StartCoroutine(MovementLerp(init, destinationPosition, lookAt));
+        SetAnimController(selfPlayer, "Movement");
+        StartCoroutine(MovementLerp(selfPlayer, destinationPosition, lookAt));
     }
 
-    public void DribbleFromOnePositionToAnother(GameObject init, Vector3 destinationPosition)
+    public void DribbleFromOnePositionToAnother(GameObject selfPlayer, Vector3 destinationPosition)
     {
-        SetAnimController("Dribbling");
-        StartCoroutine(DribbleLerp(init, destinationPosition));
+        SetAnimController(selfPlayer, "Dribbling");
+        StartCoroutine(DribbleLerp(selfPlayer, destinationPosition));
     }
 
-    public void BallHeaderShoot(GameObject init, GameObject final, float aerialOffset)
+    public void BallHeaderShoot(GameObject selfPlayer, GameObject final, float aerialOffset)
     {
-        SetAnimController("Headers");
-        StartCoroutine(BallHeader(init, final, aerialOffset));
+        SetAnimController(selfPlayer, "Headers");
+        StartCoroutine(BallHeader(selfPlayer, final, aerialOffset));
     }
 
     #endregion
@@ -109,18 +109,18 @@ public class ActionAPI : MonoBehaviour
         //MoveBall(destinationPosition, aerialOffset, airPassForce);
     }
 
-    void ChipLeft(Vector3 destinationPosition, float aerialOffset)
+    void ChipLeft(GameObject selfPlayer, Vector3 destinationPosition, float aerialOffset)
     {
         stopMovement = true;
-        playerAnimator.SetTrigger("ChipLeft");
+        selfPlayer.GetComponent<Animator>().SetTrigger("ChipLeft");
 
         //MoveBall(destinationPosition, aerialOffset, chipForce);
     }
 
-    void ChipRight(Vector3 destinationPosition, float aerialOffset)
+    void ChipRight(GameObject selfPlayer, Vector3 destinationPosition, float aerialOffset)
     {
         stopMovement = true;
-        playerAnimator.SetTrigger("ChipRight");
+        selfPlayer.GetComponent<Animator>().SetTrigger("ChipRight");
 
         //MoveBall(destinationPosition, aerialOffset, chipForce);
     }
@@ -152,33 +152,33 @@ public class ActionAPI : MonoBehaviour
 
     #region GoalKeeper SingletonMethods
 
-    void BodyBlockLeftSide()
+    void BodyBlockLeftSide(GameObject selfPlayer)
     {
         stopMovement = true;
-        playerAnimator.SetTrigger("BodyBlockLeftSide");
+        selfPlayer.GetComponent<Animator>().SetTrigger("BodyBlockLeftSide");
     }
-    void BodyBlockRightSide()
+    void BodyBlockRightSide(GameObject selfPlayer)
     {
         stopMovement = true;
-        playerAnimator.SetTrigger("BodyBlockRightSide");
+        selfPlayer.GetComponent<Animator>().SetTrigger("BodyBlockRightSide");
     }
-    void CatchFastBall()
+    void CatchFastBall(GameObject selfPlayer)
     {
         stopMovement = true;
-        playerAnimator.SetTrigger("CatchFastBall");
+        selfPlayer.GetComponent<Animator>().SetTrigger("CatchFastBall");
     }
-    void CatchStraightUpBall()
+    void CatchStraightUpBall(GameObject selfPlayer)
     {
         stopMovement = true;
-        playerAnimator.SetTrigger("CatchStraightUpBall");
+        selfPlayer.GetComponent<Animator>().SetTrigger("CatchStraightUpBall");
     }
 
     //methods for Goalkeeper movvement (lefty or right)
 
-    void CatchSlowBall()
+    void CatchSlowBall(GameObject selfPlayer)
     {
         stopMovement = true;
-        playerAnimator.SetTrigger("CatchSlowBall");
+        selfPlayer.GetComponent<Animator>().SetTrigger("CatchSlowBall");
         //-> Ball Interation 
         //StartCoroutine(Trigger(transitionTo + "CatchSlowBall"));
 
@@ -274,8 +274,8 @@ public class ActionAPI : MonoBehaviour
                 if (transitionValueX != 0)
                     transitionValueX *= (8f * (distanceX * (UpdatedDistanceX) - Mathf.Pow(UpdatedDistanceX, 2)) / Mathf.Pow(distanceX, 2));
 
-                playerAnimator.SetFloat("VelX", transitionValueX);
-                playerAnimator.SetFloat("VelZ", transitionValueZ);
+                selfPlayer.GetComponent<Animator>().SetFloat("VelX", transitionValueX);
+                selfPlayer.GetComponent<Animator>().SetFloat("VelZ", transitionValueZ);
 
                 transform.position = Vector3.Lerp(init, final, t);
                 timeElapsed += Time.deltaTime;
@@ -285,8 +285,8 @@ public class ActionAPI : MonoBehaviour
                 if (stopMovement)
                 {
                     stopMovement = false;
-                    playerAnimator.SetFloat("VelZ", 0);
-                    playerAnimator.SetFloat("VelX", 0);
+                    selfPlayer.GetComponent<Animator>().SetFloat("VelZ", 0);
+                    selfPlayer.GetComponent<Animator>().SetFloat("VelX", 0);
                     StopCoroutine(MovementLerp(selfPlayer, final, lookAt));
                 }
             }
@@ -304,7 +304,7 @@ public class ActionAPI : MonoBehaviour
 
                 float transitionValue = (8f * (distance * (UpdatedDistance) - Mathf.Pow(UpdatedDistance, 2)) / Mathf.Pow(distance, 2));
 
-                playerAnimator.SetFloat("VelZ", transitionValue);
+                selfPlayer.GetComponent<Animator>().SetFloat("VelZ", transitionValue);
 
                 transform.position = Vector3.Lerp(init, final, t);
                 timeElapsed += Time.deltaTime;
@@ -314,8 +314,8 @@ public class ActionAPI : MonoBehaviour
                 if (stopMovement)
                 {
                     stopMovement = false;
-                    playerAnimator.SetFloat("VelZ", 0);
-                    playerAnimator.SetFloat("VelX", 0);
+                    selfPlayer.GetComponent<Animator>().SetFloat("VelZ", 0);
+                    selfPlayer.GetComponent<Animator>().SetFloat("VelX", 0);
                     StopCoroutine(MovementLerp(selfPlayer, final, lookAt));
                 }
             }
@@ -345,7 +345,7 @@ public class ActionAPI : MonoBehaviour
 
             float transitionValue = (8f * (distance * (UpdatedDistance) - Mathf.Pow(UpdatedDistance, 2)) / Mathf.Pow(distance, 2));
 
-            playerAnimator.SetFloat("VelZ", transitionValue);
+            selfPlayer.GetComponent<Animator>().SetFloat("VelZ", transitionValue);
 
             transform.position = Vector3.Lerp(init, final, t);
             timeElapsed += Time.deltaTime;
@@ -355,7 +355,7 @@ public class ActionAPI : MonoBehaviour
             if (stopMovement)
             {
                 // stopMovement = false;
-                playerAnimator.SetFloat("VelZ", 0);
+                selfPlayer.GetComponent<Animator>().SetFloat("VelZ", 0);
                 StopCoroutine(DribbleLerp(selfPlayer, final));
             }
         }
@@ -382,8 +382,8 @@ public class ActionAPI : MonoBehaviour
         float velZ = Mathf.Cos(newAngle);
         float velX = Mathf.Sin(newAngle);
 
-        playerAnimator.SetFloat("VelZ", velZ);
-        playerAnimator.SetFloat("VelX", velX);
+        selfPlayer.GetComponent<Animator>().SetFloat("VelZ", velZ);
+        selfPlayer.GetComponent<Animator>().SetFloat("VelX", velX);
 
         yield return new WaitForSeconds(1.1f);
 
@@ -392,8 +392,8 @@ public class ActionAPI : MonoBehaviour
 
         yield return new WaitForSeconds(WaitTime() - 1f);
 
-        playerAnimator.SetFloat("VelZ", 0);
-        playerAnimator.SetFloat("VelX", 0);
+        selfPlayer.GetComponent<Animator>().SetFloat("VelZ", 0);
+        selfPlayer.GetComponent<Animator>().SetFloat("VelX", 0);
 
     }
 
@@ -403,9 +403,9 @@ public class ActionAPI : MonoBehaviour
     //{
     //    keyCodeHash = keyCodeHash.Substring(1);
 
-    //    playerAnimator.SetBool(keyCodeHash, true);
+    //    selfPlayer.GetComponent<Animator>().SetBool(keyCodeHash, true);
     //    yield return new WaitForSeconds(WaitTime());
-    //    playerAnimator.SetBool(keyCodeHash, false);
+    //    selfPlayer.GetComponent<Animator>().SetBool(keyCodeHash, false);
 
     //    stopMovement = false;
     //}
@@ -422,13 +422,13 @@ public class ActionAPI : MonoBehaviour
         return delay;
     }
 
-    void SetAnimController(string controllerHashCode)
+    void SetAnimController(GameObject selfPlayer, string controllerHashCode)
     {
-        string currAnimationController = playerAnimator.runtimeAnimatorController.name;
+        string currAnimationController = selfPlayer.GetComponent<Animator>().runtimeAnimatorController.name;
         if (currAnimationController != controllerHashCode)
         {
             RuntimeAnimatorController newController = Resources.Load("Animation/" + controllerHashCode, typeof(RuntimeAnimatorController)) as RuntimeAnimatorController;
-            playerAnimator.runtimeAnimatorController = newController;
+            selfPlayer.GetComponent<Animator>().runtimeAnimatorController = newController;
         }
     }
 
@@ -486,7 +486,7 @@ public class ActionAPI : MonoBehaviour
         yield return StartCoroutine(RotateCoroutine(selfPlayer, angle, rotationDirection, rotationDuration));
 
         // play animation after rotating
-        if (keyCode != null) playerAnimator.SetTrigger(keyCode);
+        if (keyCode != null) selfPlayer.GetComponent<Animator>().SetTrigger(keyCode);
     }
 
     IEnumerator RotateCoroutine(GameObject selfPlayer, float angle, float rotationDirection, float duration)
