@@ -36,7 +36,7 @@ class UnityObject:
 
 class Ball(UnityObject):
     gameObjectType : "ball"
-    width : 1
-    length : 1
-    height : 1
+    width : 0.15
+    length : 0.15
+    height : 0.15
 

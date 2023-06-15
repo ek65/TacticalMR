@@ -6,19 +6,18 @@ public class ObjectsList : MonoBehaviour
 {
     //This function keeps track of the ever-increasing amount of gameobjects within the scene.
     //prefabs to spawn or inst
-    public GameObject AIPrefab;
-    public GameObject PlayerPrefab;
-    public GameObject DiscPrefab;
-    public GameObject ButtonsPrefab;
+    // public GameObject AIPrefab;
+    // public GameObject PlayerPrefab;
+    public GameObject BallPrefab;
 
     //spawn locations
-    public Vector3 orangeSpawnLocation;
-    public Vector3 blueSpawnLocation;
-    public Vector3 playerSpawnLocation;
+    // public Vector3 redSpawnLocation;
+    // public Vector3 blueSpawnLocation;
+    // public Vector3 playerSpawnLocation;
+    public Vector3 ballSpawnLocation;
 
     //in-game objects
-    public GameObject StartingBarrierObject;
-    public GameObject DiscObject;
+    public GameObject ballObject;
     public List<ulong> bluePlayers;
     public List<ulong> orangePlayers;
 
@@ -59,10 +58,10 @@ public class ObjectsList : MonoBehaviour
     private void InitModelDict()
     {
         List<GameObject> models = new List<GameObject>();
-        models.AddRange(Resources.LoadAll<GameObject>("Prefabs/XR Rigs"));
-        models.AddRange(Resources.LoadAll<GameObject>("Prefabs/Misc Models"));
-        models.AddRange(Resources.LoadAll<GameObject>("Prefabs/Discs"));
-        models.AddRange(Resources.LoadAll<GameObject>("Prefabs/Env Models"));
+        models.AddRange(Resources.LoadAll<GameObject>("Prefabs/Balls"));
+        // models.AddRange(Resources.LoadAll<GameObject>("Prefabs/XR Rigs"));
+        // models.AddRange(Resources.LoadAll<GameObject>("Prefabs/Misc Models"));
+        // models.AddRange(Resources.LoadAll<GameObject>("Prefabs/Env Models"));
         foreach (GameObject obj in models)
         {
             modelList.Add(obj.name, obj);
@@ -81,7 +80,7 @@ public class ObjectsList : MonoBehaviour
             Debug.LogWarning("Could not remove scenic obj: " + obj.ToString());
         }
     }
-    /*public void Reset()
+    public void Reset()
     {
         foreach (GameObject obj in scenicObjects)
         {
@@ -93,13 +92,13 @@ public class ObjectsList : MonoBehaviour
         }
         scenicObjects = new List<GameObject>();
         scenicPlayers = new List<GameObject>();
-        Destroy(DiscObject);
-        DiscObject = null;
+        Destroy(ballObject);
+        ballObject = null;
         //call reset function on the ready boolean for human and index
-        humanPlayers[0].GetComponentInChildren<HumanInterface>().ResetValues();
-    }*/
-    public void RemoveAllHumans()
+        // humanPlayers[0].GetComponentInChildren<HumanInterface>().ResetValues();
+    }
+    /*public void RemoveAllHumans()
     {
         humanPlayers = new List<GameObject>();
-    }
+    }*/
 }

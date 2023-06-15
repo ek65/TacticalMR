@@ -504,6 +504,10 @@ class Simulation:
             dynTypes = {prop: val for prop, val in obj._dynamicProperties.items() if prop not in obj._finalProperties}
             properties = set(dynTypes)
             values = self.getProperties(obj, properties)
+            # print("PROPERTIES: ")
+            # print(properties)
+            # print("VALUES: ")
+            # print(values)
             assert properties == set(values), properties ^ set(values)
             for prop, value in values.items():
                 ty = dynTypes[prop]

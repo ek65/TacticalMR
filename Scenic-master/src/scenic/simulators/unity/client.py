@@ -3,8 +3,10 @@ from types import MappingProxyType
 import zmq
 import json
 from scenic.core.vectors import Vector
+from scenic.core.vectors import Orientation
 from numpy.linalg import norm
 from typing import Optional, Any, List, TypeVar, Type, cast, Callable
+from scipy.spatial.transform import Rotation
 
 # Language: Python 3
 # Holds client information for Scenic Unity communication
@@ -204,35 +206,7 @@ class UnityMessageServer:
                     k += 1
 
     def getProperties(self, obj, properties):
-        if obj.gameObjectType == "player":
-            game_object = obj.gameObject
-            stored_game_object = self.ScenicPlayers[int(game_object.tag)]
-            position = stored_game_object.position
-            rotation = stored_game_object.rotation
-            holdingDisc = stored_game_object.holdingDisc
-            holdingWall = stored_game_object.holdingWall
-            velocity = stored_game_object.velocity
-            path = stored_game_object.path
-            angularVelocity = norm(stored_game_object.angularVelocity)
-            speed=stored_game_object.speed
-            trigger = stored_game_object.trigger
-            if rotation[3] == 0:
-                yaw, pitch, roll = 0, 0, 0
-            values = dict(
-                position = position,
-                velocity = velocity,
-                speed = speed,
-                angularSpeed = speed,
-                pitch = pitch,
-                roll = roll,
-                yaw = yaw,
-                region = None,
-                emptySpace = None,
-                topSurface = None
-            )
-
-            return values
-        elif obj.gameObjectType == "ball":
+        if obj.gameObjectType == "ball":
             if self.ball is not None:
                 obj.gameObject = self.ball
             else:
@@ -251,94 +225,34 @@ class UnityMessageServer:
                 return values
             game_object = obj.gameObject
             stored_game_object = self.ball
-            print(self.ball.rotation[3])
             position = stored_game_object.position
             rotation = stored_game_object.rotation
             velocity = stored_game_object.velocity
-            angularVelocity = norm(stored_game_object.angularVelocity)
+            angularVelocity = stored_game_object.angularVelocity
             speed=stored_game_object.speed
             obj.gameObject = stored_game_object
             if rotation[3] == 0:
                 yaw, pitch, roll = 0, 0, 0
-            
-            values = dict(
-                position = position,
-                velocity = velocity,
-                speed = speed,
-                angularSpeed = speed,
-                pitch = pitch,
-                roll = roll,
-                yaw = yaw,
-                region = None,
-                emptySpace = None,
-                topSurface = None
-            )
-            return values
-        if obj.gameObjectType == "human":
-            game_object = obj.gameObject
-            #change when we implement more human players
-            stored_game_object = self.HumanPlayers["ego"]
-            position = stored_game_object.position
-            rotation = stored_game_object.rotation
-            velocity = stored_game_object.velocity
-            #TODO: actually get angularvelocity (or magnitude)
-            angularVelocity = norm(stored_game_object.angularVelocity)
-            speed=stored_game_object.speed
-            if rotation[3] == 0:
-                yaw, pitch, roll = 0, 0, 0
-            #add controller data here
-            savedLeftController = self.humanSavedControllerData[0]
-            savedRightController = self.humanSavedControllerData[1]
-            obj.leftController = savedLeftController
-            obj.rightController = savedRightController
-            obj.gameObject = stored_game_object
-            values = dict(
-                position = position,
-                velocity = velocity,
-                speed = speed,
-                angularSpeed = speed,
-                pitch = pitch,
-                roll = roll,
-                yaw = yaw,
-                region = None,
-                emptySpace = None,
-                topSurface = None
-            )
-            return values
-        elif obj.isUnityObject:
-            #It must be a scenicObj
-            game_object = obj.gameObject
-            stored_game_object = self.objects[int(game_object.tag)]
-            position = stored_game_object.position
-            rotation = stored_game_object.rotation
-            trigger = stored_game_object.trigger
-            values = dict(
-                    position=position,
-                    velocity=(0,0,0),
-                    speed = 0.0,
-                    angularSpeed = 0.0,
-                    pitch = 0,
-                    roll = 0,
-                    yaw = 0,
-                    region = None,
-                    emptySpace = None,
-                    topSurface = None
-                )
-            return values
-        else:
+            else:
+                r = Rotation.from_quat([rotation[0], rotation[1], rotation[2], rotation[3]])
+                simOrientation = Orientation(r)
+                simYaw, simPitch, simRoll = simOrientation.eulerAngles   # global Euler angles
+                yaw, pitch, roll = obj.parentOrientation.globalToLocalAngles(simYaw, simPitch, simRoll)   # local Euler angles
+
+            #print(properties)
+            #print(yaw)
 
             values = dict(
-                    position=(0,0,0),
-                    velocity=(0,0,0),
-                    speed = 0.0,
-                    angularSpeed = 0.0,
-                    pitch = 0,
-                    roll = 0,
-                    yaw = 0,
-                    region = None,
-                    emptySpace = None,
-                    topSurface = None
-                )
+                position = position,
+                speed = speed,
+                velocity = velocity,
+                angularSpeed = speed,
+                angularVelocity = angularVelocity,
+                pitch = pitch,
+                roll = roll,
+                yaw = yaw,
+            )
+            #print(set(values))
             return values
 # gameObject class holds information Unity needs to generate all gameObject
 class gameObject:
@@ -350,90 +264,38 @@ class gameObject:
     #this is used to both record human players and disc at RUNTIME
     clientID : int
 
-    holdingWall : bool
-    wallHeading : Vector
-    pushMagnitude : float
-
-    holdingBall : bool
-    ballHeading : Vector
-    throwMagnitude : float
-
-    brake : bool
-
-    thrustHeading : Vector
-    thrustOn :bool
-
-    thBoActive : bool
+    # ballHeading : Vector
 
     velocity : Vector
     angularVelocity : Vector
     speed : float
-    velocityStop : bool
+    # velocityStop : bool
 
-    doMercuna : bool
-    mercunaPosition : Vector
+    # doTransform : bool
 
-    doTransform : bool
+    # transformPosition : Vector
 
-    doPunch : bool
+    # destroy : bool
+    # catchRadius : float
 
-    # Added new bool variable
-    # Whenever you add new variables you have to initialize them here
-    throwTop : bool
-    throwSide : bool
-    transformPosition : Vector
-
-    doLineDraw : bool
-    lineDestination : list
-    stopButton : bool
-    destroy : bool
-    topSpeed : float
-    catchRadius : float
     def __init__(self, position, rotation):
         self.position = position
         self.rotation = (rotation.x, rotation.y, rotation.z, rotation.w)
-        self.transformPosition = Vector(0,0,0)
-        self.topSpeed = 4.0
-        self.catchRadius = 2.0
-        self.holdingBall = False
-        self.holdingWall = False
-        self.brake = False
-        self.velocityStop = False
-        self.thBoActive = True
+        # self.transformPosition = Vector(0,0,0)
+        # self.velocityStop = False
         self.velocity = Vector(0,0,0)
         self.angularVelocity = Vector(0,0,0)
         self.speed = 0.0
-        self.thrustHeading = Vector(0, 0, 0)
-        self.thrustOn = False
         self.tag = ""
         self.clientID = 0
-        self.wallHeading = Vector(0,0,0)
-        self.pushMagnitude = 0.0
-        self.ballHeading = Vector(0,0,0)
-        self.throwMagnitude = 0.0
 
-        self.mercunaPosition = Vector(0,0,0)
-        self.doMercunaMove = False
-        self.mercunaID = 0
-        self.doMercunaFollow = False
-        self.mercunaDistance = 0
-        self.model = Model()
-        self.HUD = HUD()
-        self.doTransform = False
-        self.destroy = False
-        self.path = list()
-        self.doPunch = False
-        self.trigger = False
+        # self.doTransform = False
+        # self.destroy = False
+        # self.path = list()
 
         # Initialize added variables
-        self.throwSide = False
-        self.throwTop = False
-
-        self.doLineDraw = False
-        self.lineDestination = [Vector(0,0,0)]
-        self.stopButton = False
-        self.heldByHuman = False
-        self.heldByScenic = False
+        # self.heldByHuman = False
+        # self.heldByScenic = False
     #############################################################################################
     # Functions that take in values from the actions and update the variables of the gameObject #
     # Call, within actions.py, using "obj.gameObject.func()" to access                          #
