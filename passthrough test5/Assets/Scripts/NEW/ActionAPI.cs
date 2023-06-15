@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Runtime.ConstrainedExecution;
 using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.UIElements;
-using static UnityEditor.ShaderData;
 
 #region For Mathematical Reference
 // parabola Equation if used (x-5)^2 = -4(25/8)(y-2) => y = -2/25(x^2 - 10x)  (in this Max Distance 10)
@@ -13,7 +11,6 @@ using static UnityEditor.ShaderData;
 
 public class ActionAPI : MonoBehaviour
 {
-    // [SerializeField] Animator playerAnimator;
     [SerializeField] float playerRunningSpeed = 2f;
     [SerializeField] float timeDuration = 5f;
 
@@ -34,15 +31,6 @@ public class ActionAPI : MonoBehaviour
     private void Start()
     {
     }
-    //void UnitTestMovement(bool lookAt)
-    //{
-    //    Vector2 unitVector = new Vector2(0, 0);
-
-    //    unitVector.x = Mathf.Sin(transform.rotation.eulerAngles.y * Mathf.Deg2Rad);
-    //    unitVector.y = Mathf.Cos(transform.rotation.eulerAngles.y * Mathf.Deg2Rad);
-
-    //    MoveFromOnePositionToAnother(init.gameObject, final.gameObject, unitVector, lookAt);
-    //}
 
     #region API Methods for BlendTrees
     public void MoveFromOnePositionToAnother(GameObject selfPlayer, Vector3 destinationPosition, bool lookAt = true)
@@ -68,114 +56,188 @@ public class ActionAPI : MonoBehaviour
     #region API Methods for Singleton Animations
 
     #region PlayersSingletonMethods
-    void ReceiveBall(GameObject selfPlayer, Vector3 receiveFrom)
+    public void ReceiveBall(GameObject selfPlayer, Vector3 receiveFrom)
     {
         SetAnimController(selfPlayer, "Movement");
         stopMovement = true;
         LookTowards(selfPlayer, receiveFrom, "Receive");
     }
 
-    void TackleBall(GameObject selfPlayer, Vector3 tackleFrom)
+    public void TackleBall(GameObject selfPlayer, Vector3 tackleFrom)
     {
         SetAnimController(selfPlayer, "Movement");
         stopMovement = true;
         LookTowards(selfPlayer, tackleFrom, "Receive");
     }
 
-    void GroundPassSlow(GameObject selfPlayer, Vector3 destinationPosition)
+    public void GroundPassSlow(GameObject selfPlayer, Vector3 destinationPosition)
     {
         stopMovement = true;
         SetAnimController(selfPlayer, "Dribbling");
         LookTowards(selfPlayer, destinationPosition, "GroundPassSlow");
         
-        //MoveBall(destinationPosition, 0, weakPassForce);
+        MoveBall(destinationPosition, 0, weakPassForce);
     }
 
-    void GroundPassFast(GameObject selfPlayer, Vector3 destinationPosition)
+    public void GroundPassFast(GameObject selfPlayer, Vector3 destinationPosition)
     {
         stopMovement = true;
         SetAnimController(selfPlayer, "Dribbling");
         LookTowards(selfPlayer, destinationPosition, "GroundPassFast");
         
-        //MoveBall(destinationPosition, 0, strongPassForce);
+        MoveBall(destinationPosition, 0, strongPassForce);
     }
 
-    void AirPass(GameObject selfPlayer, Vector3 destinationPosition, string ballProjectileHeight)
+    public void AirPass(GameObject selfPlayer, Vector3 destinationPosition, string ballProjectileHeight)
     {
         stopMovement = true;
         SetAnimController(selfPlayer, "Dribbling");
         LookTowards(selfPlayer, destinationPosition, "AirPass");
 
-        //MoveBall(destinationPosition, VerticalForce(ballProjectileHeight), airPassForce);
+        MoveBall(destinationPosition, VerticalForce(ballProjectileHeight), airPassForce);
     }
 
-    void ChipLeft(GameObject selfPlayer, Vector3 destinationPosition, string ballProjectileHeight)
+    public void ChipLeft(GameObject selfPlayer, Vector3 destinationPosition, string ballProjectileHeight)
     {
         stopMovement = true;
         SetAnimController(selfPlayer, "Dribbling");
         selfPlayer.GetComponent<Animator>().SetTrigger("ChipLeft");
 
-        //MoveBall(destinationPosition, VerticalForce(ballProjectileHeight), chipForce);
+        MoveBall(destinationPosition, VerticalForce(ballProjectileHeight), chipForce);
     }
 
-    void ChipRight(GameObject selfPlayer, Vector3 destinationPosition, string ballProjectileHeight)
+    public void ChipRight(GameObject selfPlayer, Vector3 destinationPosition, string ballProjectileHeight)
     {
         stopMovement = true;
         SetAnimController(selfPlayer, "Dribbling");
         selfPlayer.GetComponent<Animator>().SetTrigger("ChipRight");
 
-        //MoveBall(destinationPosition, VerticalForce(ballProjectileHeight), chipForce);
+        MoveBall(destinationPosition, VerticalForce(ballProjectileHeight), chipForce);
     }
 
-    void ChipFront(GameObject selfPlayer, Vector3 destinationPosition, string ballProjectileHeight)
+    public void ChipFront(GameObject selfPlayer, Vector3 destinationPosition, string ballProjectileHeight)
     {
         stopMovement = true;
         SetAnimController(selfPlayer, "Dribbling");
         LookTowards(selfPlayer, destinationPosition, "ChipFront");
 
-        //MoveBall(destinationPosition, VerticalForce(ballProjectileHeight), chipForce);
+        MoveBall(destinationPosition, VerticalForce(ballProjectileHeight), chipForce);
     }
 
-    void Shoot(GameObject selfPlayer, Vector3 destinationPosition, string ballProjectileHeight)
+    //public void ShootBallOnly(Vector3 destinationPosition, string destinationZone, string ballProjectileHeight)
+    //{
+    //    Debug.Log("working");
+    //    Debug.Log("target: " + destinationPosition);
+    //    switch (destinationZone)
+    //    {
+    //        case "left-top":
+    //            // Code for "left-top" case
+    //            break;
+    //        case "left-middle":
+    //            // Code for "left-middle" case
+    //            break;
+    //        case "left-bottom":
+    //            // Code for "left-bottom" case
+    //            break;
+    //        case "center-top":
+    //            // Code for "center" case
+    //            break;
+    //        case "center-middle":
+    //            // Code for "center" case
+    //            break;
+    //        case "center-bottom":
+    //            // Code for "center" case
+    //            break;
+    //        case "right-top":
+    //            // Code for "right-top" case
+    //            break;
+    //        case "right-middle":
+    //            // Code for "right-middle" case
+    //            break;
+    //        case "right-bottom":
+    //            // Code for "right-bottom" case
+    //            break;
+    //        default:
+    //            // Code to handle cases not explicitly defined
+    //            break;
+    //    }
+
+    //    MoveBall(destinationPosition - soccerBall.transform.position, VerticalForce(ballProjectileHeight), shootForce);
+    //}
+    public void Shoot(GameObject selfPlayer, Vector3 destinationPosition, string destinationZone, string ballProjectileHeight)
     {
         stopMovement = true;
         SetAnimController(selfPlayer, "Dribbling");
         LookTowards(selfPlayer, destinationPosition, "Shoot");
 
-        //MoveBall(destinationPosition, VerticalForce(ballProjectileHeight), shootForce);
+        switch (destinationZone)
+        {
+            case "left-top":
+                // Code for "left-top" case
+                break;
+            case "left-middle":
+                // Code for "left-middle" case
+                break;
+            case "left-bottom":
+                // Code for "left-bottom" case
+                break;
+            case "center-top":
+                // Code for "center" case
+                break;
+            case "center-middle":
+                // Code for "center" case
+                break;
+            case "center-bottom":
+                // Code for "center" case
+                break;
+            case "right-top":
+                // Code for "right-top" case
+                break;
+            case "right-middle":
+                // Code for "right-middle" case
+                break;
+            case "right-bottom":
+                // Code for "right-bottom" case
+                break;
+            default:
+                // Code to handle cases not explicitly defined
+                break;
+        }
+
+        MoveBall(destinationPosition - soccerBall.transform.position, VerticalForce(ballProjectileHeight), shootForce);
     }
 
-    void BallThrow(GameObject selfPlayer, Vector3 destinationPosition, string ballProjectileHeight)
+    public void BallThrow(GameObject selfPlayer, Vector3 destinationPosition, string ballProjectileHeight)
     {
         stopMovement = true;
         SetAnimController(selfPlayer, "Dribbling");
         LookTowards(selfPlayer, destinationPosition, "BallThrow");
 
-        //MoveBall(destinationPosition, VerticalForce(ballProjectileHeight), airPassForce);
+        MoveBall(destinationPosition, VerticalForce(ballProjectileHeight), airPassForce);
     }
     #endregion
 
     #region GoalKeeper SingletonMethods
 
-    void BodyBlockLeftSide(GameObject selfPlayer)
+    public void BodyBlockLeftSide(GameObject selfPlayer)
     {
         stopMovement = true;
         SetAnimController(selfPlayer, "GoalKeeper");
         selfPlayer.GetComponent<Animator>().SetTrigger("BodyBlockLeftSide");
     }
-    void BodyBlockRightSide(GameObject selfPlayer)
+    public void BodyBlockRightSide(GameObject selfPlayer)
     {
         stopMovement = true;
         SetAnimController(selfPlayer, "GoalKeeper");
         selfPlayer.GetComponent<Animator>().SetTrigger("BodyBlockRightSide");
     }
-    void CatchFastBall(GameObject selfPlayer)
+    public void CatchFastBall(GameObject selfPlayer)
     {
         stopMovement = true;
         SetAnimController(selfPlayer, "GoalKeeper");
         selfPlayer.GetComponent<Animator>().SetTrigger("CatchFastBall");
     }
-    void CatchStraightUpBall(GameObject selfPlayer)
+    public void CatchStraightUpBall(GameObject selfPlayer)
     {
         stopMovement = true;
         SetAnimController(selfPlayer, "GoalKeeper");
@@ -184,7 +246,7 @@ public class ActionAPI : MonoBehaviour
 
     //methods for Goalkeeper movement (lefty or right)
 
-    void CatchSlowBall(GameObject selfPlayer)
+    public void CatchSlowBall(GameObject selfPlayer)
     {
         stopMovement = true;
         SetAnimController(selfPlayer, "GoalKeeper");
@@ -193,45 +255,45 @@ public class ActionAPI : MonoBehaviour
         //StartCoroutine(Trigger(transitionTo + "CatchSlowBall"));
 
     }
-    void DropKickShot(GameObject selfPlayer, Vector3 destinationPosition, string ballProjectileHeight)
+    public void DropKickShot(GameObject selfPlayer, Vector3 destinationPosition, string ballProjectileHeight)
     {
         stopMovement = true;
         SetAnimController(selfPlayer, "GoalKeeper");
         LookTowards(selfPlayer, destinationPosition, "DropKick");
 
-        //MoveBall(destinationPosition, VerticalForce(ballProjectileHeight), airPassForce);
+        MoveBall(destinationPosition, VerticalForce(ballProjectileHeight), airPassForce);
     }
-    void OverHandThrow(GameObject selfPlayer, Vector3 destinationPosition, string ballProjectileHeight)
+    public void OverHandThrow(GameObject selfPlayer, Vector3 destinationPosition, string ballProjectileHeight)
     {
         stopMovement = true;
         SetAnimController(selfPlayer, "GoalKeeper");
         LookTowards(selfPlayer, destinationPosition, "OverHandThrow");
 
-        //MoveBall(destinationPosition, VerticalForce(ballProjectileHeight), airPassForce);
+        MoveBall(destinationPosition, VerticalForce(ballProjectileHeight), airPassForce);
     }
-    void RollingBallPass(GameObject selfPlayer, Vector3 destinationPosition)
+    public void RollingBallPass(GameObject selfPlayer, Vector3 destinationPosition)
     {
         stopMovement = true;
         SetAnimController(selfPlayer, "GoalKeeper");
         LookTowards(selfPlayer, destinationPosition, "RollingBallPass");
 
-        //MoveBall(destinationPosition, 0, weakPassForce);
+        MoveBall(destinationPosition, 0, weakPassForce);
     }
-    void PlacingAndLongPass(GameObject selfPlayer, Vector3 destinationPosition, string ballProjectileHeight)
+    public void PlacingAndLongPass(GameObject selfPlayer, Vector3 destinationPosition, string ballProjectileHeight)
     {
         stopMovement = true;
         SetAnimController(selfPlayer, "GoalKeeper");
         LookTowards(selfPlayer, destinationPosition, "PlacingAndLongPass");
 
-        //MoveBall(destinationPosition, VerticalForce(ballProjectileHeight), airPassForce);
+        MoveBall(destinationPosition, VerticalForce(ballProjectileHeight), airPassForce);
     }
-    void PlacingAndShortPass(GameObject selfPlayer, Vector3 destinationPosition)
+    public void PlacingAndShortPass(GameObject selfPlayer, Vector3 destinationPosition)
     {
         stopMovement = true;
         SetAnimController(selfPlayer, "GoalKeeper");
         LookTowards(selfPlayer, destinationPosition, "PlacingAndShortPass");
         
-        //MoveBall(destinationPosition, 0, weakPassForce);
+        MoveBall(destinationPosition, 0, weakPassForce);
     }
     #endregion
 
@@ -403,7 +465,7 @@ public class ActionAPI : MonoBehaviour
         yield return new WaitForSeconds(1.1f);
 
         // move ball
-        //MoveBall(final, aerialOffset, airPassForce);
+        MoveBall(final, aerialOffset, airPassForce);
 
         yield return new WaitForSeconds(WaitTime() - 1f);
 
@@ -411,19 +473,6 @@ public class ActionAPI : MonoBehaviour
         selfPlayer.GetComponent<Animator>().SetFloat("VelX", 0);
 
     }
-
-    ///// <summary> Triggering Singleton Animations </summary>
-    ///// <param name="keyCodeHash">Animation name</param>
-    //IEnumerator Trigger(string keyCodeHash)
-    //{
-    //    keyCodeHash = keyCodeHash.Substring(1);
-
-    //    selfPlayer.GetComponent<Animator>().SetBool(keyCodeHash, true);
-    //    yield return new WaitForSeconds(WaitTime());
-    //    selfPlayer.GetComponent<Animator>().SetBool(keyCodeHash, false);
-
-    //    stopMovement = false;
-    //}
 
     #endregion
 
@@ -486,6 +535,7 @@ public class ActionAPI : MonoBehaviour
     void MoveBall(Vector3 xzDir, float yDir, float forceMagnitude)
     {
         Vector3 forceDirection = new Vector3(xzDir.x, yDir, xzDir.z);
+        Debug.Log("force vector: " + forceDirection);
         soccerBall.GetComponent<Rigidbody>().AddForce(forceDirection * forceMagnitude * forceFactor);
     }
 
