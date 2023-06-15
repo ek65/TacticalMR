@@ -17,8 +17,6 @@ public class ActionAPI : MonoBehaviour
     [SerializeField] float playerRunningSpeed = 2f;
     [SerializeField] float timeDuration = 5f;
 
-    [SerializeField] GameObject init;
-    [SerializeField] GameObject final;
     [SerializeField] GameObject soccerBall;
 
     bool stopMovement = false;
@@ -31,49 +29,42 @@ public class ActionAPI : MonoBehaviour
     float chipForce = 1.5f;
     float shootForce = 4f;
 
+    float rotationDuration = 0.8f;
+
     private void Start()
     {
         playerAnimator = this.GetComponent<Animator>();
 
         if (gameObject.tag == "Goalkeeper") SetAnimController("GoalKeeper");
 
-        //UnitTestMovement(true);
-
-        GroundPassSlow(init, final);
-
     }
-    void UnitTestMovement(bool lookAt)
-    {
-        Vector2 unitVector = new Vector2(0, 0);
+    //void UnitTestMovement(bool lookAt)
+    //{
+    //    Vector2 unitVector = new Vector2(0, 0);
 
-        unitVector.x = Mathf.Sin(transform.rotation.eulerAngles.y * Mathf.Deg2Rad);
-        unitVector.y = Mathf.Cos(transform.rotation.eulerAngles.y * Mathf.Deg2Rad);
+    //    unitVector.x = Mathf.Sin(transform.rotation.eulerAngles.y * Mathf.Deg2Rad);
+    //    unitVector.y = Mathf.Cos(transform.rotation.eulerAngles.y * Mathf.Deg2Rad);
 
-        MoveFromOnePositionToAnother(init.gameObject, final.gameObject, unitVector, lookAt);
-    }
+    //    MoveFromOnePositionToAnother(init.gameObject, final.gameObject, unitVector, lookAt);
+    //}
 
     #region API Methods for BlendTrees
-
-    /// <summary> Method/API to Move player from One Position to another </summary>
-    /// <param name="init">Initial Position</param>
-    /// <param name="final">Final Position</param>
-    /// <param name="unitVector">Unit Vector where the player is facing</param>
-    public void MoveFromOnePositionToAnother(GameObject init, GameObject final, Vector2 unitVector,bool lookAt)
+    public void MoveFromOnePositionToAnother(GameObject init, Vector3 destinationPosition, bool lookAt)
     {
         SetAnimController("Movement");
-        StartCoroutine(MovementLerp(init, final, unitVector, lookAt));
+        StartCoroutine(MovementLerp(init, destinationPosition, lookAt));
     }
 
-    public void DribbleFromOnePositionToAnother(GameObject init, GameObject final)
+    public void DribbleFromOnePositionToAnother(GameObject init, Vector3 destinationPosition)
     {
         SetAnimController("Dribbling");
-        StartCoroutine(DribbleLerp(init, final));
+        StartCoroutine(DribbleLerp(init, destinationPosition));
     }
 
-    public void BallHeaderShoot(Vector3 init, Vector3 final, Vector2 unitVector, float aerialOffset)
+    public void BallHeaderShoot(GameObject init, GameObject final, float aerialOffset)
     {
         SetAnimController("Headers");
-        StartCoroutine(BallHeader(init, final, unitVector, aerialOffset));
+        StartCoroutine(BallHeader(init, final, aerialOffset));
     }
 
     #endregion
@@ -81,100 +72,81 @@ public class ActionAPI : MonoBehaviour
     #region API Methods for Singleton Animations
 
     #region PlayersSingletonMethods
-    void ReceiveBall()
+    void ReceiveBall(GameObject selfPlayer, Vector3 receiveFrom)
     {
         stopMovement = true;
-        playerAnimator.SetTrigger("Receive");
+        LookTowards(selfPlayer, receiveFrom, "Receive");
+    }
+
+    void TackleBall(GameObject selfPlayer, Vector3 tackleFrom)
+    {
+        stopMovement = true;
+        LookTowards(selfPlayer, tackleFrom, "Receive");
+    }
+
+    void GroundPassSlow(GameObject selfPlayer, Vector3 destinationPosition)
+    {
+        stopMovement = true;
+        LookTowards(selfPlayer, destinationPosition, "GroundPassSlow");
         
-        //StartCoroutine(Trigger(transitionTo + "Receive"));
+        //MoveBall(destinationPosition, 0, weakPassForce);
     }
 
-    void TackleBall()
+    void GroundPassFast(GameObject selfPlayer, Vector3 destinationPosition)
     {
         stopMovement = true;
-        playerAnimator.SetTrigger("StrongTackle");
-        //StartCoroutine(Trigger(transitionTo + "StrongTackle"));
-    }
-
-    void GroundPassSlow(GameObject initObj, GameObject finalObj)
-    {
-        Vector3 passTo = finalObj.transform.position;
-        stopMovement = true;
-
-        LookTowards(initObj, finalObj, new Vector2(initObj.transform.forward.x, initObj.transform.forward.z), "GroundPassSlow");
+        LookTowards(selfPlayer, destinationPosition, "GroundPassFast");
         
-        //StartCoroutine(Trigger(transitionTo + "GroundPassSlow"));
-        //MoveBall(passTo, 0, weakPassForce);
+        //MoveBall(destinationPosition, 0, strongPassForce);
     }
 
-    void GroundPassFast(GameObject initObj, GameObject finalObj)
+    void AirPass(GameObject selfPlayer, Vector3 destinationPosition, float aerialOffset)
     {
-        Vector3 passTo = finalObj.transform.position;
         stopMovement = true;
 
-        LookTowards(initObj, finalObj, new Vector2(initObj.transform.forward.x, initObj.transform.forward.z), "GroundPassFast");
-        
-        //StartCoroutine(Trigger(transitionTo + "GroundPassFast"));
-        //MoveBall(passTo, 0, strongPassForce);
+        LookTowards(selfPlayer, destinationPosition, "AirPass");
+
+        //MoveBall(destinationPosition, aerialOffset, airPassForce);
     }
 
-    void AirPass(GameObject initObj, GameObject finalObj, float aerialOffset)
-    {
-        Vector3 passTo = finalObj.transform.position;
-        stopMovement = true;
-
-        LookTowards(initObj, finalObj, new Vector2(initObj.transform.forward.x, initObj.transform.forward.z), "AirPass");
-        //playerAnimator.SetTrigger("AirPass");
-        //StartCoroutine(Trigger(transitionTo + "AirPass"));
-
-        //MoveBall(passTo, aerialOffset, airPassForce);
-    }
-
-    void ChipLeft(Vector3 passTo, float aerialOffset)
+    void ChipLeft(Vector3 destinationPosition, float aerialOffset)
     {
         stopMovement = true;
         playerAnimator.SetTrigger("ChipLeft");
-        //StartCoroutine(Trigger(transitionTo + "ChipLeft"));
 
-        //MoveBall(passTo, aerialOffset, chipForce);
+        //MoveBall(destinationPosition, aerialOffset, chipForce);
     }
 
-    void ChipRight(Vector3 passTo, float aerialOffset)
+    void ChipRight(Vector3 destinationPosition, float aerialOffset)
     {
         stopMovement = true;
         playerAnimator.SetTrigger("ChipRight");
-        //StartCoroutine(Trigger(transitionTo + "ChipRight"));
 
-        //MoveBall(passTo, aerialOffset, chipForce);
+        //MoveBall(destinationPosition, aerialOffset, chipForce);
     }
 
-    void ChipFront(GameObject initObj, GameObject finalObj, float aerialOffset)
+    void ChipFront(GameObject selfPlayer, Vector3 destinationPosition, float aerialOffset)
     {
-        Vector3 passTo = finalObj.transform.position;
         stopMovement = true;
-        LookTowards(initObj, finalObj, new Vector2(initObj.transform.forward.x, initObj.transform.forward.z), "ChipFront");
-        //StartCoroutine(Trigger(transitionTo + "ChipFront"));
+        LookTowards(selfPlayer, destinationPosition, "ChipFront");
 
-        //MoveBall(passTo, aerialOffset, chipForce);
+        //MoveBall(destinationPosition, aerialOffset, chipForce);
     }
 
-    void Shoot(GameObject initObj, GameObject finalObj, float aerialOffset = 0)
+    void Shoot(GameObject selfPlayer, Vector3 destinationPosition, float aerialOffset = 0)
     {
-        Vector3 shootAt = finalObj.transform.position;
         stopMovement = true;
-        LookTowards(initObj, finalObj, new Vector2(initObj.transform.forward.x, initObj.transform.forward.z), "Shoot");
-        //StartCoroutine(Trigger(transitionTo + "Shoot"));
+        LookTowards(selfPlayer, destinationPosition, "Shoot");
 
-        //MoveBall(shootAt, aerialOffset, shootForce);
+        //MoveBall(destinationPosition, aerialOffset, shootForce);
     }
 
-    void BallThrow(GameObject initObj, GameObject finalObj, float aerialOffset)
+    void BallThrow(GameObject selfPlayer, Vector3 destinationPosition, float aerialOffset)
     {
-        Vector3 passTo = finalObj.transform.position;
         stopMovement = true;
-        LookTowards(initObj, finalObj, new Vector2(initObj.transform.forward.x, initObj.transform.forward.z), "BallThrow");
-        //StartCoroutine(Trigger(transitionTo + "BallThrow"));
-        //MoveBall(passTo, aerialOffset, airPassForce);
+        LookTowards(selfPlayer, destinationPosition, "BallThrow");
+
+        //MoveBall(destinationPosition, aerialOffset, airPassForce);
     }
     #endregion
 
@@ -184,28 +156,24 @@ public class ActionAPI : MonoBehaviour
     {
         stopMovement = true;
         playerAnimator.SetTrigger("BodyBlockLeftSide");
-        //StartCoroutine(Trigger(transitionTo + "BodyBlockLeftSide"));
     }
     void BodyBlockRightSide()
     {
         stopMovement = true;
         playerAnimator.SetTrigger("BodyBlockRightSide");
-        //StartCoroutine(Trigger(transitionTo + "BodyBlockRightSide"));
     }
     void CatchFastBall()
     {
         stopMovement = true;
         playerAnimator.SetTrigger("CatchFastBall");
-        //StartCoroutine(Trigger(transitionTo + "CatchFastBall"));
     }
     void CatchStraightUpBall()
     {
         stopMovement = true;
         playerAnimator.SetTrigger("CatchStraightUpBall");
-        //StartCoroutine(Trigger(transitionTo + "CatchStraightUpBall"));
     }
 
-    //methods for Goolkeeper movvement (lefty or right)
+    //methods for Goalkeeper movvement (lefty or right)
 
     void CatchSlowBall()
     {
@@ -215,50 +183,40 @@ public class ActionAPI : MonoBehaviour
         //StartCoroutine(Trigger(transitionTo + "CatchSlowBall"));
 
     }
-    void DropKickShot(GameObject initObj, GameObject finalObj, float aerialOffset)
+    void DropKickShot(GameObject selfPlayer, Vector3 destinationPosition, float aerialOffset)
     {
-        Vector3 passTo = finalObj.transform.position;
         stopMovement = true;
-        LookTowards(initObj, finalObj, new Vector2(initObj.transform.forward.x, initObj.transform.forward.z), "DropKick");
-        //StartCoroutine(Trigger(transitionTo + "DropKick"));
+        LookTowards(selfPlayer, destinationPosition, "DropKick");
 
-        //MoveBall(passTo, aerialOffset, airPassForce);
+        //MoveBall(destinationPosition, aerialOffset, airPassForce);
     }
-    void OverHandThrow(GameObject initObj, GameObject finalObj, float aerialOffset)
+    void OverHandThrow(GameObject selfPlayer, Vector3 destinationPosition, float aerialOffset)
     {
-        Vector3 passTo = finalObj.transform.position;
         stopMovement = true;
-        LookTowards(initObj, finalObj, new Vector2(initObj.transform.forward.x, initObj.transform.forward.z), "OverHandThrow");
-        //StartCoroutine(Trigger(transitionTo + "OverHandThrow"));
+        LookTowards(selfPlayer, destinationPosition, "OverHandThrow");
 
-        //MoveBall(passTo, aerialOffset, airPassForce);
+        //MoveBall(destinationPosition, aerialOffset, airPassForce);
     }
-    void RollingBallPass(GameObject initObj, GameObject finalObj)
+    void RollingBallPass(GameObject selfPlayer, Vector3 destinationPosition)
     {
-        Vector3 passTo = finalObj.transform.position;
         stopMovement = true;
-        LookTowards(initObj, finalObj, new Vector2(initObj.transform.forward.x, initObj.transform.forward.z), "RollingBallPass");
-        //StartCoroutine(Trigger(transitionTo + "RollingBallPass"));
+        LookTowards(selfPlayer, destinationPosition, "RollingBallPass");
 
-        //MoveBall(passTo, 0, weakPassForce);
+        //MoveBall(destinationPosition, 0, weakPassForce);
     }
-    void PlacingAndLongPass(GameObject initObj, GameObject finalObj, float aerialOffset)
+    void PlacingAndLongPass(GameObject selfPlayer, Vector3 destinationPosition, float aerialOffset)
     {
-        Vector3 passTo = finalObj.transform.position;
         stopMovement = true;
-        LookTowards(initObj, finalObj, new Vector2(initObj.transform.forward.x, initObj.transform.forward.z), "PlacingAndLongPass");
-        //StartCoroutine(Trigger(transitionTo + "PlacingAndLongPass"));
+        LookTowards(selfPlayer, destinationPosition, "PlacingAndLongPass");
 
-        //MoveBall(passTo, aerialOffset, airPassForce);
+        //MoveBall(destinationPosition, aerialOffset, airPassForce);
     }
-    void PlacingAndShortPass(GameObject initObj, GameObject finalObj)
+    void PlacingAndShortPass(GameObject selfPlayer, Vector3 destinationPosition)
     {
-        Vector3 passTo = finalObj.transform.position;
         stopMovement = true;
-        LookTowards(initObj, finalObj, new Vector2(initObj.transform.forward.x, initObj.transform.forward.z), "PlacingAndShortPass");
+        LookTowards(selfPlayer, destinationPosition, "PlacingAndShortPass");
         
-        //StartCoroutine(Trigger(transitionTo + "PlacingAndShortPass"));
-        //MoveBall(passTo, 0, weakPassForce);
+        //MoveBall(destinationPosition, 0, weakPassForce);
     }
     #endregion
 
@@ -266,14 +224,11 @@ public class ActionAPI : MonoBehaviour
 
     #region Helper Coroutines
 
-    /// <summary> Lerp motion Coroutine that allows player to move from one point to another </summary>
-    /// <param name="init">Initial point</param>
-    /// <param name="final">Final point</param>
-    /// <param name="unitVector">Unit Vector where the player is facing</param>
-    IEnumerator MovementLerp(GameObject initObj, GameObject finalObj, Vector2 unitVector, bool lookAt)
+    IEnumerator MovementLerp(GameObject selfPlayer, Vector3 final, bool lookAt)
     {
-        Vector3 init = initObj.transform.position;
-        Vector3 final = finalObj.transform.position;
+        Vector3 init = selfPlayer.transform.position;
+        Vector2 unitVector = new Vector2(selfPlayer.transform.forward.x, selfPlayer.transform.forward.z);
+
         final.y = init.y;
         float timeElapsed = 0;
         float distance = Vector3.Distance(init, final);
@@ -332,13 +287,13 @@ public class ActionAPI : MonoBehaviour
                     stopMovement = false;
                     playerAnimator.SetFloat("VelZ", 0);
                     playerAnimator.SetFloat("VelX", 0);
-                    StopCoroutine(MovementLerp(initObj, gameObject, unitVector,lookAt));
+                    StopCoroutine(MovementLerp(selfPlayer, final, lookAt));
                 }
             }
         }
         else
         {
-            LookTowards(initObj, finalObj, unitVector,null);
+            LookTowards(selfPlayer, final, null);
 
             while (timeElapsed < timeDuration)
             {
@@ -361,7 +316,7 @@ public class ActionAPI : MonoBehaviour
                     stopMovement = false;
                     playerAnimator.SetFloat("VelZ", 0);
                     playerAnimator.SetFloat("VelX", 0);
-                    StopCoroutine(MovementLerp(initObj, gameObject, unitVector, lookAt));
+                    StopCoroutine(MovementLerp(selfPlayer, final, lookAt));
                 }
             }
         }
@@ -371,12 +326,12 @@ public class ActionAPI : MonoBehaviour
     /// <summary> Lerp motion Coroutine that allows player to move from one point to another </summary>
     /// <param name="init">Initial point</param>
     /// <param name="final">Final point</param>
-    IEnumerator DribbleLerp(GameObject initObj, GameObject finalObj)
+    IEnumerator DribbleLerp(GameObject selfPlayer, Vector3 final)
     {
-        Vector3 init = initObj.transform.position;
-        Vector3 final = finalObj.transform.position;
+        Vector3 init = selfPlayer.transform.position;
+        // Vector3 final = finalObj.transform.position;
         final.y = init.y; // Don't Update Y Coordinate
-        LookTowards(initObj, finalObj, new Vector2 (initObj.transform.forward.x, initObj.transform.forward.z),null);
+        LookTowards(selfPlayer, final, null);
 
         float timeElapsed = 0;
         float distance = Vector3.Distance(init, final);
@@ -401,13 +356,17 @@ public class ActionAPI : MonoBehaviour
             {
                 // stopMovement = false;
                 playerAnimator.SetFloat("VelZ", 0);
-                StopCoroutine(DribbleLerp(initObj, finalObj));
+                StopCoroutine(DribbleLerp(selfPlayer, final));
             }
         }
     }
 
-    IEnumerator BallHeader(Vector3 init, Vector3 final, Vector2 unitVector, float aerialOffset)
+    IEnumerator BallHeader(GameObject selfPlayer, GameObject finalObj, float aerialOffset)
     {
+        Vector3 init = selfPlayer.transform.position;
+        Vector3 final = finalObj.transform.position;
+        Vector2 unitVector = new Vector2(selfPlayer.transform.forward.x, selfPlayer.transform.forward.z);
+
         Vector2 objectAPosition = new Vector2(init.x, init.z); ;
         Vector2 objectBPosition = new Vector2(final.x, final.z); ;
 
@@ -438,18 +397,18 @@ public class ActionAPI : MonoBehaviour
 
     }
 
-    /// <summary> Triggering Singleton Animations </summary>
-    /// <param name="keyCodeHash">Animation name</param>
-    IEnumerator Trigger(string keyCodeHash)
-    {
-        keyCodeHash = keyCodeHash.Substring(1);
+    ///// <summary> Triggering Singleton Animations </summary>
+    ///// <param name="keyCodeHash">Animation name</param>
+    //IEnumerator Trigger(string keyCodeHash)
+    //{
+    //    keyCodeHash = keyCodeHash.Substring(1);
 
-        playerAnimator.SetBool(keyCodeHash, true);
-        yield return new WaitForSeconds(WaitTime());
-        playerAnimator.SetBool(keyCodeHash, false);
+    //    playerAnimator.SetBool(keyCodeHash, true);
+    //    yield return new WaitForSeconds(WaitTime());
+    //    playerAnimator.SetBool(keyCodeHash, false);
 
-        stopMovement = false;
-    }
+    //    stopMovement = false;
+    //}
 
     #endregion
 
@@ -515,38 +474,39 @@ public class ActionAPI : MonoBehaviour
         soccerBall.GetComponent<Rigidbody>().AddForce(forceDirection * forceMagnitude * forceFactor);
     }
 
-    void LookTowards(GameObject initObj, GameObject finalObj, Vector2 unitVector,string keyCode)
+    IEnumerator LookTowards(GameObject selfPlayer, Vector3 destinationPosition, string keyCode)
     {
-        Vector3 final = finalObj.transform.position;
-        Vector3 init = initObj.transform.position;
-        Vector2 finalFacingDirection = new Vector2(final.x - init.x, final.z - init.z);
+        Vector3 init = selfPlayer.transform.position;
+        Vector2 finalFacingDirection = new Vector2(destinationPosition.x - init.x, destinationPosition.z - init.z);
+        Vector2 initialFacingDirection = new Vector2(selfPlayer.transform.forward.x, selfPlayer.transform.forward.z);
 
-        float angle = Vector2.Angle(unitVector, finalFacingDirection);
-        float rotationDirection = Mathf.Sign(Vector3.Dot(unitVector, finalFacingDirection));
+        float angle = Vector2.Angle(initialFacingDirection, finalFacingDirection);
+        float rotationDirection = Mathf.Sign(Vector3.Dot(initialFacingDirection, finalFacingDirection));
 
-        StartCoroutine(RotateCoroutine(initObj, angle, rotationDirection, 0.8f,keyCode));        
+        yield return StartCoroutine(RotateCoroutine(selfPlayer, angle, rotationDirection, rotationDuration));
+
+        // play animation after rotating
+        if (keyCode != null) playerAnimator.SetTrigger(keyCode);
     }
 
-    IEnumerator RotateCoroutine(GameObject initObj, float angle, float rotationDirection, float duration,string keyCode)
+    IEnumerator RotateCoroutine(GameObject selfPlayer, float angle, float rotationDirection, float duration)
     {
         float currentRotation = 0.0f;
         float rotationPerSecond = angle / duration;
 
         while(currentRotation < angle)
         {
-            
             // Calculate the incremental rotation for this frame
             float rotationIncrement = rotationPerSecond * Time.deltaTime;
             currentRotation += rotationIncrement;
 
             if (rotationDirection == -1)
-                initObj.transform.Rotate(Vector3.up, rotationIncrement);
+                selfPlayer.transform.Rotate(Vector3.up, rotationIncrement);
             else if (rotationDirection == 1)
-                initObj.transform.Rotate(Vector3.down, rotationIncrement);
+                selfPlayer.transform.Rotate(Vector3.down, rotationIncrement);
 
             yield return null;
         }
-        if (keyCode != null) playerAnimator.SetTrigger(keyCode);
 
         yield return null;
     }
