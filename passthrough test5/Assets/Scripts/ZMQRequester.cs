@@ -30,6 +30,7 @@ public class ZMQRequester : RunAbleThread
         ForceDotNet.Force(); //this prevents unity freezing idk why 
         if (isServer)
         {
+            Debug.Log("Starting Scenic/Unity Server");
             using (ResponseSocket server = new ResponseSocket())
             {
                 //client.Connect("tcp://"+ ip +":" + port);

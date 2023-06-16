@@ -79,13 +79,14 @@ public class ZMQServer : MonoBehaviour
         }
         catch (NullReferenceException e)
         {
-            Debug.LogError("json failed" + e);
+            Debug.LogError("json failed " + e);
         }
     }
     
     private void OnDestroy() {
         zmq.Stop();
-        NetMQConfig.Cleanup(false);
+        //Following command crashes editor for some reason
+        //NetMQConfig.Cleanup(false); 
     }
     
     private List<ScenicMovementData> ParseMovementData(ScenicParser.ScenicJson data)

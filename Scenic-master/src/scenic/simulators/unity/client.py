@@ -449,6 +449,7 @@ class SendData:
         if self.control:
             self.clearQueue()
             self.control = False
+            self.destroy = False
             #self.addToQueue = False
     def clearObjects(self):
         self.control = True

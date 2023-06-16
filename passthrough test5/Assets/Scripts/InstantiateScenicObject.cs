@@ -9,7 +9,10 @@ public class InstantiateScenicObject : MonoBehaviour
     public InstantiateScenicObject(Vector3 pos, Quaternion rot, string tag)
     {
         objectList = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<ObjectsList>();
+        Debug.Log(tag);
+        Debug.Log(objectList.modelList);
         AddScenicObject(pos, rot, tag);
+        
     }
 
     private void AddScenicObject(Vector3 pos, Quaternion rot, string tag)
