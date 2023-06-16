@@ -1982,6 +1982,7 @@ Transform:
   - {fileID: 1487230392}
   - {fileID: 1674925394}
   - {fileID: 23436167}
+  - {fileID: 1506505382}
   m_Father: {fileID: 2127168733}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -2263,11 +2264,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 35bcac9dd1874c44d9e8101253d74932, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerAnimator: {fileID: 0}
   playerRunningSpeed: 2
   timeDuration: 5
-  init: {fileID: 328230104}
-  final: {fileID: 950387830}
   soccerBall: {fileID: 5629360564501149551}
 --- !u!1 &340363783
 GameObject:
@@ -5870,11 +5868,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 35bcac9dd1874c44d9e8101253d74932, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerAnimator: {fileID: 0}
   playerRunningSpeed: 2
   timeDuration: 5
-  init: {fileID: 1154403447}
-  final: {fileID: 950387830}
   soccerBall: {fileID: 5629360564501149551}
 --- !u!95 &1154403446
 Animator:
@@ -6096,6 +6091,64 @@ Transform:
   m_Children: []
   m_Father: {fileID: 202610643}
   m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1197070607
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1197070610}
+  - component: {fileID: 1197070609}
+  - component: {fileID: 1197070608}
+  m_Layer: 0
+  m_Name: Ball Receive Collider
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!114 &1197070608
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1197070607}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bd0857045fb2ca44280f65570d80f715, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!65 &1197070609
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1197070607}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 0.2346338, y: 0.15519059, z: 0.15896904}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!4 &1197070610
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1197070607}
+  m_LocalRotation: {x: -0.000000017923524, y: -0.00000004385947, z: -0.000000017256378, w: 1}
+  m_LocalPosition: {x: -0.079985686, y: 1.1500686, z: 1.2677859}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 14
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1206549565
 GameObject:
@@ -8149,6 +8202,122 @@ Transform:
   m_Father: {fileID: 2086749541}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1506505381
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1506505382}
+  - component: {fileID: 1506505384}
+  - component: {fileID: 1506505383}
+  m_Layer: 0
+  m_Name: Ball Receive Collider
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1506505382
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1506505381}
+  m_LocalRotation: {x: -0.53318936, y: -0.477787, z: 0.47483563, w: 0.51182026}
+  m_LocalPosition: {x: 0.009, y: 0.124, z: 0.07}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 271185904}
+  m_RootOrder: 5
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1506505383
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1506505381}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bd0857045fb2ca44280f65570d80f715, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!65 &1506505384
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1506505381}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 0.2346338, y: 0.15519059, z: 0.15896904}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!1 &1512189657
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1512189658}
+  - component: {fileID: 1512189660}
+  - component: {fileID: 1512189659}
+  m_Layer: 0
+  m_Name: Ball Receive Collider
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1512189658
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1512189657}
+  m_LocalRotation: {x: -0.5301053, y: 0.4759131, z: -0.48090243, w: 0.51110464}
+  m_LocalPosition: {x: -0.0075, y: 0.1077, z: 0.0641}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1626568095}
+  m_RootOrder: 5
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1512189659
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1512189657}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bd0857045fb2ca44280f65570d80f715, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!65 &1512189660
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1512189657}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 0.2346338, y: 0.15519059, z: 0.15896904}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &1523448470
 GameObject:
   m_ObjectHideFlags: 0
@@ -8726,6 +8895,7 @@ Transform:
   - {fileID: 442164081}
   - {fileID: 1463617903}
   - {fileID: 760784506}
+  - {fileID: 1512189658}
   m_Father: {fileID: 1390206541}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -12080,11 +12250,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 35bcac9dd1874c44d9e8101253d74932, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerAnimator: {fileID: 0}
   playerRunningSpeed: 2
   timeDuration: 5
-  init: {fileID: 0}
-  final: {fileID: 0}
   soccerBall: {fileID: 0}
 --- !u!114 &4509809109278581794
 MonoBehaviour:

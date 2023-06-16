@@ -12,7 +12,7 @@ public class UnitTests : MonoBehaviour
     {
         ActionAPI scriptReference = apiManager.GetComponent<ActionAPI>();
 
-        scriptReference.ShootBallOnly(goalPost.position, "center-middle", "low");
+        //scriptReference.ShootBallOnly(goalPost.position, "center-middle", "low");
     }
 
     
