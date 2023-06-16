@@ -112,7 +112,7 @@ public class ScenicParser
                 {
                     Vector3 v = ListToVector(p.Position);
                     Quaternion rot = ListToQuaternion(p.Rotation);
-                    //For whatever reason scenic flips it
+                    //Scenic uses right hand coord system so have to flip
                     rot.y = -rot.y;
                     rot.x = -rot.x;
                     rot.z = -rot.z;

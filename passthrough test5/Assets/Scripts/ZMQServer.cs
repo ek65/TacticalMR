@@ -91,9 +91,9 @@ public class ZMQServer : MonoBehaviour
     
     private List<ScenicMovementData> ParseMovementData(ScenicParser.ScenicJson data)
     {
+        Debug.Log("Parse Movement Data!");
         List<ScenicMovementData> moveData = parser.ScenicMovementParser(data);
         //init = true;
-        Debug.Log("Parse Movement Data!");
         return moveData;
     }
     

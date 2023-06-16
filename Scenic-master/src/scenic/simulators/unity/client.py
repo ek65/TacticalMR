@@ -119,8 +119,10 @@ class UnityMessageServer:
         self.sendData.clearObjects()
         self.step()
         self.sendData.clearControl()
+        self.resetData()
         self.step()
     def resetData(self):
+        self.timestepNumber = 0
         self.sendData = SendData()
     def reset(self):
         #set control true and reset match

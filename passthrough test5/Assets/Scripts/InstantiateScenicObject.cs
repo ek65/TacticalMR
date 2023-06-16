@@ -10,7 +10,7 @@ public class InstantiateScenicObject : MonoBehaviour
     {
         objectList = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<ObjectsList>();
         Debug.Log(tag);
-        Debug.Log(objectList.modelList);
+        //Debug.Log(objectList.modelList);
         AddScenicObject(pos, rot, tag);
         
     }
