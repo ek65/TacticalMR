@@ -15,6 +15,8 @@ public class ActionAPI : MonoBehaviour
     [SerializeField] float timeDuration = 5f;
 
     [SerializeField] GameObject soccerBall;
+    [SerializeField] GameObject goalWidth;
+    [SerializeField] GameObject goalHeight;
 
     bool stopMovement = false;
     string transitionTo = "t";
@@ -124,87 +126,56 @@ public class ActionAPI : MonoBehaviour
         MoveBall(destinationPosition, VerticalForce(ballProjectileHeight), chipForce);
     }
 
-    //public void ShootBallOnly(Vector3 destinationPosition, string destinationZone, string ballProjectileHeight)
-    //{
-    //    Debug.Log("working");
-    //    Debug.Log("target: " + destinationPosition);
-    //    switch (destinationZone)
-    //    {
-    //        case "left-top":
-    //            // Code for "left-top" case
-    //            break;
-    //        case "left-middle":
-    //            // Code for "left-middle" case
-    //            break;
-    //        case "left-bottom":
-    //            // Code for "left-bottom" case
-    //            break;
-    //        case "center-top":
-    //            // Code for "center" case
-    //            break;
-    //        case "center-middle":
-    //            // Code for "center" case
-    //            break;
-    //        case "center-bottom":
-    //            // Code for "center" case
-    //            break;
-    //        case "right-top":
-    //            // Code for "right-top" case
-    //            break;
-    //        case "right-middle":
-    //            // Code for "right-middle" case
-    //            break;
-    //        case "right-bottom":
-    //            // Code for "right-bottom" case
-    //            break;
-    //        default:
-    //            // Code to handle cases not explicitly defined
-    //            break;
-    //    }
-
-    //    MoveBall(destinationPosition - soccerBall.transform.position, VerticalForce(ballProjectileHeight), shootForce);
-    //}
-    public void Shoot(GameObject selfPlayer, Vector3 destinationPosition, string destinationZone, string ballProjectileHeight)
+    public void Shoot(GameObject selfPlayer, Vector3 destinationPosition, string destinationZone)
     {
         stopMovement = true;
         SetAnimController(selfPlayer, "Dribbling");
         LookTowards(selfPlayer, destinationPosition, "Shoot");
 
+        string ballProjectileHeight = "low";
+        float horizontalOffset = (goalWidth / 2.0f);
+
         switch (destinationZone)
         {
             case "left-top":
-                // Code for "left-top" case
+                ballProjectileHeight = "high";
+                destinationPosition -= new Vector3(horizontalOffset, 0f, 0f);
                 break;
             case "left-middle":
-                // Code for "left-middle" case
+                ballProjectileHeight = "medium";
+                destinationPosition -= new Vector3(horizontalOffset, 0f, 0f);
                 break;
             case "left-bottom":
-                // Code for "left-bottom" case
+                ballProjectileHeight = "low";
+                destinationPosition -= new Vector3(horizontalOffset, 0f, 0f);
                 break;
             case "center-top":
-                // Code for "center" case
+                ballProjectileHeight = "high";
                 break;
             case "center-middle":
-                // Code for "center" case
+                ballProjectileHeight = "medium";
                 break;
             case "center-bottom":
-                // Code for "center" case
+                ballProjectileHeight = "low";
                 break;
             case "right-top":
-                // Code for "right-top" case
+                ballProjectileHeight = "high";
+                destinationPosition += new Vector3(horizontalOffset, 0f, 0f);
                 break;
             case "right-middle":
-                // Code for "right-middle" case
+                ballProjectileHeight = "medium";
+                destinationPosition += new Vector3(horizontalOffset, 0f, 0f);
                 break;
             case "right-bottom":
-                // Code for "right-bottom" case
+                ballProjectileHeight = "low";
+                destinationPosition += new Vector3(horizontalOffset, 0f, 0f);
                 break;
             default:
-                // Code to handle cases not explicitly defined
+                ballProjectileHeight = "low";
                 break;
         }
 
-        MoveBall(destinationPosition - soccerBall.transform.position, VerticalForce(ballProjectileHeight), shootForce);
+        MoveBall(destinationPosition, VerticalForce(ballProjectileHeight), shootForce);
     }
 
     public void BallThrow(GameObject selfPlayer, Vector3 destinationPosition, string ballProjectileHeight)
