@@ -13,10 +13,8 @@ public class ActionAPI : MonoBehaviour
 {
     [SerializeField] float playerRunningSpeed = 2f;
     [SerializeField] float timeDuration = 5f;
-
+    [SerializeField] float goalWidth = 7.5f;
     [SerializeField] GameObject soccerBall;
-    [SerializeField] GameObject goalWidth;
-    [SerializeField] GameObject goalHeight;
 
     bool stopMovement = false;
     string transitionTo = "t";
@@ -29,10 +27,6 @@ public class ActionAPI : MonoBehaviour
     float shootForce = 4f;
 
     float rotationDuration = 0.8f;
-
-    private void Start()
-    {
-    }
 
     #region API Methods for BlendTrees
     public void MoveFromOnePositionToAnother(GameObject selfPlayer, Vector3 destinationPosition, bool lookAt = true)
@@ -62,21 +56,21 @@ public class ActionAPI : MonoBehaviour
     {
         SetAnimController(selfPlayer, "Movement");
         stopMovement = true;
-        LookTowards(selfPlayer, receiveFrom, "Receive");
+        StartCoroutine(LookTowards(selfPlayer, receiveFrom, "Receive"));
     }
 
     public void TackleBall(GameObject selfPlayer, Vector3 tackleFrom)
     {
         SetAnimController(selfPlayer, "Movement");
         stopMovement = true;
-        LookTowards(selfPlayer, tackleFrom, "Receive");
+        StartCoroutine(LookTowards(selfPlayer, tackleFrom, "Receive"));
     }
 
     public void GroundPassSlow(GameObject selfPlayer, Vector3 destinationPosition)
     {
         stopMovement = true;
         SetAnimController(selfPlayer, "Dribbling");
-        LookTowards(selfPlayer, destinationPosition, "GroundPassSlow");
+        StartCoroutine(LookTowards(selfPlayer, destinationPosition, "GroundPassSlow"));
         
         MoveBall(destinationPosition, 0, weakPassForce);
     }
@@ -85,7 +79,7 @@ public class ActionAPI : MonoBehaviour
     {
         stopMovement = true;
         SetAnimController(selfPlayer, "Dribbling");
-        LookTowards(selfPlayer, destinationPosition, "GroundPassFast");
+        StartCoroutine(LookTowards(selfPlayer, destinationPosition, "GroundPassFast"));
         
         MoveBall(destinationPosition, 0, strongPassForce);
     }
@@ -94,7 +88,7 @@ public class ActionAPI : MonoBehaviour
     {
         stopMovement = true;
         SetAnimController(selfPlayer, "Dribbling");
-        LookTowards(selfPlayer, destinationPosition, "AirPass");
+        StartCoroutine(LookTowards(selfPlayer, destinationPosition, "AirPass"));
 
         MoveBall(destinationPosition, VerticalForce(ballProjectileHeight), airPassForce);
     }
@@ -121,7 +115,7 @@ public class ActionAPI : MonoBehaviour
     {
         stopMovement = true;
         SetAnimController(selfPlayer, "Dribbling");
-        LookTowards(selfPlayer, destinationPosition, "ChipFront");
+        StartCoroutine(LookTowards(selfPlayer, destinationPosition, "ChipFront"));
 
         MoveBall(destinationPosition, VerticalForce(ballProjectileHeight), chipForce);
     }
@@ -130,24 +124,24 @@ public class ActionAPI : MonoBehaviour
     {
         stopMovement = true;
         SetAnimController(selfPlayer, "Dribbling");
-        LookTowards(selfPlayer, destinationPosition, "Shoot");
+        StartCoroutine(LookTowards(selfPlayer, destinationPosition, "Shoot"));
 
         string ballProjectileHeight = "low";
-        float horizontalOffset = (goalWidth / 2.0f);
+        float horizontalOffset = (goalWidth / 6.0f);
 
         switch (destinationZone)
         {
             case "left-top":
                 ballProjectileHeight = "high";
-                destinationPosition -= new Vector3(horizontalOffset, 0f, 0f);
+                destinationPosition -= new Vector3(2.0f * horizontalOffset, 0f, 0f);
                 break;
             case "left-middle":
                 ballProjectileHeight = "medium";
-                destinationPosition -= new Vector3(horizontalOffset, 0f, 0f);
+                destinationPosition -= new Vector3(2.0f * horizontalOffset, 0f, 0f);
                 break;
             case "left-bottom":
                 ballProjectileHeight = "low";
-                destinationPosition -= new Vector3(horizontalOffset, 0f, 0f);
+                destinationPosition -= new Vector3(2.0f * horizontalOffset, 0f, 0f);
                 break;
             case "center-top":
                 ballProjectileHeight = "high";
@@ -160,15 +154,15 @@ public class ActionAPI : MonoBehaviour
                 break;
             case "right-top":
                 ballProjectileHeight = "high";
-                destinationPosition += new Vector3(horizontalOffset, 0f, 0f);
+                destinationPosition += new Vector3(2.0f * horizontalOffset, 0f, 0f);
                 break;
             case "right-middle":
                 ballProjectileHeight = "medium";
-                destinationPosition += new Vector3(horizontalOffset, 0f, 0f);
+                destinationPosition += new Vector3(2.0f * horizontalOffset, 0f, 0f);
                 break;
             case "right-bottom":
                 ballProjectileHeight = "low";
-                destinationPosition += new Vector3(horizontalOffset, 0f, 0f);
+                destinationPosition += new Vector3(2.0f * horizontalOffset, 0f, 0f);
                 break;
             default:
                 ballProjectileHeight = "low";
@@ -182,7 +176,7 @@ public class ActionAPI : MonoBehaviour
     {
         stopMovement = true;
         SetAnimController(selfPlayer, "Dribbling");
-        LookTowards(selfPlayer, destinationPosition, "BallThrow");
+        StartCoroutine(LookTowards(selfPlayer, destinationPosition, "BallThrow"));
 
         MoveBall(destinationPosition, VerticalForce(ballProjectileHeight), airPassForce);
     }
@@ -230,7 +224,7 @@ public class ActionAPI : MonoBehaviour
     {
         stopMovement = true;
         SetAnimController(selfPlayer, "GoalKeeper");
-        LookTowards(selfPlayer, destinationPosition, "DropKick");
+        StartCoroutine(LookTowards(selfPlayer, destinationPosition, "DropKick"));
 
         MoveBall(destinationPosition, VerticalForce(ballProjectileHeight), airPassForce);
     }
@@ -238,7 +232,7 @@ public class ActionAPI : MonoBehaviour
     {
         stopMovement = true;
         SetAnimController(selfPlayer, "GoalKeeper");
-        LookTowards(selfPlayer, destinationPosition, "OverHandThrow");
+        StartCoroutine(LookTowards(selfPlayer, destinationPosition, "OverHandThrow"));
 
         MoveBall(destinationPosition, VerticalForce(ballProjectileHeight), airPassForce);
     }
@@ -246,7 +240,7 @@ public class ActionAPI : MonoBehaviour
     {
         stopMovement = true;
         SetAnimController(selfPlayer, "GoalKeeper");
-        LookTowards(selfPlayer, destinationPosition, "RollingBallPass");
+        StartCoroutine(LookTowards(selfPlayer, destinationPosition, "RollingBallPass"));
 
         MoveBall(destinationPosition, 0, weakPassForce);
     }
@@ -254,7 +248,7 @@ public class ActionAPI : MonoBehaviour
     {
         stopMovement = true;
         SetAnimController(selfPlayer, "GoalKeeper");
-        LookTowards(selfPlayer, destinationPosition, "PlacingAndLongPass");
+        StartCoroutine(LookTowards(selfPlayer, destinationPosition, "PlacingAndLongPass"));
 
         MoveBall(destinationPosition, VerticalForce(ballProjectileHeight), airPassForce);
     }
@@ -262,7 +256,7 @@ public class ActionAPI : MonoBehaviour
     {
         stopMovement = true;
         SetAnimController(selfPlayer, "GoalKeeper");
-        LookTowards(selfPlayer, destinationPosition, "PlacingAndShortPass");
+        StartCoroutine(LookTowards(selfPlayer, destinationPosition, "PlacingAndShortPass"));
         
         MoveBall(destinationPosition, 0, weakPassForce);
     }
@@ -272,7 +266,7 @@ public class ActionAPI : MonoBehaviour
 
     #region Helper Coroutines
 
-    IEnumerator MovementLerp(GameObject selfPlayer, Vector3 final, bool lookAt)
+    private IEnumerator MovementLerp(GameObject selfPlayer, Vector3 final, bool lookAt)
     {
         Vector3 init = selfPlayer.transform.position;
         Vector2 unitVector = new Vector2(selfPlayer.transform.forward.x, selfPlayer.transform.forward.z);
@@ -341,7 +335,7 @@ public class ActionAPI : MonoBehaviour
         }
         else
         {
-            LookTowards(selfPlayer, final, null);
+            StartCoroutine(LookTowards(selfPlayer, final, null));
 
             while (timeElapsed < timeDuration)
             {
@@ -371,15 +365,11 @@ public class ActionAPI : MonoBehaviour
         yield return null;
     }
 
-    /// <summary> Lerp motion Coroutine that allows player to move from one point to another </summary>
-    /// <param name="init">Initial point</param>
-    /// <param name="final">Final point</param>
-    IEnumerator DribbleLerp(GameObject selfPlayer, Vector3 final)
+    private IEnumerator DribbleLerp(GameObject selfPlayer, Vector3 final)
     {
         Vector3 init = selfPlayer.transform.position;
-        // Vector3 final = finalObj.transform.position;
         final.y = init.y; // Don't Update Y Coordinate
-        LookTowards(selfPlayer, final, null);
+        StartCoroutine(LookTowards(selfPlayer, final, null));
 
         float timeElapsed = 0;
         float distance = Vector3.Distance(init, final);
@@ -409,7 +399,7 @@ public class ActionAPI : MonoBehaviour
         }
     }
 
-    IEnumerator BallHeader(GameObject selfPlayer, GameObject finalObj, float aerialOffset)
+    private IEnumerator BallHeader(GameObject selfPlayer, GameObject finalObj, float aerialOffset)
     {
         Vector3 init = selfPlayer.transform.position;
         Vector3 final = finalObj.transform.position;
@@ -449,7 +439,7 @@ public class ActionAPI : MonoBehaviour
 
     #region Helper Methods
 
-    float WaitTime()
+    private float WaitTime()
     {
         float animationLength = GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).length;
         float animationSpeed = GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).speed;
@@ -457,7 +447,7 @@ public class ActionAPI : MonoBehaviour
         return delay;
     }
 
-    void SetAnimController(GameObject selfPlayer, string controllerHashCode)
+    private void SetAnimController(GameObject selfPlayer, string controllerHashCode)
     {
         string currAnimationController = selfPlayer.GetComponent<Animator>().runtimeAnimatorController.name;
         if (currAnimationController != controllerHashCode)
@@ -467,7 +457,7 @@ public class ActionAPI : MonoBehaviour
         }
     }
 
-    float RelativeQuadrant(Vector3 init, Vector3 final, Vector2 unitVector)
+    private float RelativeQuadrant(Vector3 init, Vector3 final, Vector2 unitVector)
     {
         // Shift the origin to object A
         Vector2 objectAPosition = new Vector2(init.x, init.z); ;
@@ -503,14 +493,14 @@ public class ActionAPI : MonoBehaviour
         return quadrant;
     }
 
-    void MoveBall(Vector3 xzDir, float yDir, float forceMagnitude)
+    private void MoveBall(Vector3 xzDir, float yDir, float forceMagnitude)
     {
         Vector3 forceDirection = new Vector3(xzDir.x, yDir, xzDir.z);
         Debug.Log("force vector: " + forceDirection);
         soccerBall.GetComponent<Rigidbody>().AddForce(forceDirection * forceMagnitude * forceFactor);
     }
 
-    IEnumerator LookTowards(GameObject selfPlayer, Vector3 destinationPosition, string keyCode)
+    private IEnumerator LookTowards(GameObject selfPlayer, Vector3 destinationPosition, string keyCode)
     {
         Vector3 init = selfPlayer.transform.position;
         Vector2 finalFacingDirection = new Vector2(destinationPosition.x - init.x, destinationPosition.z - init.z);
@@ -525,7 +515,7 @@ public class ActionAPI : MonoBehaviour
         if (keyCode != null) selfPlayer.GetComponent<Animator>().SetTrigger(keyCode);
     }
 
-    IEnumerator RotateCoroutine(GameObject selfPlayer, float angle, float rotationDirection, float duration)
+    private IEnumerator RotateCoroutine(GameObject selfPlayer, float angle, float rotationDirection, float duration)
     {
         float currentRotation = 0.0f;
         float rotationPerSecond = angle / duration;
@@ -547,7 +537,7 @@ public class ActionAPI : MonoBehaviour
         yield return null;
     }
 
-    float VerticalForce(string ballProjectileHeight)
+    private float VerticalForce(string ballProjectileHeight)
     {
         float verticalForce = 0.0f;
         if (ballProjectileHeight == "low") verticalForce = 1.0f;
