@@ -2,6 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/*
+DestinationZones { empty, left-top, left-middle, left-bottom, center-top, center-middle, center-bottom, right-top, right-middle, right-bottom };
+BallProjectileHeights {low, medium, high}
+ */
+
 public class SceneHandler : MonoBehaviour
 {
     public GameObject apiManager;

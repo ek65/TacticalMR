@@ -164,7 +164,7 @@ public class ActionAPI : MonoBehaviour
                 ballProjectileHeight = "low";
                 destinationPosition += new Vector3(2.0f * horizontalOffset, 0f, 0f);
                 break;
-            default:
+            case "empty":
                 ballProjectileHeight = "low";
                 break;
         }
