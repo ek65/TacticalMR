@@ -12,6 +12,7 @@ public class SceneHandler : MonoBehaviour
     public GameObject apiManager;
     public GameObject goalPost;
     public GameObject playerOne;
+    public GameObject Playertwo;
     public GameObject goalKeeper;
     public GameObject soccerBall;
 
@@ -22,7 +23,8 @@ public class SceneHandler : MonoBehaviour
         actionAPIs = apiManager.GetComponent<ActionAPI>();
 
         // example for calling the APIs
-        actionAPIs.Shoot(playerOne, goalPost.transform.position, "left-bottom");
+        //actionAPIs.Shoot(playerOne, goalPost.transform.position, "left-bottom");
+        //actionAPIs.GroundPassFast(playerOne, Playertwo.transform.position);
     }
 
     
