@@ -41,10 +41,10 @@ public class ActionAPI : MonoBehaviour
         StartCoroutine(DribbleLerp(selfPlayer, destinationPosition));
     }
 
-    public void BallHeaderShoot(GameObject selfPlayer, GameObject final, string ballProjectileHeight)
+    public void BallHeaderShoot(GameObject selfPlayer, Vector3 destinationPosition, string ballProjectileHeight)
     {
         SetAnimController(selfPlayer, "Headers");
-        StartCoroutine(BallHeader(selfPlayer, final, VerticalForce(ballProjectileHeight)));
+        StartCoroutine(BallHeader(selfPlayer, destinationPosition, VerticalForce(ballProjectileHeight)));
     }
 
     #endregion
@@ -196,17 +196,17 @@ public class ActionAPI : MonoBehaviour
         SetAnimController(selfPlayer, "GoalKeeper");
         selfPlayer.GetComponent<Animator>().SetTrigger("BodyBlockRightSide");
     }
-    public void CatchFastBall(GameObject selfPlayer)
+    public void CatchGroundBall(GameObject selfPlayer)
     {
         stopMovement = true;
         SetAnimController(selfPlayer, "GoalKeeper");
-        selfPlayer.GetComponent<Animator>().SetTrigger("CatchFastBall");
+        selfPlayer.GetComponent<Animator>().SetTrigger("CatchGroundBall");
     }
-    public void CatchStraightUpBall(GameObject selfPlayer)
+    public void CatchBallInTheAir(GameObject selfPlayer)
     {
         stopMovement = true;
         SetAnimController(selfPlayer, "GoalKeeper");
-        selfPlayer.GetComponent<Animator>().SetTrigger("CatchStraightUpBall");
+        selfPlayer.GetComponent<Animator>().SetTrigger("CatchBallInTheAir");
     }
 
     //methods for Goalkeeper movement (lefty or right)
@@ -399,10 +399,10 @@ public class ActionAPI : MonoBehaviour
         }
     }
 
-    private IEnumerator BallHeader(GameObject selfPlayer, GameObject finalObj, float aerialOffset)
+    private IEnumerator BallHeader(GameObject selfPlayer, Vector3 final, float aerialOffset)
     {
         Vector3 init = selfPlayer.transform.position;
-        Vector3 final = finalObj.transform.position;
+        //Vector3 final = finalObj.transform.position;
         Vector2 unitVector = new Vector2(selfPlayer.transform.forward.x, selfPlayer.transform.forward.z);
 
         Vector2 objectAPosition = new Vector2(init.x, init.z); ;
