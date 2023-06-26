@@ -1,4 +1,3 @@
-/*
 using System.Collections.Generic;
 using UnityEngine;
 using Newtonsoft.Json;
@@ -6,6 +5,7 @@ public class JSONStatusMaker : MonoBehaviour
 {
     ObjectsList objectList;
     Root root;
+    // private TickData tickData;
     private bool snapTurnedLastTimestep;
     private int lastTick;
     private ZMQServer server;
@@ -26,53 +26,54 @@ public class JSONStatusMaker : MonoBehaviour
     void Update()
     {
         lastTick = server.lastTick;
-        //pull the disc and the players from objects list and get their data.
+        //pull the ball and the players from objects list and get their data.
         Root r = new Root();
         //We need to change this later when we expand to 1-4 players.
         r.TickData.numPlayers = objectList.humanPlayers.Count + objectList.scenicPlayers.Count;
-        GameObject disc = objectList.DiscObject;
-        for (int i = 0; i < objectList.humanPlayers.Count; i++)
-        {
-            GameObject humanPlayer = objectList.humanPlayers[i];
-            Player p = new Player();
-            p.leftController = new ControllerInputData();
-            p.rightController = new ControllerInputData();
-            AddPlayerData(humanPlayer, p, true);
-            Rigidbody rb = humanPlayer.GetComponentInChildren<Rigidbody>();
-            GameObject rig = rb.gameObject;
-            ObjectList xrRigObjects = rig.GetComponent<ObjectList>();
-            GameObject leftController = xrRigObjects.leftController;
-            GameObject rightController = xrRigObjects.rightController;
-            AddControllerData(rig, leftController, p.leftController, true);
-            AddControllerData(rig, rightController, p.rightController, false);
-
-            r.TickData.HumanPlayers.Add(p);
-        }
+        GameObject ball = objectList.ballObject;
+        // for (int i = 0; i < objectList.humanPlayers.Count; i++)
+        // {
+        //     GameObject humanPlayer = objectList.humanPlayers[i];
+        //     Player p = new Player();
+        //     p.leftController = new ControllerInputData();
+        //     p.rightController = new ControllerInputData();
+        //     AddPlayerData(humanPlayer, p, true);
+        //     Rigidbody rb = humanPlayer.GetComponentInChildren<Rigidbody>();
+        //     GameObject rig = rb.gameObject;
+        //     ObjectList xrRigObjects = rig.GetComponent<ObjectList>();
+        //     GameObject leftController = xrRigObjects.leftController;
+        //     GameObject rightController = xrRigObjects.rightController;
+        //     AddControllerData(rig, leftController, p.leftController, true);
+        //     AddControllerData(rig, rightController, p.rightController, false);
+        //
+        //     r.TickData.HumanPlayers.Add(p);
+        // }
         for (int i = 0; i < objectList.scenicPlayers.Count; i++)
         {
             Player p = new Player();
             AddPlayerData(objectList.scenicPlayers[i], p, false);
-            p.leftController = new ControllerInputData();
-            p.rightController = new ControllerInputData();
             r.TickData.ScenicPlayers.Add(p);
         }
         for (int i = 0; i < objectList.scenicObjects.Count; i++)
         {
             GameObject obj = objectList.scenicObjects[i];
-            if (obj != disc)
+            if (obj != ball)
             {
                 Player p = new Player();
                 AddObjectData(obj, p);
-                p.leftController = new ControllerInputData();
-                p.rightController = new ControllerInputData();
                 r.TickData.ScenicObjects.Add(p);
             }
             
         }
-        if (disc != null) AddDiscData(disc, r.TickData.Disc);
+
+        if (ball != null)
+        {
+            AddBallData(ball, r.TickData.Ball);
+        }
+
         root = r;
     }
-    void AddControllerData(GameObject humanRig, GameObject controller, ControllerInputData cData, bool isLeftController)
+    /*void AddControllerData(GameObject humanRig, GameObject controller, ControllerInputData cData, bool isLeftController)
     {
         //NOTE: this does not read the actual button press but rather if they are in "Thrust" or not
         Thrust controllerThrust = controller.GetComponent<Thrust>();
@@ -95,34 +96,34 @@ public class JSONStatusMaker : MonoBehaviour
         Holder holder = humanRig.GetComponent<Holder>();
         Debug.LogWarning("This is what the human grip looks like: " + holder.altHeld.ToString());
         if (holder.altHeld){
-            //player is holding something --> just set true, we can compare with disc to see if it is holding disc or wall or nothing
+            //player is holding something --> just set true, we can compare with ball to see if it is holding ball or wall or nothing
             cData.gripButton = true;
         }
-    }
+    }*/
     void AddPlayerData(GameObject player, Player pData, bool isHuman) {
         Rigidbody rb = player.GetComponentInChildren<Rigidbody>();
         GameObject rig = rb.gameObject;
-        if (player.GetComponentInChildren<ExitScenario>() != null && lastTick > 5)
-        {
-            pData.movementData.stopButton = player.GetComponentInChildren<ExitScenario>().endScenario;
-        }
+        // if (player.GetComponentInChildren<ExitScenario>() != null && lastTick > 5)
+        // {
+        //     pData.movementData.stopButton = player.GetComponentInChildren<ExitScenario>().endScenario;
+        // }
         pData.movementData.speed = rb.velocity.magnitude;
         //NOTE: We go from (x,y,z) to (x,z,y) because that is how scenic handles the coordinate system.
         Vector3ToJsonClass(rb.angularVelocity, pData.movementData.angularVelocity);
         Vector3ToJsonClass(rb.velocity, pData.movementData.velocity);
-        MercunaAI mercuna = player.GetComponentInChildren<MercunaAI>();
-        if (mercuna != null && mercuna.mercunaPath != null)
-        {
-            Vector3ListToJsonList(mercuna.mercunaPath, pData.movementData.path);
-        }
-        PlayerInterface pI = rig.GetComponent<PlayerInterface>();
-        if (pI != null)
-        {
-            bool b = (pI.trigger || pI.laserPointed);
-            pData.movementData.trigger = b;
-        }
+        // MercunaAI mercuna = player.GetComponentInChildren<MercunaAI>();
+        // if (mercuna != null && mercuna.mercunaPath != null)
+        // {
+        //     Vector3ListToJsonList(mercuna.mercunaPath, pData.movementData.path);
+        // }
+        // PlayerInterface pI = rig.GetComponent<PlayerInterface>();
+        // if (pI != null)
+        // {
+        //     bool b = (pI.trigger || pI.laserPointed);
+        //     pData.movementData.trigger = b;
+        // }
         
-        pData.clientID = ((int)player.GetComponent<NetworkObject>().NetworkObjectId);
+        // pData.clientID = ((int)player.GetComponent<NetworkObject>().NetworkObjectId);
         if (isHuman)
         {
             GameObject camera = GameObject.FindGameObjectWithTag("MainCamera");
@@ -145,25 +146,19 @@ public class JSONStatusMaker : MonoBehaviour
         // NOTE: "Player" class can still be an object
         Vector3ToJsonClass(obj.transform.position, oData.movementData.transform);
         QuaternionToJsonClass(obj.transform.rotation, oData.movementData.rotation);
-        PlayerInterface pI = obj.GetComponent<PlayerInterface>();
-        if (pI != null)
-        {
-            bool b = (pI.trigger || pI.laserPointed);
-            oData.movementData.trigger = b;
-        }
-        oData.clientID = ((int) obj.GetComponent<NetworkObject>().NetworkObjectId);
+        // oData.clientID = ((int) obj.GetComponent<NetworkObject>().NetworkObjectId);
     }
-    void AddDiscData(GameObject disc, Disc dData) {
+    void AddBallData(GameObject disc, Ball dData) {
         Rigidbody rb = disc.GetComponent<Rigidbody>();
         dData.movementData.speed = rb.velocity.magnitude;
         Vector3ToJsonClass(rb.angularVelocity, dData.movementData.angularVelocity);
         Vector3ToJsonClass(rb.velocity, dData.movementData.velocity);
         Vector3ToJsonClass(disc.transform.position, dData.movementData.transform);
         QuaternionToJsonClass(disc.transform.rotation, dData.movementData.rotation);
-        DiscOwnership ownership = disc.GetComponent<DiscOwnership>();
-        dData.movementData.heldByHuman = ownership.heldByHuman;
-        dData.movementData.heldByScenic = ownership.heldByScenic;
-        dData.clientID = ((int)disc.GetComponent<NetworkObject>().NetworkObjectId);
+        // DiscOwnership ownership = disc.GetComponent<DiscOwnership>();
+        // dData.movementData.heldByHuman = ownership.heldByHuman;
+        // dData.movementData.heldByScenic = ownership.heldByScenic;
+        // dData.clientID = ((int)disc.GetComponent<NetworkObject>().NetworkObjectId);
     }
     void Vector3ListToJsonList(List<Vector3> v3List, List<Vector3Json> v3jList)
     {
@@ -226,7 +221,7 @@ public class JSONStatusMaker : MonoBehaviour
         public float x { get; set; }
         public float y { get; set; }
     }
-    #1#
+    */
     public class MovementData
     {
         public MovementData(){
@@ -236,8 +231,6 @@ public class JSONStatusMaker : MonoBehaviour
             angularVelocity = new Vector3Json();
             rotation = new QuaternionJson();
             path = new List<Vector3Json>();
-            trigger = false;
-            stopButton = false;
             heldByHuman = false;
             heldByScenic = false;
         }
@@ -247,8 +240,6 @@ public class JSONStatusMaker : MonoBehaviour
         public Vector3Json angularVelocity { get; set; }
         public QuaternionJson rotation { get; set; }
         public List<Vector3Json> path { get; set; }
-        public bool trigger { get; set; }
-        public bool stopButton { get; set; }
         public bool heldByHuman { get; set; }
         public bool heldByScenic { get; set; }
         
@@ -257,7 +248,7 @@ public class JSONStatusMaker : MonoBehaviour
     {
     /*
     Modeled off of https://docs.unity3d.com/2020.3/Documentation/Manual/xr_input.html
-    #1#
+    */
     //NOTE: This is biased towards obtaining what action the human is acting. This will NOT get raw input data.
         public ControllerInputData()
         {
@@ -281,9 +272,9 @@ public class JSONStatusMaker : MonoBehaviour
         public bool primary2DAxisClick;
     }
 
-    public class Disc
+    public class Ball
     {
-        public Disc() {
+        public Ball() {
             movementData = new MovementData();
         }
         public MovementData movementData {get; set;}
@@ -299,21 +290,19 @@ public class JSONStatusMaker : MonoBehaviour
         }
         public MovementData movementData {get; set;}
         public int clientID {get; set;}
-        public ControllerInputData leftController { get; set; }
-        public ControllerInputData rightController { get; set; }
     }
 
     public class TickData
     {
         public TickData(){
-            this.Disc = new Disc();
+            this.Ball = new Ball();
             this.numPlayers = 0;
             this.HumanPlayers = new List<Player>();
             this.ScenicPlayers = new List<Player>();
             this.ScenicObjects = new List<Player>();
         }
         public int numPlayers { get; set; }
-        public Disc Disc { get; set; }
+        public Ball Ball { get; set; }
         public List<Player> HumanPlayers { get; set; }
         public List<Player> ScenicPlayers { get; set; }
         public List<Player> ScenicObjects { get; set; }
@@ -326,4 +315,3 @@ public class JSONStatusMaker : MonoBehaviour
         public TickData TickData { get; set; }
     }
 }
-*/

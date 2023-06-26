@@ -49,6 +49,7 @@ class UnityMessageServer:
                 +  " at a timestep of " + str(self.timestep))
     def json_deconstructor(self, data):
         a = json.loads(data)
+        print(a)
         if type(a) == dict:
             a = unity_json_from_dict(a)
         else:
@@ -91,13 +92,6 @@ class UnityMessageServer:
                     received = True
             incoming_data = self.json_deconstructor(str(inData, 'utf-8'))
             self.extractReceivedData(incoming_data)
-        else:
-            incoming_data = self.json_deconstructor(str(self.socket.recv(), 'utf-8'))
-            self.extractReceivedData(incoming_data)
-            time.sleep(self.timestep)
-            out_data = self.json_constructor()
-            self.socket.send_json(out_data)
-            self.timestepNumber += 1
         #time.sleep(self.timestep)
     def terminate(self):
         if self.timestepNumber < 2:
@@ -372,8 +366,6 @@ class gameObject:
         self.clientID = data.clientID
         self.rotation = self.toQuaternion(data.movement_data.rotation)
         self.path = list()
-        self.trigger = data.movement_data.trigger
-        self.stopButton = data.movement_data.stopButton
         for v in data.movement_data.path:
             v = self.toVector3(v)
             self.path.append(v)
@@ -530,8 +522,6 @@ class MovementData:
     angular_velocity: UnityVector3
     rotation: UnityVector3
     path: List[UnityVector3]
-    trigger: bool
-    stopButton: bool
     heldByHuman: bool
     heldByScenic: bool
     @staticmethod
@@ -543,11 +533,9 @@ class MovementData:
         angular_velocity = UnityVector3.from_dict(obj.get("angularVelocity"))
         rotation = UnityVector3.from_dict(obj.get("rotation"))
         path = from_list(UnityVector3.from_dict, obj.get("path"))
-        trigger = from_bool(obj.get("trigger"))
-        stopButton = from_bool(obj.get("stopButton"))
         heldByHuman = from_bool(obj.get("heldByHuman"))
         heldByScenic = from_bool(obj.get("heldByScenic"))
-        return MovementData(transform, speed, velocity, angular_velocity, rotation, path, trigger, stopButton, heldByHuman, heldByScenic)
+        return MovementData(transform, speed, velocity, angular_velocity, rotation, path, heldByHuman, heldByScenic)
 
     def to_dict(self) -> dict:
         result: dict = {}
@@ -557,8 +545,6 @@ class MovementData:
         result["UnityVector3"] = to_class(UnityVector3, self.angular_velocity)
         result["rotation"] = to_class(UnityVector3, self.rotation)
         result["path"] = from_list(lambda x: to_class(UnityVector3, x), self.path)
-        result["trigger"] = from_bool(self.trigger)
-        result["stopButton"] = from_bool(self.stopButon)
         result["heldByHuman"] = from_bool(self.heldByHuman)
         result["heldByScenic"] = from_bool(self.heldByScenic)
         return result
@@ -614,23 +600,17 @@ class Ball:
 class ScenicPlayer:
     movement_data: MovementData
     clientID : int
-    leftController : ControllerInputData
-    rightController : ControllerInputData
 
     @staticmethod
     def from_dict(obj: Any) -> 'ScenicPlayer':
         assert isinstance(obj, dict)
         movement_data = MovementData.from_dict(obj.get("movementData"))
         clientID = from_int(obj.get("clientID"))
-        leftController = ControllerInputData.from_dict(obj.get("leftController"))
-        rightController = ControllerInputData.from_dict(obj.get("rightController"))
-        return ScenicPlayer(movement_data, clientID, leftController, rightController)
+        return ScenicPlayer(movement_data, clientID)
 
     def to_dict(self) -> dict:
         result: dict = {}
         result["movementData"] = to_class(MovementData, self.movement_data)
-        result["leftController"] = to_class(ControllerInputData, self.leftController)
-        result["rightController"] = to_class(ControllerInputData, self.rightController)
         return result
 
 @dataclass

@@ -14,14 +14,14 @@ public class ZMQServer : MonoBehaviour
 
     private ScenicParser parser;
     // Start is called before the first frame update
-    private ZMQRequester zmq;
+    private ZMQRequester zmqRequester;
     
     public int lastTick;
     private ObjectsList objectList;
     
     private bool destroyed;
     
-    // private JSONStatusMaker sender;
+    private JSONStatusMaker sender;
 
 
         
@@ -33,8 +33,8 @@ public class ZMQServer : MonoBehaviour
         }
 
         bool isServer = true;
-        zmq = new ZMQRequester(ip, port, isServer);
-        zmq.Start();
+        zmqRequester = new ZMQRequester(ip, port, isServer);
+        zmqRequester.Start();
         destroyed = false;
 
         lastTick = -1;
@@ -42,14 +42,15 @@ public class ZMQServer : MonoBehaviour
         objectList = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<ObjectsList>();
         parser = new ScenicParser();
         
-        // sender = this.gameObject.GetComponent<JSONStatusMaker>();
+        sender = this.gameObject.GetComponent<JSONStatusMaker>();
 
     }
     void Update()
     {
-        // string newSendData = sender.getUnityData();
-        // zmq.SetSendData(newSendData);
-        string newData = zmq.GetData();
+        string newSendData = sender.getUnityData();
+        zmqRequester.SetReady(true);
+        zmqRequester.SetSendData(newSendData);
+        string newData = zmqRequester.GetData();
         if (newData == null || newData.Equals("Null") || newData.Equals(""))
         {
             return;
@@ -84,8 +85,8 @@ public class ZMQServer : MonoBehaviour
     }
     
     private void OnDestroy() {
-        zmq.Stop();
-        //Following command crashes editor for some reason
+        zmqRequester.Stop();
+        //Following command crashes my editor for some reason
         //NetMQConfig.Cleanup(false); 
     }
     

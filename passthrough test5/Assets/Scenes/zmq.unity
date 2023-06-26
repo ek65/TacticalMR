@@ -5160,6 +5160,7 @@ GameObject:
   - component: {fileID: 2118647832}
   - component: {fileID: 2118647831}
   - component: {fileID: 2118647833}
+  - component: {fileID: 2118647834}
   m_Layer: 0
   m_Name: ZMQManager
   m_TagString: ScenicManager
@@ -5217,6 +5218,18 @@ MonoBehaviour:
   scenicPlayers: []
   humanPlayers: []
   scenicObjects: []
+--- !u!114 &2118647834
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2118647830}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d4f41d11692e24a05a91a681d16b1894, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &2128842283
 PrefabInstance:
   m_ObjectHideFlags: 0

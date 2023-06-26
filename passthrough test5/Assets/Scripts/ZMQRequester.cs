@@ -37,26 +37,33 @@ public class ZMQRequester : RunAbleThread
                 server.Bind("tcp://127.0.0.1:5555");
                 string message = null;
                 string outMessage = null;
-                int outNum = 0;
+                //int outNum = 0;
                 bool gotMessage = false;
                 //understand what is going on here and try to terminate socket yet still keep the same thread running 
                 while (true)
                 {
-                    //Debug.Log(outData == null);
-                    if (outNum != null){
+                    Debug.Log(outData == null);
+                    if (outData != null){
                         while (Running)
                         {
                             //Debug.Log("I am receiving");
                             gotMessage = server.TryReceiveFrameString(out message);
                             if (gotMessage)
                             {
-                                //Debug.Log(gotMessage);
+                                Debug.Log(gotMessage);
                                 data = message;
                                 break;
                             }
                         }
-
-                        outMessage = outNum.ToString();
+                        if (message != null)
+                        {
+                            data = message;
+                        } 
+                        else
+                        {
+                            Debug.LogWarning("Received scenic data is NULL");
+                        }
+                        outMessage = outData;
                         if (!readyToCommunicate)
                         {
                             bool humanReady = false;
@@ -76,7 +83,7 @@ public class ZMQRequester : RunAbleThread
                             server.TrySendFrame(outMessage);
                             //Debug.Log(outMessage);
                             
-                            outNum++;
+                            // outNum++;
                             Thread.Sleep(100);
                         }
                         
@@ -88,33 +95,6 @@ public class ZMQRequester : RunAbleThread
                 }
             }
         }
-        else {
-            using (RequestSocket client = new RequestSocket())
-            {
-                //client.Connect("tcp://"+ ip +":" + port);
-                client.Connect("tcp://127.0.0.1:5555");
-                string message = null;
-                string outMessage = null;
-                bool gotMessage = false;
-                while (true)
-                {
-                    if (outData != null){
-                        outMessage = outData;
-                        client.TrySendFrame(outMessage);
-                        while (Running)
-                        {       
-                            gotMessage = client.TryReceiveFrameString(out message);
-                            if (gotMessage) break;
-                        }
-                        if (message != null)
-                        {
-                            data = message;
-                        }
-                    }
-                }
-            }
-        }
-        
     }
     
     public string GetData()
