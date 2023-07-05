@@ -6,6 +6,8 @@ TagManager:
   tags:
   - ScenicManager
   - ball
+  - player
+  - goal
   layers:
   - Default
   - TransparentFX

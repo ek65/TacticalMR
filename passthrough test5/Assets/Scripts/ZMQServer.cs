@@ -76,7 +76,7 @@ public class ZMQServer : MonoBehaviour
             }
             lastTick = newTick;
             List<ScenicMovementData> mvData = ParseMovementData(jsonResult);
-            //ApplyMovement(mvData);
+            ApplyMovement(mvData);
         }
         catch (NullReferenceException e)
         {
@@ -122,7 +122,6 @@ public class ZMQServer : MonoBehaviour
         }
     }*/
     
-    /*
     private void ApplyMovement(List<ScenicMovementData> movementData) {
         // We want to ensure players spawned. We use this check.
         int numPlayersCheck = 0;
@@ -133,16 +132,17 @@ public class ZMQServer : MonoBehaviour
         int currMovementDataIndex = 0;
         foreach (ScenicMovementData s in movementData)
         {   
-            if (s.model.modelType == "player.scenic")
+            if (s.model.modelType == "Player")
             {
                 listOfScenicPlayerIndices[currScenicPlayerListIdx] = currMovementDataIndex;
                 currScenicPlayerListIdx += 1;
                 numPlayersCheck++;
-            } else if (s.model.modelType != "player.human")
-            {
-                listOfScenicObjectIndices[currScenicObjectListIdx] = currMovementDataIndex;
-                currScenicObjectListIdx += 1;
-            }
+            } 
+            // else if (s.model.modelType != "player.human")
+            // {
+            //     listOfScenicObjectIndices[currScenicObjectListIdx] = currMovementDataIndex;
+            //     currScenicObjectListIdx += 1;
+            // }
             currMovementDataIndex += 1;
         }
         if (numPlayersCheck != objectList.scenicPlayers.Count)
@@ -154,8 +154,14 @@ public class ZMQServer : MonoBehaviour
         {
             //Note: Because we apply controls at a set index, this *should* retain order...
             int currPlayerIdx = listOfScenicPlayerIndices[i];
-            PlayerInterface p = objectList.scenicPlayers[i].GetComponentInChildren<PlayerInterface>();
-            p.ApplyMovement(movementData[currPlayerIdx]);
+            MoveToSoccerBallAndTurn p = objectList.scenicPlayers[i].GetComponentInChildren<MoveToSoccerBallAndTurn>();
+            
+            if (movementData[currPlayerIdx].doMove)
+            {
+                Debug.Log("here");
+                p.MoveToPos(movementData[currPlayerIdx].moveToPosition);
+            }
+            //p.ApplyMovement(movementData[currPlayerIdx]);
         }
         /**
         for (int i = 0; i < objectList.scenicPlayers.Count; i ++)
@@ -166,61 +172,53 @@ public class ZMQServer : MonoBehaviour
                 PlayerInterface p = objectList.scenicPlayers[i].GetComponentInChildren<PlayerInterface>();
                 p.ApplyMovement(movementData[i]);
             }
-        }#1#
-        for(int i = 0; i < objectList.scenicObjects.Count; i++)
-        {
-            if (objectList.scenicObjects[i].tag == "Disc") {
-                DiscScenicController c = objectList.scenicObjects[i].GetComponent<DiscScenicController>();
-                int currObjectIdx = listOfScenicObjectIndices[i];
-                c.ApplyMovement(movementData[currObjectIdx]);
-            } else {
-                PlayerInterface p = objectList.scenicObjects[i].GetComponentInChildren<PlayerInterface>();
-                if (p != null){
-                    int currObjectIdx = listOfScenicObjectIndices[i];
-                    p.ApplyMovement(movementData[currObjectIdx]);
-                }
-            }
-        }
+        }*/
+        // for(int i = 0; i < objectList.scenicObjects.Count; i++)
+        // {
+        //     if (objectList.scenicObjects[i].tag == "Disc") {
+        //         DiscScenicController c = objectList.scenicObjects[i].GetComponent<DiscScenicController>();
+        //         int currObjectIdx = listOfScenicObjectIndices[i];
+        //         c.ApplyMovement(movementData[currObjectIdx]);
+        //     } else {
+        //         PlayerInterface p = objectList.scenicObjects[i].GetComponentInChildren<PlayerInterface>();
+        //         if (p != null){
+        //             int currObjectIdx = listOfScenicObjectIndices[i];
+        //             p.ApplyMovement(movementData[currObjectIdx]);
+        //         }
+        //     }
+        // }
         //checking for human players to apply to
-        foreach (ScenicMovementData s in movementData){
-            if (s.model.modelType == "player.human")
-            {
-                this.enableThrustFromData = s.thBoActive;
-                this.enableBrakeFromData = s.hud.brakeActive;
-                string[] hudMessages;
-                hudMessages = s.hud.message.ToArray();
-                foreach(string str in hudMessages)
-                {
-                    Debug.LogWarning(str);
-                }
-                try {
-                    HumanInterface p = objectList.humanPlayers[0].GetComponentInChildren<HumanInterface>();
-                    p.SetDataServerRpc(hudMessages);
-                    p.SetDataClientRpc(hudMessages);
-                    if (s.doLineDraw)
-                    {
-                        p.SetLineDestClientRpc(s.lineDestination.ToArray(), true);
-                        p.SetLineDestServerRpc(s.lineDestination.ToArray(), true);
-                    }
-                    //p.ApplyMovementClientRpc();
-                    
-                } catch {
-                    Debug.LogError("Human not spawned in yet");
-                }
-            }
-            /*
-            if (s.model.modelType == "Disc" || s.model.modelType == "disc" && objectList.DiscObject != null)
-            {
-                DiscScenicController c = objectList.DiscObject.GetComponent<DiscScenicController>();
-                c.ApplyMovement(s);
-            }
-            #1#
-        }
+        // foreach (ScenicMovementData s in movementData){
+        //     if (s.model.modelType == "player.human")
+        //     {
+        //         this.enableThrustFromData = s.thBoActive;
+        //         this.enableBrakeFromData = s.hud.brakeActive;
+        //         string[] hudMessages;
+        //         hudMessages = s.hud.message.ToArray();
+        //         foreach(string str in hudMessages)
+        //         {
+        //             Debug.LogWarning(str);
+        //         }
+        //         try {
+        //             HumanInterface p = objectList.humanPlayers[0].GetComponentInChildren<HumanInterface>();
+        //             p.SetDataServerRpc(hudMessages);
+        //             p.SetDataClientRpc(hudMessages);
+        //             if (s.doLineDraw)
+        //             {
+        //                 p.SetLineDestClientRpc(s.lineDestination.ToArray(), true);
+        //                 p.SetLineDestServerRpc(s.lineDestination.ToArray(), true);
+        //             }
+        //             //p.ApplyMovementClientRpc();
+        //             
+        //         } catch {
+        //             Debug.LogError("Human not spawned in yet");
+        //         }
+        //     }
+        // }
         //Debug.Log(objectList.scenicObjects.Count);
         //Make a new function that finds the human player SERVER SIDE. This means that you get it from the objects list and save it.
         //The reason for this is because HumanInterface has issues saving the data when received server side. 
     }
-    */
 
     
     //[ServerRpc]

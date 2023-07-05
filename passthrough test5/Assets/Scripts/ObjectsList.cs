@@ -6,9 +6,9 @@ public class ObjectsList : MonoBehaviour
 {
     //This function keeps track of the ever-increasing amount of gameobjects within the scene.
     //prefabs to spawn or inst
-    // public GameObject AIPrefab;
+    //public GameObject AIPrefab;
     // public GameObject PlayerPrefab;
-    public GameObject BallPrefab;
+    //public GameObject BallPrefab;
 
     //spawn locations
     // public Vector3 redSpawnLocation;
@@ -59,7 +59,7 @@ public class ObjectsList : MonoBehaviour
     {
         List<GameObject> models = new List<GameObject>();
         models.AddRange(Resources.LoadAll<GameObject>("Prefabs/Balls"));
-        // models.AddRange(Resources.LoadAll<GameObject>("Prefabs/XR Rigs"));
+        models.AddRange(Resources.LoadAll<GameObject>("Prefabs/Characters"));
         // models.AddRange(Resources.LoadAll<GameObject>("Prefabs/Misc Models"));
         // models.AddRange(Resources.LoadAll<GameObject>("Prefabs/Env Models"));
         foreach (GameObject obj in models)

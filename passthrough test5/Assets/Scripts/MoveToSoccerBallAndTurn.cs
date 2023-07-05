@@ -56,12 +56,28 @@ public class MoveToSoccerBallAndTurn : MonoBehaviour
         // correctPosition = calculateCorrectPosition(transform.position, ballOnTheGround);
         anim = GetComponent<Animator>();
         cl = GetComponent<Collider>();
+        if (ball == null)
+        {
+            ball = GameObject.FindGameObjectWithTag("ball").transform;
+        }
+        if (goal == null)
+        {
+            goal = GameObject.FindGameObjectWithTag("goal").transform;
+        }
         cl.enabled = false;
     }
 
     // Update is called once per frame
     void Update()
     {
+        if (ball == null)
+        {
+            ball = GameObject.FindGameObjectWithTag("ball").transform;
+        }
+        if (goal == null)
+        {
+            goal = GameObject.FindGameObjectWithTag("goal").transform;
+        }
         ballOnTheGround.x = ball.transform.position.x;
         ballOnTheGround.y = 0;
         ballOnTheGround.z = ball.transform.position.z;
@@ -131,6 +147,25 @@ public class MoveToSoccerBallAndTurn : MonoBehaviour
     
     public void MoveToPosThenLook(Vector3 moveToPos, Vector3 lookAtPos)
     {
+        action = Action.TAKING_RECURRING_ACTION;
+        anim.Play("Running");
+        transform.LookAt(moveToPos);
+        distToPos = Vector3.Distance(transform.position, moveToPos);
+        //correctPosition = calculateCorrectPosition(transform.position, ballOnTheGround);
+        float step = speed * Time.deltaTime;
+        transform.position = Vector3.MoveTowards(transform.position, moveToPos, step);
+        if (distToPos == 0)
+        {
+            anim.Play("Idle");
+            transform.LookAt(lookAtPos);
+            action = Action.NOT_TAKING_ACTION;
+        }
+    }
+    
+    public void MoveToPos(Vector3 moveToPos)
+    {
+        Debug.Log("here2");
+        Vector3 lookAtPos = goal.position;
         action = Action.TAKING_RECURRING_ACTION;
         anim.Play("Running");
         transform.LookAt(moveToPos);

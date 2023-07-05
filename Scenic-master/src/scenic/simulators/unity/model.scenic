@@ -40,3 +40,11 @@ class Ball(UnityObject):
     length : 0.15
     height : 0.15
 
+class Player(UnityObject):
+    gameObjectType : "player"
+    width : 1.0
+    length : 2.0
+    height : 1.0
+    team : "blue"
+    path : None
+

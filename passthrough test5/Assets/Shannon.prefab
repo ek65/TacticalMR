@@ -1412,14 +1412,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 189b4c9bf1f341f428485e3ed904fd74, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  enemy: 0
+  ally: 0
+  shirt: {fileID: 0}
   speed: 3
   ball: {fileID: 0}
   ballOnTheGround: {x: 0, y: 0, z: 0}
   mainCamera: {fileID: 0}
   animationRigging: {fileID: 3466955935593246358}
-  anim: {fileID: 0}
   cl: {fileID: 0}
-  Force: 16
+  targetPosition: {x: 0, y: 0, z: 0}
+  force: 0
+  turn: 0
+  distToBall: 0
+  distToPos: 0
+  goal: {fileID: 0}
+  action: 0
 --- !u!1 &4436087160564137589
 GameObject:
   m_ObjectHideFlags: 0

@@ -49,7 +49,7 @@ class UnityMessageServer:
                 +  " at a timestep of " + str(self.timestep))
     def json_deconstructor(self, data):
         a = json.loads(data)
-        print(a)
+        #print(a)
         if type(a) == dict:
             a = unity_json_from_dict(a)
         else:
@@ -125,7 +125,7 @@ class UnityMessageServer:
         if obj.gameObjectType == "player":
             game_object = gameObject(position, rotation)
             obj.gameObject = game_object
-            obj.gameObject.model = Model(3,1, (255,255,255,1), "player.scenic")
+            obj.gameObject.model = Model(3,1, (255,255,255,1), "Player")
             if obj.team == "orange":
                 #Color to light orange
                 game_object.ChangeColor((254,216,177,1))
@@ -202,7 +202,37 @@ class UnityMessageServer:
                     k += 1
 
     def getProperties(self, obj, properties):
-        if obj.gameObjectType == "ball":
+        if obj.gameObjectType == "player":
+            game_object = obj.gameObject
+            stored_game_object = self.ScenicPlayers[int(game_object.tag)]
+            position = stored_game_object.position
+            rotation = stored_game_object.rotation
+            velocity = stored_game_object.velocity
+            #path = stored_game_object.path
+            angularVelocity = stored_game_object.angularVelocity
+            speed=stored_game_object.speed
+            #trigger = stored_game_object.trigger
+            if rotation[3] == 0:
+                yaw, pitch, roll = 0, 0, 0
+            else:
+                r = Rotation.from_quat([rotation[0], rotation[1], rotation[2], rotation[3]])
+                simOrientation = Orientation(r)
+                simYaw, simPitch, simRoll = simOrientation.eulerAngles   # global Euler angles
+                yaw, pitch, roll = obj.parentOrientation.globalToLocalAngles(simYaw, simPitch, simRoll)   # local Euler angles
+
+            values = dict(
+                position = position,
+                velocity = velocity,
+                speed = speed,
+                angularSpeed = speed,
+                angularVelocity = angularVelocity,
+                pitch = pitch,
+                roll = roll,
+                yaw = yaw
+            )
+
+            return values
+        elif obj.gameObjectType == "ball":
             if self.ball is not None:
                 obj.gameObject = self.ball
             else:
@@ -265,6 +295,8 @@ class gameObject:
     velocity : Vector
     angularVelocity : Vector
     speed : float
+
+    doMove : bool
     # velocityStop : bool
 
     # doTransform : bool
@@ -284,6 +316,8 @@ class gameObject:
         self.speed = 0.0
         self.tag = ""
         self.clientID = 0
+        self.doMove = False
+        self.moveToPosition = Vector(0,0,0)
 
         # self.doTransform = False
         # self.destroy = False
@@ -298,8 +332,10 @@ class gameObject:
     #############################################################################################
 
     # For demo purpose, might need to update later 
-    def DoPunch(self, punch):
-        self.doPunch = punch
+    def MoveToPosition(self, pos):
+        self.moveToPosition = pos
+        self.doMove = True
+
     def destroyObj(self):
         print("Destroying object")
         self.destroy = True
@@ -329,14 +365,14 @@ class gameObject:
         self.discHeading = discHeading
         self.throwMagnitude = throwMagnitude
 
-    def MoveToPosition(self, pos):
-        self.mercunaPosition = pos
-        self.doMercunaMove = True
-    def MoveToObject(self, objectID):
-        self.mercunaID = objectID
-        self.doMercunaMove = True
-    def StopMercunaMove(self, mercunaMove):
-        self.doMercunaMove = mercunaMove
+    # def MoveToPosition(self, pos):
+    #     self.mercunaPosition = pos
+    #     self.doMercunaMove = True
+    # def MoveToObject(self, objectID):
+    #     self.mercunaID = objectID
+    #     self.doMercunaMove = True
+    # def StopMercunaMove(self, mercunaMove):
+    #     self.doMercunaMove = mercunaMove
     def Follow(self, followID, distance):
         self.mercunaID = followID
         self.mercunaDistance = distance

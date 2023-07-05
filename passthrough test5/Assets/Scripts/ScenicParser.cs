@@ -19,13 +19,13 @@ public class ScenicParser
     {
         HandleControl(t);
         List<ScenicMovementData> objData = new List<ScenicMovementData>();
-        // foreach (Player p in t.Players)
-        // {
-        //     objData.Add(HandleMovementData(p));
-        // }
+        foreach (Object p in t.Objects)
+        {
+            objData.Add(HandleMovementData(p));
+        }
         return objData;
     }
-    /*private ScenicMovementData HandleMovementData(Player data)
+    private ScenicMovementData HandleMovementData(Object data)
     {
         Dictionary<string, float> floatVals = new Dictionary<string, float>();
         Dictionary<string, bool> boolVals = new Dictionary<string, bool>();
@@ -36,72 +36,25 @@ public class ScenicParser
         Dictionary<string, List<string>> listVals = new Dictionary<string, List<string>>(); 
         Dictionary<string, List<Vector3>> listVectorVals = new Dictionary<string, List<Vector3>>();
         Vector3 pos = ListToVector(data.Position);
-        Vector3 wHead = ListToVector(data.WallHeading);
         Vector3 vel = ListToVector(data.Velocity);
         Vector3 angVel = ListToVector(data.AngularVelocity);
-        Vector3 tHead = ListToVector(data.ThrustHeading);
-        Vector3 dHead = ListToVector(data.DiscHeading);
-        Vector3 mPos = ListToVector(data.MercunaPosition);
-        Vector3 tPos = ListToVector(data.TransformPosition);
+        Vector3 mPos = ListToVector(data.MoveToPosition);
         List<Vector3> lineDest = new List<Vector3>();
-        foreach (List<float> linePos in data.LineDestination)
-        {
-            lineDest.Add(ListToVector(linePos));
-        }
+        
         Quaternion rot = ListToQuaternion(data.Rotation);
         vectorVals.Add("Position", pos);
-        vectorVals.Add("WallHeading", wHead);
         vectorVals.Add("Velocity", vel);
         vectorVals.Add("AngularVelocity", angVel);
-        vectorVals.Add("ThrustHeading", tHead);
-        vectorVals.Add("DiscHeading", dHead);
-        floatVals.Add("PushMagnitude", data.PushMagnitude);
         floatVals.Add("Speed", data.Speed);
-        floatVals.Add("ThrowMagnitude", data.ThrowMagnitude);
-        boolVals.Add("HoldingDisc", data.HoldingDisc);
-        boolVals.Add("HoldingWall", data.HoldingWall);
-        boolVals.Add("Brake", data.Brake);
-        boolVals.Add("VelocityStop", data.VelocityStop);
-        boolVals.Add("ThrustOn", data.ThrustOn);
-        boolVals.Add("ThBoActive", data.ThBoActive);
         quaternionVals.Add("Rotation", rot);
-
-        boolVals.Add("DoMercunaMove", data.DoMercunaMove);
-        boolVals.Add("DoMercunaFollow", data.DoMercunaFollow);
-
-        intVals.Add("MercunaID", data.MercunaID);
-        intVals.Add("MercunaDistance", data.MercunaDistance);
         
-        vectorVals.Add("MercunaPosition", mPos);
-
-        floatVals.Add("RedColor", data.Model.color[0]);
-        floatVals.Add("GreenColor", data.Model.color[1]);
-        floatVals.Add("BlueColor", data.Model.color[2]);
-        floatVals.Add("Opacity", data.Model.color[3]);
         stringVals.Add("ModelType", data.Model.ModelType);
-        boolVals.Add("DoTransform", data.DoTransform);
-        boolVals.Add("Destroy", data.Destroy);
-        listVals.Add("Message", data.HUD.Message);
-        boolVals.Add("Enabled", data.HUD.Enabled);
-        stringVals.Add("Position", data.HUD.Position);
-        boolVals.Add("HumanThBoActive", data.HUD.ThBoActive);
-        boolVals.Add("DoPunch", data.DoPunch);
 
-        // Adding variables to the ScenicMovementData
-        // Follows the format: "typeVals.Add("name", data.val)"
-        boolVals.Add("DoThrowTop", data.DoThrowTop);
-        boolVals.Add("ThrowSide", data.throwSide);
-        vectorVals.Add("TransformPosition", tPos);
+        boolVals.Add("DoMove", data.DoMove);
+        vectorVals.Add("MoveToPosition", mPos);
 
-        listVectorVals.Add("LineDestination", lineDest);
-        boolVals.Add("DoLineDraw", data.DoLineDraw);
-        boolVals.Add("StopButton", data.Stopbutton);
-        boolVals.Add("BrakeActive", data.HUD.BrakeActive);
-        
-        floatVals.Add("TopSpeed", data.TopSpeed);
-        floatVals.Add("CatchRadius", data.CatchRadius);
         return new ScenicMovementData(intVals, boolVals, floatVals, vectorVals, quaternionVals, stringVals, listVals, listVectorVals);
-    }*/
+    }
     public void HandleControl(ScenicJson data)
     {
         if (data.Control)
@@ -132,9 +85,6 @@ public class ScenicParser
                     server.ResetTickServerRpc();
                 }
             }
-        }
-        else{
-            return;
         }
     }
 
@@ -174,7 +124,7 @@ public class ScenicParser
         public bool AddObject { get; set; }
 
         [JsonProperty("objects")]
-        public List<Object> Players { get; set; }
+        public List<Object> Objects { get; set; }
 
         [JsonProperty("spawnQueue")]
         public List<Object> SpawnObjectQueue { get; set; }
@@ -263,10 +213,10 @@ public class ScenicParser
         [JsonProperty("thBoActive")]
         public bool ThBoActive { get; set; }
         
-        [JsonProperty("doMercunaMove")]
-        public bool DoMercunaMove { get; set; }
-        [JsonProperty("mercunaPosition")]
-        public List<float> MercunaPosition { get; set; }
+        [JsonProperty("doMove")]
+        public bool DoMove { get; set; }
+        [JsonProperty("moveToPosition")]
+        public List<float> MoveToPosition { get; set; }
         [JsonProperty("doMercunaFollow")]
         public bool DoMercunaFollow { get; set; }
         [JsonProperty("mercunaID")]
