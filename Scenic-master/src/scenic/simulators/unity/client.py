@@ -296,7 +296,10 @@ class gameObject:
     angularVelocity : Vector
     speed : float
 
-    doMove : bool
+    #doMove : bool
+    
+    # action that the gameObject is taking. the dict contains the action as the key, and the parameters (as a list) as the value
+    actionDict : dict 
     # velocityStop : bool
 
     # doTransform : bool
@@ -316,6 +319,7 @@ class gameObject:
         self.speed = 0.0
         self.tag = ""
         self.clientID = 0
+        self.actionDict = {}
         self.doMove = False
         self.moveToPosition = Vector(0,0,0)
 
@@ -335,6 +339,7 @@ class gameObject:
     def MoveToPosition(self, pos):
         self.moveToPosition = pos
         self.doMove = True
+        #self.actionDict["MoveToPos"] = [pos]
 
     def destroyObj(self):
         print("Destroying object")

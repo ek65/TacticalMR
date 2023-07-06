@@ -35,6 +35,7 @@ public class ScenicParser
         Dictionary<string, string> stringVals = new Dictionary<string, string>();
         Dictionary<string, List<string>> listVals = new Dictionary<string, List<string>>(); 
         Dictionary<string, List<Vector3>> listVectorVals = new Dictionary<string, List<Vector3>>();
+        Dictionary<string, List<IActionDictType>> actionDict = new Dictionary<string, List<IActionDictType>>();
         Vector3 pos = ListToVector(data.Position);
         Vector3 vel = ListToVector(data.Velocity);
         Vector3 angVel = ListToVector(data.AngularVelocity);
@@ -53,7 +54,7 @@ public class ScenicParser
         boolVals.Add("DoMove", data.DoMove);
         vectorVals.Add("MoveToPosition", mPos);
 
-        return new ScenicMovementData(intVals, boolVals, floatVals, vectorVals, quaternionVals, stringVals, listVals, listVectorVals);
+        return new ScenicMovementData(boolVals, vectorVals, stringVals, actionDict);
     }
     public void HandleControl(ScenicJson data)
     {
@@ -65,7 +66,7 @@ public class ScenicParser
                 {
                     Vector3 v = ListToVector(p.Position);
                     Quaternion rot = ListToQuaternion(p.Rotation);
-                    //Scenic uses right hand coord system so have to flip
+                    //Scenic uses right hand coord system so have to flip?
                     rot.y = -rot.y;
                     rot.x = -rot.x;
                     rot.z = -rot.z;
@@ -217,6 +218,8 @@ public class ScenicParser
         public bool DoMove { get; set; }
         [JsonProperty("moveToPosition")]
         public List<float> MoveToPosition { get; set; }
+        [JsonProperty("actionDict")]
+        public Dictionary<string, List<IActionDictType>> ActionDict { get; set; }
         [JsonProperty("doMercunaFollow")]
         public bool DoMercunaFollow { get; set; }
         [JsonProperty("mercunaID")]
@@ -253,4 +256,11 @@ public class ScenicParser
         [JsonProperty("catchRadius")]
         public float CatchRadius { get; set; }
     }
+}
+
+public interface IActionDictType { }
+
+public class ActionVector : IActionDictType
+{
+    public Vector3 vectorVal;
 }

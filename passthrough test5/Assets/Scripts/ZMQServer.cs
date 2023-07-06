@@ -48,7 +48,7 @@ public class ZMQServer : MonoBehaviour
     void Update()
     {
         string newSendData = sender.getUnityData();
-        zmqRequester.SetReady(true);
+        //zmqRequester.SetReady(true);
         zmqRequester.SetSendData(newSendData);
         string newData = zmqRequester.GetData();
         if (newData == null || newData.Equals("Null") || newData.Equals(""))
@@ -59,7 +59,7 @@ public class ZMQServer : MonoBehaviour
         try
         {
             ScenicParser.ScenicJson jsonResult = parser.ParseData(newData);
-            int scenicTick = jsonResult.TimestepNumber;
+            int scenicTick = GetTickFromData(jsonResult);
             int newTick = -1;
             if (!destroyed || scenicTick == 0)
             {
@@ -122,6 +122,13 @@ public class ZMQServer : MonoBehaviour
         }
     }*/
     
+    private int GetTickFromData(ScenicParser.ScenicJson data)
+    {
+        int tick = -1;
+        tick = data.TimestepNumber;
+        return tick;
+    }
+    
     private void ApplyMovement(List<ScenicMovementData> movementData) {
         // We want to ensure players spawned. We use this check.
         int numPlayersCheck = 0;
@@ -156,12 +163,7 @@ public class ZMQServer : MonoBehaviour
             int currPlayerIdx = listOfScenicPlayerIndices[i];
             MoveToSoccerBallAndTurn p = objectList.scenicPlayers[i].GetComponentInChildren<MoveToSoccerBallAndTurn>();
             
-            if (movementData[currPlayerIdx].doMove)
-            {
-                Debug.Log("here");
-                p.MoveToPos(movementData[currPlayerIdx].moveToPosition);
-            }
-            //p.ApplyMovement(movementData[currPlayerIdx]);
+            p.ApplyMovement(movementData[currPlayerIdx]);
         }
         /**
         for (int i = 0; i < objectList.scenicPlayers.Count; i ++)

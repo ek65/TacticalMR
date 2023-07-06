@@ -135,7 +135,7 @@ public class JSONStatusMaker : MonoBehaviour
         }
         else
         {
-            Vector3 offsetPos = new Vector3(rig.transform.position.x, rig.transform.position.y + 1.4f, rig.transform.position.z);
+            Vector3 offsetPos = new Vector3(rig.transform.position.x, rig.transform.position.y, rig.transform.position.z);
             Vector3ToJsonClass(offsetPos, pData.movementData.transform);
             QuaternionToJsonClass(rig.transform.rotation, pData.movementData.rotation);
         }

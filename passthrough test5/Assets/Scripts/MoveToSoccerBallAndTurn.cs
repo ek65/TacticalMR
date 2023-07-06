@@ -29,8 +29,12 @@ public class MoveToSoccerBallAndTurn : MonoBehaviour
     public float distToPos;
     public Transform goal;
     public Action action;
+    public bool move;
+    public Vector3 movePos;
 
     private float kickDebounce;
+    
+    private int localTick;  // NOTE: This is not the true tick and is what we will use to internally record a timestep.
 
     public enum Action
     {
@@ -54,6 +58,7 @@ public class MoveToSoccerBallAndTurn : MonoBehaviour
         // ballOnTheGround.z = ball.transform.position.z;
         // transform.LookAt(ballOnTheGround);
         // correctPosition = calculateCorrectPosition(transform.position, ballOnTheGround);
+        localTick = -1;
         anim = GetComponent<Animator>();
         cl = GetComponent<Collider>();
         if (ball == null)
@@ -65,6 +70,7 @@ public class MoveToSoccerBallAndTurn : MonoBehaviour
             goal = GameObject.FindGameObjectWithTag("goal").transform;
         }
         cl.enabled = false;
+        move = false;
     }
 
     // Update is called once per frame
@@ -105,6 +111,10 @@ public class MoveToSoccerBallAndTurn : MonoBehaviour
         //     }
         //     anim.SetTrigger("reachedBall");
         // }
+        if (move)
+        {
+            MoveToPos(movePos);
+        }
     }
     
     public IEnumerator IdleForSec(float sec)
@@ -161,7 +171,20 @@ public class MoveToSoccerBallAndTurn : MonoBehaviour
             action = Action.NOT_TAKING_ACTION;
         }
     }
-    
+
+    public void ApplyMovement(ScenicMovementData data)
+    {
+        localTick += 1;
+        if (localTick < 4) return;
+         if (data.doMove)
+         {
+             Debug.Log("here");
+             move = true;
+             movePos = data.moveToPosition;
+         }
+        MoveToPos(data.moveToPosition);
+    }
+
     public void MoveToPos(Vector3 moveToPos)
     {
         Debug.Log("here2");
@@ -173,6 +196,7 @@ public class MoveToSoccerBallAndTurn : MonoBehaviour
         //correctPosition = calculateCorrectPosition(transform.position, ballOnTheGround);
         float step = speed * Time.deltaTime;
         transform.position = Vector3.MoveTowards(transform.position, moveToPos, step);
+        Debug.Log("here3");
         if (distToPos == 0)
         {
             anim.Play("Idle");

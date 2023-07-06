@@ -15,13 +15,19 @@ z2 = Range(0., 20.)
 # ball2 = new Ball at (x2,y2,z2)
 
 behavior egoBehavior(ball):
-    take MoveToAction(ball.position)
+    #print(distance from self to ball)
+    while (distance from self to ball) > 0.5:
+        #print(distance from self to ball)
+        take MoveToAction(ball.position)
+
+       
 
 # behavior egoBehavior(ball):
-#    while (distance from self to ball) < 0.5:
-#        take MoveTo(ball.position)
+#    while (distance from self to ball) > 0.5:
+#        take MoveToAction(ball.position)
 #    take Shoot()
 
 ball = new Ball at (0,5,0)
+#ego = new Player at (2,0,0), facing toward ball
 ego = new Player at (2,0,0), with behavior egoBehavior(ball)
 
