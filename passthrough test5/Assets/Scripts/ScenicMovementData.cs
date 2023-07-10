@@ -7,25 +7,22 @@ public class ScenicMovementData : MonoBehaviour
     public Model model;
     public Vector3 position;
     
-    public bool doMove;
-    public Vector3 moveToPosition;
-
-    // public Dictionary<string, List<IActionDictType>> actionDict;
-    public string action;
-    public List<IActionDictType> parameters;
-
-    // public bool doKick;
-    // public Vector3 kickPosition;
+    public string actionFunc;
+    public List<object> actionArgs;
 
     // Prepare the ScenicMovementData using the data received from scenic
-    public ScenicMovementData (Dictionary<string, bool> boolVals, Dictionary<string, Vector3> vectorVals, Dictionary<string, string> stringVals, Dictionary<string, List<IActionDictType>> actionDict)
+    public ScenicMovementData (Vector3 position, string modelType)
     {
-        this.position = vectorVals["Position"];
-        this.doMove = boolVals["DoMove"];
-        this.moveToPosition = vectorVals["MoveToPosition"];
-        this.model = new Model(stringVals["ModelType"]);
-        Debug.Log("here");
-        Debug.Log(actionDict.Keys);
+        this.position = position;
+        this.model = new Model(modelType);
+    }
+
+    public ScenicMovementData(Vector3 position, string modelType, string actionFunc, List<object> actionArgs)
+    {
+        this.position = position;
+        this.model = new Model(modelType);
+        this.actionFunc = actionFunc;
+        this.actionArgs = actionArgs;
     }
 }
 

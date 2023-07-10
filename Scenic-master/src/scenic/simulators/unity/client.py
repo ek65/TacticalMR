@@ -280,6 +280,36 @@ class UnityMessageServer:
             )
             #print(set(values))
             return values
+
+class actionParameters:
+    intVals : list
+    floatVals : list
+    stringVals : list
+    tupleVals : list
+    boolVals : list
+
+    def __init__(self):
+        self.intVals = []
+        self.floatVals = []
+        self.stringVals = []
+        self.tupleVals = []
+        self.boolVals = []
+
+    def addParameter(self, intVal: int = None, floatVal : float = None, stringVal : str = None, tupleVal : tuple = None, boolVal : bool = None):
+        tmpList = []
+        tmpList.extend([intVal, floatVal, stringVal, tupleVal, boolVal])
+        parameter = [x for x in tmpList if x is not None][0]
+        if type(parameter) is int:
+            self.intVals.append(parameter)
+        elif type(parameter) is float:
+            self.floatVals.append(parameter)
+        elif type(parameter) is str:
+            self.stringVals.append(parameter)
+        elif type(parameter) is tuple:
+            self.tupleVals.append(parameter)
+        elif type(parameter) is bool:
+            self.boolVals.append(parameter)
+
 # gameObject class holds information Unity needs to generate all gameObject
 class gameObject:
     position : Vector
@@ -298,8 +328,13 @@ class gameObject:
 
     #doMove : bool
     
-    # action that the gameObject is taking. the dict contains the action as the key, and the parameters (as a list) as the value
-    actionDict : dict 
+    # action that the gameObject is taking with the same name as the corresponding function in Unity
+    #actionKey : str 
+    # the parameters (as a list) of the action function
+    #actionValues : actionParameters
+    
+    actionDict : dict
+
     # velocityStop : bool
 
     # doTransform : bool
@@ -320,8 +355,6 @@ class gameObject:
         self.tag = ""
         self.clientID = 0
         self.actionDict = {}
-        self.doMove = False
-        self.moveToPosition = Vector(0,0,0)
 
         # self.doTransform = False
         # self.destroy = False
@@ -333,13 +366,12 @@ class gameObject:
     #############################################################################################
     # Functions that take in values from the actions and update the variables of the gameObject #
     # Call, within actions.py, using "obj.gameObject.func()" to access                          #
-    #############################################################################################
-
+    #############################################################################################        
     # For demo purpose, might need to update later 
     def MoveToPosition(self, pos):
-        self.moveToPosition = pos
-        self.doMove = True
-        #self.actionDict["MoveToPos"] = [pos]
+        params = actionParameters()
+        params.addParameter(pos)
+        self.actionDict["MoveToPos"] = params
 
     def destroyObj(self):
         print("Destroying object")
@@ -413,6 +445,8 @@ class gameObject:
         self.heldByHuman = data.movement_data.heldByHuman
         self.heldByScenic = data.movement_data.heldByScenic
             
+
+    
 
 class Model:
     length : float

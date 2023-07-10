@@ -1,11 +1,13 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Globalization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using UnityEngine;
-
+using System.Linq;
+using System.Reflection;
 
 public class ScenicParser
 {
@@ -27,34 +29,55 @@ public class ScenicParser
     }
     private ScenicMovementData HandleMovementData(Object data)
     {
-        Dictionary<string, float> floatVals = new Dictionary<string, float>();
-        Dictionary<string, bool> boolVals = new Dictionary<string, bool>();
-        Dictionary<string, Vector3> vectorVals = new Dictionary<string, Vector3>();
-        Dictionary<string, Quaternion> quaternionVals = new Dictionary<string, Quaternion>();
-        Dictionary<string, int> intVals = new Dictionary<string, int>();
-        Dictionary<string, string> stringVals = new Dictionary<string, string>();
-        Dictionary<string, List<string>> listVals = new Dictionary<string, List<string>>(); 
-        Dictionary<string, List<Vector3>> listVectorVals = new Dictionary<string, List<Vector3>>();
-        Dictionary<string, List<IActionDictType>> actionDict = new Dictionary<string, List<IActionDictType>>();
         Vector3 pos = ListToVector(data.Position);
-        Vector3 vel = ListToVector(data.Velocity);
-        Vector3 angVel = ListToVector(data.AngularVelocity);
-        Vector3 mPos = ListToVector(data.MoveToPosition);
-        List<Vector3> lineDest = new List<Vector3>();
+        // Vector3 vel = ListToVector(data.Velocity);
+        // Vector3 angVel = ListToVector(data.AngularVelocity);
+        // float speed = data.Speed;
+        // Quaternion rot = ListToQuaternion(data.Rotation);
+        string modelType = data.Model.ModelType;
+        if (data.ActionDict.Count > 0)
+        {
+            string actionFunc = data.ActionDict.First().Key;
+            ActionDictType actionValues = data.ActionDict.First().Value;
+            Debug.Log(actionFunc);
+            
+            // replace with actionAPI class later
+            Type classType = Type.GetType("MoveToSoccerBallAndTurn");
+            MethodBase method = classType.GetMethod(actionFunc);
         
-        Quaternion rot = ListToQuaternion(data.Rotation);
-        vectorVals.Add("Position", pos);
-        vectorVals.Add("Velocity", vel);
-        vectorVals.Add("AngularVelocity", angVel);
-        floatVals.Add("Speed", data.Speed);
-        quaternionVals.Add("Rotation", rot);
-        
-        stringVals.Add("ModelType", data.Model.ModelType);
+            ParameterInfo[] parameters = method.GetParameters();
 
-        boolVals.Add("DoMove", data.DoMove);
-        vectorVals.Add("MoveToPosition", mPos);
+            List<object> actionArgs = new List<object>();
+            int vector3Index = 0;
+            int boolIndex = 0;
+            int floatIndex = 0;
+            int intIndex = 0;
+            int stringIndex = 0;
+            foreach (ParameterInfo param in parameters)
+            {
+                Debug.Log("For parameter #" + param.Position 
+                                             + ", the ParameterType is: " + param.ParameterType);
+                if (param.ParameterType == typeof(Vector3))
+                {
+                    Vector3 val = ListToVector(actionValues.TupleVals[vector3Index]);
+                    actionArgs.Add(val);
+                    vector3Index++;
+                } else if (param.ParameterType == typeof(bool))
+                {
+                    bool val = actionValues.BoolVals[boolIndex];
+                    actionArgs.Add(val);
+                    boolIndex++;
+                }
+                // else if (param.ParameterType == typeof(float))
+                // {
+                //     
+                // }
+            }
 
-        return new ScenicMovementData(boolVals, vectorVals, stringVals, actionDict);
+            return new ScenicMovementData(pos, modelType, actionFunc, actionArgs);
+        }
+
+        return new ScenicMovementData(pos, modelType);
     }
     public void HandleControl(ScenicJson data)
     {
@@ -219,7 +242,7 @@ public class ScenicParser
         [JsonProperty("moveToPosition")]
         public List<float> MoveToPosition { get; set; }
         [JsonProperty("actionDict")]
-        public Dictionary<string, List<IActionDictType>> ActionDict { get; set; }
+        public Dictionary<string, ActionDictType> ActionDict { get; set; }
         [JsonProperty("doMercunaFollow")]
         public bool DoMercunaFollow { get; set; }
         [JsonProperty("mercunaID")]
@@ -258,9 +281,16 @@ public class ScenicParser
     }
 }
 
-public interface IActionDictType { }
-
-public class ActionVector : IActionDictType
+public partial class ActionDictType
 {
-    public Vector3 vectorVal;
+    [JsonProperty("intVals")]
+    public List<int> IntVals{ get; set; }
+    [JsonProperty("floatVals")]
+    public List<float> FloatVals{ get; set; }
+    [JsonProperty("stringVals")]
+    public List<string> StringVals{ get; set; }
+    [JsonProperty("tupleVals")]
+    public List<List<float>> TupleVals{ get; set; }
+    [JsonProperty("boolVals")]
+    public List<bool> BoolVals{ get; set; }
 }

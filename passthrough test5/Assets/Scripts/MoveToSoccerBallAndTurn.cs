@@ -4,6 +4,8 @@ using Unity.VisualScripting;
 using UnityEngine.Animations.Rigging;
 using UnityEngine;
 using UnityEngine.UIElements;
+using System.Reflection;
+using System;
 
 // TODO: Rename script, this is the player logic script
 public class MoveToSoccerBallAndTurn : MonoBehaviour
@@ -113,7 +115,7 @@ public class MoveToSoccerBallAndTurn : MonoBehaviour
         // }
         if (move)
         {
-            MoveToPos(movePos);
+            MoveToPos2(movePos);
         }
     }
     
@@ -173,21 +175,29 @@ public class MoveToSoccerBallAndTurn : MonoBehaviour
     }
 
     public void ApplyMovement(ScenicMovementData data)
-    {
+    { 
         localTick += 1;
         if (localTick < 4) return;
-         if (data.doMove)
-         {
-             Debug.Log("here");
-             move = true;
-             movePos = data.moveToPosition;
-         }
-        MoveToPos(data.moveToPosition);
+        if (data.actionFunc != null)
+        {
+            Type type = this.GetType();
+            MethodInfo method = type.GetMethod(data.actionFunc);
+            // Debug.Log(data.actionFunc);
+            // Debug.Log(data.actionArgs);
+            // Debug.Log(data.actionArgs.ToArray());
+            // Debug.Log(data.actionArgs.ToArray().Length);
+            method.Invoke(this, data.actionArgs.ToArray());
+        }
     }
 
-    public void MoveToPos(Vector3 moveToPos)
+    public void MoveToPos(Vector3 pos)
     {
-        Debug.Log("here2");
+        move = true;
+        movePos = pos;
+    }
+    public void MoveToPos2(Vector3 moveToPos)
+    {
+        //Debug.Log("here2");
         Vector3 lookAtPos = goal.position;
         action = Action.TAKING_RECURRING_ACTION;
         anim.Play("Running");
@@ -196,7 +206,7 @@ public class MoveToSoccerBallAndTurn : MonoBehaviour
         //correctPosition = calculateCorrectPosition(transform.position, ballOnTheGround);
         float step = speed * Time.deltaTime;
         transform.position = Vector3.MoveTowards(transform.position, moveToPos, step);
-        Debug.Log("here3");
+        //Debug.Log("here3");
         if (distToPos == 0)
         {
             anim.Play("Idle");

@@ -279,7 +279,7 @@ public class JSONStatusMaker : MonoBehaviour
         }
         public MovementData movementData {get; set;}
         
-        //TODO: We need to define this within a disc
+        //TODO: We need to define this within a ball
         public int clientID {get; set;}
     }
 
