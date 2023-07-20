@@ -4,7 +4,6 @@ using System.Runtime.ConstrainedExecution;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.AI;
-using UnityStandardAssets.Characters.ThirdPerson;
 
 #region For Mathematical Reference
 // parabola Equation if used (x-5)^2 = -4(25/8)(y-2) => y = -2/25(x^2 - 10x)  (in this Max Distance 10)
@@ -33,9 +32,13 @@ public class ActionAPI : MonoBehaviour
 
 
     #region API Methods for BlendTrees
-    public void MoveFromOnePositionToAnother(GameObject selfPlayer, Vector3 destinationPosition, bool lookAt = true)
+    public void MoveTo(Vector3 destinationPosition, bool lookAt = true)
     {
         // Debug.Log("here");
+
+        GameObject selfPlayer = this.gameObject;
+
+        selfPlayer.GetComponent<NavMeshAgent>().speed = playerRunningSpeed;
 
         //SetAnimController(selfPlayer, "Humanoid"); // Update Animator
         if (selfPlayer.GetComponentInChildren<NavMeshObstacle>().enabled)
@@ -51,11 +54,11 @@ public class ActionAPI : MonoBehaviour
         else agent = selfPlayer.AddComponent<NavMeshAgent>();
 
         //Take Character reference 
-        ThirdPersonCharacter character;
-        if (selfPlayer.GetComponent<ThirdPersonCharacter>() != null)
-            character = selfPlayer.GetComponent<ThirdPersonCharacter>();
+        AINavigation character;
+        if (selfPlayer.GetComponent<AINavigation>() != null)
+            character = selfPlayer.GetComponent<AINavigation>();
         else
-            character = selfPlayer.AddComponent<ThirdPersonCharacter>();
+            character = selfPlayer.AddComponent<AINavigation>();
 
         // Set Destination 
         agent.updateRotation = false;
@@ -312,7 +315,7 @@ public class ActionAPI : MonoBehaviour
     #region Helper Coroutines
 
 
-    IEnumerator Move(GameObject selfPlayer,NavMeshAgent agent,ThirdPersonCharacter character, Vector3 Destiny)
+    IEnumerator Move(GameObject selfPlayer,NavMeshAgent agent, AINavigation character, Vector3 Destiny)
     {
         while (agent.SetDestination(Destiny))
         {

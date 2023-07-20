@@ -161,7 +161,7 @@ public class ZMQServer : MonoBehaviour
         {
             //Note: Because we apply controls at a set index, this *should* retain order...
             int currPlayerIdx = listOfScenicPlayerIndices[i];
-            MoveToSoccerBallAndTurn p = objectList.scenicPlayers[i].GetComponentInChildren<MoveToSoccerBallAndTurn>();
+            PlayerInterface p = objectList.scenicPlayers[i].GetComponentInChildren<PlayerInterface>();
             
             p.ApplyMovement(movementData[currPlayerIdx]);
         }

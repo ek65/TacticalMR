@@ -41,8 +41,7 @@ public class ScenicParser
             ActionDictType actionValues = data.ActionDict.First().Value;
             Debug.Log(actionFunc);
             
-            // replace with actionAPI class later
-            Type classType = Type.GetType("MoveToSoccerBallAndTurn");
+            Type classType = Type.GetType("ActionAPI");
             MethodBase method = classType.GetMethod(actionFunc);
         
             ParameterInfo[] parameters = method.GetParameters();
@@ -237,10 +236,10 @@ public class ScenicParser
         [JsonProperty("thBoActive")]
         public bool ThBoActive { get; set; }
         
-        [JsonProperty("doMove")]
-        public bool DoMove { get; set; }
-        [JsonProperty("moveToPosition")]
-        public List<float> MoveToPosition { get; set; }
+        // [JsonProperty("doMove")]
+        // public bool DoMove { get; set; }
+        // [JsonProperty("moveToPosition")]
+        // public List<float> MoveToPosition { get; set; }
         [JsonProperty("actionDict")]
         public Dictionary<string, ActionDictType> ActionDict { get; set; }
         [JsonProperty("doMercunaFollow")]

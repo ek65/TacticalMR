@@ -44,7 +44,7 @@ public class SceneHandler : MonoBehaviour
 
     private void Update()
     {
-        actionAPIs.MoveFromOnePositionToAnother (playerOne, Destinations[0].position);
+        actionAPIs.MoveTo(Destinations[0].position);
     }
 
     // For Testing New Movement Feature 
@@ -52,7 +52,7 @@ public class SceneHandler : MonoBehaviour
     {
         for(int i = 0; i < Destinations.Capacity; i++)
         {
-            actionAPIs.MoveFromOnePositionToAnother(playerOne, Destinations[i].position);
+            actionAPIs.MoveTo(Destinations[i].position);
             // here we wait for 3 sec before update destination for self Player
             yield return new WaitForSeconds(3f);
             Debug.Log(i + " : ) ");
