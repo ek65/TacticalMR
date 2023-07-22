@@ -14,12 +14,13 @@ public class SceneHandler : MonoBehaviour
     public GameObject apiManager;
     public GameObject goalPost;
     public GameObject playerOne;
-    public GameObject playerTwo;
+    // public GameObject playerTwo;
+    // public GameObject playerThree;
+    // public GameObject playerFour;
     public GameObject goalKeeper;
     public GameObject soccerBall;
     public GameObject finalPositionPlaceholder;
 
-    ActionAPI actionAPIs;
 
     // For Testing 
     public List<Transform> Destinations;
@@ -29,7 +30,6 @@ public class SceneHandler : MonoBehaviour
 
     void Start()
     {
-        actionAPIs = apiManager.GetComponent<ActionAPI>();
         
         // Remove this line (this line is sample for showing the working of movmement api)
         //StartCoroutine (DestinationCalling(actionAPIs));
@@ -44,7 +44,11 @@ public class SceneHandler : MonoBehaviour
 
     private void Update()
     {
-        actionAPIs.MoveTo(Destinations[0].position);
+        playerOne.GetComponent<ActionAPI>().MoveToPos(Destinations[0].position);
+        
+        // playerTwo.GetComponent<ActionAPI>().MoveToPos(Destinations[1].position);
+        // playerThree.GetComponent<ActionAPI>().MoveToPos(Destinations[1].position);
+        // playerFour.GetComponent<ActionAPI>().MoveToPos(Destinations[1].position);
     }
 
     // For Testing New Movement Feature 
@@ -52,7 +56,7 @@ public class SceneHandler : MonoBehaviour
     {
         for(int i = 0; i < Destinations.Capacity; i++)
         {
-            actionAPIs.MoveTo(Destinations[i].position);
+            actionAPIs.MoveToPos(Destinations[i].position);
             // here we wait for 3 sec before update destination for self Player
             yield return new WaitForSeconds(3f);
             Debug.Log(i + " : ) ");

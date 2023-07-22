@@ -125,7 +125,7 @@ class UnityMessageServer:
         if obj.gameObjectType == "player":
             game_object = gameObject(position, rotation)
             obj.gameObject = game_object
-            obj.gameObject.model = Model(3,1, (255,255,255,1), "player.scenic")
+            obj.gameObject.model = Model(3,1, (255,255,255,1), "Player")
             if obj.team == "orange":
                 #Color to light orange
                 game_object.ChangeColor((254,216,177,1))

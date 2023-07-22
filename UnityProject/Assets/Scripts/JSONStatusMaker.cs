@@ -149,7 +149,7 @@ public class JSONStatusMaker : MonoBehaviour
         // oData.clientID = ((int) obj.GetComponent<NetworkObject>().NetworkObjectId);
     }
     void AddBallData(GameObject disc, Ball dData) {
-        Rigidbody rb = disc.GetComponent<Rigidbody>();
+        Rigidbody rb = disc.GetComponentInChildren<Rigidbody>();
         dData.movementData.speed = rb.velocity.magnitude;
         Vector3ToJsonClass(rb.angularVelocity, dData.movementData.angularVelocity);
         Vector3ToJsonClass(rb.velocity, dData.movementData.velocity);

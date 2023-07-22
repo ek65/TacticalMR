@@ -9,30 +9,32 @@ from scenic.simulators.unity import client
 
 
 class UnitySimulator(Simulator):
-    def __init__(self, ip='127.0.0.1', port=5555, timeout=10, render=True, timestep=1):
+    def __init__(self, ip='127.0.0.1', port=5555, timeout=10, render=True, timestep=0.1):
         super().__init__()
         verbosePrint('Connecting to Unity Server...')
         self.messageClient = client.StartMessageServer(ip, port, timestep)
         self.scenario_number = 0
         self.timestep = timestep
-    def createSimulation(self, scene, verbosity=0):
+    def createSimulation(self, scene, *, timestep, **kwargs):
         self.scenario_number += 1
-        return UnitySimulation(scene, self.messageClient, self.timestep)
+        return UnitySimulation(scene, self.messageClient, timestep=self.timestep, **kwargs)
     def destroy(self):
         print("Destroying Simulator")
+        super().destroy()
         #self.messageClient.terminate()
         #Sever socket and try to reconnect to unity
 
 
 class UnitySimulation(Simulation):
-    def __init__(self, scene, client, timestep=0.1, verbosity=0):
-        super().__init__(scene, timestep=timestep, verbosity=verbosity)
+    def __init__(self, scene, client, *, timestep, **kwargs):
         self.client = client
         self.ego = None
-        for obj in self.objects:
-            unityActor = self.createObjectInSimulator(obj)
-            if obj is self.objects[0]:
-                self.ego = obj
+        super().__init__(scene, timestep=timestep, **kwargs)
+        # for obj in self.objects:
+        #     print(obj)
+            # unityActor = self.createObjectInSimulator(obj)
+            # if obj is self.objects[0]:
+            #     self.ego = obj
     def step(self):
         self.client.step()
     def executeActions(self, allActions):
@@ -66,4 +68,5 @@ class UnitySimulation(Simulation):
     def destroy(self):
         print("Destroying Simulation")
         self.client.destroy_all()
+        self.objects = []
         super().destroy()

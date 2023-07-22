@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.ConstrainedExecution;
@@ -29,10 +30,26 @@ public class ActionAPI : MonoBehaviour
 
     float rotationDuration = 0.4f;
 
+    private bool doMove;
+    private Vector3 destPos;
 
+    private void Update()
+    {
+        // if (doMove)
+        // {
+        //     StartCoroutine(MoveToPos2(destPos));
+        //     // MoveToPos2(destPos);
+        // }
+    }
 
     #region API Methods for BlendTrees
-    public void MoveTo(Vector3 destinationPosition, bool lookAt = true)
+    public void MoveToPos(Vector3 destinationPosition, bool lookAt = true)
+    {
+        // doMove = true;
+        destPos = destinationPosition;
+        StartCoroutine(MoveToPos2(destPos));
+    }
+    IEnumerator MoveToPos2(Vector3 destinationPosition, bool lookAt = true)
     {
         // Debug.Log("here");
 
@@ -43,6 +60,8 @@ public class ActionAPI : MonoBehaviour
         //SetAnimController(selfPlayer, "Humanoid"); // Update Animator
         if (selfPlayer.GetComponentInChildren<NavMeshObstacle>().enabled)
             selfPlayer.GetComponentInChildren<NavMeshObstacle>().enabled = false;
+
+        yield return new WaitForSeconds(5f);
 
         // Assign Agent
         NavMeshAgent agent; 
@@ -328,6 +347,11 @@ public class ActionAPI : MonoBehaviour
 
         selfPlayer.GetComponent<NavMeshAgent>().enabled = false; // Deactivate Agent 
         selfPlayer.GetComponentInChildren<NavMeshObstacle>().enabled = true;
+    }
+    
+    IEnumerator Wait(float seconds)
+    {
+        yield return new WaitForSeconds(seconds);
     }
 
     private IEnumerator MovementLerp(GameObject selfPlayer, Vector3 final, bool lookAt)

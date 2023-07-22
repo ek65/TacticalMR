@@ -518,8 +518,8 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8665160897396349361}
-  m_LocalRotation: {x: -0, y: 0.14998, z: -0, w: -0.9886891}
-  m_LocalPosition: {x: 0, y: 0.936, z: 0}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 1, z: 0}
   m_LocalScale: {x: 1.0000005, y: 1, z: 1.0000005}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1745,7 +1745,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8665160898029389198}
-  m_LocalRotation: {x: 0.55817074, y: -0.42893592, z: 0.57648534, w: 0.41487855}
+  m_LocalRotation: {x: 0.55817074, y: -0.4289359, z: 0.57648534, w: 0.41487852}
   m_LocalPosition: {x: -0.06475268, y: 0.13552924, z: -0.017827228}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -2855,6 +2855,7 @@ GameObject:
   - component: {fileID: 8665160898893140850}
   - component: {fileID: 8665160898893140853}
   - component: {fileID: 8665160898893140851}
+  - component: {fileID: 8029724646137382559}
   - component: {fileID: 8665160898893140849}
   - component: {fileID: 8665160898893140814}
   - component: {fileID: 8665160898893140808}
@@ -2926,10 +2927,41 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 35bcac9dd1874c44d9e8101253d74932, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerRunningSpeed: 2
+  playerRunningSpeed: 5
   timeDuration: 5
   goalWidth: 0
   soccerBall: {fileID: 0}
+--- !u!114 &8029724646137382559
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8665160898893140854}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 189b4c9bf1f341f428485e3ed904fd74, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  enemy: 1
+  ally: 0
+  shirt: {fileID: 8665160898560163737}
+  speed: 3
+  ball: {fileID: 0}
+  ballOnTheGround: {x: 0, y: 0, z: 0}
+  mainCamera: {fileID: 0}
+  animationRigging: {fileID: 8665160897151203567}
+  cl: {fileID: 0}
+  targetPosition: {x: 0, y: 0, z: 0}
+  force: 18
+  turn: 0
+  distToBall: 0
+  distToPos: 0
+  goal: {fileID: 0}
+  action: 0
+  move: 0
+  movePos: {x: 0, y: 0, z: 0}
+  actionAPI: {fileID: 8665160898893140851}
 --- !u!65 &8665160898893140849
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -2964,7 +2996,7 @@ NavMeshAgent:
   m_GameObject: {fileID: 8665160898893140854}
   m_Enabled: 0
   m_AgentTypeID: 0
-  m_Radius: 0.5
+  m_Radius: 2
   m_Speed: 2
   m_Acceleration: 2
   avoidancePriority: 50
@@ -2974,7 +3006,7 @@ NavMeshAgent:
   m_AutoBraking: 1
   m_AutoRepath: 1
   m_Height: 2
-  m_BaseOffset: 0
+  m_BaseOffset: -0.085
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
 --- !u!54 &8665160898893140807
@@ -3019,14 +3051,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7b8876d36ce29304ea5fa163a66058f8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_MovingTurnSpeed: 1
-  m_StationaryTurnSpeed: 1
+  m_MovingTurnSpeed: 360
+  m_StationaryTurnSpeed: 180
   m_JumpPower: 6
-  m_GravityMultiplier: 2
-  m_RunCycleLegOffset: 0.2
+  m_GravityMultiplier: 1
+  m_RunCycleLegOffset: 0
   m_MoveSpeedMultiplier: 1
   m_AnimSpeedMultiplier: 1
-  m_GroundCheckDistance: 4.37
+  m_GroundCheckDistance: 1
 --- !u!1 &8665160898920370538
 GameObject:
   m_ObjectHideFlags: 0

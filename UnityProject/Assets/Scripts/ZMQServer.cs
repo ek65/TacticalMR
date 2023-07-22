@@ -55,7 +55,7 @@ public class ZMQServer : MonoBehaviour
         {
             return;
         }
-        Debug.Log(newData);
+        // Debug.Log(newData);
         try
         {
             ScenicParser.ScenicJson jsonResult = parser.ParseData(newData);
@@ -162,7 +162,6 @@ public class ZMQServer : MonoBehaviour
             //Note: Because we apply controls at a set index, this *should* retain order...
             int currPlayerIdx = listOfScenicPlayerIndices[i];
             PlayerInterface p = objectList.scenicPlayers[i].GetComponentInChildren<PlayerInterface>();
-            
             p.ApplyMovement(movementData[currPlayerIdx]);
         }
         /**

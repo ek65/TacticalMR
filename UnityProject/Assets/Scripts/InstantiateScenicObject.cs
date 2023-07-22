@@ -26,7 +26,7 @@ public class InstantiateScenicObject : MonoBehaviour
             objectList.scenicObjects.Add(ball);
         } else if (tag == "Player")
         {
-            GameObject scenicPlayer = MonoBehaviour.Instantiate(objectList.modelList["Player"], pos, rot);
+            GameObject scenicPlayer = MonoBehaviour.Instantiate(objectList.modelList["player.scenic"], pos, rot);
             //scenicPlayer.GetComponent<NetworkObject>().Spawn();
             objectList.scenicPlayers.Add(scenicPlayer);
             //objectList.orangePlayers.Add(scenicPlayer.GetComponent<NetworkObject>().NetworkInstanceId);

@@ -42,38 +42,64 @@ public class ScenicParser
             Debug.Log(actionFunc);
             
             Type classType = Type.GetType("ActionAPI");
-            MethodBase method = classType.GetMethod(actionFunc);
-        
-            ParameterInfo[] parameters = method.GetParameters();
-
-            List<object> actionArgs = new List<object>();
-            int vector3Index = 0;
-            int boolIndex = 0;
-            int floatIndex = 0;
-            int intIndex = 0;
-            int stringIndex = 0;
-            foreach (ParameterInfo param in parameters)
+            if (classType.GetMethod(actionFunc) == null)
             {
-                Debug.Log("For parameter #" + param.Position 
-                                             + ", the ParameterType is: " + param.ParameterType);
-                if (param.ParameterType == typeof(Vector3))
-                {
-                    Vector3 val = ListToVector(actionValues.TupleVals[vector3Index]);
-                    actionArgs.Add(val);
-                    vector3Index++;
-                } else if (param.ParameterType == typeof(bool))
-                {
-                    bool val = actionValues.BoolVals[boolIndex];
-                    actionArgs.Add(val);
-                    boolIndex++;
-                }
-                // else if (param.ParameterType == typeof(float))
-                // {
-                //     
-                // }
+                Debug.LogError("Given action function does not exist.");
             }
+            else
+            {
+                MethodBase method = classType.GetMethod(actionFunc);
+                ParameterInfo[] parameters = method.GetParameters();
+                
+                List<object> actionArgs = new List<object>();
+                int vector3Index = 0;
+                int boolIndex = 0;
+                int floatIndex = 0;
+                int intIndex = 0;
+                int stringIndex = 0;
 
-            return new ScenicMovementData(pos, modelType, actionFunc, actionArgs);
+                foreach (ParameterInfo param in parameters)
+                {
+                    Debug.Log("For parameter #" + param.Position 
+                                                + ", the ParameterType is: " + param.ParameterType);
+                    if (param.ParameterType == typeof(Vector3))
+                    {
+                        Vector3 val;
+                        // do not want to error here and rather add a null item as some values may have defaults 
+                        if (actionValues.TupleVals.Count - vector3Index > 0 &&
+                            vector3Index < parameters.Count(p => p.ParameterType == typeof(Vector3)))
+                        {
+                            val = ListToVector(actionValues.TupleVals[vector3Index]);
+                            actionArgs.Add(val);
+                        }
+                        else
+                        {
+                            actionArgs.Add(null);
+                        }
+                        vector3Index++;
+                    } else if (param.ParameterType == typeof(bool))
+                    {
+                        bool val;
+                        if (actionValues.BoolVals.Count - boolIndex > 0 &&
+                            boolIndex < parameters.Count(p => p.ParameterType == typeof(bool)))
+                        {
+                            val = actionValues.BoolVals[boolIndex];
+                            actionArgs.Add(val);
+                        }
+                        else
+                        {
+                            actionArgs.Add(null);
+                        }
+                        boolIndex++;
+                    }
+                    // else if (param.ParameterType == typeof(float))
+                    // {
+                    //     
+                    // }
+                }
+                return new ScenicMovementData(pos, modelType, actionFunc, actionArgs);
+            }
+            return new ScenicMovementData(pos, modelType);
         }
 
         return new ScenicMovementData(pos, modelType);

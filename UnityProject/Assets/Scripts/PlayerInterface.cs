@@ -38,6 +38,8 @@ public class PlayerInterface : MonoBehaviour
     
     private int localTick;  // NOTE: This is not the true tick and is what we will use to internally record a timestep.
 
+    public ActionAPI actionAPI;
+
     public enum Action
     {
         NOT_TAKING_ACTION,
@@ -90,6 +92,7 @@ public class PlayerInterface : MonoBehaviour
         ballOnTheGround.y = 0;
         ballOnTheGround.z = ball.transform.position.z;
         distToBall = Vector3.Distance(transform.position, ballOnTheGround);
+        
         // anim.ResetTrigger("reachedBall");
         // cl.enabled = false;
         // float step = speed * Time.deltaTime;
@@ -113,10 +116,10 @@ public class PlayerInterface : MonoBehaviour
         //     }
         //     anim.SetTrigger("reachedBall");
         // }
-        if (move)
-        {
-            MoveToPos2(movePos);
-        }
+        // if (move)
+        // {
+        //     MoveToPos2(movePos);
+        // }
     }
     
     public IEnumerator IdleForSec(float sec)
@@ -175,18 +178,25 @@ public class PlayerInterface : MonoBehaviour
     }
 
     public void ApplyMovement(ScenicMovementData data)
-    { 
+    {
         localTick += 1;
-        if (localTick < 4) return;
+        Debug.Log(GetComponent<Rigidbody>().velocity);
+        if (localTick < 4)
+        {
+            return;
+        }
         if (data.actionFunc != null)
         {
-            Type type = this.GetType();
+            Type type = actionAPI.GetType();
             MethodInfo method = type.GetMethod(data.actionFunc);
-            // Debug.Log(data.actionFunc);
-            // Debug.Log(data.actionArgs);
-            // Debug.Log(data.actionArgs.ToArray());
-            // Debug.Log(data.actionArgs.ToArray().Length);
-            method.Invoke(this, data.actionArgs.ToArray());
+            Debug.Log("here12");
+            Debug.Log(data.actionFunc);
+            Debug.Log(data.actionArgs.ToArray().Length);
+            foreach (var v in data.actionArgs.ToArray())
+            {
+                Debug.Log(v);
+            }
+            method.Invoke(actionAPI, data.actionArgs.ToArray());
         }
     }
 
