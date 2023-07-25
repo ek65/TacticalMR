@@ -18,7 +18,7 @@ public class ActionAPI : MonoBehaviour
     [SerializeField] float goalWidth = 7.44f;
     [SerializeField] GameObject soccerBall;
 
-    bool stopMovement = false;
+    public bool stopMovement = false;
     string transitionTo = "t";
 
     float forceFactor = 7f;
@@ -30,65 +30,12 @@ public class ActionAPI : MonoBehaviour
 
     float rotationDuration = 0.4f;
 
-    private bool doMove;
-    private Vector3 destPos;
-
-    private void Update()
-    {
-        // if (doMove)
-        // {
-        //     StartCoroutine(MoveToPos2(destPos));
-        //     // MoveToPos2(destPos);
-        // }
-    }
-
     #region API Methods for BlendTrees
     public void MoveToPos(Vector3 destinationPosition, bool lookAt = true)
     {
-        // doMove = true;
-        destPos = destinationPosition;
-        StartCoroutine(MoveToPos2(destPos));
+        StartCoroutine(MoveToPosHelper(destinationPosition, lookAt));
     }
-    IEnumerator MoveToPos2(Vector3 destinationPosition, bool lookAt = true)
-    {
-        // Debug.Log("here");
-
-        GameObject selfPlayer = this.gameObject;
-
-        selfPlayer.GetComponent<NavMeshAgent>().speed = playerRunningSpeed;
-
-        //SetAnimController(selfPlayer, "Humanoid"); // Update Animator
-        if (selfPlayer.GetComponentInChildren<NavMeshObstacle>().enabled)
-            selfPlayer.GetComponentInChildren<NavMeshObstacle>().enabled = false;
-
-        yield return new WaitForSeconds(5f);
-
-        // Assign Agent
-        NavMeshAgent agent; 
-        if (selfPlayer.GetComponent<NavMeshAgent>() != null)
-        {
-            selfPlayer.GetComponent<NavMeshAgent>().enabled = true;
-            agent = selfPlayer.GetComponent<NavMeshAgent>();
-        }
-        else agent = selfPlayer.AddComponent<NavMeshAgent>();
-
-        //Take Character reference 
-        AINavigation character;
-        if (selfPlayer.GetComponent<AINavigation>() != null)
-            character = selfPlayer.GetComponent<AINavigation>();
-        else
-            character = selfPlayer.AddComponent<AINavigation>();
-
-        // Set Destination 
-        agent.updateRotation = false;
-        agent.SetDestination(destinationPosition);
-        StartCoroutine(Move(selfPlayer, agent,character, destinationPosition));
-
-        // Debug.Log("Here 3");
-        
-        //SetAnimController(selfPlayer, "Movement");
-        //StartCoroutine(MovementLerp(selfPlayer, destinationPosition, lookAt));
-    }
+    
     public void DribbleFromOnePositionToAnother(GameObject selfPlayer, Vector3 destinationPosition)
     {
         SetAnimController(selfPlayer, "Dribbling");
@@ -332,8 +279,61 @@ public class ActionAPI : MonoBehaviour
     #endregion
 
     #region Helper Coroutines
+    IEnumerator MoveToPosHelper(Vector3 destinationPosition, bool lookAt = true)
+    {
+        // Debug.Log("here");
 
+        GameObject selfPlayer = this.gameObject;
 
+        selfPlayer.GetComponent<NavMeshAgent>().speed = playerRunningSpeed;
+
+        //SetAnimController(selfPlayer, "Humanoid"); // Update Animator
+        if (selfPlayer.GetComponentInChildren<NavMeshObstacle>().enabled)
+            selfPlayer.GetComponentInChildren<NavMeshObstacle>().enabled = false;
+
+        yield return new WaitForSeconds(0.1f);
+
+        // Assign Agent
+        NavMeshAgent agent; 
+        if (selfPlayer.GetComponent<NavMeshAgent>() != null)
+        {
+            selfPlayer.GetComponent<NavMeshAgent>().enabled = true;
+            agent = selfPlayer.GetComponent<NavMeshAgent>();
+        }
+        else agent = selfPlayer.AddComponent<NavMeshAgent>();
+
+        //Take Character reference 
+        AINavigation character;
+        if (selfPlayer.GetComponent<AINavigation>() != null)
+            character = selfPlayer.GetComponent<AINavigation>();
+        else
+            character = selfPlayer.AddComponent<AINavigation>();
+
+        // Set Destination 
+        agent.updateRotation = false;
+        agent.SetDestination(destinationPosition);
+        StartCoroutine(Move(selfPlayer, agent, character, destinationPosition));
+
+        // Debug.Log("Here 3");
+        
+        //SetAnimController(selfPlayer, "Movement");
+        //StartCoroutine(MovementLerp(selfPlayer, destinationPosition, lookAt));
+        yield return null;
+        
+        if (stopMovement)
+        {
+            Debug.Log("in here123");
+            stopMovement = false;
+            selfPlayer.GetComponent<Animator>().SetFloat("VelZ", 0);
+            selfPlayer.GetComponent<Animator>().SetFloat("VelX", 0);
+            selfPlayer.GetComponent<Animator>().SetFloat("Forward", 0);
+            selfPlayer.GetComponent<NavMeshAgent>().enabled = false; // Deactivate Agent 
+            selfPlayer.GetComponentInChildren<NavMeshObstacle>().enabled = true;
+            StopCoroutine(Move(selfPlayer, agent, character, destinationPosition));
+            StopCoroutine(MoveToPosHelper(destinationPosition, lookAt));
+        }
+    }
+    
     IEnumerator Move(GameObject selfPlayer,NavMeshAgent agent, AINavigation character, Vector3 Destiny)
     {
         while (agent.SetDestination(Destiny))

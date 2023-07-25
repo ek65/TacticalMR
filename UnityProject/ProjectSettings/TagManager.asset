@@ -8,6 +8,10 @@ TagManager:
   - ball
   - player
   - goal
+  - AI Player
+  - Goalkeeper
+  - Ground
+  - SoccerBall
   layers:
   - Default
   - TransparentFX
@@ -15,7 +19,7 @@ TagManager:
   - 
   - Water
   - UI
-  - 
+  - PlayerBall
   - 
   - 
   - 

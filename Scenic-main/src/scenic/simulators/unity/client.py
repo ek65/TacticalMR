@@ -367,64 +367,50 @@ class gameObject:
     # Functions that take in values from the actions and update the variables of the gameObject #
     # Call, within actions.py, using "obj.gameObject.func()" to access                          #
     #############################################################################################        
-    # For demo purpose, might need to update later 
-    def MoveToPosition(self, pos):
-        params = actionParameters()
-        params.addParameter(pos)
-        self.actionDict["MoveToPos"] = params
 
+    def DoAction(self, actionName : str, *args):
+        if (actionName == "Idle"):
+            # clear action dict
+            self.actionDict = {}
+        else:
+            params = actionParameters()
+            for i in list(args):
+                params.addParameter(i)
+            self.actionDict[actionName] = params
+
+    # def MoveToPos(self, pos):
+    #     params = actionParameters()
+    #     params.addParameter(pos)
+    #     self.actionDict["MoveToPos"] = params
+ 
     def destroyObj(self):
         print("Destroying object")
         self.destroy = True
 
     def Idle(self, idle):
         pass
-    # def Thrust(self, thrust, heading = Vector(0,0,0)):
-    #     self.thrustHeading = heading
-    #     self.thrustOn = thrust
-    def Brake(self, brake):
-        self.brake = brake
-    def SetStopVelocity(self, velocityStop):
-        self.velocityStop = velocityStop
-    def SetPosition(self, position, apply=True):
-        self.transformPosition = position
-        self.doTransform = apply
-    def GrabWall(self, holdingWall):
-        self.holdingWall = holdingWall
-    def ReleaseWall(self, holdingWall, wallHeading, pushMagnitude):
-        self.holdingWall = holdingWall
-        self.wallHeading = wallHeading
-        self.pushMagnitude = pushMagnitude
-    def GrabDisc(self, holdingDisc):
-        self.holdingDisc = holdingDisc
-    def ThrowDisc(self, holdingDisc, discHeading, throwMagnitude):
-        self.holdingDisc = holdingDisc
-        self.discHeading = discHeading
-        self.throwMagnitude = throwMagnitude
+    
+    # def SetStopVelocity(self, velocityStop):
+    #     self.velocityStop = velocityStop
+    # def SetPosition(self, position, apply=True):
+    #     self.transformPosition = position
+    #     self.doTransform = apply
 
-    # def MoveToPosition(self, pos):
-    #     self.mercunaPosition = pos
-    #     self.doMercunaMove = True
-    # def MoveToObject(self, objectID):
-    #     self.mercunaID = objectID
-    #     self.doMercunaMove = True
-    # def StopMercunaMove(self, mercunaMove):
-    #     self.doMercunaMove = mercunaMove
-    def Follow(self, followID, distance):
-        self.mercunaID = followID
-        self.mercunaDistance = distance
-        self.doMercunaFollow = True
+    # def Follow(self, followID, distance):
+    #     self.mercunaID = followID
+    #     self.mercunaDistance = distance
+    #     self.doMercunaFollow = True
+
     def ChangeColor(self, color):
         self.model.color = color
-    def ToggleThBo(self, active):
-        self.thBoActive = active
-    def ToggleLine(self, active, dest):
-        self.doLineDraw = active
-        self.lineDestination = dest
-    def setTopSpeed(self, topSpeed : float):
-        self.topSpeed = topSpeed
-    def setCatchRadius(self, catchRadius : float):
-        self.catchRadius = catchRadius
+
+    # def ToggleLine(self, active, dest):
+    #     self.doLineDraw = active
+    #     self.lineDestination = dest
+    # def setTopSpeed(self, topSpeed : float):
+    #     self.topSpeed = topSpeed
+    # def setCatchRadius(self, catchRadius : float):
+    #     self.catchRadius = catchRadius
 
     # Utility/Helper Functions
     def toVector3(self,unity_v3):

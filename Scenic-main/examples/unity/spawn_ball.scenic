@@ -14,11 +14,17 @@ z2 = Range(0., 20.)
 # ego = new Ball at (x1,y1,z1)
 # ball2 = new Ball at (x2,y2,z2)
 
+behavior Idle():
+    while True:
+        take IdleAction()
+
 behavior egoBehavior(ball):
     #print(distance from self to ball)
-    while (distance from self to ball) > 0.5:
-        #print(distance from self to ball)
+    do Idle() for 5 seconds
+    while (distance from self to ball) > 10:
+        print(distance from self to ball)
         take MoveToAction(ball.position)
+    do Idle() for 5 seconds
 
        
 
