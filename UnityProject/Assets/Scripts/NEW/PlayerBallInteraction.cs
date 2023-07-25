@@ -4,27 +4,28 @@ using UnityEngine;
 
 public class PlayerBallInteraction : MonoBehaviour
 {
+    [SerializeField] Transform playerBallPos;
     bool ReceivedBall = false;
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("SoccerBall"))
+        if (other.CompareTag("ball"))
         {
             Debug.Log("Detected");
             other.gameObject.GetComponent<BallInteraction>().transformPlayer = gameObject.transform;
-            other.gameObject.GetComponent<BallInteraction>().PlayerBallPosition = transform.Find("Ball Position").transform;
+            other.gameObject.GetComponent<BallInteraction>().PlayerBallPosition = playerBallPos;
             other.gameObject.GetComponent<BallInteraction>().InRangeofPlayer = true;
 
-            gameObject.GetComponent<ActionAPI>().ReceiveBall(gameObject, other.transform.position);
+            gameObject.GetComponent<ActionAPI>().ReceiveBall(other.transform.position);
 
         }
     }
 
     private void OnTriggerStay(Collider other)
     {
-        if (other.CompareTag("SoccerBall"))
+        if (other.CompareTag("ball"))
         {
             other.gameObject.GetComponent<BallInteraction>().transformPlayer = gameObject.transform;
-            other.gameObject.GetComponent<BallInteraction>().PlayerBallPosition = transform.Find("Ball Position").transform;
+            other.gameObject.GetComponent<BallInteraction>().PlayerBallPosition = playerBallPos;
             other.gameObject.GetComponent<BallInteraction>().InRangeofPlayer = true;
 
 /*

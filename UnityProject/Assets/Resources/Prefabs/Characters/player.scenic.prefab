@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 872190941599149586}
   - component: {fileID: 6578213158350215034}
+  - component: {fileID: 2886980005161618931}
   m_Layer: 0
   m_Name: Ball Collider
   m_TagString: Untagged
@@ -45,6 +46,19 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 0.63, y: 0.1860547, z: 0.29}
   m_Center: {x: 0.07110369, y: 0.07226619, z: 0.2}
+--- !u!114 &2886980005161618931
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5432853586210111714}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fb9c8ef55b2437b47ad8175f220d9490, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerBallPos: {fileID: 8665160898920370539}
 --- !u!1 &8665160896947384738
 GameObject:
   m_ObjectHideFlags: 0
@@ -2901,7 +2915,6 @@ GameObject:
   - component: {fileID: 8665160898893140853}
   - component: {fileID: 8665160898893140851}
   - component: {fileID: 8029724646137382559}
-  - component: {fileID: 8665160898893140814}
   - component: {fileID: 8665160898893140808}
   - component: {fileID: 8665160898893140807}
   - component: {fileID: 8665160898893140806}
@@ -3007,18 +3020,6 @@ MonoBehaviour:
   move: 0
   movePos: {x: 0, y: 0, z: 0}
   actionAPI: {fileID: 8665160898893140851}
---- !u!114 &8665160898893140814
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8665160898893140854}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fb9c8ef55b2437b47ad8175f220d9490, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!195 &8665160898893140808
 NavMeshAgent:
   m_ObjectHideFlags: 0

@@ -9,7 +9,7 @@ public class GoolkeeperBallReceiveTrigger : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("SoccerBall"))
+        if (other.CompareTag("ball"))
         {
             other.GetComponent<Rigidbody>().isKinematic = true;
 
@@ -22,7 +22,7 @@ public class GoolkeeperBallReceiveTrigger : MonoBehaviour
 
             var Keeper = gameObject.GetComponentInParent<ActionAPI>().gameObject;
 
-            FindAnyObjectByType<ActionAPI>().IdleWithBallInHand(Keeper);
+            FindAnyObjectByType<ActionAPI>().IdleWithBallInHand();
         }
     }
 

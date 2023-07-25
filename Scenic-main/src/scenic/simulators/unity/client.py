@@ -386,9 +386,6 @@ class gameObject:
     def destroyObj(self):
         print("Destroying object")
         self.destroy = True
-
-    def Idle(self, idle):
-        pass
     
     # def SetStopVelocity(self, velocityStop):
     #     self.velocityStop = velocityStop

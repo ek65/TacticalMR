@@ -33,98 +33,102 @@ public class ActionAPI : MonoBehaviour
     #region API Methods for BlendTrees
     public void MoveToPos(Vector3 destinationPosition, bool lookAt = true)
     {
+        // TODO: replace this anim controller with movement, need to merge humanoid AI movement with the movement controller
+        SetAnimController("Humanoid");
         StartCoroutine(MoveToPosHelper(destinationPosition, lookAt));
     }
     
-    public void DribbleFromOnePositionToAnother(GameObject selfPlayer, Vector3 destinationPosition)
+    public void DribbleFromOnePositionToAnother(Vector3 destinationPosition)
     {
-        SetAnimController(selfPlayer, "Dribbling");
-        StartCoroutine(DribbleLerp(selfPlayer, destinationPosition));
+        SetAnimController("Dribbling");
+        StartCoroutine(DribbleLerp(destinationPosition));
     }
-    public void BallHeaderShoot(GameObject selfPlayer, Vector3 destinationPosition, string ballProjectileHeight)
+    public void BallHeaderShoot(Vector3 destinationPosition, string ballProjectileHeight)
     {
-        SetAnimController(selfPlayer, "Headers");
-        StartCoroutine(BallHeader(selfPlayer, destinationPosition, VerticalForce(ballProjectileHeight)));
+        SetAnimController("Headers");
+        StartCoroutine(BallHeader(destinationPosition, VerticalForce(ballProjectileHeight)));
     }
     #endregion
 
     #region API Methods for Singleton Animations
 
     #region PlayersSingletonMethods
-    public void ReceiveBall(GameObject selfPlayer, Vector3 receiveFrom)
+    public void ReceiveBall(Vector3 receiveFrom)
     {
-        SetAnimController(selfPlayer, "Movement");
+        SetAnimController("Movement");
         stopMovement = true;
-        StartCoroutine(LookTowards(selfPlayer, receiveFrom, "Receive"));
+        StartCoroutine(LookTowards(receiveFrom, "Receive"));
     }
 
-    public void TackleBall(GameObject selfPlayer, Vector3 tackleFrom)
+    public void TackleBall(Vector3 tackleFrom)
     {
-        SetAnimController(selfPlayer, "Movement");
+        SetAnimController("Movement");
         stopMovement = true;
-        StartCoroutine(LookTowards(selfPlayer, tackleFrom, "Receive"));
+        StartCoroutine(LookTowards(tackleFrom, "StrongTackle"));
     }
 
-    public void GroundPassSlow(GameObject selfPlayer, Vector3 destinationPosition)
+    public void GroundPassSlow(Vector3 destinationPosition)
     {
         stopMovement = true;
-        SetAnimController(selfPlayer, "Dribbling");
-        StartCoroutine(LookTowards(selfPlayer, destinationPosition, "GroundPassSlow"));
+        SetAnimController("Dribbling");
+        StartCoroutine(LookTowards(destinationPosition, "GroundPassSlow"));
         
         MoveBall(destinationPosition, 0, weakPassForce);
     }
 
-    public void GroundPassFast(GameObject selfPlayer, Vector3 destinationPosition)
+    public void GroundPassFast(Vector3 destinationPosition)
     {
         stopMovement = true;
-        SetAnimController(selfPlayer, "Dribbling");
-        StartCoroutine(LookTowards(selfPlayer, destinationPosition, "GroundPassFast"));
+        SetAnimController("Dribbling");
+        StartCoroutine(LookTowards(destinationPosition, "GroundPassFast"));
         
         MoveBall(destinationPosition, 0, strongPassForce);
     }
 
-    public void AirPass(GameObject selfPlayer, Vector3 destinationPosition, string ballProjectileHeight)
+    public void AirPass(Vector3 destinationPosition, string ballProjectileHeight)
     {
         stopMovement = true;
-        SetAnimController(selfPlayer, "Dribbling");
-        StartCoroutine(LookTowards(selfPlayer, destinationPosition, "AirPass"));
+        SetAnimController("Dribbling");
+        StartCoroutine(LookTowards(destinationPosition, "AirPass"));
 
         MoveBall(destinationPosition, VerticalForce(ballProjectileHeight), airPassForce);
     }
 
-    public void ChipLeft(GameObject selfPlayer, Vector3 destinationPosition, string ballProjectileHeight)
+    public void ChipLeft(Vector3 destinationPosition, string ballProjectileHeight)
     {
+        GameObject selfPlayer = this.gameObject;
         stopMovement = true;
-        SetAnimController(selfPlayer, "Dribbling");
+        SetAnimController("Dribbling");
         selfPlayer.GetComponent<Animator>().SetTrigger("ChipLeft");
 
         MoveBall(destinationPosition, VerticalForce(ballProjectileHeight), chipForce);
     }
 
-    public void ChipRight(GameObject selfPlayer, Vector3 destinationPosition, string ballProjectileHeight)
+    public void ChipRight(Vector3 destinationPosition, string ballProjectileHeight)
     {
+        GameObject selfPlayer = this.gameObject;
         stopMovement = true;
-        SetAnimController(selfPlayer, "Dribbling");
+        SetAnimController("Dribbling");
         selfPlayer.GetComponent<Animator>().SetTrigger("ChipRight");
 
         MoveBall(destinationPosition, VerticalForce(ballProjectileHeight), chipForce);
     }
 
-    public void ChipFront(GameObject selfPlayer, Vector3 destinationPosition, string ballProjectileHeight)
+    public void ChipFront(Vector3 destinationPosition, string ballProjectileHeight)
     {
         stopMovement = true;
-        SetAnimController(selfPlayer, "Dribbling");
-        StartCoroutine(LookTowards(selfPlayer, destinationPosition, "ChipFront"));
+        SetAnimController("Dribbling");
+        StartCoroutine(LookTowards(destinationPosition, "ChipFront"));
 
         MoveBall(destinationPosition, VerticalForce(ballProjectileHeight), chipForce);
     }
 
-    public void Shoot(GameObject selfPlayer, Vector3 destinationPosition, string destinationZone)
+    public void Shoot(Vector3 destinationPosition, string destinationZone)
     {
         stopMovement = true;
-        SetAnimController(selfPlayer, "Dribbling");
+        SetAnimController("Dribbling");
         
-        StartCoroutine(LookTowards(selfPlayer, destinationPosition, "Shoot"));
+        StartCoroutine(LookTowards(destinationPosition, "Shoot"));
 
         
         string ballProjectileHeight = "low";
@@ -179,11 +183,11 @@ public class ActionAPI : MonoBehaviour
         //
     }
 
-    public void BallThrow(GameObject selfPlayer, Vector3 destinationPosition, string ballProjectileHeight)
+    public void BallThrow(Vector3 destinationPosition, string ballProjectileHeight)
     {
         stopMovement = true;
-        SetAnimController(selfPlayer, "Dribbling");
-        StartCoroutine(LookTowards(selfPlayer, destinationPosition, "BallThrow"));
+        SetAnimController("Dribbling");
+        StartCoroutine(LookTowards(destinationPosition, "BallThrow"));
 
         MoveBall(destinationPosition, VerticalForce(ballProjectileHeight), airPassForce);
     }
@@ -191,86 +195,92 @@ public class ActionAPI : MonoBehaviour
 
     #region GoalKeeper SingletonMethods
 
-    public void IdleWithBallInHand(GameObject selfPlayer)
+    public void IdleWithBallInHand()
     {
+        GameObject selfPlayer = this.gameObject;
         stopMovement = true;
-        SetAnimController(selfPlayer, "GoalKeeper");
+        SetAnimController("GoalKeeper");
         selfPlayer.GetComponent<Animator>().SetFloat("positionY", 1f);
     }
 
-    public void BodyBlockLeftSide(GameObject selfPlayer)
+    public void BodyBlockLeftSide()
     {
+        GameObject selfPlayer = this.gameObject;
         stopMovement = true;
-        SetAnimController(selfPlayer, "GoalKeeper");
+        SetAnimController("GoalKeeper");
         selfPlayer.GetComponent<Animator>().SetTrigger("BodyBlockLeftSide");
     }
-    public void BodyBlockRightSide(GameObject selfPlayer)
+    public void BodyBlockRightSide()
     {
+        GameObject selfPlayer = this.gameObject;
         stopMovement = true;
-        SetAnimController(selfPlayer, "GoalKeeper");
+        SetAnimController("GoalKeeper");
         selfPlayer.GetComponent<Animator>().SetTrigger("BodyBlockRightSide");
     }
-    public void CatchGroundBall(GameObject selfPlayer)
+    public void CatchGroundBall()
     {
+        GameObject selfPlayer = this.gameObject;
         stopMovement = true;
-        SetAnimController(selfPlayer, "GoalKeeper");
+        SetAnimController("GoalKeeper");
         selfPlayer.GetComponent<Animator>().SetTrigger("CatchGroundBall");
     }
-    public void CatchBallInTheAir(GameObject selfPlayer)
+    public void CatchBallInTheAir()
     {
+        GameObject selfPlayer = this.gameObject;
         stopMovement = true;
-        SetAnimController(selfPlayer, "GoalKeeper");
+        SetAnimController("GoalKeeper");
         selfPlayer.GetComponent<Animator>().SetTrigger("CatchBallInTheAir");
     }
 
     //methods for Goalkeeper movement (lefty or right)
 
-    public void CatchSlowBall(GameObject selfPlayer)
+    public void CatchSlowBall()
     {
+        GameObject selfPlayer = this.gameObject;
         stopMovement = true;
-        SetAnimController(selfPlayer, "GoalKeeper");
+        SetAnimController("GoalKeeper");
         selfPlayer.GetComponent<Animator>().SetTrigger("CatchSlowBall");
         //-> Ball Interation 
         //StartCoroutine(Trigger(transitionTo + "CatchSlowBall"));
 
     }
-    public void DropKickShot(GameObject selfPlayer, Vector3 destinationPosition, string ballProjectileHeight)
+    public void DropKickShot(Vector3 destinationPosition, string ballProjectileHeight)
     {
         stopMovement = true;
-        SetAnimController(selfPlayer, "GoalKeeper");
-        StartCoroutine(LookTowards(selfPlayer, destinationPosition, "DropKick"));
+        SetAnimController("GoalKeeper");
+        StartCoroutine(LookTowards(destinationPosition, "DropKick"));
 
         MoveBall(destinationPosition, VerticalForce(ballProjectileHeight), airPassForce);
     }
-    public void OverHandThrow(GameObject selfPlayer, Vector3 destinationPosition, string ballProjectileHeight)
+    public void OverHandThrow(Vector3 destinationPosition, string ballProjectileHeight)
     {
         stopMovement = true;
-        SetAnimController(selfPlayer, "GoalKeeper");
-        StartCoroutine(LookTowards(selfPlayer, destinationPosition, "OverHandThrow"));
+        SetAnimController("GoalKeeper");
+        StartCoroutine(LookTowards(destinationPosition, "OverHandThrow"));
 
         MoveBall(destinationPosition, VerticalForce(ballProjectileHeight), airPassForce);
     }
-    public void RollingBallPass(GameObject selfPlayer, Vector3 destinationPosition)
+    public void RollingBallPass(Vector3 destinationPosition)
     {
         stopMovement = true;
-        SetAnimController(selfPlayer, "GoalKeeper");
-        StartCoroutine(LookTowards(selfPlayer, destinationPosition, "RollingBallPass"));
+        SetAnimController("GoalKeeper");
+        StartCoroutine(LookTowards(destinationPosition, "RollingBallPass"));
 
         MoveBall(destinationPosition, 0, weakPassForce);
     }
-    public void PlacingAndLongPass(GameObject selfPlayer, Vector3 destinationPosition, string ballProjectileHeight)
+    public void PlacingAndLongPass(Vector3 destinationPosition, string ballProjectileHeight)
     {
         stopMovement = true;
-        SetAnimController(selfPlayer, "GoalKeeper");
-        StartCoroutine(LookTowards(selfPlayer, destinationPosition, "PlacingAndLongPass"));
+        SetAnimController("GoalKeeper");
+        StartCoroutine(LookTowards(destinationPosition, "PlacingAndLongPass"));
 
         MoveBall(destinationPosition, VerticalForce(ballProjectileHeight), airPassForce);
     }
-    public void PlacingAndShortPass(GameObject selfPlayer, Vector3 destinationPosition)
+    public void PlacingAndShortPass(Vector3 destinationPosition)
     {
         stopMovement = true;
-        SetAnimController(selfPlayer, "GoalKeeper");
-        StartCoroutine(LookTowards(selfPlayer, destinationPosition, "PlacingAndShortPass"));
+        SetAnimController("GoalKeeper");
+        StartCoroutine(LookTowards(destinationPosition, "PlacingAndShortPass"));
         
         MoveBall(destinationPosition, 0, weakPassForce);
     }
@@ -312,7 +322,7 @@ public class ActionAPI : MonoBehaviour
         // Set Destination 
         agent.updateRotation = false;
         agent.SetDestination(destinationPosition);
-        StartCoroutine(Move(selfPlayer, agent, character, destinationPosition));
+        StartCoroutine(Move(agent, character, destinationPosition));
 
         // Debug.Log("Here 3");
         
@@ -329,12 +339,12 @@ public class ActionAPI : MonoBehaviour
             selfPlayer.GetComponent<Animator>().SetFloat("Forward", 0);
             selfPlayer.GetComponent<NavMeshAgent>().enabled = false; // Deactivate Agent 
             selfPlayer.GetComponentInChildren<NavMeshObstacle>().enabled = true;
-            StopCoroutine(Move(selfPlayer, agent, character, destinationPosition));
+            StopCoroutine(Move(agent, character, destinationPosition));
             StopCoroutine(MoveToPosHelper(destinationPosition, lookAt));
         }
     }
     
-    IEnumerator Move(GameObject selfPlayer,NavMeshAgent agent, AINavigation character, Vector3 Destiny)
+    IEnumerator Move(NavMeshAgent agent, AINavigation character, Vector3 Destiny)
     {
         while (agent.SetDestination(Destiny))
         {
@@ -345,6 +355,8 @@ public class ActionAPI : MonoBehaviour
             yield return null;
         }
 
+        GameObject selfPlayer = this.gameObject;
+
         selfPlayer.GetComponent<NavMeshAgent>().enabled = false; // Deactivate Agent 
         selfPlayer.GetComponentInChildren<NavMeshObstacle>().enabled = true;
     }
@@ -354,8 +366,9 @@ public class ActionAPI : MonoBehaviour
         yield return new WaitForSeconds(seconds);
     }
 
-    private IEnumerator MovementLerp(GameObject selfPlayer, Vector3 final, bool lookAt)
+    private IEnumerator MovementLerp(Vector3 final, bool lookAt)
     {
+        GameObject selfPlayer = this.gameObject;
         Vector3 init = selfPlayer.transform.position;
         Vector2 unitVector = new(selfPlayer.transform.forward.x, selfPlayer.transform.forward.z);
 
@@ -417,13 +430,13 @@ public class ActionAPI : MonoBehaviour
                     stopMovement = false;
                     selfPlayer.GetComponent<Animator>().SetFloat("VelZ", 0);
                     selfPlayer.GetComponent<Animator>().SetFloat("VelX", 0);
-                    StopCoroutine(MovementLerp(selfPlayer, final, lookAt));
+                    StopCoroutine(MovementLerp(final, lookAt));
                 }
             }
         }
         else
         {
-            StartCoroutine(LookTowards(selfPlayer, final, null));
+            StartCoroutine(LookTowards(final, null));
 
             while (timeElapsed < timeDuration)
             {
@@ -446,18 +459,19 @@ public class ActionAPI : MonoBehaviour
                     stopMovement = false;
                     selfPlayer.GetComponent<Animator>().SetFloat("VelZ", 0);
                     selfPlayer.GetComponent<Animator>().SetFloat("VelX", 0);
-                    StopCoroutine(MovementLerp(selfPlayer, final, lookAt));
+                    StopCoroutine(MovementLerp(final, lookAt));
                 }
             }
         }
         yield return null;
     }
 
-    private IEnumerator DribbleLerp(GameObject selfPlayer, Vector3 final)
+    private IEnumerator DribbleLerp(Vector3 final)
     {
+        GameObject selfPlayer = this.gameObject;
         Vector3 init = selfPlayer.transform.position;
         final.y = init.y; // Don't Update Y Coordinate
-        StartCoroutine(LookTowards(selfPlayer, final, null));
+        StartCoroutine(LookTowards(final, null));
 
         float timeElapsed = 0;
         float distance = Vector3.Distance(init, final);
@@ -482,13 +496,14 @@ public class ActionAPI : MonoBehaviour
             {
                 // stopMovement = false;
                 selfPlayer.GetComponent<Animator>().SetFloat("VelZ", 0);
-                StopCoroutine(DribbleLerp(selfPlayer, final));
+                StopCoroutine(DribbleLerp(final));
             }
         }
     }
 
-    private IEnumerator BallHeader(GameObject selfPlayer, Vector3 final, float aerialOffset)
+    private IEnumerator BallHeader(Vector3 final, float aerialOffset)
     {
+        GameObject selfPlayer = this.gameObject;
         Vector3 init = selfPlayer.transform.position;
         //Vector3 final = finalObj.transform.position;
         Vector2 unitVector = new(selfPlayer.transform.forward.x, selfPlayer.transform.forward.z);
@@ -535,8 +550,9 @@ public class ActionAPI : MonoBehaviour
         return delay;
     }
 
-    private void SetAnimController(GameObject selfPlayer, string controllerHashCode)
+    private void SetAnimController(string controllerHashCode)
     {
+        GameObject selfPlayer = this.gameObject;
         string currAnimationController = selfPlayer.GetComponent<Animator>().runtimeAnimatorController.name;
         if (currAnimationController != controllerHashCode)
         {
@@ -589,8 +605,9 @@ public class ActionAPI : MonoBehaviour
         soccerBall.GetComponent<Rigidbody>().AddForce(forceDirection * forceMagnitude * forceFactor);
     }
 
-    private IEnumerator LookTowards(GameObject selfPlayer, Vector3 destinationPosition, string keyCode)
+    private IEnumerator LookTowards(Vector3 destinationPosition, string keyCode)
     {
+        GameObject selfPlayer = this.gameObject;
         Vector3 init = selfPlayer.transform.position;
         Vector2 finalFacingDirection = new(destinationPosition.x - init.x, destinationPosition.z - init.z);
         Vector2 initialFacingDirection = new(selfPlayer.transform.forward.x, selfPlayer.transform.forward.z);
@@ -598,14 +615,15 @@ public class ActionAPI : MonoBehaviour
         float angle = Vector2.Angle(initialFacingDirection, finalFacingDirection);
         float rotationDirection = Mathf.Sign(Vector3.Dot(initialFacingDirection, finalFacingDirection));
 
-        yield return StartCoroutine(RotateCoroutine(selfPlayer, angle, rotationDirection, rotationDuration));
+        yield return StartCoroutine(RotateCoroutine(angle, rotationDirection, rotationDuration));
 
         // play animation after rotating
         if (keyCode != null) selfPlayer.GetComponent<Animator>().SetTrigger(keyCode);
     }
 
-    private IEnumerator RotateCoroutine(GameObject selfPlayer, float angle, float rotationDirection, float duration)
+    private IEnumerator RotateCoroutine(float angle, float rotationDirection, float duration)
     {
+        GameObject selfPlayer = this.gameObject;
         float currentRotation = 0.0f;
         float rotationPerSecond = angle / duration;
 
