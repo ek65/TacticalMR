@@ -624,7 +624,7 @@ public class ActionAPI : MonoBehaviour
         ballTriggerCollider.SetActive(false);
         soccerBall.GetComponent<BallInteraction>().InRangeofPlayer = false;
         // soccerBall.GetComponent<Rigidbody>().AddForce(forceDirection * forceMagnitude * forceFactor);
-        soccerBall.GetComponent<Rigidbody>().AddForce(forceDirection * 10f * forceFactor);
+        soccerBall.GetComponent<Rigidbody>().AddForce(forceDirection * 25f * forceFactor);
         Debug.Log("in moveball");
         Debug.Log("force:" + forceDirection * forceMagnitude * forceFactor);
     }
