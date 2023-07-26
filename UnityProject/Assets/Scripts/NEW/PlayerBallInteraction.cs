@@ -15,7 +15,7 @@ public class PlayerBallInteraction : MonoBehaviour
             other.gameObject.GetComponent<BallInteraction>().PlayerBallPosition = playerBallPos;
             other.gameObject.GetComponent<BallInteraction>().InRangeofPlayer = true;
 
-            gameObject.GetComponent<ActionAPI>().ReceiveBall(other.transform.position);
+            gameObject.GetComponentInParent<ActionAPI>().ReceiveBall(other.transform.position);
 
         }
     }

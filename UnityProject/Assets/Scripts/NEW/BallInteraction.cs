@@ -8,7 +8,7 @@ public class BallInteraction : MonoBehaviour
     [SerializeField] internal Transform transformPlayer;
     public Transform PlayerBallPosition;
     
-    internal bool InRangeofPlayer = false;
+    public bool InRangeofPlayer = false;
 
     float Rotationspeed;
     Vector3 previousLocation;
@@ -30,6 +30,10 @@ public class BallInteraction : MonoBehaviour
             {
                 StickToPlayer = true;
             }
+        }
+        else
+        {
+            StickToPlayer = false;
         }
 
         if(StickToPlayer)

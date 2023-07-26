@@ -30,11 +30,28 @@ public class ActionAPI : MonoBehaviour
 
     float rotationDuration = 0.4f;
 
+    private void Start()
+    {
+        if (soccerBall == null)
+        {
+            soccerBall = GameObject.FindGameObjectWithTag("ball");
+        }
+    }
+
+    private void Update()
+    {
+        if (soccerBall == null)
+        {
+            soccerBall = GameObject.FindGameObjectWithTag("ball");
+        }
+    }
+
+
     #region API Methods for BlendTrees
     public void MoveToPos(Vector3 destinationPosition, bool lookAt = true)
     {
         // TODO: replace this anim controller with movement, need to merge humanoid AI movement with the movement controller
-        SetAnimController("Humanoid");
+        //SetAnimController("Humanoid");
         StartCoroutine(MoveToPosHelper(destinationPosition, lookAt));
     }
     
@@ -334,11 +351,11 @@ public class ActionAPI : MonoBehaviour
         {
             Debug.Log("in here123");
             stopMovement = false;
-            selfPlayer.GetComponent<Animator>().SetFloat("VelZ", 0);
-            selfPlayer.GetComponent<Animator>().SetFloat("VelX", 0);
+            // selfPlayer.GetComponent<Animator>().SetFloat("VelZ", 0);
+            // selfPlayer.GetComponent<Animator>().SetFloat("VelX", 0);
             selfPlayer.GetComponent<Animator>().SetFloat("Forward", 0);
-            selfPlayer.GetComponent<NavMeshAgent>().enabled = false; // Deactivate Agent 
-            selfPlayer.GetComponentInChildren<NavMeshObstacle>().enabled = true;
+            // selfPlayer.GetComponent<NavMeshAgent>().enabled = false; // Deactivate Agent 
+            // selfPlayer.GetComponentInChildren<NavMeshObstacle>().enabled = true;
             StopCoroutine(Move(agent, character, destinationPosition));
             StopCoroutine(MoveToPosHelper(destinationPosition, lookAt));
         }
@@ -597,12 +614,19 @@ public class ActionAPI : MonoBehaviour
         return quadrant;
     }
 
+    // TODO: should be an animation event for passes/kicks/shoots
     private void MoveBall(Vector3 xzDir, float yDir, float forceMagnitude)
     {
         Vector3 ballMotionVector = xzDir - soccerBall.transform.position;
         Vector3 forceDirection = new(ballMotionVector.x, yDir, ballMotionVector.z);
         Debug.Log("force vector: " + forceDirection);
-        soccerBall.GetComponent<Rigidbody>().AddForce(forceDirection * forceMagnitude * forceFactor);
+        GameObject ballTriggerCollider = GameObject.FindGameObjectWithTag("BallTrigger");
+        ballTriggerCollider.SetActive(false);
+        soccerBall.GetComponent<BallInteraction>().InRangeofPlayer = false;
+        // soccerBall.GetComponent<Rigidbody>().AddForce(forceDirection * forceMagnitude * forceFactor);
+        soccerBall.GetComponent<Rigidbody>().AddForce(forceDirection * 10f * forceFactor);
+        Debug.Log("in moveball");
+        Debug.Log("force:" + forceDirection * forceMagnitude * forceFactor);
     }
 
     private IEnumerator LookTowards(Vector3 destinationPosition, string keyCode)
@@ -618,7 +642,10 @@ public class ActionAPI : MonoBehaviour
         yield return StartCoroutine(RotateCoroutine(angle, rotationDirection, rotationDuration));
 
         // play animation after rotating
-        if (keyCode != null) selfPlayer.GetComponent<Animator>().SetTrigger(keyCode);
+        if (keyCode != null)
+        {
+            selfPlayer.GetComponent<Animator>().SetTrigger(keyCode);
+        }
     }
 
     private IEnumerator RotateCoroutine(float angle, float rotationDirection, float duration)

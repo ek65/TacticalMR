@@ -373,10 +373,14 @@ class gameObject:
             # clear action dict
             self.actionDict = {}
         else:
+            self.actionDict = {}
             params = actionParameters()
             for i in list(args):
                 params.addParameter(i)
             self.actionDict[actionName] = params
+    
+    def StopAction(self):
+        self.actionDict = {}
 
     # def MoveToPos(self, pos):
     #     params = actionParameters()

@@ -12,6 +12,7 @@ TagManager:
   - Goalkeeper
   - Ground
   - SoccerBall
+  - BallTrigger
   layers:
   - Default
   - TransparentFX
@@ -20,7 +21,7 @@ TagManager:
   - Water
   - UI
   - PlayerBall
-  - 
+  - BallTrigger
   - 
   - 
   - 

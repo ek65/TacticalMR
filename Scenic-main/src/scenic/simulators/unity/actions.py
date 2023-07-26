@@ -13,6 +13,12 @@ from scenic.simulators.unity.client import *
 #       def applyTo(self, obj, sim):
 #           ...class MoveToAction(Action):
 
+class StopAction(Action):
+    def __init__(self):
+        pass
+    def applyTo(self, obj, sim):
+        obj.gameObject.StopAction()
+
 class IdleAction(Action):
     def __init__(self):
         self.actionName = "Idle"
@@ -126,6 +132,7 @@ class TackleBallAction(Action):
 class GroundPassSlowAction(Action):
     def __init__(self, obj):
         self.actionName = "GroundPassSlow"
+        print("in ground pass slow")
 
         if isinstance(obj, tuple) or type(obj) is tuple:
             self.position = obj
@@ -134,6 +141,7 @@ class GroundPassSlowAction(Action):
         elif isinstance(obj, Point):
             self.position = obj.position
         elif isinstance(obj, Vector):
+            print("in ground pass slow vec")
             self.position = (obj.x, obj.y, obj.z)
         else:
             self.clientID = obj.gameObject.clientID
@@ -141,6 +149,7 @@ class GroundPassSlowAction(Action):
         if self.position is None:
             obj.gameObject.MoveToObject(self.clientID)
         else:
+            print(self.position)
             obj.gameObject.DoAction(self.actionName, self.position)
 
 class GroundPassFastAction(Action):
