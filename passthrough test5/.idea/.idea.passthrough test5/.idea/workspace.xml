@@ -1,26 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="75b7a2d0-b7e6-4b02-8eb7-9d696e2b0479" name="Changes" comment="" />
+    <list default="true" id="30c26008-0230-40c2-941f-38f44ec51883" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/Packages/packages-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/Packages/packages-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ProjectSettings/ProjectVersion.txt" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/ProjectVersion.txt" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
-  <component name="HighlightingSettingsPerFile">
-    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/880832f2c4e2458090401bbb74a86b24a8a00/f7/520bf689/JsonConvert.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/b15294f286684bc99ec197157507c917159a00/d4/dd2bcf58/Vector3.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/cbd99cc1cb3f46489c8859670838e745cc00/54/5b3b5460/NavMeshAgent.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/995851238f3d2444cde8a44a5339eacc163b32b8fbe26de381419f7d384531c/System.Collections.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/c4824d483bf85fa615ad2125f13f6d75788d45d1510ec1cfb8226831da54f/OutgoingSocketExtensions.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/c5ec4d7d9ceadce84cfab25f3c83dd2a240d980496734eafe89e58131437ad4/ReceivingSocketExtensions.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/d44b17e136d09081da1e8fd0e8c83fde60e11818b9f2442d7ed8cb733fae895e/System.Collections.Generic.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/da6a1787df247a0274ec8fc4840f41df092ee13874f55f87a9db568acab1bd2/System.Reflection.cs" root0="SKIP_HIGHLIGHTING" />
-  </component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
   </component>
-  <component name="ProjectId" id="2N9XQanIiSQYjchzDMwdW9ZTxEF" />
+  <component name="ProjectId" id="2T2cryajXEB6nCnv2THvUf2rNw4" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
@@ -82,44 +75,20 @@
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="75b7a2d0-b7e6-4b02-8eb7-9d696e2b0479" name="Changes" comment="" />
-      <created>1679077259422</created>
+      <changelist id="30c26008-0230-40c2-941f-38f44ec51883" name="Changes" comment="" />
+      <created>1690244818589</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1679077259422</updated>
-      <workItem from="1679077262842" duration="1959000" />
-      <workItem from="1680559228761" duration="45000" />
-      <workItem from="1680989718817" duration="3791000" />
-      <workItem from="1681444076285" duration="2627000" />
-      <workItem from="1682329435855" duration="5162000" />
-      <workItem from="1682974732467" duration="18021000" />
-      <workItem from="1683221927161" duration="632000" />
-      <workItem from="1684189326092" duration="472000" />
-      <workItem from="1684866168369" duration="383000" />
-      <workItem from="1685067578037" duration="7702000" />
-      <workItem from="1686334455659" duration="55259000" />
-      <workItem from="1688018339972" duration="58256000" />
-      <workItem from="1689188864322" duration="1846000" />
+      <updated>1690244818589</updated>
+      <workItem from="1690244821184" duration="649000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
   </component>
-  <component name="UnityCheckinConfiguration" checkUnsavedScenes="true" />
   <component name="UnityProjectConfiguration" hasMinimizedUI="true" />
   <component name="UnityUnitTestConfiguration" currentTestLauncher="EditMode" />
-  <component name="Vcs.Log.Tabs.Properties">
-    <option name="TAB_STATES">
-      <map>
-        <entry key="MAIN">
-          <value>
-            <State />
-          </value>
-        </entry>
-      </map>
-    </option>
-  </component>
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
   </component>

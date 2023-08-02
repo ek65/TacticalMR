@@ -18,8 +18,8 @@ behavior Idle():
     while True:
         take IdleAction()
 
-behavior GroundPassSlow(vec : Vector):
-    take GroundPassSlowAction(vec)
+behavior GroundPassFast(vec : Vector):
+    take GroundPassFastAction(vec)
     take StopAction()
 
 behavior egoBehavior(ball):
@@ -29,7 +29,7 @@ behavior egoBehavior(ball):
         print(distance from self to ball)
         take MoveToAction(ball.position)
     do Idle() for 1 seconds
-    do GroundPassSlow(Vector(1,1,0))
+    do GroundPassFast(Vector(-1,1,0))
 
        
 

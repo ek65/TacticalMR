@@ -33,6 +33,9 @@ public class SceneHandler : MonoBehaviour
         
         // Remove this line (this line is sample for showing the working of movmement api)
         //StartCoroutine (DestinationCalling(actionAPIs));
+        // playerOne.GetComponent<ActionAPI>().MoveToPos(Destinations[0].position);
+        playerOne.GetComponent<ActionAPI>().DribbleFromOnePositionToAnother(goalPost.transform.position);
+        // playerOne.GetComponent<ActionAPI>().BallHeaderShoot(goalPost.transform.position, "center-middle");
         
         // This line is responsible for calling Movement
         //actionAPIs.MoveFromOnePositionToAnother (playerOne, Destinations[i].position);
@@ -44,7 +47,7 @@ public class SceneHandler : MonoBehaviour
 
     private void Update()
     {
-        playerOne.GetComponent<ActionAPI>().MoveToPos(Destinations[0].position);
+        //playerOne.GetComponent<ActionAPI>().MoveToPos(Destinations[0].position);
         
         // playerTwo.GetComponent<ActionAPI>().MoveToPos(Destinations[1].position);
         // playerThree.GetComponent<ActionAPI>().MoveToPos(Destinations[1].position);
