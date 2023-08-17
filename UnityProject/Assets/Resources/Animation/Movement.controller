@@ -156,7 +156,7 @@ BlendTree:
     m_Mirror: 0
   - serializedVersion: 2
     m_Motion: {fileID: 7400000, guid: cab84b1b10b8a4e44b11bfbe9c2e2e5b, type: 2}
-    m_Threshold: 0.09375
+    m_Threshold: 0.107142866
     m_Position: {x: 0, y: 1}
     m_TimeScale: 1
     m_CycleOffset: 0
@@ -164,7 +164,7 @@ BlendTree:
     m_Mirror: 0
   - serializedVersion: 2
     m_Motion: {fileID: 7400000, guid: 2ce4e7315c5a15b468862abdd46da8de, type: 2}
-    m_Threshold: 0.1875
+    m_Threshold: 0.21428573
     m_Position: {x: 1, y: 2}
     m_TimeScale: 1
     m_CycleOffset: 0
@@ -172,7 +172,7 @@ BlendTree:
     m_Mirror: 0
   - serializedVersion: 2
     m_Motion: {fileID: 7400000, guid: 3e107c60d4e1ef34594f7a0b1aa186f4, type: 2}
-    m_Threshold: 0.28125
+    m_Threshold: 0.32142857
     m_Position: {x: -1, y: 1}
     m_TimeScale: 1
     m_CycleOffset: 0
@@ -180,7 +180,7 @@ BlendTree:
     m_Mirror: 0
   - serializedVersion: 2
     m_Motion: {fileID: 7400000, guid: 80775775e09de3e4096501a38ec52f13, type: 2}
-    m_Threshold: 0.375
+    m_Threshold: 0.42857146
     m_Position: {x: -2, y: 0}
     m_TimeScale: 1
     m_CycleOffset: 0
@@ -188,7 +188,7 @@ BlendTree:
     m_Mirror: 0
   - serializedVersion: 2
     m_Motion: {fileID: 7400000, guid: 8bd05ea2aaddd3a45a1934db15bc01e0, type: 2}
-    m_Threshold: 0.46875
+    m_Threshold: 0.53571427
     m_Position: {x: 1, y: 1}
     m_TimeScale: 1
     m_CycleOffset: 0
@@ -196,7 +196,7 @@ BlendTree:
     m_Mirror: 0
   - serializedVersion: 2
     m_Motion: {fileID: 7400000, guid: db35f40d2a34b364f9d17c6f889c936a, type: 2}
-    m_Threshold: 0.5625
+    m_Threshold: 0.64285713
     m_Position: {x: 2, y: 0}
     m_TimeScale: 1
     m_CycleOffset: 0
@@ -204,16 +204,8 @@ BlendTree:
     m_Mirror: 0
   - serializedVersion: 2
     m_Motion: {fileID: 7400000, guid: dd941dcd793ad094d97b98c45e119109, type: 2}
-    m_Threshold: 0.65625
-    m_Position: {x: 0, y: -2}
-    m_TimeScale: 1
-    m_CycleOffset: 0
-    m_DirectBlendParameter: VelX
-    m_Mirror: 0
-  - serializedVersion: 2
-    m_Motion: {fileID: 1224219506948097759}
     m_Threshold: 0.75
-    m_Position: {x: 0, y: 0}
+    m_Position: {x: 0, y: -2}
     m_TimeScale: 1
     m_CycleOffset: 0
     m_DirectBlendParameter: VelX

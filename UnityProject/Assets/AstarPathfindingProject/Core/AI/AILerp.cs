@@ -1,9 +1,6 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
-using System.Numerics;
-using Quaternion = UnityEngine.Quaternion;
-using Vector3 = UnityEngine.Vector3;
 
 namespace Pathfinding {
 	using Pathfinding.Util;
@@ -185,17 +182,17 @@ namespace Pathfinding {
 		/// the AIDestinationSetter component directly.
 		/// </summary>
 		[System.Obsolete("Use the destination property or the AIDestinationSetter component instead")]
-		public Vector3 target {
+		public Transform target {
 			get {
 				var setter = GetComponent<AIDestinationSetter>();
-				return setter != null ? setter.target : Vector3.zero;
+				return setter != null ? setter.target : null;
 			}
 			set {
-				targetCompatibility = Vector3.zero;
+				targetCompatibility = null;
 				var setter = GetComponent<AIDestinationSetter>();
 				if (setter == null) setter = gameObject.AddComponent<AIDestinationSetter>();
 				setter.target = value;
-				destination = value != null ? value : new Vector3(float.PositiveInfinity, float.PositiveInfinity, float.PositiveInfinity);
+				destination = value != null ? value.position : new Vector3(float.PositiveInfinity, float.PositiveInfinity, float.PositiveInfinity);
 			}
 		}
 
@@ -332,7 +329,7 @@ namespace Pathfinding {
 
 		/// <summary>Required for serialization backward compatibility</summary>
 		[UnityEngine.Serialization.FormerlySerializedAs("target")][SerializeField][HideInInspector]
-		Vector3 targetCompatibility;
+		Transform targetCompatibility;
 
 		[SerializeField]
 		[HideInInspector]

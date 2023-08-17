@@ -279,7 +279,7 @@ namespace Pathfinding {
 		protected bool waitingForPathCalculation = false;
 
 		[UnityEngine.Serialization.FormerlySerializedAs("target")][SerializeField][HideInInspector]
-		Vector3 targetCompatibility;
+		Transform targetCompatibility;
 
 		/// <summary>
 		/// True if the Start method has been executed.
@@ -298,17 +298,17 @@ namespace Pathfinding {
 		/// the AIDestinationSetter component directly.
 		/// </summary>
 		[System.Obsolete("Use the destination property or the AIDestinationSetter component instead")]
-		public Vector3 target {
+		public Transform target {
 			get {
 				var setter = GetComponent<AIDestinationSetter>();
-				return setter != null ? setter.target : Vector3.zero;
+				return setter != null ? setter.target : null;
 			}
 			set {
-				targetCompatibility = Vector3.zero;
+				targetCompatibility = null;
 				var setter = GetComponent<AIDestinationSetter>();
 				if (setter == null) setter = gameObject.AddComponent<AIDestinationSetter>();
 				setter.target = value;
-				destination = value != null ? value : new Vector3(float.PositiveInfinity, float.PositiveInfinity, float.PositiveInfinity);
+				destination = value != null ? value.position : new Vector3(float.PositiveInfinity, float.PositiveInfinity, float.PositiveInfinity);
 			}
 		}
 

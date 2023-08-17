@@ -354,18 +354,19 @@ public class ActionAPI : MonoBehaviour
         //StartCoroutine(MovementLerp(selfPlayer, destinationPosition, lookAt));
         yield return null;
         
-        // if (stopMovement)
-        // {
-        //     Debug.Log("in here123");
-        //     stopMovement = false;
-        //     selfPlayer.GetComponent<Animator>().SetFloat("VelZ", 0);
-        //     selfPlayer.GetComponent<Animator>().SetFloat("VelX", 0);
-        //     // selfPlayer.GetComponent<Animator>().SetFloat("Forward", 0);
-        //     // selfPlayer.GetComponent<NavMeshAgent>().enabled = false; // Deactivate Agent 
-        //     // selfPlayer.GetComponentInChildren<NavMeshObstacle>().enabled = true;
-        //     // StopCoroutine(Move(agent, character, destinationPosition));
-        //     // StopCoroutine(MoveToPosHelper(destinationPosition, lookAt));
-        // }
+        if (stopMovement)
+        {
+            Debug.Log("in here123");
+            dest.target.localPosition = Vector3.zero;
+            stopMovement = false;
+            selfPlayer.GetComponent<Animator>().SetFloat("VelZ", 0);
+            selfPlayer.GetComponent<Animator>().SetFloat("VelX", 0);
+            // selfPlayer.GetComponent<Animator>().SetFloat("Forward", 0);
+            // selfPlayer.GetComponent<NavMeshAgent>().enabled = false; // Deactivate Agent 
+            // selfPlayer.GetComponentInChildren<NavMeshObstacle>().enabled = true;
+            // StopCoroutine(Move(agent, character, destinationPosition));
+            // StopCoroutine(MoveToPosHelper(destinationPosition, lookAt));
+        }
     }
     
     IEnumerator Move(NavMeshAgent agent, AINavigation character, Vector3 Destiny)
@@ -387,10 +388,8 @@ public class ActionAPI : MonoBehaviour
     
     IEnumerator Move2(AIDestinationSetter destSetter, RichAI aiNav, Vector3 Destiny)
     {
-        destSetter.target = Destiny;
-        
-        
-        while (destSetter.target != this.gameObject.transform.position)
+        destSetter.target.position = Destiny;
+        while (destSetter.target.position != this.gameObject.transform.position)
         {
             // if (aiNav.remainingDistance > aiNav.endReachedDistance)
             //     character.Move(agent.desiredVelocity, false, false);
