@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.ConstrainedExecution;
+using Pathfinding;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.AI;
@@ -17,6 +18,8 @@ public class ActionAPI : MonoBehaviour
     [SerializeField] float timeDuration = 5f;
     [SerializeField] float goalWidth = 7.44f;
     [SerializeField] GameObject soccerBall;
+
+    public Vector3 test;
 
     public bool stopMovement = false;
     string transitionTo = "t";
@@ -333,34 +336,17 @@ public class ActionAPI : MonoBehaviour
 
         GameObject selfPlayer = this.gameObject;
 
-        selfPlayer.GetComponent<NavMeshAgent>().speed = playerRunningSpeed;
-
-        //SetAnimController(selfPlayer, "Humanoid"); // Update Animator
-        if (selfPlayer.GetComponentInChildren<NavMeshObstacle>().enabled)
-            selfPlayer.GetComponentInChildren<NavMeshObstacle>().enabled = false;
+        selfPlayer.GetComponent<RichAI>().maxSpeed = playerRunningSpeed;
 
         yield return new WaitForSeconds(0.1f);
-
-        // Assign Agent
-        NavMeshAgent agent; 
-        if (selfPlayer.GetComponent<NavMeshAgent>() != null)
-        {
-            selfPlayer.GetComponent<NavMeshAgent>().enabled = true;
-            agent = selfPlayer.GetComponent<NavMeshAgent>();
-        }
-        else agent = selfPlayer.AddComponent<NavMeshAgent>();
-
-        //Take Character reference 
-        AINavigation character;
-        if (selfPlayer.GetComponent<AINavigation>() != null)
-            character = selfPlayer.GetComponent<AINavigation>();
-        else
-            character = selfPlayer.AddComponent<AINavigation>();
+        
+        AIDestinationSetter dest = selfPlayer.GetComponent<AIDestinationSetter>();
+        RichAI aiNav = selfPlayer.GetComponent<RichAI>();
 
         // Set Destination 
-        // agent.updateRotation = false;
-        agent.SetDestination(destinationPosition);
-        StartCoroutine(Move(agent, character, destinationPosition));
+        // dest.target.position = destinationPosition;
+        // StartCoroutine(Move(agent, character, destinationPosition));
+        StartCoroutine(Move2(dest, aiNav, destinationPosition));
 
         // Debug.Log("Here 3");
         
@@ -368,18 +354,18 @@ public class ActionAPI : MonoBehaviour
         //StartCoroutine(MovementLerp(selfPlayer, destinationPosition, lookAt));
         yield return null;
         
-        if (stopMovement)
-        {
-            Debug.Log("in here123");
-            stopMovement = false;
-            selfPlayer.GetComponent<Animator>().SetFloat("VelZ", 0);
-            selfPlayer.GetComponent<Animator>().SetFloat("VelX", 0);
-            // selfPlayer.GetComponent<Animator>().SetFloat("Forward", 0);
-            // selfPlayer.GetComponent<NavMeshAgent>().enabled = false; // Deactivate Agent 
-            // selfPlayer.GetComponentInChildren<NavMeshObstacle>().enabled = true;
-            StopCoroutine(Move(agent, character, destinationPosition));
-            StopCoroutine(MoveToPosHelper(destinationPosition, lookAt));
-        }
+        // if (stopMovement)
+        // {
+        //     Debug.Log("in here123");
+        //     stopMovement = false;
+        //     selfPlayer.GetComponent<Animator>().SetFloat("VelZ", 0);
+        //     selfPlayer.GetComponent<Animator>().SetFloat("VelX", 0);
+        //     // selfPlayer.GetComponent<Animator>().SetFloat("Forward", 0);
+        //     // selfPlayer.GetComponent<NavMeshAgent>().enabled = false; // Deactivate Agent 
+        //     // selfPlayer.GetComponentInChildren<NavMeshObstacle>().enabled = true;
+        //     // StopCoroutine(Move(agent, character, destinationPosition));
+        //     // StopCoroutine(MoveToPosHelper(destinationPosition, lookAt));
+        // }
     }
     
     IEnumerator Move(NavMeshAgent agent, AINavigation character, Vector3 Destiny)
@@ -395,8 +381,28 @@ public class ActionAPI : MonoBehaviour
 
         GameObject selfPlayer = this.gameObject;
 
-        selfPlayer.GetComponent<NavMeshAgent>().enabled = false; // Deactivate Agent 
-        selfPlayer.GetComponentInChildren<NavMeshObstacle>().enabled = true;
+        // selfPlayer.GetComponent<NavMeshAgent>().enabled = false; // Deactivate Agent 
+        // selfPlayer.GetComponentInChildren<NavMeshObstacle>().enabled = true;
+    }
+    
+    IEnumerator Move2(AIDestinationSetter destSetter, RichAI aiNav, Vector3 Destiny)
+    {
+        destSetter.target = Destiny;
+        
+        
+        while (destSetter.target != this.gameObject.transform.position)
+        {
+            // if (aiNav.remainingDistance > aiNav.endReachedDistance)
+            //     character.Move(agent.desiredVelocity, false, false);
+            // else
+            //     character.Move(Vector3.zero, false, false);
+            yield return null;
+        }
+
+        GameObject selfPlayer = this.gameObject;
+
+        // selfPlayer.GetComponent<NavMeshAgent>().enabled = false; // Deactivate Agent 
+        // selfPlayer.GetComponentInChildren<NavMeshObstacle>().enabled = true;
     }
 
     private IEnumerator MovementLerp(Vector3 final, bool lookAt)
@@ -706,9 +712,9 @@ public class ActionAPI : MonoBehaviour
             currentRotation += rotationIncrement;
 
             if (rotationDirection == -1)
-                selfPlayer.transform.Rotate(Vector3.up, rotationIncrement);
+                selfPlayer.transform.Rotate(Vector3.down, rotationIncrement); //selfPlayer.transform.Rotate(Vector3.up, rotationIncrement);
             else if (rotationDirection == 1)
-                selfPlayer.transform.Rotate(Vector3.down, rotationIncrement);
+                selfPlayer.transform.Rotate(Vector3.up, rotationIncrement);
 
             yield return null;
         }

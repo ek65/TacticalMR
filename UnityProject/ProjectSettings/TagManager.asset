@@ -13,6 +13,7 @@ TagManager:
   - Ground
   - SoccerBall
   - BallTrigger
+  - Node
   layers:
   - Default
   - TransparentFX
@@ -22,7 +23,7 @@ TagManager:
   - UI
   - PlayerBall
   - BallTrigger
-  - 
+  - Ground
   - 
   - 
   - 

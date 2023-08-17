@@ -24,6 +24,7 @@ class UnityMessageServer:
         self.timestepNumber = 0
         self.sendData = SendData()
         self.isClient = True
+        self.HUD = HUD()
         self.ball = None
         self.HumanPlayers = dict()
         self.humanSavedControllerData = [None] * 2
@@ -446,6 +447,41 @@ class Model:
         self.type = type
 #This are the classes that the json will be inserted into
 #We might want to put this into another .py file, or make its definition static
+
+# HUD class is responsible for passing and displaying text on Unity side
+# see setText for more information
+class HUD:
+    #message : str
+    # The HUD message is a list of strings that will be played one at a time in scene
+    # This should be the order of strings:
+    # 1. Feedback of the previous scenario (first one leave empty string)
+    # 2. Ask if the player chooses to skip to next skill training (branching path?)
+    # 3. Display prompt for the scenario
+    # 4. No description but prompt player to press button to start 
+    message : list
+    # 
+
+    enabled : bool
+    location : str
+    thBoActive : bool
+    brakeActive : bool
+    def __init__(self, message=["noAction"], enabled=True, location="center"):
+        self.message = message
+        self.enabled = enabled
+        self.location = location
+        self.thBoActive = True
+        self.brakeActive = True
+    def setText(self, new_message: list):
+        self.message = new_message
+    def enableHUD(self):
+        self.enabled = True
+    def reposition(self, position: str):
+        self.position = position
+    def toggleHumanThBo(self, thBoActive : bool):
+        self.thBoActive = thBoActive
+    def toggleHumanBrake(self, brakeActive : bool):
+        self.brakeActive = brakeActive
+
 
 class SendData:
     control : bool

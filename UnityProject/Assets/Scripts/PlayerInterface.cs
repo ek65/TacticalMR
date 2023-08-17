@@ -102,13 +102,13 @@ public class PlayerInterface : MonoBehaviour
         {
             Type type = actionAPI.GetType();
             MethodInfo method = type.GetMethod(data.actionFunc);
-            // Debug.Log("here12");
-            // Debug.Log(data.actionFunc);
-            // Debug.Log(data.actionArgs.ToArray().Length);
-            // foreach (var v in data.actionArgs.ToArray())
-            // {
-            //     Debug.Log(v);
-            // }
+            Debug.Log("here12");
+            Debug.Log(data.actionFunc);
+            Debug.Log(data.actionArgs.ToArray().Length);
+            foreach (var v in data.actionArgs.ToArray())
+            {
+                Debug.Log(v);
+            }
             method.Invoke(actionAPI, data.actionArgs.ToArray());
         }
         else //idle

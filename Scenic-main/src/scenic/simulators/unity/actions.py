@@ -40,10 +40,7 @@ class MoveToAction(Action):
         else:
             self.clientID = obj.gameObject.clientID
     def applyTo(self, obj, sim):
-        if self.position is None:
-            obj.gameObject.MoveToObject(self.clientID)
-        else:
-            obj.gameObject.DoAction(self.actionName, self.position)
+        obj.gameObject.DoAction(self.actionName, self.position)
 
 class DribbleToAction(Action):
     def __init__(self, obj):
