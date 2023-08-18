@@ -92,10 +92,36 @@ public class ScenicParser
                         }
                         boolIndex++;
                     }
-                    // else if (param.ParameterType == typeof(float))
-                    // {
-                    //     
-                    // }
+                    else if (param.ParameterType == typeof(string))
+                    {
+                        string val;
+                        if (actionValues.StringVals.Count - stringIndex > 0 &&
+                            stringIndex < parameters.Count(p => p.ParameterType == typeof(string)))
+                        {
+                            val = actionValues.StringVals[stringIndex];
+                            actionArgs.Add(val);
+                        }
+                        else
+                        {
+                            actionArgs.Add(null);
+                        }
+                        stringIndex++;
+                    }
+                    else if (param.ParameterType == typeof(float))
+                    {
+                        float val;
+                        if (actionValues.FloatVals.Count - floatIndex > 0 &&
+                            floatIndex < parameters.Count(p => p.ParameterType == typeof(float)))
+                        {
+                            val = actionValues.FloatVals[floatIndex];
+                            actionArgs.Add(val);
+                        }
+                        else
+                        {
+                            actionArgs.Add(null);
+                        }
+                        floatIndex++;
+                    }
                 }
                 return new ScenicMovementData(pos, modelType, actionFunc, actionArgs);
             }

@@ -3025,7 +3025,7 @@ MonoBehaviour:
   centerBackingField: 1
   locked: 0
   lockWhenNotMoving: 1
-  agentTimeHorizon: 3
+  agentTimeHorizon: 5
   obstacleTimeHorizon: 2
   maxNeighbours: 10
   layer: 1
@@ -3095,7 +3095,7 @@ MonoBehaviour:
     maximumPeriod: 2
     visualizeSensitivity: 0
   targetCompatibility: {fileID: 0}
-  acceleration: 5
+  acceleration: 2
   rotationSpeed: 360
   slowdownTime: 0.5
   endReachedDistance: 0.01

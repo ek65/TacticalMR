@@ -22,6 +22,10 @@ behavior GroundPassFast(vec : Vector):
     take GroundPassFastAction(vec)
     take StopAction()
 
+behavior ShootBall(vec : Vector, string : str):
+    take ShootAction(vec, string)
+    take StopAction()
+
 behavior egoBehavior(ball):
     #print(distance from self to ball)
     do Idle() for 1 seconds
@@ -29,7 +33,7 @@ behavior egoBehavior(ball):
         print(distance from self to ball)
         take MoveToAction(ball.position)
     do Idle() for 1 seconds
-    do GroundPassFast(Vector(-1,1,0))
+    do ShootBall(Vector(0,20,0), "center-middle")
 
        
 

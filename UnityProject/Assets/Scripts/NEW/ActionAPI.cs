@@ -386,22 +386,117 @@ public class ActionAPI : MonoBehaviour
         // selfPlayer.GetComponentInChildren<NavMeshObstacle>().enabled = true;
     }
     
+    //TODO: This assumes that we are having the player look towards the position they're running, add more functionality to run towards position without looking
     IEnumerator Move2(AIDestinationSetter destSetter, RichAI aiNav, Vector3 Destiny)
-    {
+    { 
+        GameObject selfPlayer = this.gameObject;
         destSetter.target.position = Destiny;
         while (destSetter.target.position != this.gameObject.transform.position)
         {
-            // if (aiNav.remainingDistance > aiNav.endReachedDistance)
-            //     character.Move(agent.desiredVelocity, false, false);
-            // else
-            //     character.Move(Vector3.zero, false, false);
+            // normalize speed then *2 for anim values
+            float velz = aiNav.velocity.magnitude / playerRunningSpeed * 2;
+            
+            Debug.LogError(velz);
+            selfPlayer.GetComponent<Animator>().SetFloat("VelZ", velz);
+
+            // yield return StartCoroutine(MovementLerp2(Destiny));
             yield return null;
         }
-
-        GameObject selfPlayer = this.gameObject;
-
+        
         // selfPlayer.GetComponent<NavMeshAgent>().enabled = false; // Deactivate Agent 
         // selfPlayer.GetComponentInChildren<NavMeshObstacle>().enabled = true;
+    }
+    
+    private IEnumerator MovementLerp2(Vector3 final)
+    {
+        GameObject selfPlayer = this.gameObject;
+        Vector3 init = selfPlayer.transform.position;
+        Vector2 unitVector = new(selfPlayer.transform.forward.x, selfPlayer.transform.forward.z);
+
+        final.y = init.y;
+        float timeElapsed = 0;
+        float distance = Vector3.Distance(init, final);
+
+        timeDuration = 2f * distance / playerRunningSpeed;
+
+        float quadrant = RelativeQuadrant(init, final, unitVector);
+
+        int xSign = 0;
+        int zSign = 0;
+
+        switch (quadrant)
+        {
+            case 0.5f:
+                xSign = 1;
+                zSign = 0;
+                break;
+            case 1.0f:
+                xSign = 1;
+                zSign = 1;
+                break;
+            case 1.5f:
+                xSign = 0;
+                zSign = 1;
+                break;
+            case 2.0f:
+                xSign = -1;
+                zSign = 1;
+                break;
+            case 2.5f:
+                xSign = -1;
+                zSign = 0;
+                break;
+            case 3.0f:
+                xSign = -1;
+                zSign = -1;
+                break;
+            case 3.5f:
+                xSign = 0;
+                zSign = -1;
+                break;
+            case 4.0f:
+                xSign = 1;
+                zSign = -1;
+                break;
+        }
+
+        Debug.Log(xSign + ", " + zSign);
+
+        float distanceX = Mathf.Abs(init.x - final.x);
+        float distanceZ = Mathf.Abs(init.z - final.z);
+
+        while (timeElapsed < timeDuration)
+        {
+
+            float UpdatedDistanceX = Mathf.Abs(init.x - transform.position.x);
+            float UpdatedDistanceZ = Mathf.Abs(init.z - transform.position.z);
+
+            float transitionValueZ = zSign;
+            if (transitionValueZ != 0)
+                transitionValueZ *= (8f * (distanceZ * (UpdatedDistanceZ) - Mathf.Pow(UpdatedDistanceZ, 2)) /
+                                     Mathf.Pow(distanceZ, 2));
+            float transitionValueX = xSign;
+            if (transitionValueX != 0)
+                transitionValueX *= (8f * (distanceX * (UpdatedDistanceX) - Mathf.Pow(UpdatedDistanceX, 2)) /
+                                     Mathf.Pow(distanceX, 2));
+
+            selfPlayer.GetComponent<Animator>().SetFloat("VelX", transitionValueX);
+            selfPlayer.GetComponent<Animator>().SetFloat("VelZ", transitionValueZ);
+
+            timeElapsed += Time.deltaTime;
+            yield return null;
+
+            //Condition to Stop Continuous Movement
+            if (stopMovement)
+            {
+                stopMovement = false;
+                selfPlayer.GetComponent<Animator>().SetFloat("VelZ", 0);
+                selfPlayer.GetComponent<Animator>().SetFloat("VelX", 0);
+                StopCoroutine(MovementLerp2(final));
+            }
+        }
+
+        yield return null;
     }
 
     private IEnumerator MovementLerp(Vector3 final, bool lookAt)
@@ -678,17 +773,37 @@ public class ActionAPI : MonoBehaviour
 
     private IEnumerator LookTowards(Vector3 destinationPosition, string keyCode)
     {
+        // GameObject selfPlayer = this.gameObject;
+        // Vector3 init = selfPlayer.transform.position;
+        // Vector2 finalFacingDirection = new(destinationPosition.x - init.x, destinationPosition.z - init.z);
+        // Vector2 initialFacingDirection = new(selfPlayer.transform.forward.x, selfPlayer.transform.forward.z);
+        //
+        // // Debug.LogError(finalFacingDirection);
+        // // Debug.LogError(selfPlayer.transform.forward.x);
+        // // Debug.LogError(selfPlayer.transform.forward.z);
+        //
+        // float angle = Vector2.Angle(initialFacingDirection, finalFacingDirection);
+        // Vector3 normal = Vector3.Cross(initialFacingDirection, finalFacingDirection);
+        // // float rotationDirection = Mathf.Sign(Vector2.Dot(initialFacingDirection, finalFacingDirection));
+        // float rotationDirection = Mathf.Sign(Vector3.Dot(normal, Vector3.up));
+        // // Debug.LogError(finalFacingDirection);
+        // // Debug.LogError(rotationDirection);
+        // // Debug.LogError(angle);
+        
         GameObject selfPlayer = this.gameObject;
-        Vector3 init = selfPlayer.transform.position;
-        Vector2 finalFacingDirection = new(destinationPosition.x - init.x, destinationPosition.z - init.z);
-        Vector2 initialFacingDirection = new(selfPlayer.transform.forward.x, selfPlayer.transform.forward.z);
+        Vector3 fromVector = selfPlayer.transform.forward;
+        Vector3 toVector = destinationPosition - selfPlayer.transform.position;
+        
+        // Create a float to store the angle between the facing of the player and the direction it's traveling.
+        float angle = Vector3.Angle(fromVector, toVector);
+        // Find the cross product of the two vectors (this will point up if the velocity is to the right of forward).
+        Vector3 normal = Vector3.Cross(fromVector, toVector);
+        // The dot product of the normal with the upVector will be positive if they point in the same direction.
+        float rotationDirection = Mathf.Sign(Vector3.Dot(normal, Vector3.up));
 
-        float angle = Vector2.Angle(initialFacingDirection, finalFacingDirection);
-        float rotationDirection = Mathf.Sign(Vector3.Dot(initialFacingDirection, finalFacingDirection));
-        Debug.LogError(finalFacingDirection);
-        Debug.LogError(rotationDirection);
-        Debug.LogError(angle);
-
+        // Debug.LogError(angle);
+        // Debug.LogError(rotationDirection);
+        // yield return StartCoroutine(RotateCoroutine2(angle, rotationDuration));
         yield return StartCoroutine(RotateCoroutine(angle, rotationDirection, rotationDuration));
 
         // play animation after rotating
@@ -715,6 +830,8 @@ public class ActionAPI : MonoBehaviour
             else if (rotationDirection == 1)
                 selfPlayer.transform.Rotate(Vector3.up, rotationIncrement);
 
+            // Debug.LogError(selfPlayer.transform.rotation.eulerAngles);
+            
             yield return null;
         }
 
