@@ -45,7 +45,7 @@ behavior egoBehavior(ball):
 ball = new Ball at (0,5,0)
 #ego = new Player at (2,0,0), facing toward ball
 ego = new Player at (20,0,0), with behavior egoBehavior(ball)
-p1 = new Player at (10,6,0), facing toward ball
-p2 = new Player at (10,3,0), facing toward ego
-p3 = new Player at (10,0,0), facing toward ego
+# p1 = new Player at (10,6,0), facing toward ball
+# p2 = new Player at (10,3,0), facing toward ego
+# p3 = new Player at (10,0,0), facing toward ego
 
