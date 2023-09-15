@@ -18,9 +18,9 @@ behavior Idle():
     while True:
         take IdleAction()
 
-behavior GroundPassFast(vec : Vector):
-    take GroundPassFastAction(vec)
-    take StopAction()
+# behavior GroundPassFast(vec : Vector):
+#     take GroundPassFastAction(vec)
+#     take StopAction()
 
 behavior ShootBall(vec : Vector, string : str):
     take ShootAction(vec, string)
