@@ -29,7 +29,7 @@ behavior opponent1Behavior():
     while ((distance from ego to self) > 3):
         do InterceptBall(ball)
 
-    do Idle() for 1 seconds
+    do Idle() for 0.5 seconds
     do GroundPassFast(opponent2.position)
     do Idle() for 1 seconds
 
