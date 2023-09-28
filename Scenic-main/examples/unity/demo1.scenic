@@ -26,7 +26,7 @@ behavior opponent1Behavior():
     # interrupt when ((self in penalty_box) and (self.gameObject.ballPossession)):
     #     take Shoot()
 
-    while ((distance from ego to self) > 3):
+    while ((distance from ego to self) > 4):
         do InterceptBall(ball)
 
     do Idle() for 0.5 seconds
