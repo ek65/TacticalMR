@@ -45,6 +45,18 @@ class Player(UnityObject):
     width : 1.0
     length : 2.0
     height : 1.0
-    team : "blue"
+    team : "red"
     path : None
 
+class GoalKeeper(Player):
+    gameObjectType : "goalkeeper"
+
+#goalpost
+
+class Human(UnityObject):
+    gameObjectType : "human"
+    width : 1.0
+    length : 2.0
+    height : 1.0
+    team : "blue"
+    path : None

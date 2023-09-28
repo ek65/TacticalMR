@@ -28,7 +28,7 @@ public class ActionAPI : MonoBehaviour
 
     float forceFactor = 7f;
     float weakPassForce = 1f;
-    float strongPassForce = 2f;
+    float strongPassForce = 9f;
     float airPassForce = 3f;
     float chipForce = 1.5f;
     float shootForce = 4f;
@@ -396,7 +396,7 @@ public class ActionAPI : MonoBehaviour
             // normalize speed then *2 for anim values
             float velz = aiNav.velocity.magnitude / playerRunningSpeed * 2;
             
-            Debug.LogError(velz);
+            // Debug.LogError(velz);
             selfPlayer.GetComponent<Animator>().SetFloat("VelZ", velz);
 
             // yield return StartCoroutine(MovementLerp2(Destiny));
@@ -677,6 +677,7 @@ public class ActionAPI : MonoBehaviour
 
     void SetMoveBallValues(Vector3 finalPos, float aerialOffset, float forceMagnitude)
     {
+        Debug.LogError(finalPos);
         this.finalPos = finalPos;
         this.aerialOffset = aerialOffset;
         this.forceMagnitude = forceMagnitude;

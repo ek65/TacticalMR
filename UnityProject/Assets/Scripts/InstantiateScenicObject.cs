@@ -32,5 +32,13 @@ public class InstantiateScenicObject
             //objectList.orangePlayers.Add(scenicPlayer.GetComponent<NetworkObject>().NetworkInstanceId);
             Debug.Log("Added Scenic Player");
         }
+        else if (tag == "Human")
+        {
+            GameObject humanPlayer = MonoBehaviour.Instantiate(objectList.modelList["player.human"], pos, rot);
+            //scenicPlayer.GetComponent<NetworkObject>().Spawn();
+            objectList.humanPlayers.Add(humanPlayer);
+            //objectList.orangePlayers.Add(scenicPlayer.GetComponent<NetworkObject>().NetworkInstanceId);
+            Debug.Log("Added Human Player");
+        }
     }
 }

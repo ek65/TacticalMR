@@ -248,6 +248,9 @@ public class ScenicParser
 
         [JsonProperty("holdingDisc")]
         public bool HoldingDisc { get; set; }
+        
+        [JsonProperty("ballPossession")]
+        public bool BallPossession { get; set; }
 
         [JsonProperty("holdingWall")]
         public bool HoldingWall { get; set; }

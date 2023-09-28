@@ -10,17 +10,12 @@ x2 = Range(-4., 6.)
 y2 = Range(-10., 10.)
 z2 = Range(0., 20.)
 
-#ego = new Player at (0,0,0)
-# ego = new Ball at (x1,y1,z1)
-# ball2 = new Ball at (x2,y2,z2)
+
 
 behavior Idle():
     while True:
         take IdleAction()
 
-# behavior GroundPassFast(vec : Vector):
-#     take GroundPassFastAction(vec)
-#     take StopAction()
 
 behavior ShootBall(vec : Vector, string : str):
     take ShootAction(vec, string)
@@ -44,8 +39,8 @@ behavior egoBehavior(ball):
 
 ball = new Ball at (0,5,0)
 #ego = new Player at (2,0,0), facing toward ball
-ego = new Player at (20,0,0), with behavior egoBehavior(ball)
-p1 = new Player at (10,6,0), facing toward ball
+ego = new Human at (0,10,0), facing toward ball
+p1 = new Player at (10,0,0), with behavior egoBehavior(ball)
 # p2 = new Player at (10,3,0), facing toward ego
 # p3 = new Player at (10,0,0), facing toward ego
 

@@ -31,23 +31,23 @@ public class JSONStatusMaker : MonoBehaviour
         //We need to change this later when we expand to 1-4 players.
         r.TickData.numPlayers = objectList.humanPlayers.Count + objectList.scenicPlayers.Count;
         GameObject ball = objectList.ballObject;
-        // for (int i = 0; i < objectList.humanPlayers.Count; i++)
-        // {
-        //     GameObject humanPlayer = objectList.humanPlayers[i];
-        //     Player p = new Player();
-        //     p.leftController = new ControllerInputData();
-        //     p.rightController = new ControllerInputData();
-        //     AddPlayerData(humanPlayer, p, true);
-        //     Rigidbody rb = humanPlayer.GetComponentInChildren<Rigidbody>();
-        //     GameObject rig = rb.gameObject;
-        //     ObjectList xrRigObjects = rig.GetComponent<ObjectList>();
-        //     GameObject leftController = xrRigObjects.leftController;
-        //     GameObject rightController = xrRigObjects.rightController;
-        //     AddControllerData(rig, leftController, p.leftController, true);
-        //     AddControllerData(rig, rightController, p.rightController, false);
-        //
-        //     r.TickData.HumanPlayers.Add(p);
-        // }
+        for (int i = 0; i < objectList.humanPlayers.Count; i++)
+        {
+            GameObject humanPlayer = objectList.humanPlayers[i];
+            Player p = new Player();
+            // p.leftController = new ControllerInputData();
+            // p.rightController = new ControllerInputData();
+            AddPlayerData(humanPlayer, p, true);
+            // Rigidbody rb = humanPlayer.GetComponentInChildren<Rigidbody>();
+            // GameObject rig = rb.gameObject;
+            // ObjectList xrRigObjects = rig.GetComponent<ObjectList>();
+            // GameObject leftController = xrRigObjects.leftController;
+            // GameObject rightController = xrRigObjects.rightController;
+            // AddControllerData(rig, leftController, p.leftController, true);
+            // AddControllerData(rig, rightController, p.rightController, false);
+        
+            r.TickData.HumanPlayers.Add(p);
+        }
         for (int i = 0; i < objectList.scenicPlayers.Count; i++)
         {
             Player p = new Player();
@@ -116,7 +116,7 @@ public class JSONStatusMaker : MonoBehaviour
         // {
         //     Vector3ListToJsonList(mercuna.mercunaPath, pData.movementData.path);
         // }
-        // PlayerInterface pI = rig.GetComponent<PlayerInterface>();
+        
         // if (pI != null)
         // {
         //     bool b = (pI.trigger || pI.laserPointed);
@@ -135,6 +135,9 @@ public class JSONStatusMaker : MonoBehaviour
         }
         else
         {
+            PlayerInterface pI = rig.GetComponent<PlayerInterface>();
+            pData.movementData.ballPossession = pI.ballPossession;
+            
             Vector3 offsetPos = new Vector3(rig.transform.position.x, rig.transform.position.y, rig.transform.position.z);
             Vector3ToJsonClass(offsetPos, pData.movementData.transform);
             QuaternionToJsonClass(rig.transform.rotation, pData.movementData.rotation);
@@ -231,6 +234,7 @@ public class JSONStatusMaker : MonoBehaviour
             angularVelocity = new Vector3Json();
             rotation = new QuaternionJson();
             path = new List<Vector3Json>();
+            ballPossession = false;
             heldByHuman = false;
             heldByScenic = false;
         }
@@ -240,6 +244,7 @@ public class JSONStatusMaker : MonoBehaviour
         public Vector3Json angularVelocity { get; set; }
         public QuaternionJson rotation { get; set; }
         public List<Vector3Json> path { get; set; }
+        public bool ballPossession { get; set; }
         public bool heldByHuman { get; set; }
         public bool heldByScenic { get; set; }
         

@@ -1,0 +1,29 @@
+from scenic.simulators.unity.actions import *
+
+# Language: scenic (python)
+# This file defines all shared scenic behaviors. In order to use any behavior defined
+# here, add "from scenic.simulators.vr.behaviors import *" to the top of the scenic file
+
+behavior Idle():
+    while True:
+        take IdleAction()
+
+behavior ShootBall(vec : Vector, string : str):
+    take ShootAction(vec, string)
+    take StopAction()
+
+behavior InterceptBall(ball):
+    while (distance from self to ball) > 0.5:
+        # print(distance from self to ball)
+        take MoveToAction(ball.position)
+    take StopAction()
+
+behavior GroundPassFast(vec : Vector):
+    take GroundPassFastAction(vec)
+    take StopAction()
+
+behavior MoveTo(v):
+    dist = 1000
+    while not (dist < 0.5):
+        take MoveToAction(v)
+        dist = distance from self to v

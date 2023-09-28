@@ -32,6 +32,8 @@ public class PlayerInterface : MonoBehaviour
     public Action action;
     public bool move;
     public Vector3 movePos;
+    public bool ballPossession;
+    public BallInteraction ballInteraction;
 
     private float kickDebounce;
     
@@ -71,6 +73,7 @@ public class PlayerInterface : MonoBehaviour
         {
             goal = GameObject.FindGameObjectWithTag("goal").transform;
         }
+        
     }
 
     // Update is called once per frame
@@ -84,10 +87,14 @@ public class PlayerInterface : MonoBehaviour
         {
             goal = GameObject.FindGameObjectWithTag("goal").transform;
         }
+
         ballOnTheGround.x = ball.transform.position.x;
         ballOnTheGround.y = 0;
         ballOnTheGround.z = ball.transform.position.z;
         distToBall = Vector3.Distance(transform.position, ballOnTheGround);
+
+        ballInteraction = ball.GetComponentInChildren<BallInteraction>();
+        ballPossession = ballInteraction.StickToPlayer;
     }
 
     public void ApplyMovement(ScenicMovementData data)

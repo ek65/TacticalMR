@@ -92,7 +92,7 @@ class UnityMessageServer:
                     received = True
             incoming_data = self.json_deconstructor(str(inData, 'utf-8'))
             self.extractReceivedData(incoming_data)
-        #time.sleep(self.timestep)
+        time.sleep(self.timestep)
     def terminate(self):
         if self.timestepNumber < 2:
             # If we did not find another server and scenic barely simulated
@@ -146,12 +146,12 @@ class UnityMessageServer:
             game_object = gameObject(position, rotation)
             obj.gameObject = game_object
             #We will only have one human for now, call it 'ego' in the dict
-            obj.gameObject.model = Model(1,1, (255,255,255,1), "player.human")
+            obj.gameObject.model = Model(1,1, (255,255,255,1), "Human")
             self.sendData.addToQueue(obj.gameObject)
             self.sendData.control, self.sendData.addObject = True, True
             self.HumanPlayers[tag] = game_object
-            obj.rightController = ControllerInputData(False,False,False,False,False,False,False)
-            obj.leftController = ControllerInputData(False,False,False,False,False,False,False)
+            # obj.rightController = ControllerInputData(False,False,False,False,False,False,False)
+            # obj.leftController = ControllerInputData(False,False,False,False,False,False,False)
             return game_object
         elif obj.gameObjectType == "ball":
             game_object = gameObject(position, rotation)
@@ -189,10 +189,10 @@ class UnityMessageServer:
             #change if more than 1 human player implemented
             if "ego" in self.HumanPlayers and len(human_players) > 0:
                 self.HumanPlayers["ego"].ConvertFromJson(human_players[0])
-                humanLeftController = data.tick_data.human_players[0].leftController
-                humanRightController = data.tick_data.human_players[0].rightController
-                self.humanSavedControllerData[0] = humanLeftController
-                self.humanSavedControllerData[1] = humanRightController
+                # humanLeftController = data.tick_data.human_players[0].leftController
+                # humanRightController = data.tick_data.human_players[0].rightController
+                # self.humanSavedControllerData[0] = humanLeftController
+                # self.humanSavedControllerData[1] = humanRightController
             if self.objects:
                 k = 0
                 while k < len(scenic_objects):
@@ -219,6 +219,44 @@ class UnityMessageServer:
                 simOrientation = Orientation(r)
                 simYaw, simPitch, simRoll = simOrientation.eulerAngles   # global Euler angles
                 yaw, pitch, roll = obj.parentOrientation.globalToLocalAngles(simYaw, simPitch, simRoll)   # local Euler angles
+
+            values = dict(
+                position = position,
+                velocity = velocity,
+                speed = speed,
+                angularSpeed = speed,
+                angularVelocity = angularVelocity,
+                pitch = pitch,
+                roll = roll,
+                yaw = yaw
+            )
+
+            return values
+        elif obj.gameObjectType == "human":
+            game_object = obj.gameObject
+            #change when we implement more human players
+            stored_game_object = self.HumanPlayers["ego"]
+            position = stored_game_object.position
+            rotation = stored_game_object.rotation
+            velocity = stored_game_object.velocity
+            #path = stored_game_object.path
+            angularVelocity = stored_game_object.angularVelocity
+            speed=stored_game_object.speed
+            #trigger = stored_game_object.trigger
+            if rotation[3] == 0:
+                yaw, pitch, roll = 0, 0, 0
+            else:
+                r = Rotation.from_quat([rotation[0], rotation[1], rotation[2], rotation[3]])
+                simOrientation = Orientation(r)
+                simYaw, simPitch, simRoll = simOrientation.eulerAngles   # global Euler angles
+                yaw, pitch, roll = obj.parentOrientation.globalToLocalAngles(simYaw, simPitch, simRoll)   # local Euler angles
+
+            #add controller data here
+            # savedLeftController = self.humanSavedControllerData[0]
+            # savedRightController = self.humanSavedControllerData[1]
+            # obj.leftController = savedLeftController
+            # obj.rightController = savedRightController
+            # obj.gameObject = stored_game_object
 
             values = dict(
                 position = position,
@@ -332,6 +370,8 @@ class gameObject:
     #actionKey : str 
     # the parameters (as a list) of the action function
     #actionValues : actionParameters
+
+    ballPossession : bool
     
     actionDict : dict
 
@@ -354,6 +394,7 @@ class gameObject:
         self.speed = 0.0
         self.tag = ""
         self.clientID = 0
+        self.ballPossession = False
         self.actionDict = {}
 
         # self.doTransform = False
@@ -429,8 +470,8 @@ class gameObject:
         for v in data.movement_data.path:
             v = self.toVector3(v)
             self.path.append(v)
-        self.heldByHuman = data.movement_data.heldByHuman
-        self.heldByScenic = data.movement_data.heldByScenic
+        # self.heldByHuman = data.movement_data.heldByHuman
+        # self.heldByScenic = data.movement_data.heldByScenic
             
 
     

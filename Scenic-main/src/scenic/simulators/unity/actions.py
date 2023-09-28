@@ -34,7 +34,7 @@ class MoveToAction(Action):
         elif isinstance(obj, OrientedPoint):
             self.position = obj.position
         elif isinstance(obj, Point):
-            self.position = obj.position
+            self.position = (obj.position.x, obj.position.y, obj.position.z)
         elif isinstance(obj, Vector):
             self.position = (obj.x, obj.y, obj.z)
         else:
