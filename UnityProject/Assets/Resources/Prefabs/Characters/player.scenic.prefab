@@ -44,8 +44,8 @@ BoxCollider:
   m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 0.63, y: 0.1860547, z: 0.29}
-  m_Center: {x: 0.07110369, y: 0.07226619, z: 0.2}
+  m_Size: {x: 0.75, y: 0.75, z: 0.75}
+  m_Center: {x: 0, y: 0.1, z: 0.2}
 --- !u!114 &2886980005161618931
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -702,8 +702,8 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8665160897522789702}
-  m_LocalRotation: {x: 0.0000009790463, y: -0.0000015214149, z: 0.000047493362, w: 1}
-  m_LocalPosition: {x: 0.073, y: 0.888, z: 0.059}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0.888, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -3006,6 +3006,8 @@ MonoBehaviour:
   action: 0
   move: 0
   movePos: {x: 0, y: 0, z: 0}
+  ballPossession: 0
+  ballInteraction: {fileID: 0}
   actionAPI: {fileID: 8665160898893140851}
 --- !u!114 &6020389869188668907
 MonoBehaviour:
@@ -3172,7 +3174,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8665160898920370538}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.04, y: 0.155, z: 0.34}
+  m_LocalPosition: {x: 0, y: 0.18, z: 0.34}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

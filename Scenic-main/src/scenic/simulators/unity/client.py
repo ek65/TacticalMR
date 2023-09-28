@@ -92,7 +92,7 @@ class UnityMessageServer:
                     received = True
             incoming_data = self.json_deconstructor(str(inData, 'utf-8'))
             self.extractReceivedData(incoming_data)
-        time.sleep(self.timestep)
+        # time.sleep(self.timestep)
     def terminate(self):
         if self.timestepNumber < 2:
             # If we did not find another server and scenic barely simulated
@@ -154,7 +154,9 @@ class UnityMessageServer:
             # obj.leftController = ControllerInputData(False,False,False,False,False,False,False)
             return game_object
         elif obj.gameObjectType == "ball":
-            game_object = gameObject(position, rotation)
+            # need to add position offset here so ball doesn't fall through ground
+            pos = Vector(position.x, position.y, position.z + 0.25)
+            game_object = gameObject(pos, rotation)
             obj.gameObject = game_object
             obj.gameObject.model = Model(1,1, (255,255,255,1), "Ball")
             self.sendData.addToQueue(obj.gameObject)
@@ -396,6 +398,7 @@ class gameObject:
         self.clientID = 0
         self.ballPossession = False
         self.actionDict = {}
+        self.model = Model()
 
         # self.doTransform = False
         # self.destroy = False
@@ -470,6 +473,7 @@ class gameObject:
         for v in data.movement_data.path:
             v = self.toVector3(v)
             self.path.append(v)
+        self.ballPossession = data.movement_data.ballPossession
         # self.heldByHuman = data.movement_data.heldByHuman
         # self.heldByScenic = data.movement_data.heldByScenic
             
@@ -626,6 +630,7 @@ class MovementData:
     angular_velocity: UnityVector3
     rotation: UnityVector3
     path: List[UnityVector3]
+    ballPossession: bool
     heldByHuman: bool
     heldByScenic: bool
     @staticmethod
@@ -637,9 +642,10 @@ class MovementData:
         angular_velocity = UnityVector3.from_dict(obj.get("angularVelocity"))
         rotation = UnityVector3.from_dict(obj.get("rotation"))
         path = from_list(UnityVector3.from_dict, obj.get("path"))
+        ballPossession = from_bool(obj.get("ballPossession"))
         heldByHuman = from_bool(obj.get("heldByHuman"))
         heldByScenic = from_bool(obj.get("heldByScenic"))
-        return MovementData(transform, speed, velocity, angular_velocity, rotation, path, heldByHuman, heldByScenic)
+        return MovementData(transform, speed, velocity, angular_velocity, rotation, path, ballPossession, heldByHuman, heldByScenic)
 
     def to_dict(self) -> dict:
         result: dict = {}
@@ -649,6 +655,7 @@ class MovementData:
         result["UnityVector3"] = to_class(UnityVector3, self.angular_velocity)
         result["rotation"] = to_class(UnityVector3, self.rotation)
         result["path"] = from_list(lambda x: to_class(UnityVector3, x), self.path)
+        result["ballPossession"] = from_bool(self.ballPossession)
         result["heldByHuman"] = from_bool(self.heldByHuman)
         result["heldByScenic"] = from_bool(self.heldByScenic)
         return result

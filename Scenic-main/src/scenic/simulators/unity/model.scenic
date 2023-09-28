@@ -35,6 +35,8 @@ class UnityObject:
     height : 0.0
 
 class Ball(UnityObject):
+    position : (0,0,1)
+    gameObject : gameObject((0,0,1), Orientation.fromEuler(0,0,0))
     gameObjectType : "ball"
     width : 0.15
     length : 0.15

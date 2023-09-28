@@ -9,9 +9,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3576700607884276740}
-  m_Layer: 6
-  m_Name: soccer_ball2
-  m_TagString: Untagged
+  m_Layer: 0
+  m_Name: soccer_ball4
+  m_TagString: ball
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -43,11 +43,11 @@ GameObject:
   - component: {fileID: 230003740373502706}
   - component: {fileID: 5486571188556273021}
   - component: {fileID: 4821216759805975404}
-  - component: {fileID: 3527315159405395420}
-  - component: {fileID: 5185936972965884105}
-  - component: {fileID: 631784401074153649}
-  - component: {fileID: 4939281730717829018}
-  - component: {fileID: 6711562049026738685}
+  - component: {fileID: 871401940035983984}
+  - component: {fileID: 1567031994306060523}
+  - component: {fileID: 7986588955179837991}
+  - component: {fileID: 7269936879585262301}
+  - component: {fileID: 2394254484768654230}
   m_Layer: 6
   m_Name: ball
   m_TagString: ball
@@ -121,7 +121,7 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!111 &3527315159405395420
+--- !u!111 &871401940035983984
 Animation:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -136,7 +136,7 @@ Animation:
   m_PlayAutomatically: 1
   m_AnimatePhysics: 0
   m_CullingType: 0
---- !u!54 &5185936972965884105
+--- !u!54 &1567031994306060523
 Rigidbody:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -145,14 +145,14 @@ Rigidbody:
   m_GameObject: {fileID: 8014534012236495301}
   serializedVersion: 2
   m_Mass: 1
-  m_Drag: 0.25
-  m_AngularDrag: 0.025
+  m_Drag: 0.5
+  m_AngularDrag: 0.05
   m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!135 &631784401074153649
+--- !u!135 &7986588955179837991
 SphereCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -165,7 +165,7 @@ SphereCollider:
   serializedVersion: 2
   m_Radius: 0.25
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &4939281730717829018
+--- !u!114 &7269936879585262301
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -177,7 +177,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 843579e976a5243c88eff85bc6b08c20, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &6711562049026738685
+--- !u!114 &2394254484768654230
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

@@ -28,10 +28,10 @@ public class ActionAPI : MonoBehaviour
 
     float forceFactor = 7f;
     float weakPassForce = 1f;
-    float strongPassForce = 9f;
+    float strongPassForce = 10f;
     float airPassForce = 3f;
     float chipForce = 1.5f;
-    float shootForce = 4f;
+    float shootForce = 8f;
 
     float rotationDuration = 0.7f;
     
@@ -765,11 +765,18 @@ public class ActionAPI : MonoBehaviour
         Debug.Log("force vector: " + forceDirection);
         GameObject ballTriggerCollider = GameObject.FindGameObjectWithTag("BallTrigger");
         ballTriggerCollider.SetActive(false);
+        StartCoroutine(BallTriggerColliderDebounce(ballTriggerCollider));
         soccerBall.GetComponentInChildren<BallInteraction>().InRangeofPlayer = false;
         soccerBall.GetComponentInChildren<Rigidbody>().AddForce(forceDirection * forceMagnitude * forceFactor);
         // soccerBall.GetComponent<Rigidbody>().AddForce(forceDirection * 10f * forceFactor);
         Debug.Log("in moveball");
         Debug.Log("force:" + forceDirection * forceMagnitude * forceFactor);
+    }
+
+    private IEnumerator BallTriggerColliderDebounce(GameObject ballTriggerCollider)
+    {
+        yield return new WaitForSeconds(3f);
+        ballTriggerCollider.SetActive(true);
     }
 
     private IEnumerator LookTowards(Vector3 destinationPosition, string keyCode)

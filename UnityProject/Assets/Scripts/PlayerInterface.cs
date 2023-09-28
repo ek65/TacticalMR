@@ -73,7 +73,8 @@ public class PlayerInterface : MonoBehaviour
         {
             goal = GameObject.FindGameObjectWithTag("goal").transform;
         }
-        
+
+        ballPossession = false;
     }
 
     // Update is called once per frame
@@ -89,12 +90,9 @@ public class PlayerInterface : MonoBehaviour
         }
 
         ballOnTheGround.x = ball.transform.position.x;
-        ballOnTheGround.y = 0;
+        ballOnTheGround.y = ball.transform.position.y;
         ballOnTheGround.z = ball.transform.position.z;
         distToBall = Vector3.Distance(transform.position, ballOnTheGround);
-
-        ballInteraction = ball.GetComponentInChildren<BallInteraction>();
-        ballPossession = ballInteraction.StickToPlayer;
     }
 
     public void ApplyMovement(ScenicMovementData data)
