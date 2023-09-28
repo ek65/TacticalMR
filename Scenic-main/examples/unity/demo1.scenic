@@ -64,7 +64,7 @@ behavior opponent2Behavior():
     do GroundPassFast(opponent1.position)
 
 
-ego = new Human at (0, -45, 0)
+ego = new Human at (0, -40, 0)
 ball = new Ball ahead of ego by 3
 pt = new Point in penalty_box
 
