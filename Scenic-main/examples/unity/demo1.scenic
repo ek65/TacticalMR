@@ -26,7 +26,7 @@ behavior opponent1Behavior():
     # interrupt when ((self in penalty_box) and (self.gameObject.ballPossession)):
     #     take Shoot()
 
-    while ((distance from ego to self) > 5):
+    while ((distance from ego to self) > 3):
         do InterceptBall(ball)
 
     do Idle() for 1 seconds
@@ -65,15 +65,15 @@ behavior opponent2Behavior():
 
 
 ego = new Human at (0, -40, 0)
-ball = new Ball ahead of ego by 5
+ball = new Ball ahead of ego by 3
 pt = new Point in penalty_box
 
-opponent1 = new Player ahead of ego by Range(5, 10), 
+opponent1 = new Player ahead of ego by Range(3, 5), 
                     facing toward ego,
                     with behavior opponent1Behavior()
 
-opponent2 = new Player right of ego by Range(5, 10), 
+opponent2 = new Player right of ego by Range(3, 5), 
                     facing toward opponent1,
                     with behavior opponent2Behavior
 
-require (distance from ego to goal_post) < 10
+require (distance from ego to goal_post) < 5
