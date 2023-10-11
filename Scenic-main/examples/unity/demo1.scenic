@@ -15,28 +15,15 @@ penalty_box = MeshVolumeRegion(trimesh.creation.box((1, 1, 1)), dimensions = (13
 goal_post = MeshVolumeRegion(trimesh.creation.box((1, 1, 1)), dimensions = (7.5, 2.5, .1), position = (0, -48.5, 0))
 
 behavior opponent1Behavior():
-    # TODO: check why try/interrupt statements arent working
-    # try:
-    #     do InterceptBall(ball)
-    #     do Idle() for 1 seconds
-    # interrupt when ((distance from ego to self) < 1):
-    #     do GroundPassFast(opponent2.position)
-    #     do RunTo(Point in penalty_box)
-
-    # interrupt when ((self in penalty_box) and (self.gameObject.ballPossession)):
-    #     take Shoot()
-
-    while ((distance from ego to self) > 4):
+    try:
         do InterceptBall(ball)
-
-    do Idle() for 0.5 seconds
-    do GroundPassFast(opponent2.position)
-    do Idle() for 1 seconds
-
-    # TODO: see why and statments cause while loops to break, using distance check for now
-
-    # while (not (self in penalty_box)) and (not (self.gameObject.ballPossession)):
-    #     do MoveTo(pt)
+        do Idle() 
+    interrupt when ((distance from ego to self) < 4):
+        do Idle() for 0.5 seconds
+        do GroundPassFast(opponent2.position)
+        do Idle() for 1 seconds
+        abort
+        
     
     while (distance from self to pt > 0.5):
         do MoveTo(pt)
@@ -54,14 +41,11 @@ behavior opponent1Behavior():
         do ShootBall(Vector(0, -50, 0), "right-middle")
     
 behavior opponent2Behavior():
-    # try:
-    #     do Idle()
-    # interrupt when (self.gameObject.ballPossession):
-    #     take PassTo(opponent1)
-    while (distance from opponent1 to pt > 0.5):
-        print(distance from opponent1 to pt)
-        do Idle() for 1 seconds
-    do GroundPassFast(opponent1.position)
+    try:
+        do Idle()
+    interrupt when (distance from opponent1 to pt < 0.5):
+        do GroundPassFast(opponent1.position)
+        abort
 
 
 ego = new Human at (0, -42, 0)
@@ -74,6 +58,6 @@ opponent1 = new Player ahead of ego by Range(5, 7),
 
 opponent2 = new Player right of ego by Range(5, 7), 
                     facing toward opponent1,
-                    with behavior opponent2Behavior
+                    with behavior opponent2Behavior()
 
 require (distance from ego to goal_post) < 10

@@ -6,6 +6,7 @@ from scenic.simulators.unity.actions import *
 
 behavior Idle():
     while True:
+        # print(distance from ego to self)
         take IdleAction()
 
 behavior ShootBall(vec : Vector, string : str):
