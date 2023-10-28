@@ -18,7 +18,7 @@ behavior opponent1Behavior():
     try:
         do InterceptBall(ball)
         do Idle() 
-    interrupt when ((distance from ego to self) < 2.5):
+    interrupt when ((distance from ego to self) < 3):
         do Idle() for 0.5 seconds
         do GroundPassFast(opponent2.position)
         do Idle() for 1 seconds
