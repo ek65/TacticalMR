@@ -47,6 +47,8 @@ public class InstantiateScenicObject
                 try
                 {
                     Fade f = objectList.humanPlayers[0].GetComponent<Fade>();
+                    ExitScenario e = objectList.humanPlayers[0].GetComponent<ExitScenario>();
+                    e.endScenario = false;
                     f.StartFadeAndMove(pos);
                 }
                 catch

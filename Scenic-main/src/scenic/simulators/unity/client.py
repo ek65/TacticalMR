@@ -112,10 +112,11 @@ class UnityMessageServer:
         #   don't know if should keep it this way, or just move player on destroy & restart
         #   instead of destroying and reinitializing player
         self.HumanPlayers["ego"].destroyObj()
-
+        self.ball.destroyObj()
         self.step()
         self.objects = []
         self.ScenicPlayers = []
+        self.ball = None
         self.sendData.clearObjects()
         self.step()
         self.sendData.clearControl()
@@ -161,7 +162,8 @@ class UnityMessageServer:
             return game_object
         elif obj.gameObjectType == "ball":
             # need to add position offset here so ball doesn't fall through ground
-            pos = Vector(position.x, position.y, position.z + 0.25)
+            print(position)
+            pos = Vector(position.x, position.y, 0.25)
             game_object = gameObject(pos, rotation)
             obj.gameObject = game_object
             obj.gameObject.model = Model(1,1, (255,255,255,1), "Ball")
@@ -186,8 +188,8 @@ class UnityMessageServer:
             scenic_players = data.tick_data.scenic_players
             ball = data.tick_data.ball
             scenic_objects = data.tick_data.scenic_objects
-            if self.ball is not None:
-                self.ball.ConvertFromJson(ball)
+            # if self.ball is not None:
+            #     self.ball.ConvertFromJson(ball)
             if (len(scenic_players) == len(self.ScenicPlayers)):
                 k = 0
                 while k < len(scenic_players):
@@ -278,7 +280,7 @@ class UnityMessageServer:
             )
 
             return values
-        elif obj.gameObjectType == "ball":
+        elif obj.gameObjectType == "ball":     
             game_object = obj.gameObject
             stored_game_object = self.ball
             position = stored_game_object.position
@@ -286,7 +288,6 @@ class UnityMessageServer:
             velocity = stored_game_object.velocity
             angularVelocity = stored_game_object.angularVelocity
             speed=stored_game_object.speed
-            obj.gameObject = stored_game_object
             if rotation[3] == 0:
                 yaw, pitch, roll = 0, 0, 0
             else:

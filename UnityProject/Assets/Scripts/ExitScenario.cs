@@ -5,6 +5,7 @@ using UnityEngine;
 public class ExitScenario : MonoBehaviour
 {
     public OVRInput.Button button;
+    public OVRInput.Button trigger;
     public OVRInput.Controller controllerRight;
 
     public bool endScenario;
@@ -24,10 +25,10 @@ public class ExitScenario : MonoBehaviour
             GameObject.FindGameObjectWithTag("goal").GetComponent<ParticleSystem>().Stop();
             endScenario = true;
         }
-        else
-        {
-            endScenario = false;
-        }
+        // else
+        // {
+        //     endScenario = false;
+        // }
 
     }
 

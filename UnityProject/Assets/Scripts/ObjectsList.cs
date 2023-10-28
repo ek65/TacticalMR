@@ -86,6 +86,7 @@ public class ObjectsList : MonoBehaviour
         {
             Destroy(obj);
         }
+        Destroy(ballObject);
         foreach (GameObject player in scenicPlayers)
         {
             Destroy(player);
@@ -97,7 +98,6 @@ public class ObjectsList : MonoBehaviour
         // RemoveAllHumans();
         scenicObjects = new List<GameObject>();
         scenicPlayers = new List<GameObject>();
-        Destroy(ballObject);
         ballObject = null;
         //call reset function on the ready boolean for human and index
         // humanPlayers[0].GetComponentInChildren<HumanInterface>().ResetValues();
