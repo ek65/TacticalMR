@@ -11,8 +11,8 @@ from scenic.core.regions import MeshVolumeRegion
 # temporarily trimesh box 3d mesh volume regions
 # currently positions hardcoded to align with the objects in the Unity scene
 
-penalty_box = MeshVolumeRegion(trimesh.creation.box((1, 1, 1)), dimensions = (13, 7, .1), position = (0, -44, 0))
-goal_post = MeshVolumeRegion(trimesh.creation.box((1, 1, 1)), dimensions = (7.5, 2.5, .1), position = (0, -48.5, 0))
+penalty_box = MeshVolumeRegion(trimesh.creation.box((1, 1, 1)), dimensions = (13, 7, .1), position = (0, -5.5, 0))
+# goal_post = MeshVolumeRegion(trimesh.creation.box((1, 1, 1)), dimensions = (7.5, 2.5, .1), position = (0, -48.5, 0))
 
 behavior opponent1Behavior():
     try:
@@ -34,11 +34,11 @@ behavior opponent1Behavior():
     option = Uniform(1, 2, 3)
     print(option)
     if (option == 1):
-        do ShootBall(Vector(0, -50, 0), "left-middle")
+        do ShootBall(Vector(0, -11.5, 0), "left-middle")
     elif (option == 2):
-        do ShootBall(Vector(0, -50, 0), "center-middle")
+        do ShootBall(Vector(0, -11.5, 0), "center-middle")
     elif (option == 3):
-        do ShootBall(Vector(0, -50, 0), "right-middle")
+        do ShootBall(Vector(0, -11.5, 0), "right-middle")
     
 behavior opponent2Behavior():
     try:
@@ -48,9 +48,11 @@ behavior opponent2Behavior():
         abort
 
 
-ego = new Human at (0, -42, 0)
-ball = new Ball ahead of ego by 3
+test = Range(0,0.1)
+ego = new Human at (test, test, 0)
+ball = new Ball ahead of ego by Range(3, 4)
 pt = new Point in penalty_box
+goal = new Goal behind ego by Range(9.9,10), facing away from ego
 
 opponent1 = new Player ahead of ego by Range(5, 7), 
                     facing toward ego,
@@ -60,6 +62,6 @@ opponent2 = new Player right of ego by Range(5, 7),
                     facing toward opponent1,
                     with behavior opponent2Behavior()
 
-require (distance from ego to goal_post) < 10
+# require (distance from ego to goal_post) < 10
 
 terminate when (ego.gameObject.stopButton)

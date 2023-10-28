@@ -92,6 +92,13 @@ class UnityMessageServer:
                     received = True
             incoming_data = self.json_deconstructor(str(inData, 'utf-8'))
             self.extractReceivedData(incoming_data)
+        else:
+            incoming_data = self.json_deconstructor(str(self.socket.recv(), 'utf-8'))
+            self.extractReceivedData(incoming_data)
+            time.sleep(self.timestep)
+            out_data = self.json_constructor()
+            self.socket.send_json(out_data)
+            self.timestepNumber += 1
         # time.sleep(self.timestep)
     def terminate(self):
         if self.timestepNumber < 2:
@@ -108,14 +115,13 @@ class UnityMessageServer:
             if p:
                 p.destroyObj()
 
-        #TODO: I have added this for demo purposes
-        #   don't know if should keep it this way, or just move player on destroy & restart
-        #   instead of destroying and reinitializing player
         self.HumanPlayers["ego"].destroyObj()
+        # print(self.HumanPlayers["ego"].position)
         self.ball.destroyObj()
         self.step()
         self.objects = []
         self.ScenicPlayers = []
+        self.HumanPlayers = dict()
         self.ball = None
         self.sendData.clearObjects()
         self.step()
@@ -130,6 +136,7 @@ class UnityMessageServer:
         raise NotImplementedError
     def spawnObject(self, obj, position, rotation):
         if obj.gameObjectType == "player":
+            # print(position)
             game_object = gameObject(position, rotation)
             obj.gameObject = game_object
             obj.gameObject.model = Model(3,1, (255,255,255,1), "Player")
@@ -162,7 +169,7 @@ class UnityMessageServer:
             return game_object
         elif obj.gameObjectType == "ball":
             # need to add position offset here so ball doesn't fall through ground
-            print(position)
+            # print(position)
             pos = Vector(position.x, position.y, 0.25)
             game_object = gameObject(pos, rotation)
             obj.gameObject = game_object
@@ -171,7 +178,7 @@ class UnityMessageServer:
             self.sendData.control, self.sendData.addObject = True, True
             self.ball = game_object
             return self.ball
-        elif obj.isVrObject:
+        elif obj.isUnityObject:
             game_object = gameObject(position, rotation)
             obj.gameObject = game_object
             if obj.gameObjectType is None or obj.gameObjectType == "":
@@ -186,14 +193,17 @@ class UnityMessageServer:
         if isinstance(data, UnityJSON):
             human_players = data.tick_data.human_players
             scenic_players = data.tick_data.scenic_players
+            
             ball = data.tick_data.ball
             scenic_objects = data.tick_data.scenic_objects
-            # if self.ball is not None:
-            #     self.ball.ConvertFromJson(ball)
+            if self.ball is not None:
+                self.ball.ConvertFromJson(ball)
             if (len(scenic_players) == len(self.ScenicPlayers)):
                 k = 0
                 while k < len(scenic_players):
                     unity_player, player = scenic_players[k], self.ScenicPlayers[k]
+                    if (len(human_players) > 0 and human_players[0].movement_data.stopButton):
+                        print(unity_player)
                     player.ConvertFromJson(unity_player)
                     k += 1
             #change if more than 1 human player implemented
@@ -246,6 +256,7 @@ class UnityMessageServer:
             game_object = obj.gameObject
             #change when we implement more human players
             stored_game_object = self.HumanPlayers["ego"]
+            # print(stored_game_object.position)
             position = stored_game_object.position
             rotation = stored_game_object.rotation
             velocity = stored_game_object.velocity
@@ -280,14 +291,33 @@ class UnityMessageServer:
             )
 
             return values
-        elif obj.gameObjectType == "ball":     
+        elif obj.gameObjectType == "ball": 
+            if self.ball is not None:
+                obj.gameObject = self.ball
+            else:
+                print("in here")
+                values = dict(
+                    position=(0,0,0),
+                    velocity=(0,0,0),
+                    speed = 0.0,
+                    angularSpeed = 0.0,
+                    pitch = 0,
+                    roll = 0,
+                    yaw = 0,
+                    region = None,
+                    emptySpace = None,
+                    topSurface = None
+                )
+                return values
             game_object = obj.gameObject
             stored_game_object = self.ball
+            # print(stored_game_object.position)
             position = stored_game_object.position
             rotation = stored_game_object.rotation
             velocity = stored_game_object.velocity
             angularVelocity = stored_game_object.angularVelocity
             speed=stored_game_object.speed
+            obj.gameObject = stored_game_object
             if rotation[3] == 0:
                 yaw, pitch, roll = 0, 0, 0
             else:
@@ -310,6 +340,23 @@ class UnityMessageServer:
                 yaw = yaw,
             )
             #print(set(values))
+            return values
+        elif obj.isUnityObject:
+            #It must be a scenicObj
+            game_object = obj.gameObject
+            stored_game_object = self.objects[int(game_object.tag)]
+            position = stored_game_object.position
+            rotation = stored_game_object.rotation
+            values = dict(
+                    position=position,
+                    velocity=Vector(0,0,0),
+                    speed = 0.0,
+                    angularSpeed = 0.0,
+                    angularVelocity = Vector(0,0,0),
+                    pitch = 0,
+                    roll = 0,
+                    yaw = 0
+                )
             return values
 
 class actionParameters:

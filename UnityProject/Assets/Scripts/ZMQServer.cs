@@ -174,20 +174,14 @@ public class ZMQServer : MonoBehaviour
                 p.ApplyMovement(movementData[i]);
             }
         }*/
-        // for(int i = 0; i < objectList.scenicObjects.Count; i++)
-        // {
-        //     if (objectList.scenicObjects[i].tag == "Disc") {
-        //         DiscScenicController c = objectList.scenicObjects[i].GetComponent<DiscScenicController>();
-        //         int currObjectIdx = listOfScenicObjectIndices[i];
-        //         c.ApplyMovement(movementData[currObjectIdx]);
-        //     } else {
-        //         PlayerInterface p = objectList.scenicObjects[i].GetComponentInChildren<PlayerInterface>();
-        //         if (p != null){
-        //             int currObjectIdx = listOfScenicObjectIndices[i];
-        //             p.ApplyMovement(movementData[currObjectIdx]);
-        //         }
-        //     }
-        // }
+        for(int i = 0; i < objectList.scenicObjects.Count; i++)
+        {
+                PlayerInterface p = objectList.scenicObjects[i].GetComponentInChildren<PlayerInterface>();
+                if (p != null){
+                    int currObjectIdx = listOfScenicObjectIndices[i];
+                    p.ApplyMovement(movementData[currObjectIdx]);
+                }
+        }
         //checking for human players to apply to
         // foreach (ScenicMovementData s in movementData){
         //     if (s.model.modelType == "player.human")

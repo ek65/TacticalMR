@@ -20,7 +20,9 @@ public class JSONStatusMaker : MonoBehaviour
     }
     public string getUnityData()
     {
+        var test = root.TickData.Ball.movementData.transform;
         //lets set this to false so that we do not re-send if not true
+        Debug.LogError("test: " + test.x +"," + test.y +","+ test.z);
         snapTurnedLastTimestep = false;
         return JsonConvert.SerializeObject(root);
     }
@@ -108,7 +110,10 @@ public class JSONStatusMaker : MonoBehaviour
         {
             
             pData.movementData.stopButton = player.GetComponent<ExitScenario>().endScenario;
-            Debug.LogError("stopbutton: " + pData.movementData.stopButton);
+            if (pData.movementData.stopButton == true)
+            {
+                Debug.LogError("stopbutton: " + pData.movementData.stopButton);
+            }
             // player.GetComponent<ExitScenario>().endScenario = false;
         }
         pData.movementData.speed = rb.velocity.magnitude;
@@ -142,9 +147,9 @@ public class JSONStatusMaker : MonoBehaviour
             PlayerInterface pI = rig.GetComponent<PlayerInterface>();
             Debug.LogError(pI.ballPossession);
             pData.movementData.ballPossession = pI.ballPossession;
-            
             Vector3 offsetPos = new Vector3(rig.transform.position.x, rig.transform.position.y, rig.transform.position.z);
             Vector3ToJsonClass(offsetPos, pData.movementData.transform);
+            // Debug.LogError(offsetPos);
             QuaternionToJsonClass(rig.transform.rotation, pData.movementData.rotation);
         }
         
@@ -157,7 +162,7 @@ public class JSONStatusMaker : MonoBehaviour
         // oData.clientID = ((int) obj.GetComponent<NetworkObject>().NetworkObjectId);
     }
     void AddBallData(GameObject disc, Ball dData) {
-        Rigidbody rb = disc.GetComponentInChildren<Rigidbody>();
+        Rigidbody rb = disc.GetComponent<Rigidbody>();
         dData.movementData.speed = rb.velocity.magnitude;
         Vector3ToJsonClass(rb.angularVelocity, dData.movementData.angularVelocity);
         Vector3ToJsonClass(rb.velocity, dData.movementData.velocity);

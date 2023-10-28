@@ -24,7 +24,13 @@ public class InstantiateScenicObject
             // disc.GetComponent<NetworkObject>().Spawn();
             objectList.ballObject = ball;
             objectList.scenicObjects.Add(ball);
-        } else if (tag == "Player")
+        }
+        else if (tag == "goal")
+        {
+            GameObject goal = MonoBehaviour.Instantiate(objectList.modelList["goal"], pos, rot);
+            objectList.scenicObjects.Add(goal);
+        }
+        else if (tag == "Player")
         {
             GameObject scenicPlayer = MonoBehaviour.Instantiate(objectList.modelList["player.scenic"], pos, rot);
             //scenicPlayer.GetComponent<NetworkObject>().Spawn();
