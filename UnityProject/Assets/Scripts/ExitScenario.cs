@@ -20,13 +20,14 @@ public class ExitScenario : MonoBehaviour
     {
         if(OVRInput.GetDown(button, controllerRight))
         {
+            Debug.LogError("button pressed");
             GameObject.FindGameObjectWithTag("goal").GetComponent<ParticleSystem>().Stop();
             endScenario = true;
         }
-        else
-        {
-            endScenario = false;
-        }
+        // else
+        // {
+        //     endScenario = false;
+        // }
 
     }
 

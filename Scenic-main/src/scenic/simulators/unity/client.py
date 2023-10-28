@@ -379,6 +379,7 @@ class gameObject:
     # the parameters (as a list) of the action function
     #actionValues : actionParameters
 
+    stopButton : bool
     ballPossession : bool
     
     actionDict : dict
@@ -392,7 +393,7 @@ class gameObject:
     # destroy : bool
     # catchRadius : float
 
-    stopButton : bool
+    
 
     def __init__(self, position, rotation):
         self.position = position
@@ -404,6 +405,7 @@ class gameObject:
         self.speed = 0.0
         self.tag = ""
         self.clientID = 0
+        self.stopButton = False
         self.ballPossession = False
         self.actionDict = {}
         self.model = Model()
@@ -415,7 +417,6 @@ class gameObject:
         # Initialize added variables
         # self.heldByHuman = False
         # self.heldByScenic = False
-        self.stopButton = False
     #############################################################################################
     # Functions that take in values from the actions and update the variables of the gameObject #
     # Call, within actions.py, using "obj.gameObject.func()" to access                          #
@@ -640,8 +641,8 @@ class MovementData:
     angular_velocity: UnityVector3
     rotation: UnityVector3
     path: List[UnityVector3]
-    ballPossession: bool
     stopButton: bool
+    ballPossession: bool
     heldByHuman: bool
     heldByScenic: bool
     @staticmethod
@@ -667,7 +668,7 @@ class MovementData:
         result["UnityVector3"] = to_class(UnityVector3, self.angular_velocity)
         result["rotation"] = to_class(UnityVector3, self.rotation)
         result["path"] = from_list(lambda x: to_class(UnityVector3, x), self.path)
-        result["stopButton"] = from_bool(self.stopButon)
+        result["stopButton"] = from_bool(self.stopButton)
         result["ballPossession"] = from_bool(self.ballPossession)
         result["heldByHuman"] = from_bool(self.heldByHuman)
         result["heldByScenic"] = from_bool(self.heldByScenic)

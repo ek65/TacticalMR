@@ -105,7 +105,9 @@ public class JSONStatusMaker : MonoBehaviour
         GameObject rig = rb.gameObject;
         if (player.GetComponentInChildren<ExitScenario>() != null && lastTick > 5)
         {
+            
             pData.movementData.stopButton = player.GetComponentInChildren<ExitScenario>().endScenario;
+            Debug.LogError("stopbutton: " + pData.movementData.stopButton);
         }
         pData.movementData.speed = rb.velocity.magnitude;
         //NOTE: We go from (x,y,z) to (x,z,y) because that is how scenic handles the coordinate system.
