@@ -24,10 +24,10 @@ public class ExitScenario : MonoBehaviour
             GameObject.FindGameObjectWithTag("goal").GetComponent<ParticleSystem>().Stop();
             endScenario = true;
         }
-        // else
-        // {
-        //     endScenario = false;
-        // }
+        else
+        {
+            endScenario = false;
+        }
 
     }
 

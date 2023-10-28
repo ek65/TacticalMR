@@ -32,12 +32,12 @@ public class Fade : MonoBehaviour
         blackout.color = currentColor;
     }
     
-    public void StartFade()
+    public void StartFadeAndMove(Vector3 pos)
     {
         fade = true;
         StartCoroutine(UpdateFade());
         HumanInterface p = GetComponent<HumanInterface>();
-        p.PlayAudioClip();
+        p.SetTransform(pos);
     }
     
     IEnumerator UpdateFade()

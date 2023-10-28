@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Newtonsoft.Json;
+
 public class JSONStatusMaker : MonoBehaviour
 {
     ObjectsList objectList;
@@ -103,11 +104,12 @@ public class JSONStatusMaker : MonoBehaviour
     void AddPlayerData(GameObject player, Player pData, bool isHuman) {
         Rigidbody rb = player.GetComponentInChildren<Rigidbody>();
         GameObject rig = rb.gameObject;
-        if (player.GetComponentInChildren<ExitScenario>() != null && lastTick > 5)
+        if (player.GetComponent<ExitScenario>() != null && lastTick > 5)
         {
             
-            pData.movementData.stopButton = player.GetComponentInChildren<ExitScenario>().endScenario;
+            pData.movementData.stopButton = player.GetComponent<ExitScenario>().endScenario;
             Debug.LogError("stopbutton: " + pData.movementData.stopButton);
+            // player.GetComponent<ExitScenario>().endScenario = false;
         }
         pData.movementData.speed = rb.velocity.magnitude;
         //NOTE: We go from (x,y,z) to (x,z,y) because that is how scenic handles the coordinate system.

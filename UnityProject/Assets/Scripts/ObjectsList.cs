@@ -90,11 +90,11 @@ public class ObjectsList : MonoBehaviour
         {
             Destroy(player);
         }
-        foreach (GameObject human in humanPlayers)
-        {
-            Destroy(human);
-        }
-        RemoveAllHumans();
+        // foreach (GameObject human in humanPlayers)
+        // {
+        //     Destroy(human);
+        // }
+        // RemoveAllHumans();
         scenicObjects = new List<GameObject>();
         scenicPlayers = new List<GameObject>();
         Destroy(ballObject);

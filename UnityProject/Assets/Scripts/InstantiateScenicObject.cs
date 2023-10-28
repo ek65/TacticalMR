@@ -31,24 +31,31 @@ public class InstantiateScenicObject
             objectList.scenicPlayers.Add(scenicPlayer);
             //objectList.orangePlayers.Add(scenicPlayer.GetComponent<NetworkObject>().NetworkInstanceId);
             Debug.Log("Added Scenic Player");
-            
-            try
-            {
-                Fade f = objectList.humanPlayers[0].GetComponent<Fade>();
-                f.StartFade();
-            }
-            catch
-            {
-                Debug.LogError("Human not spawned in yet");
-            }
         }
         else if (tag == "Human")
         {
-            GameObject humanPlayer = MonoBehaviour.Instantiate(objectList.modelList["player.human"], pos, rot);
-            //scenicPlayer.GetComponent<NetworkObject>().Spawn();
-            objectList.humanPlayers.Add(humanPlayer);
-            //objectList.orangePlayers.Add(scenicPlayer.GetComponent<NetworkObject>().NetworkInstanceId);
-            Debug.Log("Added Human Player");
+            if (objectList.humanPlayers.Count == 0)
+            {
+                GameObject humanPlayer = MonoBehaviour.Instantiate(objectList.modelList["player.human"], pos, rot);
+                //scenicPlayer.GetComponent<NetworkObject>().Spawn();
+                objectList.humanPlayers.Add(humanPlayer);
+                //objectList.orangePlayers.Add(scenicPlayer.GetComponent<NetworkObject>().NetworkInstanceId);
+                Debug.Log("Added Human Player");
+            }
+            else
+            {
+                try
+                {
+                    Fade f = objectList.humanPlayers[0].GetComponent<Fade>();
+                    f.StartFadeAndMove(pos);
+                }
+                catch
+                {
+                    Debug.LogError("Human not spawned in yet");
+                }
+            }
+            
+            
         }
     }
 }

@@ -279,22 +279,6 @@ class UnityMessageServer:
 
             return values
         elif obj.gameObjectType == "ball":
-            if self.ball is not None:
-                obj.gameObject = self.ball
-            else:
-                values = dict(
-                    position=(0,0,0),
-                    velocity=(0,0,0),
-                    speed = 0.0,
-                    angularSpeed = 0.0,
-                    pitch = 0,
-                    roll = 0,
-                    yaw = 0,
-                    region = None,
-                    emptySpace = None,
-                    topSurface = None
-                )
-                return values
             game_object = obj.gameObject
             stored_game_object = self.ball
             position = stored_game_object.position
