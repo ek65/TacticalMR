@@ -18,7 +18,7 @@ behavior opponent1Behavior():
     try:
         do InterceptBall(ball)
         do Idle() 
-    interrupt when ((distance from ego to self) < 4):
+    interrupt when ((distance from ego to self) < 3):
         do Idle() for 0.5 seconds
         do GroundPassFast(opponent2.position)
         do Idle() for 1 seconds
@@ -50,15 +50,15 @@ behavior opponent2Behavior():
 
 test = Range(0,0.1)
 ego = new Human at (test, test, 0)
-ball = new Ball ahead of ego by Range(3, 4)
+ball = new Ball ahead of ego by Range(2, 3)
 pt = new Point in penalty_box
-goal = new Goal behind ego by Range(9.9,10), facing away from ego
+goal = new Goal behind ego by Range(2.9,3), facing away from ego
 
-opponent1 = new Player ahead of ego by Range(5, 7), 
+opponent1 = new Player ahead of ego by Range(4, 6), 
                     facing toward ego,
                     with behavior opponent1Behavior()
 
-opponent2 = new Player right of ego by Range(5, 7), 
+opponent2 = new Player right of ego by Range(4, 7), 
                     facing toward opponent1,
                     with behavior opponent2Behavior()
 
