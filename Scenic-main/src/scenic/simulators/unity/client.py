@@ -202,8 +202,8 @@ class UnityMessageServer:
                 k = 0
                 while k < len(scenic_players):
                     unity_player, player = scenic_players[k], self.ScenicPlayers[k]
-                    if (len(human_players) > 0 and human_players[0].movement_data.stopButton):
-                        print(unity_player)
+                    # if (len(human_players) > 0 and human_players[0].movement_data.stopButton):
+                    #     print(unity_player)
                     player.ConvertFromJson(unity_player)
                     k += 1
             #change if more than 1 human player implemented
