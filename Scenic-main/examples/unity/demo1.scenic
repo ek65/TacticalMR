@@ -50,7 +50,7 @@ behavior opponent2Behavior():
 
 test = Range(0,0.1)
 ego = new Human at (test, test, 0)
-ball = new Ball ahead of ego by Range(3.7, 4.5)
+ball = new Ball ahead of ego by Range(3.5, 4)
 pt = new Point in penalty_box
 goal = new Goal behind ego by Range(3.9,4), facing away from ego
 
