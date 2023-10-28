@@ -58,7 +58,7 @@ opponent1 = new Player ahead of ego by Range(5, 7),
                     facing toward ego,
                     with behavior opponent1Behavior()
 
-opponent2 = new Player right of ego by Range(2, 4), 
+opponent2 = new Player right of ego by Range(4, 5), 
                     facing toward opponent1,
                     with behavior opponent2Behavior()
 
