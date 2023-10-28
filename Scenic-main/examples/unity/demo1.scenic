@@ -11,7 +11,7 @@ from scenic.core.regions import MeshVolumeRegion
 # temporarily trimesh box 3d mesh volume regions
 # currently positions hardcoded to align with the objects in the Unity scene
 
-penalty_box = MeshVolumeRegion(trimesh.creation.box((1, 1, 1)), dimensions = (10, 5, .1), position = (0, -0.5, 0))
+penalty_box = MeshVolumeRegion(trimesh.creation.box((1, 1, 1)), dimensions = (10, 3, .1), position = (0, -1.5, 0))
 # goal_post = MeshVolumeRegion(trimesh.creation.box((1, 1, 1)), dimensions = (7.5, 2.5, .1), position = (0, -48.5, 0))
 
 behavior opponent1Behavior():
