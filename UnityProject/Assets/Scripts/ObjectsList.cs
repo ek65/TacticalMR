@@ -90,6 +90,11 @@ public class ObjectsList : MonoBehaviour
         {
             Destroy(player);
         }
+        foreach (GameObject human in humanPlayers)
+        {
+            Destroy(human);
+        }
+        RemoveAllHumans();
         scenicObjects = new List<GameObject>();
         scenicPlayers = new List<GameObject>();
         Destroy(ballObject);
@@ -97,8 +102,8 @@ public class ObjectsList : MonoBehaviour
         //call reset function on the ready boolean for human and index
         // humanPlayers[0].GetComponentInChildren<HumanInterface>().ResetValues();
     }
-    /*public void RemoveAllHumans()
+    public void RemoveAllHumans()
     {
         humanPlayers = new List<GameObject>();
-    }*/
+    }
 }

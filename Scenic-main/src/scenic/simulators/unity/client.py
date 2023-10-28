@@ -107,6 +107,12 @@ class UnityMessageServer:
         for p in self.ScenicPlayers:
             if p:
                 p.destroyObj()
+
+        #TODO: I have added this for demo purposes
+        #   don't know if should keep it this way, or just move player on destroy & restart
+        #   instead of destroying and reinitializing player
+        self.HumanPlayers["ego"].destroyObj()
+
         self.step()
         self.objects = []
         self.ScenicPlayers = []
@@ -386,6 +392,8 @@ class gameObject:
     # destroy : bool
     # catchRadius : float
 
+    stopButton : bool
+
     def __init__(self, position, rotation):
         self.position = position
         self.rotation = (rotation.x, rotation.y, rotation.z, rotation.w)
@@ -407,6 +415,7 @@ class gameObject:
         # Initialize added variables
         # self.heldByHuman = False
         # self.heldByScenic = False
+        self.stopButton = False
     #############################################################################################
     # Functions that take in values from the actions and update the variables of the gameObject #
     # Call, within actions.py, using "obj.gameObject.func()" to access                          #
@@ -470,6 +479,7 @@ class gameObject:
         self.clientID = data.clientID
         self.rotation = self.toQuaternion(data.movement_data.rotation)
         self.path = list()
+        self.stopButton = data.movement_data.stopButton
         for v in data.movement_data.path:
             v = self.toVector3(v)
             self.path.append(v)
@@ -631,6 +641,7 @@ class MovementData:
     rotation: UnityVector3
     path: List[UnityVector3]
     ballPossession: bool
+    stopButton: bool
     heldByHuman: bool
     heldByScenic: bool
     @staticmethod
@@ -642,10 +653,11 @@ class MovementData:
         angular_velocity = UnityVector3.from_dict(obj.get("angularVelocity"))
         rotation = UnityVector3.from_dict(obj.get("rotation"))
         path = from_list(UnityVector3.from_dict, obj.get("path"))
+        stopButton = from_bool(obj.get("stopButton"))
         ballPossession = from_bool(obj.get("ballPossession"))
         heldByHuman = from_bool(obj.get("heldByHuman"))
         heldByScenic = from_bool(obj.get("heldByScenic"))
-        return MovementData(transform, speed, velocity, angular_velocity, rotation, path, ballPossession, heldByHuman, heldByScenic)
+        return MovementData(transform, speed, velocity, angular_velocity, rotation, path, stopButton, ballPossession, heldByHuman, heldByScenic)
 
     def to_dict(self) -> dict:
         result: dict = {}
@@ -655,6 +667,7 @@ class MovementData:
         result["UnityVector3"] = to_class(UnityVector3, self.angular_velocity)
         result["rotation"] = to_class(UnityVector3, self.rotation)
         result["path"] = from_list(lambda x: to_class(UnityVector3, x), self.path)
+        result["stopButton"] = from_bool(self.stopButon)
         result["ballPossession"] = from_bool(self.ballPossession)
         result["heldByHuman"] = from_bool(self.heldByHuman)
         result["heldByScenic"] = from_bool(self.heldByScenic)

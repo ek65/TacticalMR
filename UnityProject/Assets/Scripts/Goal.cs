@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -16,11 +17,11 @@ public class Goal : MonoBehaviour
         
     }
     
-    private void OnCollisionEnter(Collision collision)
+    private void OnTriggerEnter(Collider collision)
     {
-        if (collision.gameObject.name == "goal mesh")
+        if (collision.gameObject.tag == "goal")
         {
-            this.GetComponent<Rigidbody>().drag = 5.0f;
+            collision.gameObject.GetComponent<ParticleSystem>().Play();
         }
     }
 }

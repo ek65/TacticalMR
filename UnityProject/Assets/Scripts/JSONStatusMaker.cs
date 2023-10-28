@@ -103,10 +103,10 @@ public class JSONStatusMaker : MonoBehaviour
     void AddPlayerData(GameObject player, Player pData, bool isHuman) {
         Rigidbody rb = player.GetComponentInChildren<Rigidbody>();
         GameObject rig = rb.gameObject;
-        // if (player.GetComponentInChildren<ExitScenario>() != null && lastTick > 5)
-        // {
-        //     pData.movementData.stopButton = player.GetComponentInChildren<ExitScenario>().endScenario;
-        // }
+        if (player.GetComponentInChildren<ExitScenario>() != null && lastTick > 5)
+        {
+            pData.movementData.stopButton = player.GetComponentInChildren<ExitScenario>().endScenario;
+        }
         pData.movementData.speed = rb.velocity.magnitude;
         //NOTE: We go from (x,y,z) to (x,z,y) because that is how scenic handles the coordinate system.
         Vector3ToJsonClass(rb.angularVelocity, pData.movementData.angularVelocity);
@@ -235,6 +235,7 @@ public class JSONStatusMaker : MonoBehaviour
             angularVelocity = new Vector3Json();
             rotation = new QuaternionJson();
             path = new List<Vector3Json>();
+            stopButton = false;
             ballPossession = false;
             heldByHuman = false;
             heldByScenic = false;
@@ -245,6 +246,7 @@ public class JSONStatusMaker : MonoBehaviour
         public Vector3Json angularVelocity { get; set; }
         public QuaternionJson rotation { get; set; }
         public List<Vector3Json> path { get; set; }
+        public bool stopButton { get; set; }
         public bool ballPossession { get; set; }
         public bool heldByHuman { get; set; }
         public bool heldByScenic { get; set; }

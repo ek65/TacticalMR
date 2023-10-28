@@ -31,6 +31,16 @@ public class InstantiateScenicObject
             objectList.scenicPlayers.Add(scenicPlayer);
             //objectList.orangePlayers.Add(scenicPlayer.GetComponent<NetworkObject>().NetworkInstanceId);
             Debug.Log("Added Scenic Player");
+            
+            try
+            {
+                Fade f = objectList.humanPlayers[0].GetComponent<Fade>();
+                f.StartFade();
+            }
+            catch
+            {
+                Debug.LogError("Human not spawned in yet");
+            }
         }
         else if (tag == "Human")
         {

@@ -61,3 +61,5 @@ opponent2 = new Player right of ego by Range(5, 7),
                     with behavior opponent2Behavior()
 
 require (distance from ego to goal_post) < 10
+
+terminate when (ego.gameObject.stopButton)
