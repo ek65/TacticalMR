@@ -50,7 +50,7 @@ opponent1 = new Player at ball offset by Range(-1, 1) @ Range(1, 2),
 
 opp2spawn = random.randint(1,2)
 # opp2spawn = Unifrom(1,2)
-# print(opp2spawn)
+print(opp2spawn)
 
 if (opp2spawn == 1):
     opponent2 = new Player right of ego by Range(4, 5), 
