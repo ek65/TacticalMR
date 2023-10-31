@@ -8,7 +8,7 @@ import random
 # TODO: Right now the ball automatically gets recieved by AI when near ball, 
 # instead make an action or paramter that enables this when we want
 
-penalty_box = MeshVolumeRegion(trimesh.creation.box((1, 1, 1)), dimensions = (10, 2, .1), position = (0, -1.5, 0))
+penalty_box = MeshVolumeRegion(trimesh.creation.box((1, 1, 1)), dimensions = (6, 2, .1), position = (0, -1.5, 0))
 
 behavior opponent1Behavior():
     try:
@@ -20,7 +20,6 @@ behavior opponent1Behavior():
         do Idle() for 1 seconds
         do MoveTo(pt)
     interrupt when (distance from self to pt < 0.5 and self.gameObject.ballPossession):
-        do Idle() for 1 seconds
         option = Uniform(1, 2, 3)
         # The finishing shot will be skewed left, center, or right
         if (option == 1):
@@ -33,8 +32,8 @@ behavior opponent1Behavior():
 behavior opponent2Behavior():
     try:
         do Idle()
-    interrupt when (distance from opponent1 to pt < 0.5):
-        do GroundPassFast(opponent1.position)
+    interrupt when (self.gameObject.ballPossession):
+        do GroundPassFast(pt.position)
         abort
 
 
@@ -49,7 +48,7 @@ opponent1 = new Player at ball offset by Range(-1, 1) @ Range(1, 2),
                     with behavior opponent1Behavior()
 
 
-opponent2 = new Player right of ego by Range(4, 5), 
+opponent2 = new Player right of ego by Range(3, 4), 
                     facing toward opponent1,
                     with behavior opponent2Behavior()
 
