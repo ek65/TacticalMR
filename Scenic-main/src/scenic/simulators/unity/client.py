@@ -49,7 +49,6 @@ class UnityMessageServer:
                 +  " at a timestep of " + str(self.timestep))
     def json_deconstructor(self, data):
         a = json.loads(data)
-        #print(a)
         if type(a) == dict:
             a = unity_json_from_dict(a)
         else:
@@ -93,6 +92,8 @@ class UnityMessageServer:
             incoming_data = self.json_deconstructor(str(inData, 'utf-8'))
             self.extractReceivedData(incoming_data)
         else:
+            # should never enter here in our case 
+            # since our scenic side is always client and never server
             incoming_data = self.json_deconstructor(str(self.socket.recv(), 'utf-8'))
             self.extractReceivedData(incoming_data)
             time.sleep(self.timestep)
@@ -228,10 +229,8 @@ class UnityMessageServer:
             position = stored_game_object.position
             rotation = stored_game_object.rotation
             velocity = stored_game_object.velocity
-            #path = stored_game_object.path
             angularVelocity = stored_game_object.angularVelocity
             speed=stored_game_object.speed
-            #trigger = stored_game_object.trigger
             if rotation[3] == 0:
                 yaw, pitch, roll = 0, 0, 0
             else:
@@ -260,10 +259,8 @@ class UnityMessageServer:
             position = stored_game_object.position
             rotation = stored_game_object.rotation
             velocity = stored_game_object.velocity
-            #path = stored_game_object.path
             angularVelocity = stored_game_object.angularVelocity
             speed=stored_game_object.speed
-            #trigger = stored_game_object.trigger
             if rotation[3] == 0:
                 yaw, pitch, roll = 0, 0, 0
             else:
@@ -395,43 +392,20 @@ class gameObject:
     
     #tag is to keep track of the scenic objects spawned
     tag : str
-    #this is used to both record human players and disc at RUNTIME
+    #this is used to both record human players and ball at RUNTIME
     clientID : int
-
-    # ballHeading : Vector
 
     velocity : Vector
     angularVelocity : Vector
     speed : float
-
-    #doMove : bool
-    
-    # action that the gameObject is taking with the same name as the corresponding function in Unity
-    #actionKey : str 
-    # the parameters (as a list) of the action function
-    #actionValues : actionParameters
-
     stopButton : bool
     ballPossession : bool
     
     actionDict : dict
 
-    # velocityStop : bool
-
-    # doTransform : bool
-
-    # transformPosition : Vector
-
-    # destroy : bool
-    # catchRadius : float
-
-    
-
     def __init__(self, position, rotation):
         self.position = position
         self.rotation = (rotation.x, rotation.y, rotation.z, rotation.w)
-        # self.transformPosition = Vector(0,0,0)
-        # self.velocityStop = False
         self.velocity = Vector(0,0,0)
         self.angularVelocity = Vector(0,0,0)
         self.speed = 0.0
@@ -442,13 +416,6 @@ class gameObject:
         self.actionDict = {}
         self.model = Model()
 
-        # self.doTransform = False
-        # self.destroy = False
-        # self.path = list()
-
-        # Initialize added variables
-        # self.heldByHuman = False
-        # self.heldByScenic = False
     #############################################################################################
     # Functions that take in values from the actions and update the variables of the gameObject #
     # Call, within actions.py, using "obj.gameObject.func()" to access                          #
@@ -467,37 +434,13 @@ class gameObject:
     
     def StopAction(self):
         self.actionDict = {}
-
-    # def MoveToPos(self, pos):
-    #     params = actionParameters()
-    #     params.addParameter(pos)
-    #     self.actionDict["MoveToPos"] = params
  
     def destroyObj(self):
         print("Destroying object")
         self.destroy = True
-    
-    # def SetStopVelocity(self, velocityStop):
-    #     self.velocityStop = velocityStop
-    # def SetPosition(self, position, apply=True):
-    #     self.transformPosition = position
-    #     self.doTransform = apply
-
-    # def Follow(self, followID, distance):
-    #     self.mercunaID = followID
-    #     self.mercunaDistance = distance
-    #     self.doMercunaFollow = True
 
     def ChangeColor(self, color):
         self.model.color = color
-
-    # def ToggleLine(self, active, dest):
-    #     self.doLineDraw = active
-    #     self.lineDestination = dest
-    # def setTopSpeed(self, topSpeed : float):
-    #     self.topSpeed = topSpeed
-    # def setCatchRadius(self, catchRadius : float):
-    #     self.catchRadius = catchRadius
 
     # Utility/Helper Functions
     def toVector3(self,unity_v3):
@@ -511,11 +454,7 @@ class gameObject:
         self.speed = data.movement_data.speed
         self.clientID = data.clientID
         self.rotation = self.toQuaternion(data.movement_data.rotation)
-        self.path = list()
         self.stopButton = data.movement_data.stopButton
-        for v in data.movement_data.path:
-            v = self.toVector3(v)
-            self.path.append(v)
         self.ballPossession = data.movement_data.ballPossession
         # self.heldByHuman = data.movement_data.heldByHuman
         # self.heldByScenic = data.movement_data.heldByScenic
@@ -538,6 +477,7 @@ class Model:
 
 # HUD class is responsible for passing and displaying text on Unity side
 # see setText for more information
+# CURRENTLY UNUSED
 class HUD:
     #message : str
     # The HUD message is a list of strings that will be played one at a time in scene
@@ -547,28 +487,19 @@ class HUD:
     # 3. Display prompt for the scenario
     # 4. No description but prompt player to press button to start 
     message : list
-    # 
 
     enabled : bool
     location : str
-    thBoActive : bool
-    brakeActive : bool
     def __init__(self, message=["noAction"], enabled=True, location="center"):
         self.message = message
         self.enabled = enabled
         self.location = location
-        self.thBoActive = True
-        self.brakeActive = True
     def setText(self, new_message: list):
         self.message = new_message
     def enableHUD(self):
         self.enabled = True
     def reposition(self, position: str):
         self.position = position
-    def toggleHumanThBo(self, thBoActive : bool):
-        self.thBoActive = thBoActive
-    def toggleHumanBrake(self, brakeActive : bool):
-        self.brakeActive = brakeActive
 
 
 class SendData:
@@ -672,7 +603,6 @@ class MovementData:
     velocity: UnityVector3
     angular_velocity: UnityVector3
     rotation: UnityVector3
-    path: List[UnityVector3]
     stopButton: bool
     ballPossession: bool
     heldByHuman: bool
@@ -685,12 +615,11 @@ class MovementData:
         velocity = UnityVector3.from_dict(obj.get("velocity"))
         angular_velocity = UnityVector3.from_dict(obj.get("angularVelocity"))
         rotation = UnityVector3.from_dict(obj.get("rotation"))
-        path = from_list(UnityVector3.from_dict, obj.get("path"))
         stopButton = from_bool(obj.get("stopButton"))
         ballPossession = from_bool(obj.get("ballPossession"))
         heldByHuman = from_bool(obj.get("heldByHuman"))
         heldByScenic = from_bool(obj.get("heldByScenic"))
-        return MovementData(transform, speed, velocity, angular_velocity, rotation, path, stopButton, ballPossession, heldByHuman, heldByScenic)
+        return MovementData(transform, speed, velocity, angular_velocity, rotation, stopButton, ballPossession, heldByHuman, heldByScenic)
 
     def to_dict(self) -> dict:
         result: dict = {}
@@ -699,12 +628,13 @@ class MovementData:
         result["velocity"] = to_class(UnityVector3, self.velocity)
         result["UnityVector3"] = to_class(UnityVector3, self.angular_velocity)
         result["rotation"] = to_class(UnityVector3, self.rotation)
-        result["path"] = from_list(lambda x: to_class(UnityVector3, x), self.path)
         result["stopButton"] = from_bool(self.stopButton)
         result["ballPossession"] = from_bool(self.ballPossession)
         result["heldByHuman"] = from_bool(self.heldByHuman)
         result["heldByScenic"] = from_bool(self.heldByScenic)
         return result
+
+# CURRENTLY UNUSED
 @dataclass
 class ControllerInputData:
     primary2DAxis: bool

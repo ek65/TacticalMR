@@ -243,7 +243,6 @@ public class JSONStatusMaker : MonoBehaviour
             velocity = new Vector3Json();
             angularVelocity = new Vector3Json();
             rotation = new QuaternionJson();
-            path = new List<Vector3Json>();
             stopButton = false;
             ballPossession = false;
             heldByHuman = false;
@@ -254,7 +253,6 @@ public class JSONStatusMaker : MonoBehaviour
         public Vector3Json velocity { get; set; }
         public Vector3Json angularVelocity { get; set; }
         public QuaternionJson rotation { get; set; }
-        public List<Vector3Json> path { get; set; }
         public bool stopButton { get; set; }
         public bool ballPossession { get; set; }
         public bool heldByHuman { get; set; }

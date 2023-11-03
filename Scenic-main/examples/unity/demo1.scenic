@@ -28,6 +28,7 @@ behavior opponent1Behavior():
             do ShootBall(goal.position, "center-middle")
         elif (option == 3):
             do ShootBall(goal.position, "right-middle")
+        abort
     
 behavior opponent2Behavior():
     try:
