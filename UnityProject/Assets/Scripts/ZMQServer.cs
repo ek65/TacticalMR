@@ -47,9 +47,11 @@ public class ZMQServer : MonoBehaviour
     }
     void Update()
     {
+        // sends to scenic
         string newSendData = sender.getUnityData();
-        //zmqRequester.SetReady(true);
         zmqRequester.SetSendData(newSendData);
+        
+        // gets json from scenic
         string newData = zmqRequester.GetData();
         if (newData == null || newData.Equals("Null") || newData.Equals(""))
         {
