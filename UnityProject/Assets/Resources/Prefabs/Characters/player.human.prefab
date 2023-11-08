@@ -14,6 +14,8 @@ GameObject:
   - component: {fileID: 1690535038236189044}
   - component: {fileID: 5517175083551903195}
   - component: {fileID: 8611071692536361996}
+  - component: {fileID: 6081925913069573279}
+  - component: {fileID: 7252527534379117966}
   m_Layer: 0
   m_Name: player.human
   m_TagString: Untagged
@@ -184,6 +186,44 @@ MonoBehaviour:
   blackout: {fileID: 2335061185964438745}
   fade: 0
   fadeRate: 0
+--- !u!143 &6081925913069573279
+CharacterController:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 532548465081309300}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Height: 2
+  m_Radius: 0.5
+  m_SlopeLimit: 45
+  m_StepOffset: 0.3
+  m_SkinWidth: 0.08
+  m_MinMoveDistance: 0.001
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &7252527534379117966
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 532548465081309300}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 263ce9543de3447a1b16a1f4bcd577f2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  walkingSpeed: 7.5
+  runningSpeed: 11.5
+  jumpSpeed: 8
+  gravity: 20
+  playerCamera: {fileID: 0}
+  lookSpeed: 2
+  lookXLimit: 45
+  canMove: 1
 --- !u!1 &1300100732955076933
 GameObject:
   m_ObjectHideFlags: 0
@@ -3538,6 +3578,10 @@ PrefabInstance:
     - target: {fileID: 100002, guid: 126d619cf4daa52469682f85c1378b4a, type: 3}
       propertyPath: m_IsActive
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 100002, guid: 126d619cf4daa52469682f85c1378b4a, type: 3}
+      propertyPath: m_TagString
+      value: Untagged
       objectReference: {fileID: 0}
     - target: {fileID: 100004, guid: 126d619cf4daa52469682f85c1378b4a, type: 3}
       propertyPath: m_Name
