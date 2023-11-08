@@ -26,9 +26,13 @@ public class GameManager : MonoBehaviour
         {
             // enable `ZMQManager` to listen to Scenic
             ZMQManagerObject.SetActive(true);
+            // make a photon fusion room
         }
         else
         {
+            // Connect to photon fusion room
+            
+            // place spacial anchor or load spatial anchor
         }
     }
 
