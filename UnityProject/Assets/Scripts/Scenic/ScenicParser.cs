@@ -229,10 +229,6 @@ public class ScenicParser
         public bool Enabled { get; set; }
         [JsonProperty("position")]
         public string Position { get; set; }
-        [JsonProperty("thBoActive")]
-        public bool ThBoActive { get; set; }
-        [JsonProperty("brakeActive")]
-        public bool BrakeActive { get; set; }
     }
 
     public partial class Object
@@ -247,23 +243,8 @@ public class ScenicParser
         [JsonProperty("rotation")]
         public List<float> Rotation { get; set; }
 
-        [JsonProperty("holdingDisc")]
-        public bool HoldingDisc { get; set; }
-        
         [JsonProperty("ballPossession")]
         public bool BallPossession { get; set; }
-
-        [JsonProperty("holdingWall")]
-        public bool HoldingWall { get; set; }
-
-        [JsonProperty("wallHeading")]
-        public List<float> WallHeading { get; set;}
-
-        [JsonProperty("pushMagnitude")]
-        public float PushMagnitude { get; set; }
-
-        [JsonProperty("brake")]
-        public bool Brake { get; set; }
 
         [JsonProperty("velocity")]
         public List<float> Velocity { get; set; }
@@ -277,62 +258,27 @@ public class ScenicParser
         [JsonProperty("velocityStop")]
         public bool VelocityStop { get; set; }
 
-        [JsonProperty("thrustHeading")]
-        public List<float> ThrustHeading { get; set; }
-
-        [JsonProperty("thrustOn")]
-        public bool ThrustOn { get; set; }
-
-        [JsonProperty("discHeading")]
-        public List<float> DiscHeading { get; set; }
-
-        [JsonProperty("throwMagnitude")]
-        public float ThrowMagnitude { get; set; }
-
-        [JsonProperty("thBoActive")]
-        public bool ThBoActive { get; set; }
-        
-        // [JsonProperty("doMove")]
-        // public bool DoMove { get; set; }
-        // [JsonProperty("moveToPosition")]
-        // public List<float> MoveToPosition { get; set; }
         [JsonProperty("actionDict")]
         public Dictionary<string, ActionDictType> ActionDict { get; set; }
-        [JsonProperty("doMercunaFollow")]
-        public bool DoMercunaFollow { get; set; }
-        [JsonProperty("mercunaID")]
-        public int MercunaID { get; set; }
-        [JsonProperty("mercunaDistance")]
-        public int MercunaDistance { get; set; }
-        [JsonProperty("doTransform")]
-        public bool DoTransform { get; set; }
+        // [JsonProperty("doMercunaFollow")]
+        // public bool DoMercunaFollow { get; set; }
+        // [JsonProperty("mercunaID")]
+        // public int MercunaID { get; set; }
+        // [JsonProperty("mercunaDistance")]
+        // public int MercunaDistance { get; set; }
+        // [JsonProperty("doTransform")]
+        // public bool DoTransform { get; set; }
         [JsonProperty("destroy")]
         public bool Destroy { get; set; }
-        [JsonProperty("doPunch")]
-        public bool DoPunch { get; set; }
 
         // Added variables to the Player Class
         // They will be read by the HandleMovementData above to populate the ScenicMovementData
-        [JsonProperty("throwTop")]
-        public bool DoThrowTop { get; set; }
-        [JsonProperty("throwSide")]
-        public bool throwSide { get; set; }
-        [JsonProperty("transformPosition")]
-        public List<float> TransformPosition { get; set; }
-        [JsonProperty("doLineDraw")]
-        public bool DoLineDraw { get; set; }
-        [JsonProperty("lineDestination")]
-        public List<List<float>> LineDestination { get; set; }
         [JsonProperty("stopButton")]
         public bool Stopbutton { get; set; }
         [JsonProperty("heldByHuman")]
         public bool HeldByHuman { get; set; }
         [JsonProperty("heldByScenic")]
         public bool HeldByScenic { get; set; }
-        [JsonProperty("topSpeed")]
-        public float TopSpeed { get; set; }
-        [JsonProperty("catchRadius")]
-        public float CatchRadius { get; set; }
     }
 }
 

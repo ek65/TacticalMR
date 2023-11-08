@@ -47,9 +47,11 @@ public class ZMQServer : MonoBehaviour
     }
     void Update()
     {
+        // sends to scenic
         string newSendData = sender.getUnityData();
-        //zmqRequester.SetReady(true);
         zmqRequester.SetSendData(newSendData);
+        
+        // gets json from scenic
         string newData = zmqRequester.GetData();
         if (newData == null || newData.Equals("Null") || newData.Equals(""))
         {
@@ -97,30 +99,6 @@ public class ZMQServer : MonoBehaviour
         //init = true;
         return moveData;
     }
-    
-    /*public void ApplyMovement(List<ScenicMovementData> mvData)
-    {
-        if (mvData.tag == "ball")
-        {
-            // spawn obj at mvData.position if not instantiated yet
-            if (obj.active == false)
-            {
-                Debug.Log("spawn position: " + mvData.position);
-                obj.transform.position = mvData.position;
-                obj.SetActive(true);
-            }
-
-            var player = obj.GetComponent<MoveToSoccerBallAndTurn>();
-            if (mvData.doMove)
-            {
-                player.MoveToBallThenLook(player.goal.position);
-            } else if (mvData.doKick)
-            {
-                player.KickBall(mvData.kickPosition);
-            }
-            
-        }
-    }*/
     
     private int GetTickFromData(ScenicParser.ScenicJson data)
     {

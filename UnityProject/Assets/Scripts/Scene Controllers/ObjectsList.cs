@@ -4,18 +4,6 @@ using UnityEngine;
 
 public class ObjectsList : MonoBehaviour
 {
-    //This function keeps track of the ever-increasing amount of gameobjects within the scene.
-    //prefabs to spawn or inst
-    //public GameObject AIPrefab;
-    // public GameObject PlayerPrefab;
-    //public GameObject BallPrefab;
-
-    //spawn locations
-    // public Vector3 redSpawnLocation;
-    // public Vector3 blueSpawnLocation;
-    // public Vector3 playerSpawnLocation;
-    public Vector3 ballSpawnLocation;
-
     //in-game objects
     public GameObject ballObject;
     public List<ulong> bluePlayers;

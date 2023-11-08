@@ -16,22 +16,11 @@ public class PlayerInterface : MonoBehaviour
     public float speed;
     public Transform ball;
     public Vector3 ballOnTheGround;
-    public Transform mainCamera;
-    public Rig animationRigging;
-    private Animator anim;
-    //private Vector3 correctPosition;
     public Vector3 targetPosition;
     public float force;
-    //public bool getBall;
-    //public bool travelWithBall;
-    public bool turn;
-    //public Vector3 travelEndPos;
     public float distToBall;
     public float distToPos;
     public Transform goal;
-    public Action action;
-    public bool move;
-    public Vector3 movePos;
     public bool ballPossession;
     public BallInteraction ballInteraction;
 
@@ -40,13 +29,6 @@ public class PlayerInterface : MonoBehaviour
     private int localTick;  // NOTE: This is not the true tick and is what we will use to internally record a timestep.
 
     public ActionAPI actionAPI;
-
-    public enum Action
-    {
-        NOT_TAKING_ACTION,
-        TAKING_ACTION,
-        TAKING_RECURRING_ACTION
-    };
 
     private void Start()
     {
@@ -64,7 +46,6 @@ public class PlayerInterface : MonoBehaviour
         // transform.LookAt(ballOnTheGround);
         // correctPosition = calculateCorrectPosition(transform.position, ballOnTheGround);
         localTick = -1;
-        anim = GetComponent<Animator>();
         if (ball == null)
         {
             ball = GameObject.FindGameObjectWithTag("ball").transform;
