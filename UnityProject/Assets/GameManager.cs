@@ -6,7 +6,7 @@ using Fusion;
 public class GameManager : MonoBehaviour
 {
     // Start is called before the first frame update
-    private bool isHost;
+    public bool isHost;
 
     public GameObject ZMQManagerObject;
 
@@ -16,7 +16,6 @@ public class GameManager : MonoBehaviour
         Debug.Log("Runtime type: " + Application.platform);
         
         // Detect if we're the host
-        isHost = false;
 #if UNITY_EDITOR
         isHost = true;
 #endif
