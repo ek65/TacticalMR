@@ -50,20 +50,6 @@ class UnitySimulation(Simulation):
         obj.gameObject = gameObject
         return gameObject
     def getProperties(self, obj, properties):
-        unityActor = obj.gameObject
-        # if not obj.gameObjectType == "ball" and unityActor is None:
-        #     values = dict(
-        #     position=(0,0,0),
-        #     #heading= float(0),
-        #     velocity=(0,0,0),
-        #     #angularVelocity=angularVelocity,
-        #     speed = 0.0,
-        #     angularSpeed = 0.0,
-        #     pitch = 0,
-        #     roll = 0,
-        #     yaw = 0
-        #     )
-        #     return values
         values = self.client.getProperties(obj, properties)
         return values
     def destroy(self):
