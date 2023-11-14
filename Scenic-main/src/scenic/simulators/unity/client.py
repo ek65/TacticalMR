@@ -34,7 +34,7 @@ class UnityMessageServer:
         self.start()
     def start(self):
         self.context = zmq.Context()
-        self.socket_address = "tcp://127.0.0.1:5555"
+        self.socket_address = "tcp://"+ self.ip +":" + self.port
         if self.isClient:
             self.socket = self.context.socket(zmq.REQ)
             #self.socket.setsockopt(zmq.RCVTIMEO, self.timeout * 100)
