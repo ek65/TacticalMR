@@ -18,6 +18,7 @@ GameObject:
   - component: {fileID: 7252527534379117966}
   - component: {fileID: 1235980184055912172}
   - component: {fileID: 7793982934254688689}
+  - component: {fileID: -1117447354005736078}
   m_Layer: 0
   m_Name: networkedPlayer.human
   m_TagString: Untagged
@@ -250,6 +251,7 @@ MonoBehaviour:
   NestedObjects: []
   NetworkedBehaviours:
   - {fileID: 7793982934254688689}
+  - {fileID: -1117447354005736078}
   SimulationBehaviours: []
 --- !u!114 &7793982934254688689
 MonoBehaviour:
@@ -287,6 +289,19 @@ MonoBehaviour:
   rotationSpeed: 15
   _IsGrounded: 0
   _Velocity: {x: 0, y: 0, z: 0}
+--- !u!114 &-1117447354005736078
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 532548465081309300}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7ff24d8de0ef949008c5a75904782fef, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _interpolationDataSource: 0
 --- !u!1 &1300100732955076933
 GameObject:
   m_ObjectHideFlags: 0
