@@ -93,6 +93,29 @@ public class GameManager : MonoBehaviour, INetworkRunnerCallbacks
 			_spawnedCharacters.Remove(player);
 		}
 	}
+
+	public void OnInput(NetworkRunner runner, NetworkInput input)
+	{
+		var data = new NetworkInputData();
+
+		// player movement
+		if (Input.GetKey(KeyCode.W))
+			data.Direction += Vector3.forward;
+
+		if (Input.GetKey(KeyCode.S))
+			data.Direction += Vector3.back;
+
+		if (Input.GetKey(KeyCode.A))
+			data.Direction += Vector3.left;
+
+		if (Input.GetKey(KeyCode.D))
+			data.Direction += Vector3.right;
+
+		// player tries to intercept the ball
+		data.TryIntercept = Input.GetKey(KeyCode.I);
+
+		input.Set(data);
+	}
 // ----- Shared Spatial Anchor -----
 
 
