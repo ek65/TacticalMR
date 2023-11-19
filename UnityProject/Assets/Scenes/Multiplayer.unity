@@ -1833,6 +1833,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isHost: 0
+  _playerPrefab:
+    RawGuidValue: aafecda1c67264cc68eaaca5af616761
   ZMQManagerObject: {fileID: 822036599}
 --- !u!4 &652205978
 Transform:
