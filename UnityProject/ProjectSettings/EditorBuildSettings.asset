@@ -5,7 +5,7 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/Multiplayer.unity
     guid: 78ee4adbe057b458bab739af3bc6b8d8
   - enabled: 0
@@ -17,6 +17,9 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Scenes/zmq.unity
     guid: 2b625bd447bad4788b05abee50ba28a7
+  - enabled: 1
+    path: Assets/Scenes/ssa.unity
+    guid: a6bcec2a886f74f57b526621d27bd086
   m_configObjects:
     Unity.XR.Oculus.Settings: {fileID: 11400000, guid: 1394e64b697ec4abe82e08446d44181f, type: 2}
     com.unity.xr.management.loader_settings: {fileID: 11400000, guid: 518e18425de064e40851575aa22e4389, type: 2}
