@@ -8,6 +8,8 @@ using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour, INetworkRunnerCallbacks
 {
+
+	public GameObject _ObserverCamera;
 	void Start()
 	{
 		// print the current runtime type
@@ -19,19 +21,19 @@ public class GameManager : MonoBehaviour, INetworkRunnerCallbacks
 #endif
 		Debug.Log("We are the " + (isHost ? "host" : "client"));
 
-		if (isHost)
+		if (isHost) // host
 		{
 			// enable `ZMQManager` to listen to Scenic
 			ZMQManagerObject.SetActive(true);
-			// switch to the `TopDownDebugCamera`
-			GameObject.Find("TopDownDebugCamera").GetComponent<Camera>().enabled = true;
+			// switch to the `Observer Camera`
+			_ObserverCamera.SetActive(true);
 			// make a photon fusion room
 			if (_runner == null)
 			{
 				StartGame(GameMode.Host);
 			}
 		}
-		else
+		else // client
 		{
 			// Connect to photon fusion room
 			if (_runner == null)

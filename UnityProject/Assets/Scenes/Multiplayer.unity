@@ -1832,6 +1832,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 27429573fefea4774bc3f156a6a529d4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _ObserverCamera: {fileID: 1479281150}
   isHost: 0
   _playerPrefab:
     RawGuidValue: aafecda1c67264cc68eaaca5af616761
