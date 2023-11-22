@@ -9,11 +9,12 @@ public class SpatialAnchorManager : MonoBehaviour
 {
 
     // Spatial anchor; alternatively create a gameobject prefab with OVRSpatialAnchor attached to it
-    [SerializeField] private OVRSpatialAnchor spatialAnchorPrefab;
+    [SerializeField] private GameObject spatialAnchorPrefab;
     // human player
     [SerializeField] public Transform player;
     [SerializeField] public Transform playerRightHand;
 
+    private bool placementMode = false;
     private OVRSpatialAnchor createdAnchor;
     private Transform anchorPlacementTransform;
     private OVRSpatialAnchor alignedAnchor;
@@ -21,101 +22,126 @@ public class SpatialAnchorManager : MonoBehaviour
     IList<Guid> uuids = new List<Guid>();
     private readonly HashSet<Guid> uuidsToLoad = new HashSet<Guid>();
 
-    // TODO: create a interface/manager for anchor-related networking functions
-    // public static PhotonAnchorManager photon;
 
-    //private RayInteractor _rayInteractor;
+    void Start() { }
 
 
-    void Start()
+    public void SetPlacementMode(bool setting)
     {
-        // EMPTY
+        placementMode = setting;
+        Debug.Log("Placement mode set");
     }
+
 
     void Update()
     {
-        //var rayInteractorHoveringUI = _rayInteractor == null || (_rayInteractor != null && _rayInteractor.Candidate == null);
-        //var shouldPlaceNewAnchor = isPlacementMode && OVRInput.GetDown(OVRInput.RawButton.RIndexTrigger) && rayInteractorHoveringUI;
-    }
-
-    void getAnchorPosition()
-    {
-        Ray ray = new Ray(playerRightHand.position, playerRightHand.forward);
-
-        // Set the maximum raycast distance
-        float maxRaycastDistance = 10f;
-
-        // Declare a RaycastHit variable to store information about the hit
-        RaycastHit hit;
-
-        // Perform the raycast
-        if (Physics.Raycast(ray, out hit, maxRaycastDistance))
+        if (placementMode == true)
         {
-            // The ray hit something
-            Transform hitTransform = hit.transform;
-
-            // Do something with the hit transform (e.g., print its name)
-            anchorPlacementTransform = hitTransform;
+            Debug.Log("Can place now");
+            if (OVRInput.GetUp(OVRInput.Button.PrimaryIndexTrigger))
+            {
+                Debug.Log("About to create anchor");
+                //CreateAnchor();
+                //CreateSaveShare();
+                StartCoroutine(CreateSaveShare());
+                //placementMode = false;
+            }
         }
     }
 
 
-    public void CreateAnchor()
+    /*public void CreateAnchor(Transform playerRightHand)
     {
-        // TODO: define positino and rotation for placing anchor, use raycast?
-        getAnchorPosition();
-        // instantiate OVRSpatialANchor object at that position/rotation
-        createdAnchor = Instantiate(spatialAnchorPrefab, anchorPlacementTransform.position, anchorPlacementTransform.rotation);
+        Debug.Log("In CreateAnchor");
+        anchorPlacementTransform = playerRightHand;
+        GameObject newobj = Instantiate(spatialAnchorPrefab, anchorPlacementTransform.position, anchorPlacementTransform.rotation);
+        createdAnchor = newobj.GetComponent<OVRSpatialAnchor>();
         Debug.Log("Anchor created");
-
-    }
-
-    /*void SaveAndShareAnchor(OVRSpatialAnchor spatialAnchor)
-    {
-        OVRSpatialAnchor.SaveOptions saveOptions;
-        saveOptions.Storage = OVRSpace.StorageLocation.Cloud;
-        OVRSpatialAnchor.Save(spatialAnchor, saveOptions, (collection, result) =>
-        {
-            if (result is not OVRSpatialAnchor.OperationResult.Success)
-            {
-                Debug.LogError(result);
-                return;
-            }
-
-            OVRSpatialAnchor.Share(collection, users, (collection, result) =>
-            {
-                if (result is OVRSpatialAnchor.OperationResult.Success)
-                {
-                    Debug.Log("Success sharing anchor.");
-                }
-                else
-                {
-                    Debug.LogError(result);
-                }
-            });
-        });
     }*/
 
-
-    public void SaveAnchor()
+    public IEnumerator CreateSaveShare()
     {
-        // configure save option to be cloud
+        // CREATE
+        anchorPlacementTransform = playerRightHand;
+        GameObject newobj = Instantiate(spatialAnchorPrefab, anchorPlacementTransform.position, anchorPlacementTransform.rotation);
+        createdAnchor = newobj.AddComponent<OVRSpatialAnchor>();
+
+        /*if (!createdAnchor.Localized)
+        {
+            createdAnchor.Localize();
+        }*/
+
+        Debug.Log("ANCHOR CREATED");
+        Debug.Log("Waiting to see if anchor is ready to be shared");
+        Debug.Log("UUID: " + createdAnchor.Uuid);
+        Debug.Log("Created: " + createdAnchor.Created);
+        Debug.Log("PendingCreation: " + createdAnchor.PendingCreation);
+        Debug.Log("Localized: " + createdAnchor.Localized);
+        while (!createdAnchor.Created)
+        {
+            yield return new WaitForEndOfFrame(); //keep checking
+        }
+
+        Debug.Log("Anchor is ready to be shared");
+        spatialAnchorsList.Add(createdAnchor);
+        Debug.Log("Num anchors: " + spatialAnchorsList.Count);
         OVRSpatialAnchor.SaveOptions saveOptions;
         saveOptions.Storage = OVRSpace.StorageLocation.Cloud;
+        Debug.Log("Save options have been set");
 
         // save anchor and share in network if saved
-        createdAnchor.Save(saveOptions, (spatialAnchor, isSuccessful) =>
+        createdAnchor.Save(saveOptions, (createdAnchor, success) =>
+        //OVRSpatialAnchor.Save(spatialAnchorsList, saveOptions, (collection, result) =>
         {
+            Debug.Log("In save but not yet successful");
+            if (success)
+            {
+                Debug.Log("SAVE SUCCESSFUL");
+                uuids.Add(createdAnchor.Uuid);
+                Debug.Log("Num anchors: " + uuids.Count);
+                Debug.Log("About to share anchor");
+
+                //ShareAnchor();
+            }
+            else if (!success)
+            {
+                Debug.Log("SAVE FAILED");
+            }
+        });
+    }
+
+
+    public IEnumerator SaveAnchor()
+    {
+        // configure save option to be cloud
+        while (!createdAnchor.Created && !createdAnchor.Localized)
+        {
+            yield return new WaitForEndOfFrame();
+        }
+
+        Debug.Log("In SaveAnchor");
+        OVRSpatialAnchor.SaveOptions saveOptions;
+        saveOptions.Storage = OVRSpace.StorageLocation.Cloud;
+        Debug.Log("Save options have been set");
+
+        // save anchor and share in network if saved
+        createdAnchor.Save(saveOptions, (createdAnchor, isSuccessful) =>
+        {
+            Debug.Log("In save but not yet successful");
             if (isSuccessful)
             {
-                Debug.Log("Anchor created");
+                Debug.Log("SAVE SUCCESSFUL");
                 // add to list of anchors
-                spatialAnchorsList.Add(spatialAnchor);
+                spatialAnchorsList.Add(createdAnchor);
 
                 // add uuid to a list of uuids
-                uuids.Add(spatialAnchor.Uuid);
+                uuids.Add(createdAnchor.Uuid);
+                Debug.Log("About to share anchor");
 
                 ShareAnchor();
+            } else
+            {
+                Debug.Log("SAVE FAILED");
             }
         });
     }
@@ -166,7 +192,7 @@ public class SpatialAnchorManager : MonoBehaviour
     // WIP, ienum or void
     // public void AlignToAnchor(OVRSpatialAnchor anchor)
 
-    public void AlignToAnchor()
+    public void AlignToAnchor(/*Transform player*/)
     {
         if (alignedAnchor != null)
         {
@@ -196,7 +222,6 @@ public class SpatialAnchorManager : MonoBehaviour
 
 
     }
-
 
     /*private static void OnLoadUnboundAnchorComplete()
     {
