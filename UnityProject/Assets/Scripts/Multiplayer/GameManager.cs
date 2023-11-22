@@ -8,15 +8,16 @@ using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour, INetworkRunnerCallbacks
 {
+	[SerializeField] private SpatialAnchorManager SAmanager;
 	void Start()
 	{
 		// print the current runtime type
 		Debug.Log("Runtime type: " + Application.platform);
 
 		// Detect if we're the host
-#if UNITY_EDITOR
-		isHost = true;
-#endif
+		#if UNITY_EDITOR
+				isHost = true;
+		#endif
 		Debug.Log("We are the " + (isHost ? "host" : "client"));
 
 		if (isHost)
@@ -43,7 +44,6 @@ public class GameManager : MonoBehaviour, INetworkRunnerCallbacks
 	}
 
 	// Update is called once per frame
-	void Update() { }
 
 // ----- Networking with Photon Fusion -----
 
@@ -145,6 +145,30 @@ public class GameManager : MonoBehaviour, INetworkRunnerCallbacks
 
 // ----- Shared Spatial Anchor -----
 
+	void Update()
+    {
+		Debug.Log("READY");
+		if (OVRInput.GetUp(OVRInput.Button.One)) //A
+		{
+			Debug.Log("About to set placement mode to true");
+			SAmanager.SetPlacementMode(true);
+		}
+		if (OVRInput.GetUp(OVRInput.Button.Two)) //B
+		{
+			Debug.Log("About to try to save anchor");
+			SAmanager.SaveAnchor();
+		}
+
+		/* will not work yet */
+		if (OVRInput.GetUp(OVRInput.Button.Three)) //X
+		{
+			SAmanager.ShareAnchor();
+		}
+		if (OVRInput.GetUp(OVRInput.Button.Four)) //Y
+		{
+			SAmanager.LoadAnchor();
+		}
+	}
 
 // ----- Scenic -----
 

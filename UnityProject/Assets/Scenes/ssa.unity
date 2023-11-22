@@ -1225,7 +1225,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: -2.182, y: 1.369}
+  m_AnchoredPosition: {x: -0.051, y: 1.369}
   m_SizeDelta: {x: 1182.75, y: 392.25}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &237462931
@@ -3935,11 +3935,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 66fd9cdc3c13c48a98f418054f74c298, type: 3}
---- !u!4 &947681529 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 5292150854507437940, guid: 66fd9cdc3c13c48a98f418054f74c298, type: 3}
-  m_PrefabInstance: {fileID: 947681528}
-  m_PrefabAsset: {fileID: 0}
 --- !u!20 &947681530 stripped
 Camera:
   m_CorrespondingSourceObject: {fileID: 5292150854506931578, guid: 66fd9cdc3c13c48a98f418054f74c298, type: 3}
@@ -5257,7 +5252,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1463891736
 RectTransform:
   m_ObjectHideFlags: 0
@@ -5384,6 +5379,11 @@ RectTransform:
   m_AnchoredPosition: {x: -5, y: 0}
   m_SizeDelta: {x: -20, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!4 &1540849074 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 5295830326280088162, guid: 66fd9cdc3c13c48a98f418054f74c298, type: 3}
+  m_PrefabInstance: {fileID: 947681528}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1550324709
 GameObject:
   m_ObjectHideFlags: 0
@@ -6273,7 +6273,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 27429573fefea4774bc3f156a6a529d4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  SAmanager: {fileID: 1894736054}
   isHost: 0
+  _playerPrefab:
+    RawGuidValue: 00000000000000000000000000000000
   ZMQManagerObject: {fileID: 777379925808647183}
 --- !u!114 &1894736054
 MonoBehaviour:
@@ -6287,9 +6290,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c6562392c450c466c91c396eea09b6fc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  spatialAnchorPrefab: {fileID: 847559916}
+  spatialAnchorPrefab: {fileID: 321828648448824057, guid: cfdf84b0c70d545e098804b642f87da9, type: 3}
   player: {fileID: 947681531}
-  playerRightHand: {fileID: 947681529}
+  playerRightHand: {fileID: 1540849074}
 --- !u!4 &1894736055
 Transform:
   m_ObjectHideFlags: 0
