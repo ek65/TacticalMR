@@ -167,14 +167,14 @@ public class SpatialAnchorManager : MonoBehaviour
 
         // share with with people in list
         // the null is the action upon complete
-        OVRSpatialAnchor.Share(new List<OVRSpatialAnchor> { createdAnchor }, spaceUserList, OnShareComplete);
+        OVRSpatialAnchor.Share(new List<OVRSpatialAnchor> { createdAnchor }, spaceUserList/*, OnShareComplete*/);
         Debug.Log("Anchor shared");
     }
 
-    private IEnumerator OnShareComplete()
+    /*private IEnumerator OnShareComplete()
     {
         //broadcast uuids
-    }
+    }*/
 
     public void LoadAnchor()
     {
