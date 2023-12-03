@@ -33,7 +33,8 @@ public class ZMQRequester : RunAbleThread
             Debug.Log("Starting Scenic/Unity Server");
             using (ResponseSocket server = new ResponseSocket())
             {
-                server.Bind("tcp://"+ ip +":" + port);
+                //server.Bind("tcp://"+ ip +":" + port);
+                server.Bind("tcp://127.0.0.1:5555");
                 string message = null;
                 string outMessage = null;
                 //int outNum = 0;
