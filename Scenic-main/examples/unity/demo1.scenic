@@ -8,7 +8,7 @@ import random
 # TODO: Right now the ball automatically gets recieved by AI when near ball, 
 # instead make an action or paramter that enables this when we want
 
-penalty_box = MeshVolumeRegion(trimesh.creation.box((1, 1, 1)), dimensions = (6, 2, .1), position = (0, -1.5, 0))
+penalty_box = MeshVolumeRegion(trimesh.creation.box((1, 1, 1)), dimensions = (4, 2, .1), position = (-1, -1.5, 0))
 
 behavior opponent1Behavior():
     try:
