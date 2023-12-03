@@ -9,6 +9,11 @@ using UnityEngine.SceneManagement;
 public class GameManager : MonoBehaviour, INetworkRunnerCallbacks
 {
 	[SerializeField] private SpatialAnchorManager SAmanager;
+	[Tooltip("If this is checked, and the game is running in the Unity Editor, then isHost will be checked.")]
+	public bool autoIsHost;
+
+	[Tooltip("If this is checked, then the game will start as a host.")]
+	public bool isHost;
 
 	public GameObject _ObserverCamera;
 	
@@ -17,10 +22,14 @@ public class GameManager : MonoBehaviour, INetworkRunnerCallbacks
 		// print the current runtime type
 		Debug.Log("Runtime type: " + Application.platform);
 
-		// Detect if we're the host
-		#if UNITY_EDITOR
+		if (autoIsHost)
+		{
+			// if we're running in the Unity Editor
+			#if UNITY_EDITOR
 				isHost = true;
-		#endif
+			#endif
+		}
+
 		Debug.Log("We are the " + (isHost ? "host" : "client"));
 
 		if (isHost) // host
@@ -50,7 +59,6 @@ public class GameManager : MonoBehaviour, INetworkRunnerCallbacks
 
 // ----- Networking with Photon Fusion -----
 
-	public bool isHost;
 
 	private NetworkRunner _runner;
 
