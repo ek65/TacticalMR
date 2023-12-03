@@ -7,12 +7,14 @@ using System;
 
 public class SpatialAnchorManager : MonoBehaviour
 {
-
-    // Spatial anchor; alternatively create a gameobject prefab with OVRSpatialAnchor attached to it
+    /*
     [SerializeField] private GameObject spatialAnchorPrefab;
-    // human player
     [SerializeField] public Transform player;
     [SerializeField] public Transform playerRightHand;
+    */
+    private GameObject spatialAnchorPrefab;
+    public Transform player;
+    public Transform playerRightHand;
 
     private bool placementMode = false;
     private OVRSpatialAnchor createdAnchor;
