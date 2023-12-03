@@ -106,6 +106,7 @@ public class GameManager : MonoBehaviour, INetworkRunnerCallbacks
 		{
 			Debug.Log("OnPlayerJoined. Not server, preparing to send user ID to server");
 			// send local user's quest ID to the server
+			Oculus.Platform.Core.Initialize();
 			var userRequest = Oculus.Platform.Users.GetLoggedInUser();
 			userRequest.OnComplete((Message<User> message) =>
 			{
