@@ -225,6 +225,19 @@ public class GameManager : MonoBehaviour, INetworkRunnerCallbacks
 
 		Debug.Log("RPC_Add_User: " + questID);
 		ClientsQuestIDList.Add(questID);
+		Debug.Log("current user count: " + ClientsQuestIDList.Count);
+		PRC_Set_ClientsQuestIDList(ClientsQuestIDList);
+	}
+
+	// server uses this to tell all clients to update their list of user IDs
+	[Rpc(RpcSources.StateAuthority, RpcTargets.InputAuthority)]
+	public void PRC_Set_ClientsQuestIDList(List<string> IDstrings, RpcInfo info = default)
+	{
+		if (_runner.IsServer) return; // don't execute on host
+
+		Debug.Log("PRC_Set_ClientsQuestIDList");
+		ClientsQuestIDList = IDstrings;
+		Debug.Log("current user count: " + ClientsQuestIDList.Count);
 	}
 
 	#endregion
