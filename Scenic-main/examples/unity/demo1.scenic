@@ -40,11 +40,11 @@ behavior opponent2Behavior():
 
 spawn_range = Range(0,0.1)
 ego = new Human at (spawn_range, spawn_range, 0)
-ball = new Ball at ego offset by Range(-3, 3) @ Range(4, 4.1)
+ball = new Ball at ego offset by Range(-3, 3) @ Range(4, 4.5)
 pt = new Point in penalty_box
 goal = new Goal behind ego by Range(2.9,3), facing away from ego
 
-opponent1 = new Player at ball offset by Range(-2, 2) @ Range(4.2, 4.5),
+opponent1 = new Player at ball offset by Range(-2, 2) @ Range(4.5, 4.6),
                     facing toward ego,
                     with behavior opponent1Behavior()
 
