@@ -33,7 +33,7 @@ public class ActionAPI : MonoBehaviour
     float chipForce = 1.5f;
     float shootForce = 8f;
 
-    float rotationDuration = 0.3f;
+    float rotationDuration = 0.5f;
     
     // for ball movement in MoveBall() 
     private Vector3 finalPos;

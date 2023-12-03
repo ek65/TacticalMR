@@ -2995,17 +2995,11 @@ MonoBehaviour:
   speed: 3
   ball: {fileID: 0}
   ballOnTheGround: {x: 0, y: 0, z: 0}
-  mainCamera: {fileID: 0}
-  animationRigging: {fileID: 8665160897151203567}
   targetPosition: {x: 0, y: 0, z: 0}
   force: 18
-  turn: 0
   distToBall: 0
   distToPos: 0
   goal: {fileID: 0}
-  action: 0
-  move: 0
-  movePos: {x: 0, y: 0, z: 0}
   ballPossession: 0
   ballInteraction: {fileID: 0}
   actionAPI: {fileID: 8665160898893140851}
@@ -3080,7 +3074,7 @@ MonoBehaviour:
   radius: 1
   height: 2
   canMove: 1
-  maxSpeed: 5
+  maxSpeed: 7
   gravity: {x: NaN, y: NaN, z: NaN}
   groundMask:
     serializedVersion: 2
@@ -3097,7 +3091,7 @@ MonoBehaviour:
     maximumPeriod: 2
     visualizeSensitivity: 0
   targetCompatibility: {fileID: 0}
-  acceleration: 2
+  acceleration: 4
   rotationSpeed: 360
   slowdownTime: 0.5
   endReachedDistance: 0.01
