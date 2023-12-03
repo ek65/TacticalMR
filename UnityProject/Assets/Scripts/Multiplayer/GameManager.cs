@@ -43,7 +43,7 @@ public class GameManager : MonoBehaviour, INetworkRunnerCallbacks
 			// make a photon fusion room
 			if (_runner == null)
 			{
-				StartGame(GameMode.Host);
+				StartGame(GameMode.Server);
 			}
 		}
 		else // client
