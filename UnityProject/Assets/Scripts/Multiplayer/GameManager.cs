@@ -9,6 +9,8 @@ using UnityEngine.SceneManagement;
 public class GameManager : MonoBehaviour, INetworkRunnerCallbacks
 {
 	[SerializeField] private SpatialAnchorManager SAmanager;
+	#region Generic
+
 	[Tooltip("If this is checked, and the game is running in the Unity Editor, then isHost will be checked.")]
 	public bool autoIsHost;
 
@@ -16,11 +18,11 @@ public class GameManager : MonoBehaviour, INetworkRunnerCallbacks
 	public bool isHost;
 
 	public GameObject _ObserverCamera;
-	
+
 	void Start()
 	{
 		// print the current runtime type
-		Debug.Log("Runtime type: " + Application.platform);
+		Debug.Log("Runtime type: " + UnityEngine.Application.platform);
 
 		if (autoIsHost)
 		{
@@ -57,18 +59,20 @@ public class GameManager : MonoBehaviour, INetworkRunnerCallbacks
 
 	// Update is called once per frame
 
-// ----- Networking with Photon Fusion -----
+	#endregion
 
+	#region Networking with Photon Fusion
 
 	private NetworkRunner _runner;
 
-	// --- Networking with Photon Fusion ---
 
 	async void StartGame(GameMode mode)
 	{
 		// Create the Fusion runner and let it know that we will be providing user input
+		Debug.Log("in StartGame");
 		_runner = gameObject.AddComponent<NetworkRunner>();
 		_runner.ProvideInput = !isHost; // server doesn't provide input
+		Debug.Log("we provide input: " + !isHost);
 
 		// Start or join (depends on gamemode) a session with a specific name
 		await _runner.StartGame(new StartGameArgs()
@@ -85,10 +89,13 @@ public class GameManager : MonoBehaviour, INetworkRunnerCallbacks
 
 	public void OnPlayerJoined(NetworkRunner runner, PlayerRef player)
 	{
+		// The user's prefab has to be spawned by host
 		if (runner.IsServer)
 		{
+			Debug.Log($"OnPlayerJoined. PlayerId: {player.PlayerId}");
 			// Create a unique position for the player
 			Vector3 spawnPosition = new Vector3((player.RawEncoded % runner.Config.Simulation.DefaultPlayers) * 3, 1, 0);
+			// We make sure to give the input authority to the connecting player for their user's object
 			NetworkObject networkPlayerObject = runner.Spawn(_playerPrefab, spawnPosition, Quaternion.identity, player);
 			// Keep track of the player avatars so we can remove it when they disconnect
 			_spawnedCharacters.Add(player, networkPlayerObject);
@@ -97,7 +104,7 @@ public class GameManager : MonoBehaviour, INetworkRunnerCallbacks
 
 	public void OnPlayerLeft(NetworkRunner runner, PlayerRef player)
 	{
-		// Find and remove the players avatar
+		// Find and remove the players avatar (only host would have stored the spawned game object)
 		if (_spawnedCharacters.TryGetValue(player, out NetworkObject networkObject))
 		{
 			runner.Despawn(networkObject);
@@ -128,33 +135,39 @@ public class GameManager : MonoBehaviour, INetworkRunnerCallbacks
 		input.Set(data);
 	}
 
-	public void OnInputMissing(NetworkRunner runner, PlayerRef player, NetworkInput input) { }
+	#endregion
 
-	public void OnShutdown(NetworkRunner runner, ShutdownReason shutdownReason) { }
+	#region Unused INetworkRunnerCallbacks with debug logs
 
-	public void OnConnectedToServer(NetworkRunner runner) { }
+	public void OnInputMissing(NetworkRunner runner, PlayerRef player, NetworkInput input) => Debug.Log("OnInputMissing");
 
-	public void OnDisconnectedFromServer(NetworkRunner runner) { }
+	public void OnShutdown(NetworkRunner runner, ShutdownReason shutdownReason) => Debug.Log("Shutdown: " + shutdownReason);
 
-	public void OnConnectRequest(NetworkRunner runner, NetworkRunnerCallbackArgs.ConnectRequest request, byte[] token) { }
+	public void OnConnectedToServer(NetworkRunner runner) => Debug.Log("OnConnectedToServer, we are " + (runner.IsServer ? "server" : "client"));
 
-	public void OnConnectFailed(NetworkRunner runner, NetAddress remoteAddress, NetConnectFailedReason reason) { }
+	public void OnDisconnectedFromServer(NetworkRunner runner) => Debug.Log("OnDisconnectedFromServer");
 
-	public void OnUserSimulationMessage(NetworkRunner runner, SimulationMessagePtr message) { }
+	public void OnConnectRequest(NetworkRunner runner, NetworkRunnerCallbackArgs.ConnectRequest request, byte[] token) => Debug.Log("OnConnectRequest from " + request.RemoteAddress);
 
-	public void OnSessionListUpdated(NetworkRunner runner, List<SessionInfo> sessionList) { }
+	public void OnConnectFailed(NetworkRunner runner, NetAddress remoteAddress, NetConnectFailedReason reason) => Debug.Log("OnConnectFailed: " + reason);
 
-	public void OnCustomAuthenticationResponse(NetworkRunner runner, Dictionary<string, object> data) { }
+	public void OnUserSimulationMessage(NetworkRunner runner, SimulationMessagePtr message) => Debug.Log("OnUserSimulationMessage: " + message);
 
-	public void OnHostMigration(NetworkRunner runner, HostMigrationToken hostMigrationToken) { }
+	public void OnSessionListUpdated(NetworkRunner runner, List<SessionInfo> sessionList) => Debug.Log("OnSessionListUpdated");
 
-	public void OnReliableDataReceived(NetworkRunner runner, PlayerRef player, ArraySegment<byte> data) { }
+	public void OnCustomAuthenticationResponse(NetworkRunner runner, Dictionary<string, object> data) => Debug.Log("OnCustomAuthenticationResponse");
 
-	public void OnSceneLoadDone(NetworkRunner runner) { }
+	public void OnHostMigration(NetworkRunner runner, HostMigrationToken hostMigrationToken) => Debug.Log("OnHostMigration (should not happen for TMR)");
 
-	public void OnSceneLoadStart(NetworkRunner runner) { }
+	public void OnReliableDataReceived(NetworkRunner runner, PlayerRef player, ArraySegment<byte> data) => Debug.Log("OnReliableDataReceived from player " + player);
 
-// ----- Shared Spatial Anchor -----
+	public void OnSceneLoadDone(NetworkRunner runner) => Debug.Log("OnSceneLoadDone");
+
+	public void OnSceneLoadStart(NetworkRunner runner) => Debug.Log("OnSceneLoadStart");
+
+	#endregion
+
+	#region Shared Spatial Anchor
 
 	void Update()
     {
@@ -181,7 +194,12 @@ public class GameManager : MonoBehaviour, INetworkRunnerCallbacks
 		}
 	}
 
-// ----- Scenic -----
+
+	#endregion
+
+	#region Scenic
 
 	public GameObject ZMQManagerObject;
+
+	#endregion
 }
