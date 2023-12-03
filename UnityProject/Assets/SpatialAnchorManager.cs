@@ -25,6 +25,13 @@ public class SpatialAnchorManager : MonoBehaviour
 
     void Start() { }
 
+    public void SASetup(GameObject sap, Transform p, Transform prh)
+    {
+        spatialAnchorPrefab = sap;
+        player = p;
+        playerRightHand = prh;
+    }
+
 
     public void SetPlacementMode(bool setting)
     {
@@ -71,12 +78,6 @@ public class SpatialAnchorManager : MonoBehaviour
             createdAnchor.Localize();
         }*/
 
-        Debug.Log("ANCHOR CREATED");
-        Debug.Log("Waiting to see if anchor is ready to be shared");
-        Debug.Log("UUID: " + createdAnchor.Uuid);
-        Debug.Log("Created: " + createdAnchor.Created);
-        Debug.Log("PendingCreation: " + createdAnchor.PendingCreation);
-        Debug.Log("Localized: " + createdAnchor.Localized);
         while (!createdAnchor.Created)
         {
             yield return new WaitForEndOfFrame(); //keep checking
@@ -164,34 +165,41 @@ public class SpatialAnchorManager : MonoBehaviour
 
         // share with with people in list
         // the null is the action upon complete
-        OVRSpatialAnchor.Share(new List<OVRSpatialAnchor> { createdAnchor }, spaceUserList, null);
+        OVRSpatialAnchor.Share(new List<OVRSpatialAnchor> { createdAnchor }, spaceUserList, OnShareComplete);
         Debug.Log("Anchor shared");
     }
 
-    /*private static void OnShareComplete(ICollection<OVRSpatialAnchor> spatialAnchors)
-    {  
-    }*/
+    private IEnumerator OnShareComplete()
+    {
+        //broadcast uuids
+    }
 
     public void LoadAnchor()
     {
-        // convert to read-only list
+        // convert uuids to read-only list
         var uuidsToLoad = uuids.ToList().AsReadOnly();
+
 
         // load anchor from cloud
         // the null is action upon complete
         OVRSpatialAnchor.LoadUnboundAnchors(new OVRSpatialAnchor.LoadOptions()
         {
             StorageLocation = OVRSpace.StorageLocation.Cloud,
-            Timeout = 0,
+            Timeout = 10f,
             Uuids = uuidsToLoad
         }, null);
         Debug.Log("Anchor loaded");
+
+        // Localize anchors 
+        // Bind anchors (?)
     }
 
+    /*private static void OnLoadUnboundAnchorComplete()
+    {
+    }*/
 
-    // WIP, ienum or void
-    // public void AlignToAnchor(OVRSpatialAnchor anchor)
 
+    // WIP, ienum or void; also not sure if aligning will be necessary
     public void AlignToAnchor(/*Transform player*/)
     {
         if (alignedAnchor != null)
@@ -222,10 +230,6 @@ public class SpatialAnchorManager : MonoBehaviour
 
 
     }
-
-    /*private static void OnLoadUnboundAnchorComplete()
-    {
-    }*/
 
 
 
