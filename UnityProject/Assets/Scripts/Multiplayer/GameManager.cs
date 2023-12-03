@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using Fusion;
 using Fusion.Sockets;
+using Oculus.Platform;
+using Oculus.Platform.Models;
 using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour, INetworkRunnerCallbacks
@@ -100,6 +102,24 @@ public class GameManager : MonoBehaviour, INetworkRunnerCallbacks
 			// Keep track of the player avatars so we can remove it when they disconnect
 			_spawnedCharacters.Add(player, networkPlayerObject);
 		}
+		else
+		{
+			Debug.Log("OnPlayerJoined. Not server, preparing to send user ID to server");
+			// send local user's quest ID to the server
+			var userRequest = Oculus.Platform.Users.GetLoggedInUser();
+			userRequest.OnComplete((Message<User> message) =>
+			{
+				if (message.IsError)
+				{
+					Debug.Log("Error getting user: " + message.GetError().Message);
+					return;
+				}
+
+				string userID = message.Data.OculusID;
+				Debug.Log("User ID: " + userID);
+				RPC_Add_User(player, userID);
+			});
+		}
 	}
 
 	public void OnPlayerLeft(NetworkRunner runner, PlayerRef player)
@@ -194,6 +214,18 @@ public class GameManager : MonoBehaviour, INetworkRunnerCallbacks
 		}
 	}
 
+
+	public List<string> ClientsQuestIDList = new();
+
+	// a client uses this to tell server about self user ID
+	[Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority)]
+	public void RPC_Add_User(PlayerRef player, string questID, RpcInfo info = default)
+	{
+		if (!_runner.IsServer) return; // don't execute on clients
+
+		Debug.Log("RPC_Add_User: " + questID);
+		ClientsQuestIDList.Add(questID);
+	}
 
 	#endregion
 
