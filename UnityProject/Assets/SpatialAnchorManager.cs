@@ -75,11 +75,6 @@ public class SpatialAnchorManager : MonoBehaviour
         GameObject newobj = Instantiate(spatialAnchorPrefab, anchorPlacementTransform.position, anchorPlacementTransform.rotation);
         createdAnchor = newobj.AddComponent<OVRSpatialAnchor>();
 
-        /*if (!createdAnchor.Localized)
-        {
-            createdAnchor.Localize();
-        }*/
-
         while (!createdAnchor.Created)
         {
             yield return new WaitForEndOfFrame(); //keep checking
@@ -104,7 +99,7 @@ public class SpatialAnchorManager : MonoBehaviour
                 Debug.Log("Num anchors: " + uuids.Count);
                 Debug.Log("About to share anchor");
 
-                //ShareAnchor();
+                ShareAnchor();
             }
             else if (!success)
             {
@@ -114,7 +109,7 @@ public class SpatialAnchorManager : MonoBehaviour
     }
 
 
-    public IEnumerator SaveAnchor()
+    /*public IEnumerator SaveAnchor()
     {
         // configure save option to be cloud
         while (!createdAnchor.Created && !createdAnchor.Localized)
@@ -147,7 +142,7 @@ public class SpatialAnchorManager : MonoBehaviour
                 Debug.Log("SAVE FAILED");
             }
         });
-    }
+    }*/
 
 
     public void ShareAnchor()
@@ -168,7 +163,7 @@ public class SpatialAnchorManager : MonoBehaviour
         // share with with people in list
         // the null is the action upon complete
         OVRSpatialAnchor.Share(new List<OVRSpatialAnchor> { createdAnchor }, spaceUserList, OnShareComplete);
-        Debug.Log("Anchor shared");
+        Debug.Log("ANCHOR SHARED");
     }
 
     private void OnShareComplete(ICollection<OVRSpatialAnchor> spatialAnchors, OVRSpatialAnchor.OperationResult result)
@@ -214,6 +209,7 @@ public class SpatialAnchorManager : MonoBehaviour
 
     public void OnLocalizeComplete(OVRSpatialAnchor.UnboundAnchor anchor, bool success)
     {
+        Debug.Log("ANCHOR LOCALIZED");
         var pose = anchor.Pose;
         GameObject newGameObj = Instantiate(spatialAnchorPrefab, anchorPlacementTransform.position, anchorPlacementTransform.rotation);
         createdAnchor = newGameObj.AddComponent<OVRSpatialAnchor>();
