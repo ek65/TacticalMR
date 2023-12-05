@@ -167,14 +167,15 @@ public class SpatialAnchorManager : MonoBehaviour
 
         // share with with people in list
         // the null is the action upon complete
-        OVRSpatialAnchor.Share(new List<OVRSpatialAnchor> { createdAnchor }, spaceUserList/*, OnShareComplete*/);
+        OVRSpatialAnchor.Share(new List<OVRSpatialAnchor> { createdAnchor }, spaceUserList, OnShareComplete);
         Debug.Log("Anchor shared");
     }
 
-    /*private IEnumerator OnShareComplete()
+    private void OnShareComplete(ICollection<OVRSpatialAnchor> spatialAnchors, OVRSpatialAnchor.OperationResult result)
     {
-        //broadcast uuids
-    }*/
+        // broadcast uuids
+
+    }
 
     public void LoadAnchor()
     {
@@ -183,26 +184,48 @@ public class SpatialAnchorManager : MonoBehaviour
 
 
         // load anchor from cloud
-        // the null is action upon complete
         OVRSpatialAnchor.LoadUnboundAnchors(new OVRSpatialAnchor.LoadOptions()
         {
             StorageLocation = OVRSpace.StorageLocation.Cloud,
             Timeout = 10f,
             Uuids = uuidsToLoad
-        }, null);
-        Debug.Log("Anchor loaded");
-
-        // Localize anchors 
-        // Bind anchors (?)
+        }, OnLoadUnboundAnchorComplete);
     }
 
-    /*private static void OnLoadUnboundAnchorComplete()
+    private void OnLoadUnboundAnchorComplete(OVRSpatialAnchor.UnboundAnchor[] anchors)
     {
-    }*/
+        Debug.Log("ANCHOR LOADED");
+
+        // LOCALIZE AND BIND ANCHORS (GENERAL WAY)
+        /*for(int i = 0; i < anchors.Length; i++)
+        {
+            // anchors[i].Localize(OnLocalizeComplete, 10f);
+
+            var pose = anchors[i].Pose;
+            GameObject newGameObj = Instantiate(spatialAnchorPrefab, anchorPlacementTransform.position, anchorPlacementTransform.rotation);
+            OVRSpatialAnchor newAnchor = newGameObj.AddComponent<OVRSpatialAnchor>();
+            anchors[i].BindTo(newAnchor);
+        }*/
+
+        // But try this since we only have one anchor
+        anchors[0].Localize(OnLocalizeComplete, 10f);
+
+    }
+
+    public void OnLocalizeComplete(OVRSpatialAnchor.UnboundAnchor anchor, bool success)
+    {
+        var pose = anchor.Pose;
+        GameObject newGameObj = Instantiate(spatialAnchorPrefab, anchorPlacementTransform.position, anchorPlacementTransform.rotation);
+        createdAnchor = newGameObj.AddComponent<OVRSpatialAnchor>();
+        anchor.BindTo(createdAnchor);
+        Debug.Log("ANCHOR BOUNDED");
+
+        AlignToAnchor();
+        Debug.Log("ANCHOR ALIGNED");
+    }
 
 
-    // WIP, ienum or void; also not sure if aligning will be necessary
-    public void AlignToAnchor(/*Transform player*/)
+    public void AlignToAnchor()
     {
         if (alignedAnchor != null)
         {
