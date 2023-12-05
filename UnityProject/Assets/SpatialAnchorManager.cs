@@ -50,10 +50,8 @@ public class SpatialAnchorManager : MonoBehaviour
             if (OVRInput.GetUp(OVRInput.Button.PrimaryIndexTrigger))
             {
                 Debug.Log("About to create anchor");
-                //CreateAnchor();
-                //CreateSaveShare();
                 StartCoroutine(CreateSaveShare());
-                //placementMode = false;
+                placementMode = false;
             }
         }
     }
