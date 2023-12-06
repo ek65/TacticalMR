@@ -10,7 +10,6 @@ using UnityEngine.SceneManagement;
 
 public class GameManager : NetworkBehaviour, INetworkRunnerCallbacks
 {
-	[SerializeField] private SpatialAnchorManager SAmanager;
 	#region Generic
 
 	[Tooltip("If this is checked, and the game is running in the Unity Editor, then isHost will be checked.")]
@@ -20,8 +19,12 @@ public class GameManager : NetworkBehaviour, INetworkRunnerCallbacks
 	public bool isHost;
 
 	public GameObject _ObserverCamera;
+
+	[Tooltip("The sole OVRCameraRig in the scene. Multiple OVRCameraRigs will cause problems.")]
 	public GameObject _OVRCR;
-	public Transform _head;
+
+	[Tooltip("The head transform we want to sync to the server.")]
+	public Transform _HeadTransform;
 
 	void Start()
 	{
@@ -42,11 +45,12 @@ public class GameManager : NetworkBehaviour, INetworkRunnerCallbacks
 		{
 			// enable `ZMQManager` to listen to Scenic
 			// ZMQManagerObject.SetActive(true);
-			
+
 			// disable the local player OVRCameraRig
 			_OVRCR.SetActive(false);
 			// switch to the Observer Camera
 			_ObserverCamera.SetActive(true);
+
 			// make a photon fusion room
 			if (_runner == null)
 			{
@@ -60,11 +64,8 @@ public class GameManager : NetworkBehaviour, INetworkRunnerCallbacks
 			{
 				StartGame(GameMode.Client);
 			}
-			// place spacial anchor or load spatial anchor
 		}
 	}
-
-	// Update is called once per frame
 
 	#endregion
 
@@ -101,7 +102,8 @@ public class GameManager : NetworkBehaviour, INetworkRunnerCallbacks
 		{
 			Debug.Log($"OnPlayerJoined. PlayerId: {player.PlayerId}");
 			// Create a unique position for the player
-			Vector3 spawnPosition = new Vector3((player.RawEncoded % runner.Config.Simulation.DefaultPlayers) * 3, 1, 0);
+			Vector3 spawnPosition =
+				new Vector3((player.RawEncoded % runner.Config.Simulation.DefaultPlayers) * 3, 1, 0);
 			// We make sure to give the input authority to the connecting player for their user's object
 			NetworkObject networkPlayerObject = runner.Spawn(_playerPrefab, spawnPosition, Quaternion.identity, player);
 			// Keep track of the player avatars so we can remove it when they disconnect
@@ -174,60 +176,46 @@ public class GameManager : NetworkBehaviour, INetworkRunnerCallbacks
 
 	#endregion
 
-	#region Shared Spatial Anchor
-
-	void Update()
-    {
-		Debug.Log("READY");
-		if (OVRInput.GetUp(OVRInput.Button.One)) //A
-		{
-			Debug.Log("About to set placement mode to true");
-			SAmanager.SetPlacementMode(true);
-		}
-		if (OVRInput.GetUp(OVRInput.Button.Two)) //B
-		{
-			Debug.Log("About to try to save anchor");
-			// SAmanager.SaveAnchor();
-		}
-
-		/* will not work yet */
-		if (OVRInput.GetUp(OVRInput.Button.Three)) //X
-		{
-			SAmanager.ShareAnchor();
-		}
-		if (OVRInput.GetUp(OVRInput.Button.Four)) //Y
-		{
-			SAmanager.LoadAnchor();
-		}
-	}
-
-
-	// public List<string> ClientsQuestIDList = new();
+	// #region Shared Spatial Anchor
 	//
-	// // a client uses this to tell server about self user ID
-	// [Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority)]
-	// public void RPC_Add_User(PlayerRef player, string questID, RpcInfo info = default)
+	// bool QuestIDUploaded = false;
+	// private List<ulong> ClientsQuestIDList = new List<ulong>();
+	//
+	// void Update()
 	// {
-	// 	if (!_runner.IsServer) return; // don't execute on clients
+	// 	if (!isHost && !QuestIDUploaded && !_runner.IsServer)
+	// 	{
+	// 		Debug.Log("About to upload QuestID");
+	// 		// send local user's quest ID to the server
+	// 		Oculus.Platform.Core.Initialize();
+	// 		var userRequest = Oculus.Platform.Users.GetLoggedInUser();
+	// 		userRequest.OnComplete((Message<User> message) =>
+	// 		{
+	// 			if (message.IsError)
+	// 			{
+	// 				Debug.Log("Error getting user: " + message.GetError().Message);
+	// 				return;
+	// 			}
 	//
-	// 	Debug.Log("RPC_Add_User: " + questID);
-	// 	ClientsQuestIDList.Add(questID);
-	// 	Debug.Log("current user count: " + ClientsQuestIDList.Count);
-	// 	PRC_Set_ClientsQuestIDList(ClientsQuestIDList);
+	// 			ulong OculusID = message.Data.ID;
+	// 			Debug.Log("User ID: " + OculusID.ToString());
+	// 			//ClientsQuestIDList.Add(ClientsQuestIDList.Count + 1, OculusID); // 1-indexed playerNum
+	// 			ClientsQuestIDList.Add(OculusID);
+	// 			QuestIDUploaded = true;
+	// 			// RPC_Add_User(player, userID);
+	// 		});
+	// 	}
+	//
+	// 	// print ClientsQuestIDList
+	// 	var index = 1;
+	// 	foreach (var item in ClientsQuestIDList)
+	// 	{
+	// 		Debug.Log("playerNum: " + index + ", QuestID: " + item);
+	// 		index++;
+	// 	}
 	// }
 	//
-	// // server uses this to tell all clients to update their list of user IDs
-	// [Rpc(RpcSources.StateAuthority, RpcTargets.InputAuthority)]
-	// public void PRC_Set_ClientsQuestIDList(List<string> IDstrings, RpcInfo info = default)
-	// {
-	// 	if (_runner.IsServer) return; // don't execute on host
-	//
-	// 	Debug.Log("PRC_Set_ClientsQuestIDList");
-	// 	ClientsQuestIDList = IDstrings;
-	// 	Debug.Log("current user count: " + ClientsQuestIDList.Count);
-	// }
-
-	#endregion
+	// #endregion
 
 	#region Scenic
 

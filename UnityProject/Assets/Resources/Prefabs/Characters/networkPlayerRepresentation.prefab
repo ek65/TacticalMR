@@ -27,7 +27,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1514078820555214345}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 2, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0.3, y: 0.5, z: 0.1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -108,6 +108,7 @@ GameObject:
   - component: {fileID: 6691072599878133283}
   - component: {fileID: 3131763925120638428}
   - component: {fileID: 2276532127122692902}
+  - component: {fileID: 9108963566307589745}
   m_Layer: 0
   m_Name: networkPlayerRepresentation
   m_TagString: Untagged
@@ -154,6 +155,7 @@ MonoBehaviour:
   NestedObjects: []
   NetworkedBehaviours:
   - {fileID: 2276532127122692902}
+  - {fileID: 9108963566307589745}
   SimulationBehaviours: []
 --- !u!114 &2276532127122692902
 MonoBehaviour:
@@ -170,3 +172,20 @@ MonoBehaviour:
   _interpolationDataSource: 0
   _head: {fileID: 0}
   _body: {fileID: 6691072599878133283}
+--- !u!114 &9108963566307589745
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7365155474607225164}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c6562392c450c466c91c396eea09b6fc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _interpolationDataSource: 0
+  spatialAnchorPrefab: {fileID: 321828648448824057, guid: cfdf84b0c70d545e098804b642f87da9, type: 3}
+  player: {fileID: 6691072599878133283}
+  anchorPlacementLocation: {fileID: 6691072599878133283}
+  userIDList: a0e315d741c11800761a0f24bebc1b00415a1b347f4a1a00

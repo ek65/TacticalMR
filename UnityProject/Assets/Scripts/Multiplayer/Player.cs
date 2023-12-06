@@ -8,7 +8,7 @@ public class Player : NetworkBehaviour
 
 	private void Awake()
 	{
-		_head = FindObjectOfType<GameManager>()._head;
+		_head = FindObjectOfType<GameManager>()._HeadTransform;
 	}
 
 	public void Update()

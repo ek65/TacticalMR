@@ -1811,8 +1811,7 @@ MonoBehaviour:
   isHost: 0
   _ObserverCamera: {fileID: 1479281150}
   _OVRCR: {fileID: 1774201522}
-  _head: {fileID: 1774201523}
-  SA_manager: {fileID: 0}
+  _HeadTransform: {fileID: 1774201523}
   _playerPrefab:
     RawGuidValue: dfc55aaa463324f8f9182ce0c6454a69
   ZMQManagerObject: {fileID: 822036599}
