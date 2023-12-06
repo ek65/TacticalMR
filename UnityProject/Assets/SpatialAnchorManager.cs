@@ -15,13 +15,14 @@ public class SpatialAnchorManager : MonoBehaviour
     private GameObject spatialAnchorPrefab;
     public Transform player;
     public Transform playerRightHand;
+    public List<ulong> userIDList;
 
     private bool placementMode = false;
     private OVRSpatialAnchor createdAnchor;
     private Transform anchorPlacementTransform;
     private OVRSpatialAnchor alignedAnchor;
     IList<OVRSpatialAnchor> spatialAnchorsList = new List<OVRSpatialAnchor>();
-    IList<Guid> uuids = new List<Guid>();
+    static IList<Guid> uuids = new List<Guid>();
     private readonly HashSet<Guid> uuidsToLoad = new HashSet<Guid>();
 
 
@@ -145,17 +146,14 @@ public class SpatialAnchorManager : MonoBehaviour
 
     public void ShareAnchor()
     {
-        // TODO: get users in room
-        string[] userIds = new string[10]; // dummy array to prevent errors rn
-        //var userIds = photon.GetUserList().Select(userId => userId.ToString()).ToArray(); // actual list from photon
 
         // create list of people who shared anchor is shared with 
         ICollection<OVRSpaceUser> spaceUserList = new List<OVRSpaceUser>();
 
         // add people in room to list of people who shared anchor is shared with
-        foreach (string strUsername in userIds)
+        foreach (ulong userID in userIDList)
         {
-            spaceUserList.Add(new OVRSpaceUser(ulong.Parse(strUsername)));
+            spaceUserList.Add(new OVRSpaceUser(userID));
         }
 
         // share with with people in list
@@ -166,7 +164,7 @@ public class SpatialAnchorManager : MonoBehaviour
 
     private void OnShareComplete(ICollection<OVRSpatialAnchor> spatialAnchors, OVRSpatialAnchor.OperationResult result)
     {
-        // broadcast uuids
+        // broadcast uuids list
 
     }
 
@@ -174,7 +172,7 @@ public class SpatialAnchorManager : MonoBehaviour
     {
         // convert uuids to read-only list
         var uuidsToLoad = uuids.ToList().AsReadOnly();
-
+        Debug.Log("Getting UUIDs for loading:" + uuidsToLoad);
 
         // load anchor from cloud
         OVRSpatialAnchor.LoadUnboundAnchors(new OVRSpatialAnchor.LoadOptions()
@@ -205,7 +203,7 @@ public class SpatialAnchorManager : MonoBehaviour
 
     }
 
-    public void OnLocalizeComplete(OVRSpatialAnchor.UnboundAnchor anchor, bool success)
+    private void OnLocalizeComplete(OVRSpatialAnchor.UnboundAnchor anchor, bool success)
     {
         Debug.Log("ANCHOR LOCALIZED");
         var pose = anchor.Pose;
