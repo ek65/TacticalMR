@@ -28,11 +28,12 @@ public class SpatialAnchorManager : MonoBehaviour
 
     void Start() { }
 
-    public void SASetup(GameObject sap, Transform p, Transform prh)
+    public void SASetup(GameObject sap, Transform p, Transform prh, List<ulong> ids)
     {
         spatialAnchorPrefab = sap;
         player = p;
         playerRightHand = prh;
+        userIDList = ids;
     }
 
 
