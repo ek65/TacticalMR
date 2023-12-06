@@ -187,8 +187,9 @@ public class SpatialAnchorManager : MonoBehaviour
     private void OnLoadUnboundAnchorComplete(OVRSpatialAnchor.UnboundAnchor[] anchors)
     {
         Debug.Log("ANCHOR LOADED");
+        anchors[0].Localize(OnLocalizeComplete, 10f);
 
-        // LOCALIZE AND BIND ANCHORS (GENERAL WAY)
+        // LOCALIZE AND BIND ANCHORS (GENERAL WAY) but try above since we only have one anchor
         /*for(int i = 0; i < anchors.Length; i++)
         {
             // anchors[i].Localize(OnLocalizeComplete, 10f);
@@ -199,22 +200,19 @@ public class SpatialAnchorManager : MonoBehaviour
             anchors[i].BindTo(newAnchor);
         }*/
 
-        // But try this since we only have one anchor
-        anchors[0].Localize(OnLocalizeComplete, 10f);
-
     }
 
     private void OnLocalizeComplete(OVRSpatialAnchor.UnboundAnchor anchor, bool success)
     {
         Debug.Log("ANCHOR LOCALIZED");
         var pose = anchor.Pose;
-        GameObject newGameObj = Instantiate(spatialAnchorPrefab, anchorPlacementTransform.position, anchorPlacementTransform.rotation);
+        GameObject newGameObj = Instantiate(spatialAnchorPrefab, pose.position, pose.rotation);
         createdAnchor = newGameObj.AddComponent<OVRSpatialAnchor>();
         anchor.BindTo(createdAnchor);
         Debug.Log("ANCHOR BOUNDED");
 
-        AlignToAnchor();
-        Debug.Log("ANCHOR ALIGNED");
+        //AlignToAnchor();
+        //Debug.Log("ANCHOR ALIGNED");
     }
 
 
