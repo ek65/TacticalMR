@@ -8,7 +8,7 @@ using Oculus.Platform;
 using Oculus.Platform.Models;
 using UnityEngine.SceneManagement;
 
-public class GameManager : MonoBehaviour, INetworkRunnerCallbacks
+public class GameManager : NetworkBehaviour, INetworkRunnerCallbacks
 {
 	[SerializeField] private SpatialAnchorManager SAmanager;
 	#region Generic
@@ -20,6 +20,8 @@ public class GameManager : MonoBehaviour, INetworkRunnerCallbacks
 	public bool isHost;
 
 	public GameObject _ObserverCamera;
+	public GameObject _OVRCR;
+	public Transform _head;
 
 	void Start()
 	{
@@ -39,8 +41,11 @@ public class GameManager : MonoBehaviour, INetworkRunnerCallbacks
 		if (isHost) // host
 		{
 			// enable `ZMQManager` to listen to Scenic
-			ZMQManagerObject.SetActive(true);
-			// switch to the `Observer Camera`
+			// ZMQManagerObject.SetActive(true);
+			
+			// disable the local player OVRCameraRig
+			_OVRCR.SetActive(false);
+			// switch to the Observer Camera
 			_ObserverCamera.SetActive(true);
 			// make a photon fusion room
 			if (_runner == null)
@@ -101,25 +106,6 @@ public class GameManager : MonoBehaviour, INetworkRunnerCallbacks
 			NetworkObject networkPlayerObject = runner.Spawn(_playerPrefab, spawnPosition, Quaternion.identity, player);
 			// Keep track of the player avatars so we can remove it when they disconnect
 			_spawnedCharacters.Add(player, networkPlayerObject);
-		}
-		else
-		{
-			Debug.Log("OnPlayerJoined. Not server, preparing to send user ID to server");
-			// send local user's quest ID to the server
-			Oculus.Platform.Core.Initialize();
-			var userRequest = Oculus.Platform.Users.GetLoggedInUser();
-			userRequest.OnComplete((Message<User> message) =>
-			{
-				if (message.IsError)
-				{
-					Debug.Log("Error getting user: " + message.GetError().Message);
-					return;
-				}
-
-				string userID = message.Data.OculusID;
-				Debug.Log("User ID: " + userID);
-				RPC_Add_User(player, userID);
-			});
 		}
 	}
 
@@ -201,7 +187,7 @@ public class GameManager : MonoBehaviour, INetworkRunnerCallbacks
 		if (OVRInput.GetUp(OVRInput.Button.Two)) //B
 		{
 			Debug.Log("About to try to save anchor");
-			SAmanager.SaveAnchor();
+			// SAmanager.SaveAnchor();
 		}
 
 		/* will not work yet */
@@ -216,30 +202,30 @@ public class GameManager : MonoBehaviour, INetworkRunnerCallbacks
 	}
 
 
-	public List<string> ClientsQuestIDList = new();
-
-	// a client uses this to tell server about self user ID
-	[Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority)]
-	public void RPC_Add_User(PlayerRef player, string questID, RpcInfo info = default)
-	{
-		if (!_runner.IsServer) return; // don't execute on clients
-
-		Debug.Log("RPC_Add_User: " + questID);
-		ClientsQuestIDList.Add(questID);
-		Debug.Log("current user count: " + ClientsQuestIDList.Count);
-		PRC_Set_ClientsQuestIDList(ClientsQuestIDList);
-	}
-
-	// server uses this to tell all clients to update their list of user IDs
-	[Rpc(RpcSources.StateAuthority, RpcTargets.InputAuthority)]
-	public void PRC_Set_ClientsQuestIDList(List<string> IDstrings, RpcInfo info = default)
-	{
-		if (_runner.IsServer) return; // don't execute on host
-
-		Debug.Log("PRC_Set_ClientsQuestIDList");
-		ClientsQuestIDList = IDstrings;
-		Debug.Log("current user count: " + ClientsQuestIDList.Count);
-	}
+	// public List<string> ClientsQuestIDList = new();
+	//
+	// // a client uses this to tell server about self user ID
+	// [Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority)]
+	// public void RPC_Add_User(PlayerRef player, string questID, RpcInfo info = default)
+	// {
+	// 	if (!_runner.IsServer) return; // don't execute on clients
+	//
+	// 	Debug.Log("RPC_Add_User: " + questID);
+	// 	ClientsQuestIDList.Add(questID);
+	// 	Debug.Log("current user count: " + ClientsQuestIDList.Count);
+	// 	PRC_Set_ClientsQuestIDList(ClientsQuestIDList);
+	// }
+	//
+	// // server uses this to tell all clients to update their list of user IDs
+	// [Rpc(RpcSources.StateAuthority, RpcTargets.InputAuthority)]
+	// public void PRC_Set_ClientsQuestIDList(List<string> IDstrings, RpcInfo info = default)
+	// {
+	// 	if (_runner.IsServer) return; // don't execute on host
+	//
+	// 	Debug.Log("PRC_Set_ClientsQuestIDList");
+	// 	ClientsQuestIDList = IDstrings;
+	// 	Debug.Log("current user count: " + ClientsQuestIDList.Count);
+	// }
 
 	#endregion
 
