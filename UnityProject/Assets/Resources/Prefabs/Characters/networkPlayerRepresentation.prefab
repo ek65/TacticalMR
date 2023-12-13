@@ -192,7 +192,7 @@ MonoBehaviour:
   spatialAnchorPrefab: {fileID: 321828648448824057, guid: cfdf84b0c70d545e098804b642f87da9, type: 3}
   player: {fileID: 6691072599878133283}
   anchorPlacementLocation: {fileID: 6691072599878133283}
-  userIDList: a0e315d741c11800761a0f24bebc1b00415a1b347f4a1a00
+  userIDList: a0e315d741c11800761a0f24bebc1b00415a1b347f4a1a004a0f6b3cbeb21800
 --- !u!143 &2348671843947763631
 CharacterController:
   m_ObjectHideFlags: 0
