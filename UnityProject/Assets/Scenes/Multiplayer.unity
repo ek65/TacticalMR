@@ -4453,6 +4453,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: player.human
       objectReference: {fileID: 0}
+    - target: {fileID: 532548465081309300, guid: 66fd9cdc3c13c48a98f418054f74c298, type: 3}
+      propertyPath: m_TagString
+      value: NetworkedPlayer
+      objectReference: {fileID: 0}
     - target: {fileID: 4312110868037277311, guid: 66fd9cdc3c13c48a98f418054f74c298, type: 3}
       propertyPath: m_RootOrder
       value: 15

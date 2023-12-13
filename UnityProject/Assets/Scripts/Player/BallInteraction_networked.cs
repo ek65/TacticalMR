@@ -31,10 +31,11 @@ public class BallInteraction_networked : NetworkBehaviour
 
 	public void OnTriggerEnter(Collider col)
 	{
+		if (!col.gameObject.CompareTag("NetworkedPlayer")) return; // only interact with players
+		
 		var position = col.transform.position;
 		Debug.Log("Ball collision detected with " + col.gameObject.name + " at " + position.ToString("F3"));
-		// if (col.gameObject.GetComponent<NetworkObject>())
-		// {
+
 		var forceDir = transform.position - position;
 
 		Debug.Log("Collision detected with " + col.gameObject.name + " at " + position.ToString("F3"));
@@ -42,7 +43,6 @@ public class BallInteraction_networked : NetworkBehaviour
 		          kickForce.ToString("F3"));
 
 		RPC_Kick_Ball(forceDir, kickForce);
-		// }
 	}
 
 	[Rpc(RpcSources.All, RpcTargets.StateAuthority)]

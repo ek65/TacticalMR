@@ -14,6 +14,7 @@ TagManager:
   - SoccerBall
   - BallTrigger
   - Node
+  - NetworkedPlayer
   layers:
   - Default
   - TransparentFX
