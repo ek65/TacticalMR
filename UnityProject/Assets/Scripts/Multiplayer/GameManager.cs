@@ -25,6 +25,8 @@ public class GameManager : NetworkBehaviour, INetworkRunnerCallbacks
 
 	[Tooltip("The head transform we want to sync to the server.")]
 	public Transform _HeadTransform;
+	
+	public GameObject ball;
 
 	void Start()
 	{
@@ -64,6 +66,14 @@ public class GameManager : NetworkBehaviour, INetworkRunnerCallbacks
 			{
 				StartGame(GameMode.Client);
 			}
+		}
+	}
+
+	private void Update()
+	{
+		if (isHost && Input.GetKeyDown(KeyCode.R))
+		{
+			ball.transform.position = new Vector3(0, 1, 1);
 		}
 	}
 
