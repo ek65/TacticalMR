@@ -3189,6 +3189,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: soccer_ball_networked
       objectReference: {fileID: 0}
+    - target: {fileID: 3221801584547617781, guid: 353aaa5b7d20c4a7db72826434906885, type: 3}
+      propertyPath: m_Drag
+      value: 0.05
+      objectReference: {fileID: 0}
     - target: {fileID: 5882300132785784195, guid: 353aaa5b7d20c4a7db72826434906885, type: 3}
       propertyPath: InterpolationTarget
       value: 
@@ -3252,6 +3256,10 @@ PrefabInstance:
     - target: {fileID: 7529779317539807694, guid: 353aaa5b7d20c4a7db72826434906885, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7929552134222348102, guid: 353aaa5b7d20c4a7db72826434906885, type: 3}
+      propertyPath: maxSpeed
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 7929552134222348102, guid: 353aaa5b7d20c4a7db72826434906885, type: 3}
       propertyPath: kickForce

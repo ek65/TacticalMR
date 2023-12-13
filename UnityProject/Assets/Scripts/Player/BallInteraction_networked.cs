@@ -5,10 +5,11 @@ using UnityEngine;
 
 public class BallInteraction_networked : NetworkBehaviour
 {
-	public float kickForce = 20f;
-	public Vector2 xBoundary = new Vector2(-2f, 2f);
-	public Vector2 yBoundary = new Vector2(0.2f, 10f);
-	public Vector2 zBoundary = new Vector2(-5f, 5f);
+	public float kickForce; // = 20f;
+	public float maxSpeed; // = 5f;
+	public Vector2 xBoundary; // = new Vector2(-2f, 2f);
+	public Vector2 yBoundary; // = new Vector2(0.2f, 10f);
+	public Vector2 zBoundary; // = new Vector2(-5f, 5f);
 
 	void Update()
 	{
@@ -19,6 +20,13 @@ public class BallInteraction_networked : NetworkBehaviour
 			Mathf.Clamp(position.z, zBoundary.x, zBoundary.y)
 		);
 		transform.position = position;
+
+		// limit speed of ball
+		var currentSpeed = GetComponent<Rigidbody>().velocity;
+		if (currentSpeed.magnitude > maxSpeed)
+		{
+			GetComponent<Rigidbody>().velocity = currentSpeed.normalized * maxSpeed;
+		}
 	}
 
 	public void OnTriggerEnter(Collider col)
