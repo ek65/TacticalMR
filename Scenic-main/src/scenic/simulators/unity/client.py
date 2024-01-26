@@ -117,7 +117,6 @@ class UnityMessageServer:
                 p.destroyObj()
 
         self.HumanPlayers["ego"].destroyObj()
-        # print(self.HumanPlayers["ego"].position)
         self.ball.destroyObj()
         self.step()
         self.objects = []
