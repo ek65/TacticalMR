@@ -4,37 +4,5 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes:
-  - enabled: 0
-    path: Assets/Scenes/demo2.unity
-    guid: a5f431ceb42674cd7bb379ad9cd04ff6
-  - enabled: 0
-    path: Assets/Scenes/demo3.unity
-    guid: fc84fddde4c1d43c3a2b6327dbbcfda2
-  - enabled: 1
-    path: Assets/Scenes/zmq.unity
-    guid: 2b625bd447bad4788b05abee50ba28a7
-  - enabled: 0
-    path: Assets/Movement/Samples/Scenes/MovementAura.unity
-    guid: fd1d3c76deb264d6d910b91873a786cf
-  - enabled: 0
-    path: Assets/Movement/Samples/Scenes/MovementBlendshapeMappingExample.unity
-    guid: cf25df0803a8c48f2a3a9a18e25ee1ab
-  - enabled: 0
-    path: Assets/Movement/Samples/Scenes/MovementHighFidelity.unity
-    guid: 8392aa16f498c4bc88cff7d670a8c75e
-  - enabled: 0
-    path: Assets/Movement/Samples/Scenes/MovementHipPinning.unity
-    guid: e9b827c29af794913b605dff4660c024
-  - enabled: 0
-    path: Assets/Movement/Samples/Scenes/MovementLocomotion.unity
-    guid: 09bb3138363314446a26794c05aed4f3
-  - enabled: 0
-    path: Assets/Movement/Samples/Scenes/MovementISDKIntegration.unity
-    guid: 82fce5021e92d4768a1684981d5185b5
-  - enabled: 0
-    path: Assets/Movement/Samples/Scenes/MovementRetargeting.unity
-    guid: cc6630013e8014f139ef2a7adfa4b160
-  m_configObjects:
-    Unity.XR.Oculus.Settings: {fileID: 11400000, guid: 1394e64b697ec4abe82e08446d44181f, type: 2}
-    com.unity.xr.management.loader_settings: {fileID: 11400000, guid: 518e18425de064e40851575aa22e4389, type: 2}
+  m_Scenes: []
+  m_configObjects: {}
