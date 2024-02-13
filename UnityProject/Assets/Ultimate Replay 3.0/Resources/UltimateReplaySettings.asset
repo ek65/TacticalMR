@@ -41,7 +41,7 @@ MonoBehaviour:
   m_Name: UltimateReplaySettings
   m_EditorClassIdentifier: 
   recordOptions:
-    recordFPS: 30
+    recordFPS: 12
     recordUpdateMode: 1
   playbackOptions:
     playbackFPS: -1

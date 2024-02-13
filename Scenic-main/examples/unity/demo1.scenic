@@ -44,7 +44,7 @@ ball = new Ball at ego offset by Range(-4, 4) @ Range(4, 4.5)
 pt = new Point in penalty_box
 goal = new Goal behind ego by Range(2.9,3), facing away from ego
 
-opponent1 = new Player at ball offset by Range(-1, 1) @ Range(4.6, 4.7),
+opponent1 = new Player at ball offset by Range(-3, 3) @ Range(4.6, 4.7),
                     facing toward ego,
                     with behavior opponent1Behavior()
 
