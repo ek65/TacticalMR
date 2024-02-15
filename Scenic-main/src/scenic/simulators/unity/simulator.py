@@ -9,7 +9,7 @@ from scenic.simulators.unity import client
 
 
 class UnitySimulator(Simulator):
-    def __init__(self, ip='10.44.113.217', port=5555, timeout=10, render=True, timestep=0.1):
+    def __init__(self, ip='127.0.0.1', port=5555, timeout=10, render=True, timestep=0.1):
         super().__init__()
         verbosePrint('Connecting to Unity Server...')
         self.messageClient = client.StartMessageServer(ip, port, timestep)
@@ -50,6 +50,20 @@ class UnitySimulation(Simulation):
         obj.gameObject = gameObject
         return gameObject
     def getProperties(self, obj, properties):
+        unityActor = obj.gameObject
+        # if not obj.gameObjectType == "ball" and unityActor is None:
+        #     values = dict(
+        #     position=(0,0,0),
+        #     #heading= float(0),
+        #     velocity=(0,0,0),
+        #     #angularVelocity=angularVelocity,
+        #     speed = 0.0,
+        #     angularSpeed = 0.0,
+        #     pitch = 0,
+        #     roll = 0,
+        #     yaw = 0
+        #     )
+        #     return values
         values = self.client.getProperties(obj, properties)
         return values
     def destroy(self):

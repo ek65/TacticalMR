@@ -46,7 +46,7 @@ public class GameManager : NetworkBehaviour, INetworkRunnerCallbacks
 		if (isHost) // host
 		{
 			// enable `ZMQManager` to listen to Scenic
-			// ZMQManagerObject.SetActive(true);
+			ZMQManagerObject.SetActive(true);
 
 			// disable the local player OVRCameraRig
 			_OVRCR.SetActive(false);
