@@ -84,6 +84,7 @@ namespace MxM
         /** AI */
         private NavMeshAgent m_navAgent;
         private Vector3[] m_path;
+        [SerializeField] Transform DestTransform;
         
         public bool FaceDirectionOnIdle { get { return m_faceDirectionOnIdle; } set { m_faceDirectionOnIdle = value; } }
         public float StoppingDistance { get { return m_stoppingDistance;} set { m_stoppingDistance = value; }}
@@ -185,6 +186,8 @@ namespace MxM
             {
                 UpdatePastTrajectory(Time.fixedDeltaTime);
             }
+      
+         
         }
 
         //===========================================================================================
@@ -201,6 +204,7 @@ namespace MxM
             {
                 UpdatePastTrajectory(Time.deltaTime);
             }
+            
         }
 
         //===========================================================================================
@@ -253,6 +257,13 @@ namespace MxM
         *********************************************************************************************/
         protected override void UpdatePrediction(float a_deltaTime)
         {
+            Debug.Log(p_trajPositions.Length);
+            string positions = "AI Positions:";
+            for (int i = 0; i < p_trajPositions.Length; i++)
+            {
+                positions += ", " + p_trajPositions[i];
+            }
+            Debug.Log(positions);
             if (p_trajPositions.Length == 0 || p_trajFacingAngles.Length == 0)
                 return;
             
@@ -325,6 +336,7 @@ namespace MxM
             };
 
             p_trajectoryGenerateJobHandle = trajectoryGenerateJob.Schedule();
+    
         }
 
         //===========================================================================================
@@ -573,11 +585,11 @@ namespace MxM
         *********************************************************************************************/
         private Vector3 CalculateDesiredLinearVelocity_AI()
         {
+
             m_posBiasMultiplier = 1f;
             m_dirBiasMultiplier = 1f;
             
             float destSqr = (m_navAgent.destination - transform.position).sqrMagnitude;
-
             if(destSqr < m_stoppingDistance)
             {
                 InputVector = Vector3.zero;
@@ -585,7 +597,7 @@ namespace MxM
                 return Vector3.zero;
             }
 
-            InputVector = (m_navAgent.steeringTarget - transform.position);
+            InputVector = DestTransform.position - transform.position;
 
             if (InputVector.sqrMagnitude > 0.001f)
             {

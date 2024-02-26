@@ -69,7 +69,16 @@ public class ActionAPI : MonoBehaviour
         StartCoroutine(MoveToPosHelper(destinationPosition, lookAt));
         //StartCoroutine(MovementLerp(destinationPosition, lookAt));
     }
-    
+  
+    public void MoveToPosMM(Vector3 destinationPosition, bool lookAt = true)
+    {
+        // TODO: replace this anim controller with movement, need to merge humanoid AI movement with the movement controller
+        //SetAnimController("Humanoid");
+
+        StartCoroutine(MoveToPosHelper(destinationPosition, lookAt));
+        //StartCoroutine(MovementLerp(destinationPosition, lookAt));
+    }
+
     public void DribbleFromOnePositionToAnother(Vector3 destinationPosition)
     {
         SetAnimController("Dribbling");
@@ -391,6 +400,7 @@ public class ActionAPI : MonoBehaviour
     { 
         GameObject selfPlayer = this.gameObject;
         destSetter.target.position = Destiny;
+
         while (destSetter.target.position != this.gameObject.transform.position)
         {
             // normalize speed then *2 for anim values

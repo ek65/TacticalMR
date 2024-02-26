@@ -40,11 +40,13 @@ namespace MxM
         [SerializeField] private ETrajectoryMoveMode m_trajectoryMode = ETrajectoryMoveMode.Normal;
         [SerializeField] private bool m_applyRootSpeedToNavAgent = true;
         [SerializeField] private bool m_faceDirectionOnIdle = false;
+        [SerializeField] public Transform DestTransform;
 
         private NavMeshAgent m_navAgent;
 
         private bool m_hasInputThisFrame;
         private NativeArray<float3> m_newTrajPositions;
+        [SerializeField] public float m_stoppingDistance;
 
         public bool FaceDirectiononIdle { get { return m_faceDirectionOnIdle; } set { m_faceDirectionOnIdle = value; } }
         public Vector3 StrafeDirection { get; set; }
@@ -83,7 +85,7 @@ namespace MxM
             {
                 desiredOrientation = Vector3.SignedAngle(Vector3.forward, StrafeDirection, Vector3.up);
             }
-            else if (desiredLinearDisplacement.sqrMagnitude > 0.05f)
+            else if (desiredLinearVelocity.sqrMagnitude > 0.05f)
             {
                 desiredOrientation = Mathf.Atan2(desiredLinearDisplacement.x,
                     desiredLinearDisplacement.z) * Mathf.Rad2Deg;
@@ -192,22 +194,34 @@ namespace MxM
         *********************************************************************************************/
         private Vector3 CalculateDesiredLinearVelocity()
         {
+
+            /*
             float destSqr = (m_navAgent.destination - transform.position).sqrMagnitude;
 
-            if(destSqr < m_stoppingDist)
+            if (destSqr < m_stoppingDistance)
+            {
+                InputVector = Vector3.zero;
+                m_hasInputThisFrame = false;
+                return Vector3.zero;
+            }*/
+
+
+            float destSqr = (DestTransform.position - transform.position).sqrMagnitude;
+
+            if (destSqr < m_stoppingDistance)
             {
                 InputVector = Vector3.zero;
                 m_hasInputThisFrame = false;
                 return Vector3.zero;
             }
 
-            InputVector = (m_navAgent.steeringTarget - transform.position);
+            InputVector = DestTransform.position - transform.position;
 
             if (InputVector.sqrMagnitude > 0.001f)
             {
                 InputVector = InputVector.normalized;
                 m_hasInputThisFrame = true;
-                float maxSpeed = Mathf.Min(Mathf.Sqrt(destSqr), m_maxSpeed);
+                float maxSpeed = Mathf.Min(Mathf.Sqrt(destSqr), m_maxSpeed * 1);
 
                 return InputVector * maxSpeed;
             }

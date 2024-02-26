@@ -34,7 +34,7 @@ namespace MxM
         [SerializeField] private bool m_faceDirectionOnIdle = false;
 
         private bool m_hasInputThisFrame;
-        private NativeArray<float3> m_newTrajectoryPositions;
+        [SerializeField] public NativeArray<float3> m_newTrajectoryPositions;
 
         private NavMeshAgent m_navAgent;
 
@@ -216,6 +216,7 @@ namespace MxM
 
             for(int i = 0; i < iterations; ++i)
             {
+                
                 p_trajPositions[i] = m_newTrajectoryPositions[i];
             }       
         }
