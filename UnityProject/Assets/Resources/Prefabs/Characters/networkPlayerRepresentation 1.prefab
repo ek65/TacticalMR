@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5808182343023799978}
-  - component: {fileID: 1229217631987844447}
+  - component: {fileID: 4028987332412421438}
   m_Layer: 0
   m_Name: Jaw
   m_TagString: Untagged
@@ -32,7 +32,7 @@ Transform:
   m_Father: {fileID: 2375906903272831571}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1229217631987844447
+--- !u!114 &4028987332412421438
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -69,7 +69,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1466077716281866296}
-  - component: {fileID: 8178927271781830874}
+  - component: {fileID: 5825758617231580599}
   m_Layer: 0
   m_Name: Left_ThumbProximal
   m_TagString: Untagged
@@ -93,7 +93,7 @@ Transform:
   m_Father: {fileID: 6899066530974929482}
   m_RootOrder: 9
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &8178927271781830874
+--- !u!114 &5825758617231580599
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -107,7 +107,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _interpolationDataSource: 0
   InterpolationSpace: 0
-  InterpolationTarget: {fileID: 0}
+  InterpolationTarget: {fileID: 4399848837742994188}
   InterpolateErrorCorrection: 1
   InterpolatedErrorCorrectionSettings:
     MinRate: 3.3
@@ -130,7 +130,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4399848837742994188}
-  - component: {fileID: 8222339902118547040}
+  - component: {fileID: 7145023918097307047}
   m_Layer: 0
   m_Name: Left_ThumbIntermediate
   m_TagString: Untagged
@@ -154,7 +154,7 @@ Transform:
   m_Father: {fileID: 1466077716281866296}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &8222339902118547040
+--- !u!114 &7145023918097307047
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -168,7 +168,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _interpolationDataSource: 0
   InterpolationSpace: 0
-  InterpolationTarget: {fileID: 0}
+  InterpolationTarget: {fileID: 4654356928106217331}
   InterpolateErrorCorrection: 1
   InterpolatedErrorCorrectionSettings:
     MinRate: 3.3
@@ -191,7 +191,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6280495146632833599}
-  - component: {fileID: 6042631719014569286}
+  - component: {fileID: 8563807741636174459}
   m_Layer: 0
   m_Name: Left_RingProximal
   m_TagString: Untagged
@@ -215,7 +215,7 @@ Transform:
   m_Father: {fileID: 6899066530974929482}
   m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &6042631719014569286
+--- !u!114 &8563807741636174459
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -229,7 +229,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _interpolationDataSource: 0
   InterpolationSpace: 0
-  InterpolationTarget: {fileID: 0}
+  InterpolationTarget: {fileID: 7459459533715792488}
   InterpolateErrorCorrection: 1
   InterpolatedErrorCorrectionSettings:
     MinRate: 3.3
@@ -252,7 +252,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 875955762029106657}
-  - component: {fileID: 3746858731376599026}
+  - component: {fileID: 2264982912034910336}
   m_Layer: 0
   m_Name: Left_UpperArm
   m_TagString: Untagged
@@ -276,7 +276,7 @@ Transform:
   m_Father: {fileID: 3358302651886539910}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &3746858731376599026
+--- !u!114 &2264982912034910336
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -290,7 +290,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _interpolationDataSource: 0
   InterpolationSpace: 0
-  InterpolationTarget: {fileID: 0}
+  InterpolationTarget: {fileID: 7636696235470585945}
   InterpolateErrorCorrection: 1
   InterpolatedErrorCorrectionSettings:
     MinRate: 3.3
@@ -313,7 +313,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7140370849125262864}
-  - component: {fileID: 3127532924696675164}
+  - component: {fileID: 7445673265345158253}
   m_Layer: 0
   m_Name: Right_MiddleProximal
   m_TagString: Untagged
@@ -337,7 +337,7 @@ Transform:
   m_Father: {fileID: 662019032507850655}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &3127532924696675164
+--- !u!114 &7445673265345158253
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -351,7 +351,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _interpolationDataSource: 0
   InterpolationSpace: 0
-  InterpolationTarget: {fileID: 0}
+  InterpolationTarget: {fileID: 1095440905370945146}
   InterpolateErrorCorrection: 1
   InterpolatedErrorCorrectionSettings:
     MinRate: 3.3
@@ -374,7 +374,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5355823319984313750}
-  - component: {fileID: 2888103304958513624}
+  - component: {fileID: 2522875497840748082}
   m_Layer: 0
   m_Name: Right_PinkyDistal
   m_TagString: Untagged
@@ -398,7 +398,7 @@ Transform:
   m_Father: {fileID: 1725653192928098690}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2888103304958513624
+--- !u!114 &2522875497840748082
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -412,7 +412,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _interpolationDataSource: 0
   InterpolationSpace: 0
-  InterpolationTarget: {fileID: 0}
+  InterpolationTarget: {fileID: 7620738236116091102}
   InterpolateErrorCorrection: 1
   InterpolatedErrorCorrectionSettings:
     MinRate: 3.3
@@ -435,7 +435,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 242786754738547744}
-  - component: {fileID: 7328237820431685318}
+  - component: {fileID: 808003514592707603}
   m_Layer: 0
   m_Name: Left_MiddleIntermediate
   m_TagString: Untagged
@@ -459,7 +459,7 @@ Transform:
   m_Father: {fileID: 7894339068589498374}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &7328237820431685318
+--- !u!114 &808003514592707603
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -473,7 +473,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _interpolationDataSource: 0
   InterpolationSpace: 0
-  InterpolationTarget: {fileID: 0}
+  InterpolationTarget: {fileID: 1613428898384297041}
   InterpolateErrorCorrection: 1
   InterpolatedErrorCorrectionSettings:
     MinRate: 3.3
@@ -497,7 +497,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8976621051707654101}
   - component: {fileID: 8618020830796045613}
-  - component: {fileID: 7949236230120983708}
+  - component: {fileID: 4247709429369677506}
   m_Layer: 0
   m_Name: Left_ThumbIntermediateDef
   m_TagString: Untagged
@@ -539,7 +539,7 @@ PositionConstraint:
   m_Sources:
   - sourceTransform: {fileID: 4399848837742994188}
     weight: 1
---- !u!114 &7949236230120983708
+--- !u!114 &4247709429369677506
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -576,7 +576,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8829842871549058140}
-  - component: {fileID: 7747265643874058419}
+  - component: {fileID: 1554512216645797085}
   m_Layer: 0
   m_Name: Right_Toes
   m_TagString: Untagged
@@ -600,7 +600,7 @@ Transform:
   m_Father: {fileID: 778038162248615947}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &7747265643874058419
+--- !u!114 &1554512216645797085
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -614,7 +614,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _interpolationDataSource: 0
   InterpolationSpace: 0
-  InterpolationTarget: {fileID: 0}
+  InterpolationTarget: {fileID: 6983898595243940065}
   InterpolateErrorCorrection: 1
   InterpolatedErrorCorrectionSettings:
     MinRate: 3.3
@@ -637,7 +637,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1357211642014757630}
-  - component: {fileID: 3294132925627803500}
+  - component: {fileID: 8702013076030086814}
   m_Layer: 0
   m_Name: Spine
   m_TagString: Untagged
@@ -661,7 +661,7 @@ Transform:
   m_Father: {fileID: 3162956195320239709}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &3294132925627803500
+--- !u!114 &8702013076030086814
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -675,7 +675,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _interpolationDataSource: 0
   InterpolationSpace: 0
-  InterpolationTarget: {fileID: 0}
+  InterpolationTarget: {fileID: 1307555036672293761}
   InterpolateErrorCorrection: 1
   InterpolatedErrorCorrectionSettings:
     MinRate: 3.3
@@ -698,7 +698,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2785058666326406532}
-  - component: {fileID: 1163645171931583288}
+  - component: {fileID: 3782211921338036617}
   m_Layer: 0
   m_Name: Right_RingProximal
   m_TagString: Untagged
@@ -722,7 +722,7 @@ Transform:
   m_Father: {fileID: 662019032507850655}
   m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1163645171931583288
+--- !u!114 &3782211921338036617
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -736,7 +736,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _interpolationDataSource: 0
   InterpolationSpace: 0
-  InterpolationTarget: {fileID: 0}
+  InterpolationTarget: {fileID: 8104429727780167842}
   InterpolateErrorCorrection: 1
   InterpolatedErrorCorrectionSettings:
     MinRate: 3.3
@@ -759,7 +759,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4654356928106217331}
-  - component: {fileID: 4190604020169804536}
+  - component: {fileID: 8493632239396488401}
   m_Layer: 0
   m_Name: Left_ThumbDistal
   m_TagString: Untagged
@@ -783,7 +783,7 @@ Transform:
   m_Father: {fileID: 4399848837742994188}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4190604020169804536
+--- !u!114 &8493632239396488401
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -797,7 +797,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _interpolationDataSource: 0
   InterpolationSpace: 0
-  InterpolationTarget: {fileID: 0}
+  InterpolationTarget: {fileID: 464971806970999206}
   InterpolateErrorCorrection: 1
   InterpolatedErrorCorrectionSettings:
     MinRate: 3.3
@@ -820,7 +820,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7459459533715792488}
-  - component: {fileID: 5030664669025558011}
+  - component: {fileID: 8227355217136824968}
   m_Layer: 0
   m_Name: Left_RingIntermediate
   m_TagString: Untagged
@@ -844,7 +844,7 @@ Transform:
   m_Father: {fileID: 6280495146632833599}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &5030664669025558011
+--- !u!114 &8227355217136824968
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -858,7 +858,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _interpolationDataSource: 0
   InterpolationSpace: 0
-  InterpolationTarget: {fileID: 0}
+  InterpolationTarget: {fileID: 2915577218619406101}
   InterpolateErrorCorrection: 1
   InterpolatedErrorCorrectionSettings:
     MinRate: 3.3
@@ -881,7 +881,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6903837471513308905}
-  - component: {fileID: 4647446265182609629}
+  - component: {fileID: 6084112465756054048}
   m_Layer: 0
   m_Name: Left_PinkyProximal
   m_TagString: Untagged
@@ -905,7 +905,7 @@ Transform:
   m_Father: {fileID: 6899066530974929482}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4647446265182609629
+--- !u!114 &6084112465756054048
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -919,7 +919,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _interpolationDataSource: 0
   InterpolationSpace: 0
-  InterpolationTarget: {fileID: 0}
+  InterpolationTarget: {fileID: 5626296531048804534}
   InterpolateErrorCorrection: 1
   InterpolatedErrorCorrectionSettings:
     MinRate: 3.3
@@ -943,7 +943,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3714032118821773127}
   - component: {fileID: 4550668776742385908}
-  - component: {fileID: 1918455503010086140}
+  - component: {fileID: 5233193279503123719}
   m_Layer: 0
   m_Name: Left_LowerArmEnd
   m_TagString: Untagged
@@ -985,7 +985,7 @@ PositionConstraint:
   m_Sources:
   - sourceTransform: {fileID: 6899066530974929482}
     weight: 1
---- !u!114 &1918455503010086140
+--- !u!114 &5233193279503123719
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1022,7 +1022,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8104429727780167842}
-  - component: {fileID: 8599418562492602361}
+  - component: {fileID: 4551865889882968948}
   m_Layer: 0
   m_Name: Right_RingIntermediate
   m_TagString: Untagged
@@ -1046,7 +1046,7 @@ Transform:
   m_Father: {fileID: 2785058666326406532}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &8599418562492602361
+--- !u!114 &4551865889882968948
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1060,7 +1060,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _interpolationDataSource: 0
   InterpolationSpace: 0
-  InterpolationTarget: {fileID: 0}
+  InterpolationTarget: {fileID: 6578457209125220376}
   InterpolateErrorCorrection: 1
   InterpolatedErrorCorrectionSettings:
     MinRate: 3.3
@@ -1083,7 +1083,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1095440905370945146}
-  - component: {fileID: 3167795839741680198}
+  - component: {fileID: 292718332777075628}
   m_Layer: 0
   m_Name: Right_MiddleIntermediate
   m_TagString: Untagged
@@ -1107,7 +1107,7 @@ Transform:
   m_Father: {fileID: 7140370849125262864}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &3167795839741680198
+--- !u!114 &292718332777075628
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1121,7 +1121,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _interpolationDataSource: 0
   InterpolationSpace: 0
-  InterpolationTarget: {fileID: 0}
+  InterpolationTarget: {fileID: 2177623988800597128}
   InterpolateErrorCorrection: 1
   InterpolatedErrorCorrectionSettings:
     MinRate: 3.3
@@ -1145,7 +1145,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3448947359252694056}
   - component: {fileID: 9140343372415903556}
-  - component: {fileID: 3481162571066462432}
+  - component: {fileID: 4209018261926595568}
   m_Layer: 0
   m_Name: Right_IndexProximalDef
   m_TagString: Untagged
@@ -1187,7 +1187,7 @@ PositionConstraint:
   m_Sources:
   - sourceTransform: {fileID: 5371070281057473158}
     weight: 1
---- !u!114 &3481162571066462432
+--- !u!114 &4209018261926595568
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1224,7 +1224,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 662019032507850655}
-  - component: {fileID: 875412648954025928}
+  - component: {fileID: 4654772019160250510}
   m_Layer: 0
   m_Name: Right_Hand
   m_TagString: Untagged
@@ -1257,7 +1257,7 @@ Transform:
   m_Father: {fileID: 2241708108350562430}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &875412648954025928
+--- !u!114 &4654772019160250510
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1294,7 +1294,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2241708108350562430}
-  - component: {fileID: 2612126755409058681}
+  - component: {fileID: 2339394447027137130}
   m_Layer: 0
   m_Name: Right_LowerArm
   m_TagString: Untagged
@@ -1319,7 +1319,7 @@ Transform:
   m_Father: {fileID: 4221183193310143533}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2612126755409058681
+--- !u!114 &2339394447027137130
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1356,7 +1356,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2693310539233794446}
-  - component: {fileID: 8635610569483443167}
+  - component: {fileID: 8965176977883087433}
   m_Layer: 0
   m_Name: Left_ToesEnd
   m_TagString: Untagged
@@ -1379,7 +1379,7 @@ Transform:
   m_Father: {fileID: 5641602837858781158}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &8635610569483443167
+--- !u!114 &8965176977883087433
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1416,7 +1416,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8138678906302371906}
-  - component: {fileID: 2322676965657836788}
+  - component: {fileID: 643417553732703121}
   m_Layer: 0
   m_Name: Left_LowerLeg
   m_TagString: Untagged
@@ -1440,7 +1440,7 @@ Transform:
   m_Father: {fileID: 4773219601113118925}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2322676965657836788
+--- !u!114 &643417553732703121
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1454,7 +1454,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _interpolationDataSource: 0
   InterpolationSpace: 0
-  InterpolationTarget: {fileID: 0}
+  InterpolationTarget: {fileID: 1607648077547419442}
   InterpolateErrorCorrection: 1
   InterpolatedErrorCorrectionSettings:
     MinRate: 3.3
@@ -1478,7 +1478,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1289594505628387230}
   - component: {fileID: 5751704012944416410}
-  - component: {fileID: 3502813571235180199}
+  - component: {fileID: 8861621338147993063}
   m_Layer: 0
   m_Name: Right_RingProximalDef
   m_TagString: Untagged
@@ -1520,7 +1520,7 @@ PositionConstraint:
   m_Sources:
   - sourceTransform: {fileID: 2785058666326406532}
     weight: 1
---- !u!114 &3502813571235180199
+--- !u!114 &8861621338147993063
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1557,7 +1557,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1853056547410509978}
-  - component: {fileID: 3801533633708233630}
+  - component: {fileID: 1135933409791825357}
   m_Layer: 0
   m_Name: Right_PinkyProximal
   m_TagString: Untagged
@@ -1581,7 +1581,7 @@ Transform:
   m_Father: {fileID: 662019032507850655}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &3801533633708233630
+--- !u!114 &1135933409791825357
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1595,7 +1595,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _interpolationDataSource: 0
   InterpolationSpace: 0
-  InterpolationTarget: {fileID: 0}
+  InterpolationTarget: {fileID: 1725653192928098690}
   InterpolateErrorCorrection: 1
   InterpolatedErrorCorrectionSettings:
     MinRate: 3.3
@@ -1618,7 +1618,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 9105882155554003847}
-  - component: {fileID: 40872094059422234}
+  - component: {fileID: 7630826855440598055}
   m_Layer: 0
   m_Name: Right_ThumbDistalEnd
   m_TagString: Untagged
@@ -1641,7 +1641,7 @@ Transform:
   m_Father: {fileID: 8513671396293508792}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &40872094059422234
+--- !u!114 &7630826855440598055
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1678,7 +1678,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2915577218619406101}
-  - component: {fileID: 7771395610473944634}
+  - component: {fileID: 8334414430816553619}
   m_Layer: 0
   m_Name: Left_RingDistal
   m_TagString: Untagged
@@ -1702,7 +1702,7 @@ Transform:
   m_Father: {fileID: 7459459533715792488}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &7771395610473944634
+--- !u!114 &8334414430816553619
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1716,7 +1716,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _interpolationDataSource: 0
   InterpolationSpace: 0
-  InterpolationTarget: {fileID: 0}
+  InterpolationTarget: {fileID: 6148350285852793915}
   InterpolateErrorCorrection: 1
   InterpolatedErrorCorrectionSettings:
     MinRate: 3.3
@@ -1739,7 +1739,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1307555036672293761}
-  - component: {fileID: 808664670013114254}
+  - component: {fileID: 500939919320615509}
   m_Layer: 0
   m_Name: Chest
   m_TagString: Untagged
@@ -1763,7 +1763,7 @@ Transform:
   m_Father: {fileID: 1357211642014757630}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &808664670013114254
+--- !u!114 &500939919320615509
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1777,7 +1777,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _interpolationDataSource: 0
   InterpolationSpace: 0
-  InterpolationTarget: {fileID: 0}
+  InterpolationTarget: {fileID: 3019333112149972192}
   InterpolateErrorCorrection: 1
   InterpolatedErrorCorrectionSettings:
     MinRate: 3.3
@@ -1800,7 +1800,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2226749278899066326}
-  - component: {fileID: 2938142324004624822}
+  - component: {fileID: 4496853285396536508}
   m_Layer: 0
   m_Name: Left_IndexDistalEnd
   m_TagString: Untagged
@@ -1823,7 +1823,7 @@ Transform:
   m_Father: {fileID: 1030216689434417641}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2938142324004624822
+--- !u!114 &4496853285396536508
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1860,7 +1860,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5361027025891964767}
-  - component: {fileID: 4380910865668120281}
+  - component: {fileID: 5156878854094543397}
   m_Layer: 0
   m_Name: Right_UpperLeg
   m_TagString: Untagged
@@ -1884,7 +1884,7 @@ Transform:
   m_Father: {fileID: 3162956195320239709}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4380910865668120281
+--- !u!114 &5156878854094543397
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1898,7 +1898,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _interpolationDataSource: 0
   InterpolationSpace: 0
-  InterpolationTarget: {fileID: 0}
+  InterpolationTarget: {fileID: 2667030939234414187}
   InterpolateErrorCorrection: 1
   InterpolatedErrorCorrectionSettings:
     MinRate: 3.3
@@ -1921,7 +1921,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8014124022573210456}
-  - component: {fileID: 1225628434298697024}
+  - component: {fileID: 5702608439037489302}
   m_Layer: 0
   m_Name: Left_PinkyDistalEnd
   m_TagString: Untagged
@@ -1944,7 +1944,7 @@ Transform:
   m_Father: {fileID: 4730765940608846933}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1225628434298697024
+--- !u!114 &5702608439037489302
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1982,7 +1982,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7002678291924961502}
   - component: {fileID: 15017912239392709}
-  - component: {fileID: 3731828284484780214}
+  - component: {fileID: 7083285008572327463}
   m_Layer: 0
   m_Name: Right_MiddleProximalDef
   m_TagString: Untagged
@@ -2024,7 +2024,7 @@ PositionConstraint:
   m_Sources:
   - sourceTransform: {fileID: 7140370849125262864}
     weight: 1
---- !u!114 &3731828284484780214
+--- !u!114 &7083285008572327463
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2061,7 +2061,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5371070281057473158}
-  - component: {fileID: 2429471598412109911}
+  - component: {fileID: 1979405227151396885}
   m_Layer: 0
   m_Name: Right_IndexProximal
   m_TagString: Untagged
@@ -2085,7 +2085,7 @@ Transform:
   m_Father: {fileID: 662019032507850655}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2429471598412109911
+--- !u!114 &1979405227151396885
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2099,7 +2099,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _interpolationDataSource: 0
   InterpolationSpace: 0
-  InterpolationTarget: {fileID: 0}
+  InterpolationTarget: {fileID: 6014267841735761967}
   InterpolateErrorCorrection: 1
   InterpolatedErrorCorrectionSettings:
     MinRate: 3.3
@@ -2123,7 +2123,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2983665042531101346}
   - component: {fileID: 5140811968471748726}
-  - component: {fileID: 2209357976445093983}
+  - component: {fileID: 5230911680831606335}
   m_Layer: 0
   m_Name: Left_MiddleProximalDef
   m_TagString: Untagged
@@ -2165,7 +2165,7 @@ PositionConstraint:
   m_Sources:
   - sourceTransform: {fileID: 7894339068589498374}
     weight: 1
---- !u!114 &2209357976445093983
+--- !u!114 &5230911680831606335
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2234,7 +2234,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7894339068589498374}
-  - component: {fileID: 177789300474970172}
+  - component: {fileID: 8760943193341398295}
   m_Layer: 0
   m_Name: Left_MiddleProximal
   m_TagString: Untagged
@@ -2258,7 +2258,7 @@ Transform:
   m_Father: {fileID: 6899066530974929482}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &177789300474970172
+--- !u!114 &8760943193341398295
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2272,7 +2272,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _interpolationDataSource: 0
   InterpolationSpace: 0
-  InterpolationTarget: {fileID: 0}
+  InterpolationTarget: {fileID: 242786754738547744}
   InterpolateErrorCorrection: 1
   InterpolatedErrorCorrectionSettings:
     MinRate: 3.3
@@ -2295,7 +2295,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6791034693020192123}
-  - component: {fileID: 1282472829672518640}
+  - component: {fileID: 3758053549148856656}
   m_Layer: 0
   m_Name: Right_IndexDistal
   m_TagString: Untagged
@@ -2319,7 +2319,7 @@ Transform:
   m_Father: {fileID: 6014267841735761967}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1282472829672518640
+--- !u!114 &3758053549148856656
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2333,7 +2333,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _interpolationDataSource: 0
   InterpolationSpace: 0
-  InterpolationTarget: {fileID: 0}
+  InterpolationTarget: {fileID: 462701189540202109}
   InterpolateErrorCorrection: 1
   InterpolatedErrorCorrectionSettings:
     MinRate: 3.3
@@ -2356,7 +2356,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7963052048816657060}
-  - component: {fileID: 1222754086618012991}
+  - component: {fileID: 8652463407157716180}
   m_Layer: 0
   m_Name: Left_IndexProximal
   m_TagString: Untagged
@@ -2380,7 +2380,7 @@ Transform:
   m_Father: {fileID: 6899066530974929482}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1222754086618012991
+--- !u!114 &8652463407157716180
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2394,7 +2394,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _interpolationDataSource: 0
   InterpolationSpace: 0
-  InterpolationTarget: {fileID: 0}
+  InterpolationTarget: {fileID: 8651121034274330416}
   InterpolateErrorCorrection: 1
   InterpolatedErrorCorrectionSettings:
     MinRate: 3.3
@@ -2417,7 +2417,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 464971806970999206}
-  - component: {fileID: 9100201982125969435}
+  - component: {fileID: 7553269156410010702}
   m_Layer: 0
   m_Name: Left_ThumbDistalEnd
   m_TagString: Untagged
@@ -2440,7 +2440,7 @@ Transform:
   m_Father: {fileID: 4654356928106217331}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &9100201982125969435
+--- !u!114 &7553269156410010702
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2477,7 +2477,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3162956195320239709}
-  - component: {fileID: 4071130194506408916}
+  - component: {fileID: 8571334380043952223}
   m_Layer: 0
   m_Name: Hips
   m_TagString: Untagged
@@ -2503,7 +2503,7 @@ Transform:
   m_Father: {fileID: 356152900318291953}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4071130194506408916
+--- !u!114 &8571334380043952223
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2540,7 +2540,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8513671396293508792}
-  - component: {fileID: 1637308612837960437}
+  - component: {fileID: 3280440261847529247}
   m_Layer: 0
   m_Name: Right_ThumbDistal
   m_TagString: Untagged
@@ -2564,7 +2564,7 @@ Transform:
   m_Father: {fileID: 1772015964158594821}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1637308612837960437
+--- !u!114 &3280440261847529247
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2578,7 +2578,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _interpolationDataSource: 0
   InterpolationSpace: 0
-  InterpolationTarget: {fileID: 0}
+  InterpolationTarget: {fileID: 9105882155554003847}
   InterpolateErrorCorrection: 1
   InterpolatedErrorCorrectionSettings:
     MinRate: 3.3
@@ -2602,7 +2602,7 @@ GameObject:
   m_Component:
   - component: {fileID: 605395397824864723}
   - component: {fileID: 117824862150964408}
-  - component: {fileID: 5750169427190177104}
+  - component: {fileID: 7418894170505491054}
   m_Layer: 0
   m_Name: Right_PinkyProximalDef
   m_TagString: Untagged
@@ -2644,7 +2644,7 @@ PositionConstraint:
   m_Sources:
   - sourceTransform: {fileID: 1853056547410509978}
     weight: 1
---- !u!114 &5750169427190177104
+--- !u!114 &7418894170505491054
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2681,7 +2681,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2765850995946091850}
-  - component: {fileID: 9042455644868120158}
+  - component: {fileID: 6903039857364838097}
   m_Layer: 0
   m_Name: Right_ThumbProximal
   m_TagString: Untagged
@@ -2705,7 +2705,7 @@ Transform:
   m_Father: {fileID: 662019032507850655}
   m_RootOrder: 9
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &9042455644868120158
+--- !u!114 &6903039857364838097
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2719,7 +2719,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _interpolationDataSource: 0
   InterpolationSpace: 0
-  InterpolationTarget: {fileID: 0}
+  InterpolationTarget: {fileID: 1772015964158594821}
   InterpolateErrorCorrection: 1
   InterpolatedErrorCorrectionSettings:
     MinRate: 3.3
@@ -2742,7 +2742,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1607648077547419442}
-  - component: {fileID: 7007164062336493714}
+  - component: {fileID: 8754890062938044663}
   m_Layer: 0
   m_Name: Left_Foot
   m_TagString: Untagged
@@ -2766,7 +2766,7 @@ Transform:
   m_Father: {fileID: 8138678906302371906}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &7007164062336493714
+--- !u!114 &8754890062938044663
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2780,7 +2780,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _interpolationDataSource: 0
   InterpolationSpace: 0
-  InterpolationTarget: {fileID: 0}
+  InterpolationTarget: {fileID: 5641602837858781158}
   InterpolateErrorCorrection: 1
   InterpolatedErrorCorrectionSettings:
     MinRate: 3.3
@@ -2803,7 +2803,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 462701189540202109}
-  - component: {fileID: 3706933884297016586}
+  - component: {fileID: 2790653033855713719}
   m_Layer: 0
   m_Name: Right_IndexDistalEnd
   m_TagString: Untagged
@@ -2826,7 +2826,7 @@ Transform:
   m_Father: {fileID: 6791034693020192123}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &3706933884297016586
+--- !u!114 &2790653033855713719
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2863,7 +2863,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8651121034274330416}
-  - component: {fileID: 6339561627890937211}
+  - component: {fileID: 2685239788026147402}
   m_Layer: 0
   m_Name: Left_IndexIntermediate
   m_TagString: Untagged
@@ -2887,7 +2887,7 @@ Transform:
   m_Father: {fileID: 7963052048816657060}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &6339561627890937211
+--- !u!114 &2685239788026147402
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2901,7 +2901,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _interpolationDataSource: 0
   InterpolationSpace: 0
-  InterpolationTarget: {fileID: 0}
+  InterpolationTarget: {fileID: 1030216689434417641}
   InterpolateErrorCorrection: 1
   InterpolatedErrorCorrectionSettings:
     MinRate: 3.3
@@ -2924,7 +2924,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6014267841735761967}
-  - component: {fileID: 4855689443608049633}
+  - component: {fileID: 8953289438691176893}
   m_Layer: 0
   m_Name: Right_IndexIntermediate
   m_TagString: Untagged
@@ -2948,7 +2948,7 @@ Transform:
   m_Father: {fileID: 5371070281057473158}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4855689443608049633
+--- !u!114 &8953289438691176893
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2962,7 +2962,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _interpolationDataSource: 0
   InterpolationSpace: 0
-  InterpolationTarget: {fileID: 0}
+  InterpolationTarget: {fileID: 6791034693020192123}
   InterpolateErrorCorrection: 1
   InterpolatedErrorCorrectionSettings:
     MinRate: 3.3
@@ -2985,7 +2985,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8594793819451742747}
-  - component: {fileID: 5096075448197764911}
+  - component: {fileID: 6028551717086455863}
   m_Layer: 0
   m_Name: Right_Shoulder
   m_TagString: Untagged
@@ -3009,7 +3009,7 @@ Transform:
   m_Father: {fileID: 3019333112149972192}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &5096075448197764911
+--- !u!114 &6028551717086455863
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -3023,7 +3023,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _interpolationDataSource: 0
   InterpolationSpace: 0
-  InterpolationTarget: {fileID: 0}
+  InterpolationTarget: {fileID: 4221183193310143533}
   InterpolateErrorCorrection: 1
   InterpolatedErrorCorrectionSettings:
     MinRate: 3.3
@@ -3046,7 +3046,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 9010758380049415313}
-  - component: {fileID: 6974107663578413127}
+  - component: {fileID: 8760406304155234820}
   m_Layer: 0
   m_Name: Right_RingDistalEnd
   m_TagString: Untagged
@@ -3069,7 +3069,7 @@ Transform:
   m_Father: {fileID: 6578457209125220376}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &6974107663578413127
+--- !u!114 &8760406304155234820
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -3106,7 +3106,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3635105574124803377}
-  - component: {fileID: 3075038601700169001}
+  - component: {fileID: 2542530599496279661}
   m_Layer: 0
   m_Name: Right_MiddleDistalEnd
   m_TagString: Untagged
@@ -3129,7 +3129,7 @@ Transform:
   m_Father: {fileID: 2177623988800597128}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &3075038601700169001
+--- !u!114 &2542530599496279661
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -3166,7 +3166,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1772015964158594821}
-  - component: {fileID: 2707043235865219944}
+  - component: {fileID: 2491948719238880659}
   m_Layer: 0
   m_Name: Right_ThumbIntermediate
   m_TagString: Untagged
@@ -3190,7 +3190,7 @@ Transform:
   m_Father: {fileID: 2765850995946091850}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2707043235865219944
+--- !u!114 &2491948719238880659
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -3204,7 +3204,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _interpolationDataSource: 0
   InterpolationSpace: 0
-  InterpolationTarget: {fileID: 0}
+  InterpolationTarget: {fileID: 8513671396293508792}
   InterpolateErrorCorrection: 1
   InterpolatedErrorCorrectionSettings:
     MinRate: 3.3
@@ -3227,7 +3227,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5626296531048804534}
-  - component: {fileID: 1380411355224259482}
+  - component: {fileID: 5948719421481828110}
   m_Layer: 0
   m_Name: Left_PinkyIntermediate
   m_TagString: Untagged
@@ -3251,7 +3251,7 @@ Transform:
   m_Father: {fileID: 6903837471513308905}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1380411355224259482
+--- !u!114 &5948719421481828110
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -3265,7 +3265,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _interpolationDataSource: 0
   InterpolationSpace: 0
-  InterpolationTarget: {fileID: 0}
+  InterpolationTarget: {fileID: 4730765940608846933}
   InterpolateErrorCorrection: 1
   InterpolatedErrorCorrectionSettings:
     MinRate: 3.3
@@ -3288,7 +3288,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3728419368938088546}
-  - component: {fileID: 9003112205317852263}
+  - component: {fileID: 7161523411660560971}
   m_Layer: 0
   m_Name: Left_MiddleDistalEnd
   m_TagString: Untagged
@@ -3311,7 +3311,7 @@ Transform:
   m_Father: {fileID: 1613428898384297041}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &9003112205317852263
+--- !u!114 &7161523411660560971
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -3348,7 +3348,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 356152900318291953}
-  - component: {fileID: 2557388934112041549}
+  - component: {fileID: 1490616602557785008}
+  - component: {fileID: 3710542508582199540}
+  - component: {fileID: 2168970402306142900}
   m_Layer: 0
   m_Name: Skeleton
   m_TagString: Untagged
@@ -3372,7 +3374,521 @@ Transform:
   m_Father: {fileID: 2254170720816443869}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2557388934112041549
+--- !u!114 &1490616602557785008
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6382107506686326830}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a78b6686dabfbe46ae659e7d6f3824a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _transformToCopy: {fileID: 0}
+  _myTransform: {fileID: 356152900318291953}
+  _mirroredTransformPairs:
+  - Name: Right_LowerArmEnd
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 5588750731426734754}
+  - Name: Right_ThumbDistalEnd
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 9105882155554003847}
+  - Name: Right_ThumbDistal
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 8513671396293508792}
+  - Name: Right_ThumbIntermediate
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 8640485695924330925}
+  - Name: Right_ThumbProximal
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 2765850995946091850}
+  - Name: Right_ThumbIntermediateDef
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 8640485695924330925}
+  - Name: Right_RingProximalDef
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 1289594505628387230}
+  - Name: Right_RingDistalEnd
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 9010758380049415313}
+  - Name: Right_RingDistal
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 6578457209125220376}
+  - Name: Right_RingIntermediate
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 8104429727780167842}
+  - Name: Right_RingProximal
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 2785058666326406532}
+  - Name: Right_PinkyProximalDef
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 605395397824864723}
+  - Name: Right_PinkyDistalEnd
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 7620738236116091102}
+  - Name: Right_PinkyDistal
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 5355823319984313750}
+  - Name: Right_PinkyIntermediate
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 1725653192928098690}
+  - Name: Right_PinkyProximal
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 1853056547410509978}
+  - Name: Right_MiddleProximalDef
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 7002678291924961502}
+  - Name: Right_MiddleDistalEnd
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 3635105574124803377}
+  - Name: Right_MiddleDistal
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 2177623988800597128}
+  - Name: Right_MiddleIntermediate
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 1095440905370945146}
+  - Name: Right_MiddleProximal
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 7140370849125262864}
+  - Name: Right_IndexProximalDef
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 3448947359252694056}
+  - Name: Right_IndexDistalEnd
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 462701189540202109}
+  - Name: Right_IndexDistal
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 6791034693020192123}
+  - Name: Right_IndexIntermediate
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 6014267841735761967}
+  - Name: Right_IndexProximal
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 5371070281057473158}
+  - Name: Right_Hand
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 662019032507850655}
+  - Name: Right_LowerArm
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 2241708108350562430}
+  - Name: Right_UpperArm
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 4221183193310143533}
+  - Name: Right_Shoulder
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 8594793819451742747}
+  - Name: Neck_Twist_A
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 7159024730307936387}
+  - Name: Right_Eye
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 5376707736203438118}
+  - Name: Left_Eye
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 6903780522839864378}
+  - Name: Jaw
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 5808182343023799978}
+  - Name: Head
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 2375906903272831571}
+  - Name: Neck
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 6726365166889574785}
+  - Name: Left_LowerArmEnd
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 3714032118821773127}
+  - Name: Left_ThumbDistalEnd
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 464971806970999206}
+  - Name: Left_ThumbDistal
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 4654356928106217331}
+  - Name: Left_ThumbIntermediate
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 8976621051707654101}
+  - Name: Left_ThumbProximal
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 1466077716281866296}
+  - Name: Left_ThumbIntermediateDef
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 8976621051707654101}
+  - Name: Left_RingProximalDef
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 380363415761594444}
+  - Name: Left_RingDistalEnd
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 6148350285852793915}
+  - Name: Left_RingDistal
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 2915577218619406101}
+  - Name: Left_RingIntermediate
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 7459459533715792488}
+  - Name: Left_RingProximal
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 6280495146632833599}
+  - Name: Left_PinkyProximalDef
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 5696738913539390944}
+  - Name: Left_PinkyDistalEnd
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 8014124022573210456}
+  - Name: Left_PinkyDistal
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 4730765940608846933}
+  - Name: Left_PinkyIntermediate
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 5626296531048804534}
+  - Name: Left_PinkyProximal
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 6903837471513308905}
+  - Name: Left_MiddleProximalDef
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 2983665042531101346}
+  - Name: Left_MiddleDistalEnd
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 3728419368938088546}
+  - Name: Left_MiddleDistal
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 1613428898384297041}
+  - Name: Left_MiddleIntermediate
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 242786754738547744}
+  - Name: Left_MiddleProximal
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 7894339068589498374}
+  - Name: Left_IndexProximalDef
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 3975348921139256135}
+  - Name: Left_IndexDistalEnd
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 2226749278899066326}
+  - Name: Left_IndexDistal
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 1030216689434417641}
+  - Name: Left_IndexIntermediate
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 8651121034274330416}
+  - Name: Left_IndexProximal
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 7963052048816657060}
+  - Name: Left_Hand
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 6899066530974929482}
+  - Name: Left_LowerArm
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 7636696235470585945}
+  - Name: Left_UpperArm
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 875955762029106657}
+  - Name: Left_Shoulder
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 3358302651886539910}
+  - Name: UpperChest
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 3019333112149972192}
+  - Name: Chest
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 1307555036672293761}
+  - Name: Spine
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 1357211642014757630}
+  - Name: Right_ToesEnd
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 6983898595243940065}
+  - Name: Right_Toes
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 8829842871549058140}
+  - Name: Right_Foot
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 778038162248615947}
+  - Name: Right_LowerLeg
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 2667030939234414187}
+  - Name: Right_UpperLeg
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 5361027025891964767}
+  - Name: Left_ToesEnd
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 2693310539233794446}
+  - Name: Left_Toes
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 5641602837858781158}
+  - Name: Left_Foot
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 1607648077547419442}
+  - Name: Left_LowerLeg
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 8138678906302371906}
+  - Name: Left_UpperLeg
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 4773219601113118925}
+  - Name: Hips
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 3162956195320239709}
+  _mirrorScale: 0
+--- !u!114 &3710542508582199540
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6382107506686326830}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d3d6601e865b644d2acf1288897533ee, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _interpolationDataSource: 0
+  _transformToCopy: {fileID: 0}
+  _myTransform: {fileID: 356152900318291953}
+  _mirroredTransformPairs:
+  - Name: Right_LowerArmEnd
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 5588750731426734754}
+  - Name: Right_ThumbDistalEnd
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 9105882155554003847}
+  - Name: Right_ThumbDistal
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 8513671396293508792}
+  - Name: Right_ThumbIntermediate
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 8640485695924330925}
+  - Name: Right_ThumbProximal
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 2765850995946091850}
+  - Name: Right_ThumbIntermediateDef
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 8640485695924330925}
+  - Name: Right_RingProximalDef
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 1289594505628387230}
+  - Name: Right_RingDistalEnd
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 9010758380049415313}
+  - Name: Right_RingDistal
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 6578457209125220376}
+  - Name: Right_RingIntermediate
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 8104429727780167842}
+  - Name: Right_RingProximal
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 2785058666326406532}
+  - Name: Right_PinkyProximalDef
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 605395397824864723}
+  - Name: Right_PinkyDistalEnd
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 7620738236116091102}
+  - Name: Right_PinkyDistal
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 5355823319984313750}
+  - Name: Right_PinkyIntermediate
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 1725653192928098690}
+  - Name: Right_PinkyProximal
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 1853056547410509978}
+  - Name: Right_MiddleProximalDef
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 7002678291924961502}
+  - Name: Right_MiddleDistalEnd
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 3635105574124803377}
+  - Name: Right_MiddleDistal
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 2177623988800597128}
+  - Name: Right_MiddleIntermediate
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 1095440905370945146}
+  - Name: Right_MiddleProximal
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 7140370849125262864}
+  - Name: Right_IndexProximalDef
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 3448947359252694056}
+  - Name: Right_IndexDistalEnd
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 462701189540202109}
+  - Name: Right_IndexDistal
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 6791034693020192123}
+  - Name: Right_IndexIntermediate
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 6014267841735761967}
+  - Name: Right_IndexProximal
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 5371070281057473158}
+  - Name: Right_Hand
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 662019032507850655}
+  - Name: Right_LowerArm
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 2241708108350562430}
+  - Name: Right_UpperArm
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 4221183193310143533}
+  - Name: Right_Shoulder
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 8594793819451742747}
+  - Name: Neck_Twist_A
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 7159024730307936387}
+  - Name: Right_Eye
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 5376707736203438118}
+  - Name: Left_Eye
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 6903780522839864378}
+  - Name: Jaw
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 5808182343023799978}
+  - Name: Head
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 2375906903272831571}
+  - Name: Neck
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 6726365166889574785}
+  - Name: Left_LowerArmEnd
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 3714032118821773127}
+  - Name: Left_ThumbDistalEnd
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 464971806970999206}
+  - Name: Left_ThumbDistal
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 4654356928106217331}
+  - Name: Left_ThumbIntermediate
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 8976621051707654101}
+  - Name: Left_ThumbProximal
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 1466077716281866296}
+  - Name: Left_ThumbIntermediateDef
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 8976621051707654101}
+  - Name: Left_RingProximalDef
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 380363415761594444}
+  - Name: Left_RingDistalEnd
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 6148350285852793915}
+  - Name: Left_RingDistal
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 2915577218619406101}
+  - Name: Left_RingIntermediate
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 7459459533715792488}
+  - Name: Left_RingProximal
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 6280495146632833599}
+  - Name: Left_PinkyProximalDef
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 5696738913539390944}
+  - Name: Left_PinkyDistalEnd
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 8014124022573210456}
+  - Name: Left_PinkyDistal
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 4730765940608846933}
+  - Name: Left_PinkyIntermediate
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 5626296531048804534}
+  - Name: Left_PinkyProximal
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 6903837471513308905}
+  - Name: Left_MiddleProximalDef
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 2983665042531101346}
+  - Name: Left_MiddleDistalEnd
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 3728419368938088546}
+  - Name: Left_MiddleDistal
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 1613428898384297041}
+  - Name: Left_MiddleIntermediate
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 242786754738547744}
+  - Name: Left_MiddleProximal
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 7894339068589498374}
+  - Name: Left_IndexProximalDef
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 3975348921139256135}
+  - Name: Left_IndexDistalEnd
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 2226749278899066326}
+  - Name: Left_IndexDistal
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 1030216689434417641}
+  - Name: Left_IndexIntermediate
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 8651121034274330416}
+  - Name: Left_IndexProximal
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 7963052048816657060}
+  - Name: Left_Hand
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 6899066530974929482}
+  - Name: Left_LowerArm
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 7636696235470585945}
+  - Name: Left_UpperArm
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 875955762029106657}
+  - Name: Left_Shoulder
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 3358302651886539910}
+  - Name: UpperChest
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 3019333112149972192}
+  - Name: Chest
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 1307555036672293761}
+  - Name: Spine
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 1357211642014757630}
+  - Name: Right_ToesEnd
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 6983898595243940065}
+  - Name: Right_Toes
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 8829842871549058140}
+  - Name: Right_Foot
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 778038162248615947}
+  - Name: Right_LowerLeg
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 2667030939234414187}
+  - Name: Right_UpperLeg
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 5361027025891964767}
+  - Name: Left_ToesEnd
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 2693310539233794446}
+  - Name: Left_Toes
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 5641602837858781158}
+  - Name: Left_Foot
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 1607648077547419442}
+  - Name: Left_LowerLeg
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 8138678906302371906}
+  - Name: Left_UpperLeg
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 4773219601113118925}
+  - Name: Hips
+    OriginalTransform: {fileID: 0}
+    MirroredTransform: {fileID: 3162956195320239709}
+  _mirroredTransformList: []
+  _mirrorScale: 0
+--- !u!114 &2168970402306142900
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -3386,7 +3902,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _interpolationDataSource: 0
   InterpolationSpace: 0
-  InterpolationTarget: {fileID: 0}
+  InterpolationTarget: {fileID: 3162956195320239709}
   InterpolateErrorCorrection: 1
   InterpolatedErrorCorrectionSettings:
     MinRate: 3.3
@@ -3410,7 +3926,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8640485695924330925}
   - component: {fileID: 9146048623110078731}
-  - component: {fileID: 5444260286318073172}
+  - component: {fileID: 3070471163305490165}
   m_Layer: 0
   m_Name: Right_ThumbIntermediateDef
   m_TagString: Untagged
@@ -3452,7 +3968,7 @@ PositionConstraint:
   m_Sources:
   - sourceTransform: {fileID: 1772015964158594821}
     weight: 1
---- !u!114 &5444260286318073172
+--- !u!114 &3070471163305490165
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -3489,7 +4005,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2177623988800597128}
-  - component: {fileID: 5107681774787322528}
+  - component: {fileID: 7153013244522323004}
   m_Layer: 0
   m_Name: Right_MiddleDistal
   m_TagString: Untagged
@@ -3513,7 +4029,7 @@ Transform:
   m_Father: {fileID: 1095440905370945146}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &5107681774787322528
+--- !u!114 &7153013244522323004
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -3527,7 +4043,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _interpolationDataSource: 0
   InterpolationSpace: 0
-  InterpolationTarget: {fileID: 0}
+  InterpolationTarget: {fileID: 3635105574124803377}
   InterpolateErrorCorrection: 1
   InterpolatedErrorCorrectionSettings:
     MinRate: 3.3
@@ -3550,7 +4066,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6983898595243940065}
-  - component: {fileID: 8693415465336815063}
+  - component: {fileID: 9191792214059609210}
   m_Layer: 0
   m_Name: Right_ToesEnd
   m_TagString: Untagged
@@ -3573,7 +4089,7 @@ Transform:
   m_Father: {fileID: 8829842871549058140}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &8693415465336815063
+--- !u!114 &9191792214059609210
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -3610,7 +4126,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4730765940608846933}
-  - component: {fileID: 6960192663351880862}
+  - component: {fileID: 7631498605724599525}
   m_Layer: 0
   m_Name: Left_PinkyDistal
   m_TagString: Untagged
@@ -3634,7 +4150,7 @@ Transform:
   m_Father: {fileID: 5626296531048804534}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &6960192663351880862
+--- !u!114 &7631498605724599525
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -3648,7 +4164,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _interpolationDataSource: 0
   InterpolationSpace: 0
-  InterpolationTarget: {fileID: 0}
+  InterpolationTarget: {fileID: 8014124022573210456}
   InterpolateErrorCorrection: 1
   InterpolatedErrorCorrectionSettings:
     MinRate: 3.3
@@ -3671,7 +4187,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6578457209125220376}
-  - component: {fileID: 6056090833025751660}
+  - component: {fileID: 7034908868347115146}
   m_Layer: 0
   m_Name: Right_RingDistal
   m_TagString: Untagged
@@ -3695,7 +4211,7 @@ Transform:
   m_Father: {fileID: 8104429727780167842}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &6056090833025751660
+--- !u!114 &7034908868347115146
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -3709,7 +4225,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _interpolationDataSource: 0
   InterpolationSpace: 0
-  InterpolationTarget: {fileID: 0}
+  InterpolationTarget: {fileID: 9010758380049415313}
   InterpolateErrorCorrection: 1
   InterpolatedErrorCorrectionSettings:
     MinRate: 3.3
@@ -3732,7 +4248,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6903780522839864378}
-  - component: {fileID: 8562986458143665212}
+  - component: {fileID: 7434207022803705463}
   m_Layer: 0
   m_Name: Left_Eye
   m_TagString: Untagged
@@ -3755,7 +4271,7 @@ Transform:
   m_Father: {fileID: 2375906903272831571}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &8562986458143665212
+--- !u!114 &7434207022803705463
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -3792,7 +4308,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3019333112149972192}
-  - component: {fileID: 849936482967326568}
+  - component: {fileID: 4235482266132991140}
   m_Layer: 0
   m_Name: UpperChest
   m_TagString: Untagged
@@ -3818,7 +4334,7 @@ Transform:
   m_Father: {fileID: 1307555036672293761}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &849936482967326568
+--- !u!114 &4235482266132991140
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -3855,7 +4371,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7620738236116091102}
-  - component: {fileID: 92635756287348677}
+  - component: {fileID: 7457993704067936919}
   m_Layer: 0
   m_Name: Right_PinkyDistalEnd
   m_TagString: Untagged
@@ -3878,7 +4394,7 @@ Transform:
   m_Father: {fileID: 5355823319984313750}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &92635756287348677
+--- !u!114 &7457993704067936919
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -3915,7 +4431,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2375906903272831571}
-  - component: {fileID: 6393867110258109301}
+  - component: {fileID: 7279522496458793317}
   m_Layer: 0
   m_Name: Head
   m_TagString: Untagged
@@ -3941,7 +4457,7 @@ Transform:
   m_Father: {fileID: 6726365166889574785}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &6393867110258109301
+--- !u!114 &7279522496458793317
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -3978,7 +4494,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5376707736203438118}
-  - component: {fileID: 5706956258614044798}
+  - component: {fileID: 1311364874537064001}
   m_Layer: 0
   m_Name: Right_Eye
   m_TagString: Untagged
@@ -4001,7 +4517,7 @@ Transform:
   m_Father: {fileID: 2375906903272831571}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &5706956258614044798
+--- !u!114 &1311364874537064001
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -4038,7 +4554,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7636696235470585945}
-  - component: {fileID: 5910817684538453264}
+  - component: {fileID: 1300988881667837231}
   m_Layer: 0
   m_Name: Left_LowerArm
   m_TagString: Untagged
@@ -4063,7 +4579,7 @@ Transform:
   m_Father: {fileID: 875955762029106657}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &5910817684538453264
+--- !u!114 &1300988881667837231
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -4101,7 +4617,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3975348921139256135}
   - component: {fileID: 4103191088899087188}
-  - component: {fileID: 3364489228337352920}
+  - component: {fileID: 2923996702734995096}
   m_Layer: 0
   m_Name: Left_IndexProximalDef
   m_TagString: Untagged
@@ -4143,7 +4659,7 @@ PositionConstraint:
   m_Sources:
   - sourceTransform: {fileID: 7963052048816657060}
     weight: 1
---- !u!114 &3364489228337352920
+--- !u!114 &2923996702734995096
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -4181,7 +4697,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5696738913539390944}
   - component: {fileID: 3245998246826490978}
-  - component: {fileID: 6963882085579622346}
+  - component: {fileID: 2112171514986099793}
   m_Layer: 0
   m_Name: Left_PinkyProximalDef
   m_TagString: Untagged
@@ -4223,7 +4739,7 @@ PositionConstraint:
   m_Sources:
   - sourceTransform: {fileID: 6903837471513308905}
     weight: 1
---- !u!114 &6963882085579622346
+--- !u!114 &2112171514986099793
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -4261,7 +4777,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5588750731426734754}
   - component: {fileID: 832287717156455736}
-  - component: {fileID: 2762443386272992994}
+  - component: {fileID: 330391738300453960}
   m_Layer: 0
   m_Name: Right_LowerArmEnd
   m_TagString: Untagged
@@ -4303,7 +4819,7 @@ PositionConstraint:
   m_Sources:
   - sourceTransform: {fileID: 662019032507850655}
     weight: 1
---- !u!114 &2762443386272992994
+--- !u!114 &330391738300453960
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -4340,7 +4856,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3358302651886539910}
-  - component: {fileID: 2899252608240104028}
+  - component: {fileID: 4619679323031469498}
   m_Layer: 0
   m_Name: Left_Shoulder
   m_TagString: Untagged
@@ -4364,7 +4880,7 @@ Transform:
   m_Father: {fileID: 3019333112149972192}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2899252608240104028
+--- !u!114 &4619679323031469498
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -4378,7 +4894,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _interpolationDataSource: 0
   InterpolationSpace: 0
-  InterpolationTarget: {fileID: 0}
+  InterpolationTarget: {fileID: 875955762029106657}
   InterpolateErrorCorrection: 1
   InterpolatedErrorCorrectionSettings:
     MinRate: 3.3
@@ -4401,7 +4917,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2667030939234414187}
-  - component: {fileID: 7855034132715369521}
+  - component: {fileID: 792123262361639858}
   m_Layer: 0
   m_Name: Right_LowerLeg
   m_TagString: Untagged
@@ -4425,7 +4941,7 @@ Transform:
   m_Father: {fileID: 5361027025891964767}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &7855034132715369521
+--- !u!114 &792123262361639858
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -4439,7 +4955,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _interpolationDataSource: 0
   InterpolationSpace: 0
-  InterpolationTarget: {fileID: 0}
+  InterpolationTarget: {fileID: 778038162248615947}
   InterpolateErrorCorrection: 1
   InterpolatedErrorCorrectionSettings:
     MinRate: 3.3
@@ -4462,7 +4978,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1725653192928098690}
-  - component: {fileID: 3294460338358590984}
+  - component: {fileID: 3271751693715421356}
   m_Layer: 0
   m_Name: Right_PinkyIntermediate
   m_TagString: Untagged
@@ -4486,7 +5002,7 @@ Transform:
   m_Father: {fileID: 1853056547410509978}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &3294460338358590984
+--- !u!114 &3271751693715421356
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -4500,7 +5016,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _interpolationDataSource: 0
   InterpolationSpace: 0
-  InterpolationTarget: {fileID: 0}
+  InterpolationTarget: {fileID: 5355823319984313750}
   InterpolateErrorCorrection: 1
   InterpolatedErrorCorrectionSettings:
     MinRate: 3.3
@@ -4523,7 +5039,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1030216689434417641}
-  - component: {fileID: 2218073474186065681}
+  - component: {fileID: 123169465292519452}
   m_Layer: 0
   m_Name: Left_IndexDistal
   m_TagString: Untagged
@@ -4547,7 +5063,7 @@ Transform:
   m_Father: {fileID: 8651121034274330416}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2218073474186065681
+--- !u!114 &123169465292519452
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -4561,7 +5077,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _interpolationDataSource: 0
   InterpolationSpace: 0
-  InterpolationTarget: {fileID: 0}
+  InterpolationTarget: {fileID: 2226749278899066326}
   InterpolateErrorCorrection: 1
   InterpolatedErrorCorrectionSettings:
     MinRate: 3.3
@@ -4585,7 +5101,7 @@ GameObject:
   m_Component:
   - component: {fileID: 380363415761594444}
   - component: {fileID: 8721912774284193435}
-  - component: {fileID: 1341225810052815915}
+  - component: {fileID: 1144862074802162151}
   m_Layer: 0
   m_Name: Left_RingProximalDef
   m_TagString: Untagged
@@ -4627,7 +5143,7 @@ PositionConstraint:
   m_Sources:
   - sourceTransform: {fileID: 6280495146632833599}
     weight: 1
---- !u!114 &1341225810052815915
+--- !u!114 &1144862074802162151
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -4664,7 +5180,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6148350285852793915}
-  - component: {fileID: 5968378839237914826}
+  - component: {fileID: 4011373865223026835}
   m_Layer: 0
   m_Name: Left_RingDistalEnd
   m_TagString: Untagged
@@ -4687,7 +5203,7 @@ Transform:
   m_Father: {fileID: 2915577218619406101}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &5968378839237914826
+--- !u!114 &4011373865223026835
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -4876,7 +5392,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1613428898384297041}
-  - component: {fileID: 3112667856470618966}
+  - component: {fileID: 1326276022371899770}
   m_Layer: 0
   m_Name: Left_MiddleDistal
   m_TagString: Untagged
@@ -4900,7 +5416,7 @@ Transform:
   m_Father: {fileID: 242786754738547744}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &3112667856470618966
+--- !u!114 &1326276022371899770
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -4914,7 +5430,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _interpolationDataSource: 0
   InterpolationSpace: 0
-  InterpolationTarget: {fileID: 0}
+  InterpolationTarget: {fileID: 3728419368938088546}
   InterpolateErrorCorrection: 1
   InterpolatedErrorCorrectionSettings:
     MinRate: 3.3
@@ -4937,7 +5453,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4221183193310143533}
-  - component: {fileID: 5139145474444736080}
+  - component: {fileID: 6195242244496351541}
   m_Layer: 0
   m_Name: Right_UpperArm
   m_TagString: Untagged
@@ -4961,7 +5477,7 @@ Transform:
   m_Father: {fileID: 8594793819451742747}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &5139145474444736080
+--- !u!114 &6195242244496351541
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -4975,7 +5491,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _interpolationDataSource: 0
   InterpolationSpace: 0
-  InterpolationTarget: {fileID: 0}
+  InterpolationTarget: {fileID: 2241708108350562430}
   InterpolateErrorCorrection: 1
   InterpolatedErrorCorrectionSettings:
     MinRate: 3.3
@@ -5004,7 +5520,7 @@ GameObject:
   - component: {fileID: 2306833726058911474}
   - component: {fileID: 2643431776161308716}
   m_Layer: 0
-  m_Name: networkPlayerRepresentation
+  m_Name: networkPlayerRepresentation 1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5067,92 +5583,93 @@ MonoBehaviour:
   AoiPositionSource: {fileID: 0}
   Flags: 2305
   NetworkGuid:
-    RawGuidValue: a4fb433940f4a47738e6320da742bdbc
+    RawGuidValue: c674814164ba742fa8a8af7421801c69
   NestedObjects: []
   NetworkedBehaviours:
   - {fileID: 7791371317599681744}
   - {fileID: 2306833726058911474}
-  - {fileID: 2557388934112041549}
-  - {fileID: 4071130194506408916}
-  - {fileID: 2784810616923811979}
-  - {fileID: 2322676965657836788}
-  - {fileID: 7007164062336493714}
-  - {fileID: 3226147809026617062}
-  - {fileID: 8635610569483443167}
-  - {fileID: 4380910865668120281}
-  - {fileID: 7855034132715369521}
-  - {fileID: 6302963276423002452}
-  - {fileID: 7747265643874058419}
-  - {fileID: 8693415465336815063}
-  - {fileID: 3294132925627803500}
-  - {fileID: 808664670013114254}
-  - {fileID: 849936482967326568}
-  - {fileID: 2899252608240104028}
-  - {fileID: 3746858731376599026}
-  - {fileID: 5910817684538453264}
-  - {fileID: 5481979772699151281}
-  - {fileID: 1222754086618012991}
-  - {fileID: 3364489228337352920}
-  - {fileID: 177789300474970172}
-  - {fileID: 2209357976445093983}
-  - {fileID: 4647446265182609629}
-  - {fileID: 6963882085579622346}
-  - {fileID: 6042631719014569286}
-  - {fileID: 1341225810052815915}
-  - {fileID: 7949236230120983708}
-  - {fileID: 8178927271781830874}
-  - {fileID: 6339561627890937211}
-  - {fileID: 7328237820431685318}
-  - {fileID: 1380411355224259482}
-  - {fileID: 5030664669025558011}
-  - {fileID: 8222339902118547040}
-  - {fileID: 2218073474186065681}
-  - {fileID: 3112667856470618966}
-  - {fileID: 6960192663351880862}
-  - {fileID: 7771395610473944634}
-  - {fileID: 4190604020169804536}
-  - {fileID: 2938142324004624822}
-  - {fileID: 9003112205317852263}
-  - {fileID: 1225628434298697024}
-  - {fileID: 5968378839237914826}
-  - {fileID: 9100201982125969435}
-  - {fileID: 1918455503010086140}
-  - {fileID: 4279447415562147327}
-  - {fileID: 6393867110258109301}
-  - {fileID: 1229217631987844447}
-  - {fileID: 8562986458143665212}
-  - {fileID: 5706956258614044798}
-  - {fileID: 2835792306818144527}
-  - {fileID: 5096075448197764911}
-  - {fileID: 5139145474444736080}
-  - {fileID: 2612126755409058681}
-  - {fileID: 875412648954025928}
-  - {fileID: 2429471598412109911}
-  - {fileID: 3481162571066462432}
-  - {fileID: 3127532924696675164}
-  - {fileID: 3731828284484780214}
-  - {fileID: 3801533633708233630}
-  - {fileID: 5750169427190177104}
-  - {fileID: 1163645171931583288}
-  - {fileID: 3502813571235180199}
-  - {fileID: 5444260286318073172}
-  - {fileID: 9042455644868120158}
-  - {fileID: 4855689443608049633}
-  - {fileID: 3167795839741680198}
-  - {fileID: 3294460338358590984}
-  - {fileID: 8599418562492602361}
-  - {fileID: 2707043235865219944}
-  - {fileID: 1282472829672518640}
-  - {fileID: 5107681774787322528}
-  - {fileID: 2888103304958513624}
-  - {fileID: 6056090833025751660}
-  - {fileID: 1637308612837960437}
-  - {fileID: 3706933884297016586}
-  - {fileID: 3075038601700169001}
-  - {fileID: 92635756287348677}
-  - {fileID: 6974107663578413127}
-  - {fileID: 40872094059422234}
-  - {fileID: 2762443386272992994}
+  - {fileID: 3710542508582199540}
+  - {fileID: 2168970402306142900}
+  - {fileID: 8571334380043952223}
+  - {fileID: 8848005791219319672}
+  - {fileID: 643417553732703121}
+  - {fileID: 8754890062938044663}
+  - {fileID: 8409259447607455779}
+  - {fileID: 8965176977883087433}
+  - {fileID: 5156878854094543397}
+  - {fileID: 792123262361639858}
+  - {fileID: 3131438415115884365}
+  - {fileID: 1554512216645797085}
+  - {fileID: 9191792214059609210}
+  - {fileID: 8702013076030086814}
+  - {fileID: 500939919320615509}
+  - {fileID: 4235482266132991140}
+  - {fileID: 4619679323031469498}
+  - {fileID: 2264982912034910336}
+  - {fileID: 1300988881667837231}
+  - {fileID: 304006479393197711}
+  - {fileID: 8652463407157716180}
+  - {fileID: 2923996702734995096}
+  - {fileID: 8760943193341398295}
+  - {fileID: 5230911680831606335}
+  - {fileID: 6084112465756054048}
+  - {fileID: 2112171514986099793}
+  - {fileID: 8563807741636174459}
+  - {fileID: 1144862074802162151}
+  - {fileID: 4247709429369677506}
+  - {fileID: 5825758617231580599}
+  - {fileID: 2685239788026147402}
+  - {fileID: 808003514592707603}
+  - {fileID: 5948719421481828110}
+  - {fileID: 8227355217136824968}
+  - {fileID: 7145023918097307047}
+  - {fileID: 123169465292519452}
+  - {fileID: 1326276022371899770}
+  - {fileID: 7631498605724599525}
+  - {fileID: 8334414430816553619}
+  - {fileID: 8493632239396488401}
+  - {fileID: 4496853285396536508}
+  - {fileID: 7161523411660560971}
+  - {fileID: 5702608439037489302}
+  - {fileID: 4011373865223026835}
+  - {fileID: 7553269156410010702}
+  - {fileID: 5233193279503123719}
+  - {fileID: 5160452292666986377}
+  - {fileID: 7279522496458793317}
+  - {fileID: 4028987332412421438}
+  - {fileID: 7434207022803705463}
+  - {fileID: 1311364874537064001}
+  - {fileID: 6096347401882346012}
+  - {fileID: 6028551717086455863}
+  - {fileID: 6195242244496351541}
+  - {fileID: 2339394447027137130}
+  - {fileID: 4654772019160250510}
+  - {fileID: 1979405227151396885}
+  - {fileID: 4209018261926595568}
+  - {fileID: 7445673265345158253}
+  - {fileID: 7083285008572327463}
+  - {fileID: 1135933409791825357}
+  - {fileID: 7418894170505491054}
+  - {fileID: 3782211921338036617}
+  - {fileID: 8861621338147993063}
+  - {fileID: 3070471163305490165}
+  - {fileID: 6903039857364838097}
+  - {fileID: 8953289438691176893}
+  - {fileID: 292718332777075628}
+  - {fileID: 3271751693715421356}
+  - {fileID: 4551865889882968948}
+  - {fileID: 2491948719238880659}
+  - {fileID: 3758053549148856656}
+  - {fileID: 7153013244522323004}
+  - {fileID: 2522875497840748082}
+  - {fileID: 7034908868347115146}
+  - {fileID: 3280440261847529247}
+  - {fileID: 2790653033855713719}
+  - {fileID: 2542530599496279661}
+  - {fileID: 7457993704067936919}
+  - {fileID: 8760406304155234820}
+  - {fileID: 7630826855440598055}
+  - {fileID: 330391738300453960}
   SimulationBehaviours: []
 --- !u!114 &7791371317599681744
 MonoBehaviour:
@@ -5161,7 +5678,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8274653983065271995}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 158639473, guid: e725a070cec140c4caffb81624c8c787, type: 3}
   m_Name: 
@@ -5197,12 +5714,7 @@ MonoBehaviour:
   _interpolationDataSource: 0
   _head: {fileID: 0}
   _body: {fileID: 2254170720816443869}
-  origHip: {fileID: 0}
-  mirrorHip: {fileID: 3162956195320239709}
-  _transformToCopy: {fileID: 0}
-  _myTransform: {fileID: 356152900318291953}
-  _mirroredTransformPairs: []
-  _mirroredTransformList: []
+  _mirrorObject: {fileID: 3710542508582199540}
 --- !u!136 &2643431776161308716
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -5226,7 +5738,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4773219601113118925}
-  - component: {fileID: 2784810616923811979}
+  - component: {fileID: 8848005791219319672}
   m_Layer: 0
   m_Name: Left_UpperLeg
   m_TagString: Untagged
@@ -5250,7 +5762,7 @@ Transform:
   m_Father: {fileID: 3162956195320239709}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2784810616923811979
+--- !u!114 &8848005791219319672
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -5264,7 +5776,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _interpolationDataSource: 0
   InterpolationSpace: 0
-  InterpolationTarget: {fileID: 0}
+  InterpolationTarget: {fileID: 8138678906302371906}
   InterpolateErrorCorrection: 1
   InterpolatedErrorCorrectionSettings:
     MinRate: 3.3
@@ -5287,7 +5799,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7159024730307936387}
-  - component: {fileID: 2835792306818144527}
+  - component: {fileID: 6096347401882346012}
   m_Layer: 0
   m_Name: Neck_Twist_A
   m_TagString: Untagged
@@ -5310,7 +5822,7 @@ Transform:
   m_Father: {fileID: 6726365166889574785}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2835792306818144527
+--- !u!114 &6096347401882346012
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -5347,7 +5859,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5641602837858781158}
-  - component: {fileID: 3226147809026617062}
+  - component: {fileID: 8409259447607455779}
   m_Layer: 0
   m_Name: Left_Toes
   m_TagString: Untagged
@@ -5371,7 +5883,7 @@ Transform:
   m_Father: {fileID: 1607648077547419442}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &3226147809026617062
+--- !u!114 &8409259447607455779
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -5385,7 +5897,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _interpolationDataSource: 0
   InterpolationSpace: 0
-  InterpolationTarget: {fileID: 0}
+  InterpolationTarget: {fileID: 2693310539233794446}
   InterpolateErrorCorrection: 1
   InterpolatedErrorCorrectionSettings:
     MinRate: 3.3
@@ -5408,7 +5920,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 778038162248615947}
-  - component: {fileID: 6302963276423002452}
+  - component: {fileID: 3131438415115884365}
   m_Layer: 0
   m_Name: Right_Foot
   m_TagString: Untagged
@@ -5432,7 +5944,7 @@ Transform:
   m_Father: {fileID: 2667030939234414187}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &6302963276423002452
+--- !u!114 &3131438415115884365
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -5446,7 +5958,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _interpolationDataSource: 0
   InterpolationSpace: 0
-  InterpolationTarget: {fileID: 0}
+  InterpolationTarget: {fileID: 8829842871549058140}
   InterpolateErrorCorrection: 1
   InterpolatedErrorCorrectionSettings:
     MinRate: 3.3
@@ -5469,7 +5981,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6899066530974929482}
-  - component: {fileID: 5481979772699151281}
+  - component: {fileID: 304006479393197711}
   m_Layer: 0
   m_Name: Left_Hand
   m_TagString: Untagged
@@ -5502,7 +6014,7 @@ Transform:
   m_Father: {fileID: 7636696235470585945}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &5481979772699151281
+--- !u!114 &304006479393197711
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -5539,7 +6051,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6726365166889574785}
-  - component: {fileID: 4279447415562147327}
+  - component: {fileID: 5160452292666986377}
   m_Layer: 0
   m_Name: Neck
   m_TagString: Untagged
@@ -5564,7 +6076,7 @@ Transform:
   m_Father: {fileID: 3019333112149972192}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4279447415562147327
+--- !u!114 &5160452292666986377
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

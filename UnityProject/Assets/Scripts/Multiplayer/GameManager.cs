@@ -25,6 +25,10 @@ public class GameManager : NetworkBehaviour, INetworkRunnerCallbacks
 
 	[Tooltip("The head transform we want to sync to the server.")]
 	public Transform _HeadTransform;
+
+	public Transform _OriginalTransform;
+	
+	public Transform hipTransform;
 	
 	public GameObject ball;
 
@@ -46,7 +50,7 @@ public class GameManager : NetworkBehaviour, INetworkRunnerCallbacks
 		if (isHost) // host
 		{
 			// enable `ZMQManager` to listen to Scenic
-			ZMQManagerObject.SetActive(true);
+			// ZMQManagerObject.SetActive(true);
 
 			// disable the local player OVRCameraRig
 			_OVRCR.SetActive(false);
@@ -113,7 +117,9 @@ public class GameManager : NetworkBehaviour, INetworkRunnerCallbacks
 			Debug.Log($"OnPlayerJoined. PlayerId: {player.PlayerId}");
 			// Create a unique position for the player
 			Vector3 spawnPosition =
-				new Vector3((player.RawEncoded % runner.Config.Simulation.DefaultPlayers) * 3, 1, 0);
+				new Vector3((player.RawEncoded % runner.Config.Simulation.DefaultPlayers) * 3, 1, 5);
+			// Vector3 spawnPosition =
+			// 	new Vector3(0,0,0);
 			// We make sure to give the input authority to the connecting player for their user's object
 			NetworkObject networkPlayerObject = runner.Spawn(_playerPrefab, spawnPosition, Quaternion.identity, player);
 			// Keep track of the player avatars so we can remove it when they disconnect
