@@ -59,13 +59,15 @@ public class Player : NetworkBehaviour
 	/// </summary>
 	[SerializeField]
 	public MirroredTransformPair[] _mirroredTransformPairs;
-
-	public List<Transform> _mirroredTransformList;
 	
+	public Dictionary<String, Transform> _mirroredTransformDict;
+
 	private void Awake()
 	{
 		_head = FindObjectOfType<GameManager>()._HeadTransform;
 		origHip = FindObjectOfType<GameManager>().hipTransform;
+		
+		_mirroredTransformDict = new Dictionary<string, Transform>();
 		
 		_transformToCopy = FindObjectOfType<GameManager>()._OriginalTransform;
 		
@@ -99,16 +101,30 @@ public class Player : NetworkBehaviour
 		// Debug.LogError(mirrorHip.rotation);
 		// Debug.LogError(origHip.rotation);
 		
+		// if (HasInputAuthority) // only the client that owns the player can send input
+		// {
+		// 	// var position = _head.position;
+		// 	// var rotation = _head.rotation;
+		// 	var position = origHip.localPosition;
+		// 	var rotation = origHip.localRotation;
+		// 	Debug.Log("Has input authority, sending RPC_Sync_Headset_Transform for " + position.ToString("F3") +
+		// 	          " to all clients");
+		// 	// RPC_Sync_Transform(position, rotation);
+		// 	// RPC_Sync_Transform();
+		// }
+		
 		if (HasInputAuthority) // only the client that owns the player can send input
 		{
-			// var position = _head.position;
-			// var rotation = _head.rotation;
-			var position = origHip.localPosition;
-			var rotation = origHip.localRotation;
-			Debug.Log("Has input authority, sending RPC_Sync_Headset_Transform for " + position.ToString("F3") +
-			          " to all clients");
-			// RPC_Sync_Transform(position, rotation);
-			// RPC_Sync_Transform();
+			_myTransform.localPosition = _transformToCopy.localPosition;
+			_myTransform.localRotation = _transformToCopy.localRotation;
+			
+			foreach (var transformPair in _mirroredTransformPairs)
+			{
+				var pos = transformPair.OriginalTransform.localPosition;
+				var rot = transformPair.OriginalTransform.localRotation;
+				var name = transformPair.OriginalTransform.gameObject.name;
+				RPC_Mirror(name, pos, rot);
+			}
 		}
 	}
 	
@@ -116,11 +132,12 @@ public class Player : NetworkBehaviour
 	{
 		var childTransforms = new List<Transform>(_myTransform.GetComponentsInChildren<Transform>(true));
 		childTransforms.Remove(_myTransform.transform); // removes the parent transform
-		_mirroredTransformList = childTransforms;
 		_mirroredTransformPairs = new MirroredTransformPair[childTransforms.Count];
 		int i = 0;
 		foreach (var transform in childTransforms)
 		{
+			_mirroredTransformDict.Add(transform.name, transform);
+			
 			var originalTransform =
 				this.OriginalTransform.transform.FindChildRecursive(transform.name);
 			if (originalTransform != null)
@@ -150,19 +167,19 @@ public class Player : NetworkBehaviour
 		// 	transformPair.MirroredTransform.localRotation = transformPair.OriginalTransform.localRotation;
 		// }
 		
-		if (HasInputAuthority) // only the client that owns the player can send input
-		{
-			_myTransform.localPosition = _transformToCopy.localPosition;
-			_myTransform.localRotation = _transformToCopy.localRotation;
-			
-			foreach (var transformPair in _mirroredTransformPairs)
-			{
-				var pos = transformPair.OriginalTransform.localPosition;
-				var rot = transformPair.OriginalTransform.localRotation;
-				var name = transformPair.OriginalTransform.gameObject.name;
-				RPC_Mirror(name, pos, rot);
-			}
-		}
+		// if (HasInputAuthority) // only the client that owns the player can send input
+		// {
+		// 	_myTransform.localPosition = _transformToCopy.localPosition;
+		// 	_myTransform.localRotation = _transformToCopy.localRotation;
+		// 	
+		// 	foreach (var transformPair in _mirroredTransformPairs)
+		// 	{
+		// 		var pos = transformPair.OriginalTransform.localPosition;
+		// 		var rot = transformPair.OriginalTransform.localRotation;
+		// 		var name = transformPair.OriginalTransform.gameObject.name;
+		// 		RPC_Mirror(name, pos, rot);
+		// 	}
+		// }
 	}
 	
 	
@@ -170,16 +187,23 @@ public class Player : NetworkBehaviour
 	public void RPC_Mirror(String name, Vector3 position, Quaternion rotation, RpcInfo info = default)
 	{
 		Debug.Log("RPC_Mirror called from " + info.Source);
+		
+		if (info.IsInvokeLocal) return; // don't execute on the client that called the RPC
+		
+		// Debug.LogError(_mirroredTransformDict[name]);
+		
+		_mirroredTransformDict[name].localPosition = position;
+		_mirroredTransformDict[name].localRotation = rotation;
 
-		foreach (var mirroredTransform in _mirroredTransformList)
-		{
-			if (mirroredTransform.name == name)
-			{
-				mirroredTransform.localPosition = position;
-				mirroredTransform.localRotation = rotation;
-			}
-
-		}
+		// foreach (var mirroredTransform in _mirroredTransformList)
+		// {
+		// 	if (mirroredTransform.name == name)
+		// 	{
+		// 		mirroredTransform.localPosition = position;
+		// 		mirroredTransform.localRotation = rotation;
+		// 	}
+		//
+		// }
 		
 		
 		// _myTransform.localPosition = _transformToCopy.localPosition;
