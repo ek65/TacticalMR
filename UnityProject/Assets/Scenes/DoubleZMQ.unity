@@ -1174,7 +1174,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerActionAPI: {fileID: 595625107}
-  dest: {x: 0, y: 0, z: 0}
+  dest: {x: 20, y: 0, z: 0}
 --- !u!1 &528078288
 GameObject:
   m_ObjectHideFlags: 0

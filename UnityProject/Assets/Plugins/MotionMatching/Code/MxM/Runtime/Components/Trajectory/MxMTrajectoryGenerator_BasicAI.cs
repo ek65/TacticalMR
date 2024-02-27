@@ -117,8 +117,8 @@ namespace MxM
         *********************************************************************************************/
         void Start()
         {
-            m_navAgent = GetComponentInChildren<NavMeshAgent>();
-            Assert.IsNotNull(m_navAgent, "Error: MxMTrajectoryGEnerator_AI - cannot find NavMeshAgent component");
+          //  m_navAgent = GetComponentInChildren<NavMeshAgent>();
+//            Assert.IsNotNull(m_navAgent, "Error: MxMTrajectoryGEnerator_AI - cannot find NavMeshAgent component");
 
             StrafeDirection = Vector3.forward;
         }

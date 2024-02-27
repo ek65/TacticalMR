@@ -6,7 +6,7 @@ using Pathfinding;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.AI;
-
+using MxM;
 #region For Mathematical Reference
 // parabola Equation if used (x-5)^2 = -4(25/8)(y-2) => y = -2/25(x^2 - 10x)  (in this Max Distance 10)
 // parabola Equation if used (x-(d/2))^2 = -4((d/2)^2/8)(y-2)) => y = (8 (d x - x^2))/d^2
@@ -18,6 +18,7 @@ public class ActionAPI : MonoBehaviour
     [SerializeField] float timeDuration = 5f;
     [SerializeField] float goalWidth = 7.44f;
     [SerializeField] GameObject soccerBall;
+    [SerializeField] MxMAnimator MotionMatchingAnimator;
 
     public Vector3 test;
 
@@ -39,16 +40,21 @@ public class ActionAPI : MonoBehaviour
     private Vector3 finalPos;
     private float aerialOffset;
     private float forceMagnitude;
-
+    
     public bool alreadyInAnimation = false;
     
 
     private void Start()
     {
+        if (MotionMatchingAnimator == null)
+        {
+            MotionMatchingAnimator = GetComponent<MxMAnimator>();
+        }
         if (soccerBall == null)
         {
             soccerBall = GameObject.FindGameObjectWithTag("ball");
         }
+ 
     }
 
     private void Update()
@@ -61,11 +67,12 @@ public class ActionAPI : MonoBehaviour
 
 
     #region API Methods for BlendTrees
+    //TODO: Devin: temporarily changing set animcontroller
     public void MoveToPos(Vector3 destinationPosition, bool lookAt = true)
     {
         // TODO: replace this anim controller with movement, need to merge humanoid AI movement with the movement controller
         //SetAnimController("Humanoid");
-        SetAnimController("Movement");
+       // SetAnimController("Movement");
         StartCoroutine(MoveToPosHelper(destinationPosition, lookAt));
         //StartCoroutine(MovementLerp(destinationPosition, lookAt));
     }
@@ -175,6 +182,7 @@ public class ActionAPI : MonoBehaviour
     public void Shoot(Vector3 destinationPosition, string destinationZone)
     {
         stopMovement = true;
+        MotionMatchingAnimator.BlendOutController(10f);
         SetAnimController("Dribbling");
         
         StartCoroutine(LookTowards(destinationPosition, "Shoot"));
@@ -770,6 +778,7 @@ public class ActionAPI : MonoBehaviour
 
     public void MoveBall()
     {
+        MotionMatchingAnimator.BlendInController(10f);
         Vector3 ballMotionVector = finalPos - soccerBall.transform.position;
         Vector3 forceDirection = new(ballMotionVector.x, aerialOffset, ballMotionVector.z);
         Debug.Log("force vector: " + forceDirection);
@@ -781,6 +790,7 @@ public class ActionAPI : MonoBehaviour
         // soccerBall.GetComponent<Rigidbody>().AddForce(forceDirection * 10f * forceFactor);
         Debug.Log("in moveball");
         Debug.Log("force:" + forceDirection * forceMagnitude * forceFactor);
+        
     }
 
     private IEnumerator BallTriggerColliderDebounce(GameObject ballTriggerCollider)

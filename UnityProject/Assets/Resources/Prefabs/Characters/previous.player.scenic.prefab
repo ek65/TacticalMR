@@ -2904,10 +2904,8 @@ GameObject:
   - component: {fileID: 3740510901630673340}
   - component: {fileID: 1422487927}
   - component: {fileID: 1422487928}
-  - component: {fileID: 597747225}
-  - component: {fileID: 597747226}
   m_Layer: 6
-  m_Name: player.scenic
+  m_Name: previous.player.scenic
   m_TagString: player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2960,7 +2958,6 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
-  m_WriteDefaultValuesOnDisable: 0
 --- !u!114 &8665160898893140851
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3147,134 +3144,6 @@ CapsuleCollider:
   m_Height: 2
   m_Direction: 1
   m_Center: {x: 0, y: 1, z: 0}
---- !u!114 &597747225
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8665160898893140854}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 630b25b03750eed4581a33ec3a2e2b89, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  p_recordingFrequency: 0
-  p_sampleRate: 20
-  p_flattenTrajectory: 0
-  m_maxSpeed: 4
-  m_moveResponsiveness: 15
-  m_turnResponsiveness: 10
-  m_stoppingDist: 1
-  m_trajectoryMode: 0
-  m_applyRootSpeedToNavAgent: 0
-  m_faceDirectionOnIdle: 0
-  DestTransform: {fileID: 7842624250203543949}
-  m_stoppingDistance: 0
---- !u!114 &597747226
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8665160898893140854}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d6581870d3a3d8a488583561e2c42f72, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_updateInterval: 0.012
-  m_playbackSpeed: 1
-  m_playbackSpeedSmoothRate: 1
-  m_matchBlendTime: 0.3
-  m_turnInPlaceThreshold: 45
-  m_animationRoot: {fileID: 0}
-  m_animatorControllerMask: {fileID: 0}
-  m_animControllerLayer: 1
-  m_animData:
-  - {fileID: 11400000, guid: fcb7986a1ff00054c893ec591b0c5a1e, type: 2}
-  m_calibrationOverride: {fileID: 0}
-  m_doNotSearch: 0
-  m_debugGoal: 1
-  m_debugChosenTrajectory: 1
-  m_debugPoses: 0
-  m_debugCurrentPose: 1
-  m_debugPoseId: 0
-  m_debugAnimDataId: 0
-  m_recordAnalytics: 0
-  m_poseMatchMethod: 1
-  m_rootMotionMode: 1
-  m_transitionMethod: 1
-  m_pastTrajectoryMode: 0
-  m_applyHumanoidFootIK: 1
-  m_applyPlayableIK: 1
-  m_favourTagMethod: 0
-  m_applyTrajectoryBlending: 0
-  m_trajectoryBlendingWeight: 0.5
-  m_favourCurrentPose: 0
-  m_transformGoal: 1
-  m_currentPoseFavour: 0.95
-  m_nextPoseToleranceTest: 0
-  m_nextPoseToleranceDist: 0.2
-  m_nextPoseToleranceAngle: 2
-  m_blendOutEarly: 0
-  m_tagBlendMethod: 0
-  m_overrideWarpSettings: {fileID: 0}
-  m_angularWarpType: 1
-  m_angularWarpMethod: 0
-  m_angularErrorWarpRate: 45
-  m_angularErrorWarpThreshold: 0.5
-  m_angularErrorWarpAngleThreshold: 60
-  m_angularErrorWarpMinAngleThreshold: 0.5
-  m_longErrorWarpType: 0
-  m_speedWarpLimits: {x: 0, y: 0}
-  m_blendSpaceSmoothing: 0
-  m_blendSpaceSmoothRate: {x: 0.25, y: 0.25}
-  m_maxMixCount: 8
-  m_primaryBlendChannel: 0
-  p_DIYPlayableGraph: 0
-  p_manualInitialize: 0
-  m_autoCreateAnimatorController: 0
-  m_minFootstepInterval: 0.2
-  m_cachedLastLeftFootstepId: 0
-  m_cachedLastRightFootstepId: 0
-  m_generalFoldout: 1
-  m_animDataFoldout: 1
-  m_optionsFoldout: 1
-  m_warpingFoldout: 1
-  m_debugFoldout: 1
-  m_callbackFoldout: 0
-  m_onSetupComplete:
-    m_PersistentCalls:
-      m_Calls: []
-  m_onIdleTriggered:
-    m_PersistentCalls:
-      m_Calls: []
-  m_onIdleEnd:
-    m_PersistentCalls:
-      m_Calls: []
-  m_onEventComplete:
-    m_PersistentCalls:
-      m_Calls: []
-  m_onRequireTagsChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  m_onEventStateChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  m_onEventContactReached:
-    m_PersistentCalls:
-      m_Calls: []
-  m_onLeftFootStepStart:
-    m_PersistentCalls:
-      m_Calls: []
-  m_onRightFootStepStart:
-    m_PersistentCalls:
-      m_Calls: []
-  m_onPoseChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  m_enableIdle: 1
 --- !u!1 &8665160898920370538
 GameObject:
   m_ObjectHideFlags: 0
