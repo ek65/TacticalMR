@@ -1,4 +1,5 @@
-﻿using Unity.XR.CoreUtils;
+﻿using Convai.Scripts.Utils;
+using Unity.XR.CoreUtils;
 using UnityEngine;
 
 /// <summary>
@@ -26,8 +27,8 @@ public class LookAtPlayer : MonoBehaviour
     /// </summary>
     private void Awake()
     {
-        // Find the main camera within the XROrigin
-        cameraObject = FindObjectOfType<XROrigin>().Camera.gameObject;
+        // Find the main camera w ithin the XROrigin
+        cameraObject = FindObjectOfType<ConvaiNPCManager>().GetComponent<Camera>().gameObject;
         originalRotation = transform.eulerAngles;
     }
 
