@@ -23,12 +23,7 @@ public class GameManager : NetworkBehaviour, INetworkRunnerCallbacks
 	[Tooltip("The sole OVRCameraRig in the scene. Multiple OVRCameraRigs will cause problems.")]
 	public GameObject _OVRCR;
 
-	[Tooltip("The head transform we want to sync to the server.")]
-	public Transform _HeadTransform;
-
 	public Transform _OriginalTransform;
-	
-	public Transform hipTransform;
 	
 	public GameObject ball;
 
@@ -50,7 +45,7 @@ public class GameManager : NetworkBehaviour, INetworkRunnerCallbacks
 		if (isHost) // host
 		{
 			// enable `ZMQManager` to listen to Scenic
-			// ZMQManagerObject.SetActive(true);
+			ZMQManagerObject.SetActive(true);
 
 			// disable the local player OVRCameraRig
 			_OVRCR.SetActive(false);

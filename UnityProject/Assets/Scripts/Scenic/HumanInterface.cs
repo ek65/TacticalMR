@@ -7,11 +7,20 @@ public class HumanInterface : MonoBehaviour
     private ExitScenario exitScene;
     private AudioSource source;
     
+    ObjectsList objectList;
+    
     // Start is called before the first frame update
     void Start()
     {
         exitScene = GetComponent<ExitScenario>();
         source = GetComponent<AudioSource>();
+        
+        objectList = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<ObjectsList>();
+        
+        if (objectList.humanPlayers.Count == 0)
+        {
+            objectList.humanPlayers.Add(this.gameObject);
+        }
     }
 
     // Update is called once per frame
