@@ -2120,7 +2120,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c5777a8a41e942f5a05df965241ef598, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rayLength: 6
+  rayLength: 5
   visionConeAngle: 45
   activeConvaiNPC: {fileID: 4955285544553248354}
 --- !u!1 &684333324
@@ -5622,15 +5622,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6041079842086568132, guid: 31f4aa5a9049741fea6e12caa2db922d, type: 3}
       propertyPath: m_LocalScale.x
-      value: 1
+      value: 1.1
       objectReference: {fileID: 0}
     - target: {fileID: 6041079842086568132, guid: 31f4aa5a9049741fea6e12caa2db922d, type: 3}
       propertyPath: m_LocalScale.y
-      value: 1
+      value: 1.1
       objectReference: {fileID: 0}
     - target: {fileID: 6041079842086568132, guid: 31f4aa5a9049741fea6e12caa2db922d, type: 3}
       propertyPath: m_LocalScale.z
-      value: 1
+      value: 1.1
       objectReference: {fileID: 0}
     - target: {fileID: 6041079842086568132, guid: 31f4aa5a9049741fea6e12caa2db922d, type: 3}
       propertyPath: m_LocalPosition.x
@@ -5638,7 +5638,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6041079842086568132, guid: 31f4aa5a9049741fea6e12caa2db922d, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.2
+      value: 0.3
       objectReference: {fileID: 0}
     - target: {fileID: 6041079842086568132, guid: 31f4aa5a9049741fea6e12caa2db922d, type: 3}
       propertyPath: m_LocalPosition.z
