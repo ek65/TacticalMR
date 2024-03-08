@@ -13,6 +13,17 @@ from scenic.simulators.unity.client import *
 #       def applyTo(self, obj, sim):
 #           ...class MoveToAction(Action):
 
+class PrintAction(Action):
+    def __init__(self, output):
+        self.actionName = "ScenicPrint"
+        
+        if not isinstance(output, str):
+            raise RuntimeError("Print output must be a string")
+        self.output = output
+
+    def applyTo(self, obj, sim):
+        obj.gameObject.DoAction(self.actionName, self.output)
+
 class StopAction(Action):
     def __init__(self):
         pass
@@ -24,6 +35,39 @@ class IdleAction(Action):
         self.actionName = "Idle"
     def applyTo(self, obj, sim):
         obj.gameObject.DoAction(self.actionName)
+
+class SetPlayerSpeedAction(Action):
+    def __init__(self, speed):
+        self.actionName = "SetPlayerSpeed"
+        
+        if not isinstance(speed, float):
+            raise RuntimeError("spped must be a float")
+        self.speed = speed
+
+    def applyTo(self, obj, sim):
+        obj.gameObject.DoAction(self.actionName, self.speed)
+
+class MoveToWithSpeed(Action):
+    def __init__(self, obj, speed):
+        self.actionName = "MoveToPos"
+
+        if not isinstance(speed, float):
+            raise RuntimeError("height must be a float")
+        self.speed = speed
+
+        if isinstance(obj, tuple) or type(obj) is tuple:
+            self.position = obj
+        elif isinstance(obj, OrientedPoint):
+            self.position = obj.position
+        elif isinstance(obj, Point):
+            self.position = (obj.position.x, obj.position.y, obj.position.z)
+        elif isinstance(obj, Vector):
+            self.position = (obj.x, obj.y, obj.z)
+        else:
+            self.clientID = obj.gameObject.clientID
+
+    def applyTo(self, obj, sim):
+        obj.gameObject.DoAction(self.actionName, self.position, self.speed)
 
 class MoveToAction(Action):
     def __init__(self, obj):

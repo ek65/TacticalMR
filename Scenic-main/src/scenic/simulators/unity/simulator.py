@@ -9,7 +9,7 @@ from scenic.simulators.unity import client
 
 
 class UnitySimulator(Simulator):
-    def __init__(self, ip='10.44.113.217', port=5555, timeout=10, render=True, timestep=0.1):
+    def __init__(self, ip='localhost', port=5555, timeout=10, render=True, timestep=0.1):
         super().__init__()
         verbosePrint('Connecting to Unity Server...')
         self.messageClient = client.StartMessageServer(ip, port, timestep)

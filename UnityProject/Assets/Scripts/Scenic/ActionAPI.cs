@@ -14,7 +14,7 @@ using UnityEngine.AI;
 
 public class ActionAPI : MonoBehaviour
 {
-    [SerializeField] float playerRunningSpeed = 2f;
+    [SerializeField] float playerRunningSpeed = 1f;
     [SerializeField] float timeDuration = 5f;
     [SerializeField] float goalWidth = 7.44f;
     [SerializeField] GameObject soccerBall;
@@ -61,13 +61,22 @@ public class ActionAPI : MonoBehaviour
 
 
     #region API Methods for BlendTrees
-    public void MoveToPos(Vector3 destinationPosition, bool lookAt = true)
+    public void MoveToPos(Vector3 destinationPosition, float speed = 2f, bool lookAt = true)
     {
         // TODO: replace this anim controller with movement, need to merge humanoid AI movement with the movement controller
         //SetAnimController("Humanoid");
         SetAnimController("Movement");
         StartCoroutine(MoveToPosHelper(destinationPosition, lookAt));
         //StartCoroutine(MovementLerp(destinationPosition, lookAt));
+    }
+
+    public void SetPlayerSpeed(float speed)
+    {
+        playerRunningSpeed = speed;
+    }
+
+    public void ScenicPrint(string output) {
+        Debug.Log(output);
     }
     
     public void DribbleFromOnePositionToAnother(Vector3 destinationPosition)
