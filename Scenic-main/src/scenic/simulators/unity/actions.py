@@ -26,8 +26,9 @@ class IdleAction(Action):
         obj.gameObject.DoAction(self.actionName)
 
 class MoveToAction(Action):
-    def __init__(self, obj):
+    def __init__(self, obj, behavior = None):
         self.actionName = "MoveToPos"
+        self.behavior = behavior
 
         if isinstance(obj, tuple) or type(obj) is tuple:
             self.position = obj
@@ -41,6 +42,9 @@ class MoveToAction(Action):
             self.clientID = obj.gameObject.clientID
     def applyTo(self, obj, sim):
         obj.gameObject.DoAction(self.actionName, self.position)
+        if (self.behavior != None):
+            obj.gameObject.SetBehavior(self.behavior)
+
 
 class DribbleToAction(Action):
     def __init__(self, obj):

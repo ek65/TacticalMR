@@ -16,7 +16,7 @@ behavior ShootBall(vec : Vector, string : str):
 behavior InterceptBall(ball):
     while (distance from self to ball) > 0.5:
         # print(distance from self to ball)
-        take MoveToAction(ball.position)
+        take MoveToAction(ball.position, "Intercept Ball")
     take StopAction()
 
 behavior GroundPassFast(vec : Vector):

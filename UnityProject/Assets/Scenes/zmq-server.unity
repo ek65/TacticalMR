@@ -1119,7 +1119,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2105754399, guid: 66fd9cdc3c13c48a98f418054f74c298, type: 3}
       propertyPath: replayIdentity.id
-      value: 30695
+      value: 12229
       objectReference: {fileID: 0}
     - target: {fileID: 2105754400, guid: 66fd9cdc3c13c48a98f418054f74c298, type: 3}
       propertyPath: replayIdentity.id
@@ -2491,11 +2491,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
---- !u!4 &759008962 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 24668466888461096, guid: 66fd9cdc3c13c48a98f418054f74c298, type: 3}
-  m_PrefabInstance: {fileID: 498607339}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &775958751
 GameObject:
   m_ObjectHideFlags: 0
@@ -2572,11 +2567,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 775958751}
   m_CullTransparentMesh: 1
---- !u!4 &816126310 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 5292150854507522720, guid: 66fd9cdc3c13c48a98f418054f74c298, type: 3}
-  m_PrefabInstance: {fileID: 498607339}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &878553187
 GameObject:
   m_ObjectHideFlags: 0
@@ -4988,9 +4978,7 @@ MonoBehaviour:
   isHost: 0
   _ObserverCamera: {fileID: 572133016}
   _OVRCR: {fileID: 1899546067}
-  _HeadTransform: {fileID: 816126310}
   _OriginalTransform: {fileID: 440506700}
-  hipTransform: {fileID: 759008962}
   ball: {fileID: 1899422313}
   _playerPrefab:
     RawGuidValue: a4fb433940f4a47738e6320da742bdbc
