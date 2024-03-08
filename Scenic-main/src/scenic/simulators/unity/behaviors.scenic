@@ -28,15 +28,3 @@ behavior MoveTo(v):
     while not (dist < 0.5):
         take MoveToAction(v)
         dist = distance from self to v
-
-behavior DribbleTo(v):
-    dist = 1000
-    while not (dist < 0.5):
-        take DribbleToAction(v)
-        dist = distance from self to v
-
-behavior SetPlayerSpeed(s):
-    take SetPlayerSpeedAction(s)
-
-behavior Print(o):
-    take PrintAction(o)
