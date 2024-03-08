@@ -801,7 +801,7 @@ PlayerSettings:
   webGLPowerPreference: 2
   scriptingDefineSymbols:
     Android: READY_PLAYER_ME;USE_INPUT_SYSTEM_POSE_CONTROL
-    Standalone: AutoSetupForUnity;READY_PLAYER_ME;USE_INPUT_SYSTEM_POSE_CONTROL;USE_INPUT_SYSTEM_POSE_CONTROL
+    Standalone: AutoSetupForUnity;READY_PLAYER_ME;USE_INPUT_SYSTEM_POSE_CONTROL
     WebGL: READY_PLAYER_ME
     Windows Store Apps: USE_INPUT_SYSTEM_POSE_CONTROL;USE_INPUT_SYSTEM_POSE_CONTROL
   additionalCompilerArguments: {}
