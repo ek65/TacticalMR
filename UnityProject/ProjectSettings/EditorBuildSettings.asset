@@ -9,7 +9,7 @@ EditorBuildSettings:
     path: Assets/Convai/Scenes/Convai Demo - VR.unity
     guid: eda28d2f4fd11e84893a8d05344d7424
   - enabled: 1
-    path: Assets/Scenes/zmq.unity
+    path: Assets/Scenes/zmqmoh.unity
     guid: 2b625bd447bad4788b05abee50ba28a7
   m_configObjects:
     Unity.XR.Oculus.Settings: {fileID: 11400000, guid: 1394e64b697ec4abe82e08446d44181f, type: 2}
