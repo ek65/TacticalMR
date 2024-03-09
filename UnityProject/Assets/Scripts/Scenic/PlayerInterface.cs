@@ -65,15 +65,16 @@ public class PlayerInterface : MonoBehaviour
         {
             ball = GameObject.FindGameObjectWithTag("ball").transform;
         }
-        if (goal == null)
-        {
-            goal = GameObject.FindGameObjectWithTag("goal").transform;
-        }
 
         ballOnTheGround.x = ball.transform.position.x;
         ballOnTheGround.y = ball.transform.position.y;
         ballOnTheGround.z = ball.transform.position.z;
         distToBall = Vector3.Distance(transform.position, ballOnTheGround);
+        if (goal == null)
+        {
+            goal = GameObject.FindGameObjectWithTag("goal").transform;
+        }
+
     }
 
     public void ApplyMovement(ScenicMovementData data)
