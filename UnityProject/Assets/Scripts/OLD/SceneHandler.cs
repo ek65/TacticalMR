@@ -59,7 +59,7 @@ public class SceneHandler : MonoBehaviour
     {
         for(int i = 0; i < Destinations.Capacity; i++)
         {
-            actionAPIs.MoveToPosMM(Destinations[i].position);
+            actionAPIs.MoveToPos(Destinations[i].position);
             // here we wait for 3 sec before update destination for self Player
             yield return new WaitForSeconds(3f);
             Debug.Log(i + " : ) ");

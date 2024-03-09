@@ -18,4 +18,3 @@ The repository is organized as follows:
 * the _examples_ directory has many examples of Scenic programs;
 * the _docs_ directory contains the sources for the documentation;
 * the _tests_ directory contains tests for the Scenic compiler.
-# HamiltonianHistory
