@@ -241,6 +241,7 @@ MonoBehaviour:
   Initialized: 0
   Paused: 0
   pauseBtnTxt: {fileID: 989223802}
+  posText: {fileID: 0}
   TimeIndex: 0
   camera: {fileID: 484727003}
   RewindTimeIndex: 0
@@ -1643,6 +1644,10 @@ PrefabInstance:
       propertyPath: m_Enabled
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 8534884368792420310, guid: 44badfc3c0b614396bd7630d116ddd90, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: d5f2acee723610c4d874a696e7e5035a, type: 2}
     - target: {fileID: 8534884368792420328, guid: 44badfc3c0b614396bd7630d116ddd90, type: 3}
       propertyPath: m_Name
       value: field_with_goals
