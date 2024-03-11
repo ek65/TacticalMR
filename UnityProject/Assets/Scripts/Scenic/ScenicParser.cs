@@ -279,6 +279,8 @@ public class ScenicParser
         // They will be read by the HandleMovementData above to populate the ScenicMovementData
         [JsonProperty("stopButton")]
         public bool Stopbutton { get; set; }
+        
+        
         [JsonProperty("heldByHuman")]
         public bool HeldByHuman { get; set; }
         [JsonProperty("heldByScenic")]
