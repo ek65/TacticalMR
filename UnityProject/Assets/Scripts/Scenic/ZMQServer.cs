@@ -115,6 +115,7 @@ public class ZMQServer : MonoBehaviour
         int currScenicPlayerListIdx = 0;
         int currScenicObjectListIdx = 0;
         int currMovementDataIndex = 0;
+        int aiAgentIndex = 0;
         foreach (ScenicMovementData s in movementData)
         {   
             if (s.model.modelType == "Player")
@@ -122,7 +123,10 @@ public class ZMQServer : MonoBehaviour
                 listOfScenicPlayerIndices[currScenicPlayerListIdx] = currMovementDataIndex;
                 currScenicPlayerListIdx += 1;
                 numPlayersCheck++;
-            } 
+            } else if (s.model.modelType == "aiAgent")
+            {
+                aiAgentIndex = currMovementDataIndex;
+            }
             // else if (s.model.modelType != "player.human")
             // {
             //     listOfScenicObjectIndices[currScenicObjectListIdx] = currMovementDataIndex;
@@ -142,6 +146,14 @@ public class ZMQServer : MonoBehaviour
             PlayerInterface p = objectList.scenicPlayers[i].GetComponentInChildren<PlayerInterface>();
             p.ApplyMovement(movementData[currPlayerIdx]);
         }
+        
+        // TODO: enable this when we get the AI agent prefab/gameobject
+        // if (objectList.AIAgent != null)
+        // {
+        //     AIInterface ai = objectList.AIAgent.GetComponentInChildren<AIInterface>();
+        //     ai.ApplyMovement(movementData[aiAgentIndex]);
+        // }
+        
         /**
         for (int i = 0; i < objectList.scenicPlayers.Count; i ++)
         {   

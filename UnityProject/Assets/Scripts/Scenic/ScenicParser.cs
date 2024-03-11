@@ -36,6 +36,7 @@ public class ScenicParser
         // Quaternion rot = ListToQuaternion(data.Rotation);
         string modelType = data.Model.ModelType;
         bool stopButton = data.Stopbutton;
+        string behavior = data.Behavior;
         if (data.ActionDict.Count > 0)
         {
             string actionFunc = data.ActionDict.First().Key;
@@ -124,12 +125,12 @@ public class ScenicParser
                         floatIndex++;
                     }
                 }
-                return new ScenicMovementData(pos, modelType, actionFunc, actionArgs, stopButton);
+                return new ScenicMovementData(pos, modelType, behavior, actionFunc, actionArgs, stopButton);
             }
-            return new ScenicMovementData(pos, modelType, stopButton);
+            return new ScenicMovementData(pos, modelType, behavior, stopButton);
         }
 
-        return new ScenicMovementData(pos, modelType, stopButton);
+        return new ScenicMovementData(pos, modelType, behavior, stopButton);
     }
     public void HandleControl(ScenicJson data)
     {
@@ -268,6 +269,9 @@ public class ScenicParser
         // public int MercunaDistance { get; set; }
         // [JsonProperty("doTransform")]
         // public bool DoTransform { get; set; }
+        [JsonProperty("behavior")]
+        public string Behavior { get; set; }
+        
         [JsonProperty("destroy")]
         public bool Destroy { get; set; }
 

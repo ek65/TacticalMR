@@ -9,22 +9,25 @@ public class ScenicMovementData : MonoBehaviour
     
     public string actionFunc;
     public List<object> actionArgs;
+    public string behavior;
     
     public bool stopButton;
 
     // Prepare the ScenicMovementData using the data received from scenic
-    public ScenicMovementData (Vector3 position, string modelType, bool stopButton)
+    public ScenicMovementData (Vector3 position, string modelType, string behavior, bool stopButton)
     {
         this.position = position;
         this.model = new Model(modelType);
+        this.behavior = behavior;
         
         this.stopButton = stopButton;
     }
 
-    public ScenicMovementData(Vector3 position, string modelType, string actionFunc, List<object> actionArgs, bool stopButton)
+    public ScenicMovementData(Vector3 position, string modelType, string behavior, string actionFunc, List<object> actionArgs, bool stopButton)
     {
         this.position = position;
         this.model = new Model(modelType);
+        this.behavior = behavior;
         this.actionFunc = actionFunc;
         this.actionArgs = actionArgs;
         

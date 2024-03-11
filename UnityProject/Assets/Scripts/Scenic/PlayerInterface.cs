@@ -29,6 +29,7 @@ public class PlayerInterface : MonoBehaviour
     private int localTick;  // NOTE: This is not the true tick and is what we will use to internally record a timestep.
 
     public ActionAPI actionAPI;
+    public FloatingText floatingText;
 
     private void Start()
     {
@@ -84,17 +85,26 @@ public class PlayerInterface : MonoBehaviour
         {
             return;
         }
+
+        if (data.behavior != "")
+        {
+            floatingText.SetText(data.behavior);
+        }
+        else
+        {
+            floatingText.SetText("Idle");
+        }
         if (data.actionFunc != null)
         {
             Type type = actionAPI.GetType();
             MethodInfo method = type.GetMethod(data.actionFunc);
-            Debug.Log("here12");
-            Debug.Log(data.actionFunc);
-            Debug.Log(data.actionArgs.ToArray().Length);
-            foreach (var v in data.actionArgs.ToArray())
-            {
-                Debug.Log(v);
-            }
+            // Debug.Log("here12");
+            // Debug.Log(data.actionFunc);
+            // Debug.Log(data.actionArgs.ToArray().Length);
+            // foreach (var v in data.actionArgs.ToArray())
+            // {
+            //     Debug.Log(v);
+            // }
             method.Invoke(actionAPI, data.actionArgs.ToArray());
         }
         else //idle

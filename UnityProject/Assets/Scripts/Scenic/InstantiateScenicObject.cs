@@ -30,6 +30,11 @@ public class InstantiateScenicObject
             GameObject goal = MonoBehaviour.Instantiate(objectList.modelList["goal"], pos, rot);
             objectList.scenicObjects.Add(goal);
         }
+        else if (tag == "aiAgent")
+        {
+            GameObject agent = MonoBehaviour.Instantiate(objectList.modelList["..."], pos, rot);
+            objectList.AIAgent = agent;
+        }
         else if (tag == "Player")
         {
             GameObject scenicPlayer = MonoBehaviour.Instantiate(objectList.modelList["player.scenic"], pos, rot);
