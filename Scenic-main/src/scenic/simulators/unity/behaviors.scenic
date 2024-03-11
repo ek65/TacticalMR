@@ -23,10 +23,10 @@ behavior GroundPassFast(vec : Vector):
     take GroundPassFastAction(vec)
     take StopAction()
 
-behavior MoveTo(v):
+behavior MoveTo(v, status=""):
     dist = 1000
     while not (dist < 0.5):
-        take MoveToAction(v)
+        take MoveToAction(v, status)
         dist = distance from self to v
 
 behavior DribbleTo(v):

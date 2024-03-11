@@ -6,36 +6,39 @@ public class KeyboardInput : MonoBehaviour
 {
     // Start is called before the first frame update
 
-    public float moveSpeed = 5f;
+    [SerializeField] public float moveSpeed = 4f;
     private Rigidbody rb;
 
     void Start()
     {
-        Debug.Log("start");
         rb = GetComponent<Rigidbody>();
-        Debug.Log(rb);
+    }
+    void Update()
+    {
+        Vector3 mousePos = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, Camera.main.transform.position.y));
+        transform.LookAt(mousePos);
+
+        if (Input.GetKeyDown("shift"))
+        {
+            moveSpeed = 2f;
+        } else {
+            moveSpeed = 4f;
+        }
     }
 
-    // Update is called once per frame
     void FixedUpdate()
     {
-        if (Input.GetKeyDown("a"))
-        {
-            Debug.Log("a key was pressed");
-        }
-
-        if (Input.GetKeyDown("d"))
-        {
-            Debug.Log("d key was pressed");
-        }
-
         float horizontalInput = Input.GetAxis("Horizontal");
         float verticalInput = Input.GetAxis("Vertical");
 
-        Vector3 movement = new Vector3(horizontalInput, 0f, verticalInput) * moveSpeed;
+        //Vector3 moveDirection = (transform.forward * verticalInput + transform.right * horizontalInput).normalized;
+
+        //Vector3 velocity = moveDirection * moveSpeed;
+        //rb.velocity = velocity;
+
+        Vector3 forwardDirection = transform.forward;
+        Vector3 movement = (forwardDirection * verticalInput + transform.right * horizontalInput).normalized * moveSpeed;
 
         rb.MovePosition(rb.position + movement * Time.fixedDeltaTime);
-        Debug.Log("horizontal: " + horizontalInput);
-        Debug.Log("vertical: " + verticalInput);
     }
 }

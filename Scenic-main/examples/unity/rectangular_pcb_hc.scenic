@@ -107,17 +107,37 @@ behavior opponentBehavior():
 behavior defendantBehavior(front: Opponent):
     try: 
         self.action = "idle"
-        do MoveTo(self.tacticalPosition)
+        do SetPlayerSpeed(5.0)
+        do MoveTo(self.tacticalPosition, "Idling")
         do Idle()
     interrupt when (self.closeRight and self.closeRight.action == "cover") or (self.closeLeft and self.closeLeft.action ==  "cover"): # Balance condition
         self.action = "balance"
-        do MoveTo(self.tacticalPosition + Vector((football.position.x - self.position.x) * 0.4, -2 - abs(football.position.x - self.position.x) * 0.2, 0)) for 0.1 seconds
+        do SetPlayerSpeed(5.0)
+        do MoveTo(self.tacticalPosition + Vector((football.position.x - self.position.x) * 0.4, -2 - abs(football.position.x - self.position.x) * 0.2, 0), "Balancing") for 0.1 seconds
     interrupt when (self.closeRight and self.closeRight.action == "press") or (self.closeLeft and self.closeLeft.action ==  "press"): # Cover condition
         self.action = "cover"
-        do MoveTo(self.tacticalPosition + Vector((football.position.x - self.position.x) * 0.4, 0, 0)) for 0.1 seconds
-    interrupt when front == closerTo(football, Opponent): # Press condition
-        self.action = "press"
-        do MoveTo(self.tacticalPosition + Vector((football.position.x - self.position.x) * 0.4, 4, 0)) for 0.1 seconds
+        do SetPlayerSpeed(7.5)
+        do MoveTo(self.tacticalPosition + Vector((football.position.x - self.position.x) * 0.4, 0, 0), "Covering") for 0.1 seconds
+    interrupt when pressCondition(self, [front, football]):
+        final = lambda x: self.tacticalPosition + Vector((x[1].position.x - self.position.x) * 0.4, 4, 0)
+        do SetPlayerSpeed(20.0)
+        do positionAction(final, 10, [front, football])
+
+
+def pressCondition(self, targets) -> bool:
+    # Targets as a list of scenic obj with format [frontOpponent, football]
+    # TODO: Check args
+    return targets[0] == closerTo(targets[1], Opponent)
+
+# This would be a generic action
+behavior positionAction(final, speed, targets):
+    self.action = "press"
+    do MoveTo(final(targets), "Pressing") for 0.1 seconds
+
+def coverCondition(self, targets) -> bool:
+    # Targets as a list of scenic obj with fromat [leftDefendant, rightDefendant]
+    #TODO: Check args
+    return (self.closeRight and self.closeRight.action == "press") or (self.closeLeft and self.closeLeft.action ==  "press")
 
 # Try interrupt while moving to (no idling after)
 
