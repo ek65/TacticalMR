@@ -279,12 +279,11 @@ public class ScenicParser
 
         // Added variables to the Player Class
         // They will be read by the HandleMovementData above to populate the ScenicMovementData
-
-        [JsonProperty("stopButton")]
-        public bool Stopbutton { get; set; }
         [JsonProperty("pause")]
         public bool Pause { get; set; }
-
+        [JsonProperty("stopButton")]
+        public bool Stopbutton { get; set; }
+  
         [JsonProperty("heldByHuman")]
         public bool HeldByHuman { get; set; }
         [JsonProperty("heldByScenic")]
