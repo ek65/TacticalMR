@@ -86,7 +86,11 @@ public class PlayerInterface : MonoBehaviour
             return;
         }
 
-        if (data.behavior != "")
+        if (data.behavior == " " || data.behavior == "")
+        {
+            floatingText.SetText("Idle");
+        }
+        else if (data.behavior != "" || data.behavior != null)
         {
             floatingText.SetText(data.behavior);
         }
@@ -94,6 +98,7 @@ public class PlayerInterface : MonoBehaviour
         {
             floatingText.SetText("Idle");
         }
+        
         if (data.actionFunc != null)
         {
             Type type = actionAPI.GetType();

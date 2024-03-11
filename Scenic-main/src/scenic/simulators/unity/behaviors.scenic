@@ -20,13 +20,19 @@ behavior InterceptBall(ball):
     take StopAction()
 
 behavior GroundPassFast(vec : Vector):
-    take GroundPassFastAction(vec)
+    take GroundPassFastAction(vec, "Pass Ball")
     take StopAction()
 
 behavior MoveTo(v, status=""):
     dist = 1000
     while not (dist < 0.5):
         take MoveToAction(v, status)
+        dist = distance from self to v
+
+behavior ApproachGoal(v):
+    dist = 1000
+    while not (dist < 0.5):
+        take MoveToAction(v, "Approach Goal")
         dist = distance from self to v
 
 behavior DribbleTo(v):

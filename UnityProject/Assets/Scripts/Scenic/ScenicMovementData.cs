@@ -12,6 +12,7 @@ public class ScenicMovementData : MonoBehaviour
     public string behavior;
     
     public bool stopButton;
+    
 
     // Prepare the ScenicMovementData using the data received from scenic
     public ScenicMovementData (Vector3 position, string modelType, string behavior, bool stopButton)
