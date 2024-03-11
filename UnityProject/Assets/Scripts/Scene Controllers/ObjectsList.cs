@@ -12,6 +12,8 @@ public class ObjectsList : MonoBehaviour
     public List<GameObject> scenicPlayers;
     public List<GameObject> humanPlayers;
     public List<GameObject> scenicObjects;
+    public GameObject AIAgent; 
+    
     public Dictionary<string, GameObject> modelList;
 
     void Start()

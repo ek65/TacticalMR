@@ -72,3 +72,9 @@ class Human(UnityObject):
     height : 1.0
     team : "blue"
     path : None
+
+class AIAgent(UnityObject):
+    gameObjectType : "aiAgent"
+    width : 1.0
+    length : 1.0
+    height : 1.0

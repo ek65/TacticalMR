@@ -403,6 +403,8 @@ class gameObject:
     
     actionDict : dict
 
+    behavior : str
+
     def __init__(self, position, rotation):
         self.position = position
         self.rotation = (rotation.x, rotation.y, rotation.z, rotation.w)
@@ -415,6 +417,7 @@ class gameObject:
         self.pause = False
         self.ballPossession = False
         self.actionDict = {}
+        self.behavior = ""
         self.model = Model()
 
     #############################################################################################
@@ -435,6 +438,9 @@ class gameObject:
     
     def StopAction(self):
         self.actionDict = {}
+
+    def SetBehavior(self, behaviorName : str):
+        self.behavior = behaviorName
  
     def destroyObj(self):
         print("Destroying object")

@@ -31,9 +31,11 @@ class StopAction(Action):
         obj.gameObject.StopAction()
 
 class IdleAction(Action):
-    def __init__(self):
+    def __init__(self, behavior = "Idle"):
         self.actionName = "Idle"
+        self.behavior = behavior
     def applyTo(self, obj, sim):
+        obj.gameObject.SetBehavior(self.behavior)
         obj.gameObject.DoAction(self.actionName)
 
 class SetPlayerSpeedAction(Action):
@@ -70,8 +72,9 @@ class MoveToWithSpeed(Action):
         obj.gameObject.DoAction(self.actionName, self.position, self.speed)
 
 class MoveToAction(Action):
-    def __init__(self, obj):
+    def __init__(self, obj, behavior = None):
         self.actionName = "MoveToPos"
+        self.behavior = behavior
 
         if isinstance(obj, tuple) or type(obj) is tuple:
             self.position = obj
@@ -84,6 +87,7 @@ class MoveToAction(Action):
         else:
             self.clientID = obj.gameObject.clientID
     def applyTo(self, obj, sim):
+        obj.gameObject.SetBehavior(self.behavior)
         obj.gameObject.DoAction(self.actionName, self.position)
 
 class DribbleToAction(Action):
@@ -194,8 +198,10 @@ class GroundPassSlowAction(Action):
             obj.gameObject.DoAction(self.actionName, self.position)
 
 class GroundPassFastAction(Action):
-    def __init__(self, obj):
+    def __init__(self, obj, behavior = None):
         self.actionName = "GroundPassFast"
+        self.behavior = behavior
+        
 
         if isinstance(obj, tuple) or type(obj) is tuple:
             self.position = obj
@@ -211,6 +217,7 @@ class GroundPassFastAction(Action):
         if self.position is None:
             obj.gameObject.MoveToObject(self.clientID)
         else:
+            obj.gameObject.SetBehavior(self.behavior)
             obj.gameObject.DoAction(self.actionName, self.position)
 
 class AirPassAction(Action):
@@ -513,3 +520,15 @@ class PlacingAndShortPassAction(Action):
             obj.gameObject.MoveToObject(self.clientID)
         else:
             obj.gameObject.DoAction(self.actionName, self.position)
+
+# AIAgent Actions
+class SpeakAction(Action):
+    def __init__(self, output):
+        self.actionName = "Speak"
+        
+        if not isinstance(output, str):
+            raise RuntimeError("output must be a string")
+        self.output = output
+
+    def applyTo(self, obj, sim):
+        obj.gameObject.DoAction(self.actionName, self.output)

@@ -22,7 +22,7 @@ behavior opponent1Behavior():
         do Idle() for 2 seconds
         do GroundPassFast(opponent2.position)
         do Idle() for 1 seconds
-        do MoveTo(pt)
+        do ApproachGoal(pt)
     interrupt when (distance from self to pt < 0.5 and self.gameObject.ballPossession):
         option = Uniform(1, 2, 3)
         # The finishing shot will be skewed left, center, or right

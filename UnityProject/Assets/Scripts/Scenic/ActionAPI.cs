@@ -90,6 +90,13 @@ public class ActionAPI : MonoBehaviour
         StartCoroutine(BallHeader(destinationPosition, VerticalForce(ballProjectileHeight)));
     }
     #endregion
+    
+    #region Methods for AIAgent
+    public void Speak(string text)
+    {
+        // TODO: Add Text to Speech
+    }
+    #endregion
 
     #region API Methods for Singleton Animations
 
