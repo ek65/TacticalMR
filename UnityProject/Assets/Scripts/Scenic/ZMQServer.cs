@@ -15,16 +15,16 @@ public class ZMQServer : MonoBehaviour
     private ScenicParser parser;
     // Start is called before the first frame update
     private ZMQRequester zmqRequester;
-    
+
     public int lastTick;
     private ObjectsList objectList;
-    
+
     private bool destroyed;
-    
+
     private JSONStatusMaker sender;
 
 
-        
+
     void Start()
     {
         if (ip == null || port == null)
@@ -38,10 +38,10 @@ public class ZMQServer : MonoBehaviour
         destroyed = false;
 
         lastTick = -1;
-        
+
         objectList = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<ObjectsList>();
         parser = new ScenicParser();
-        
+
         sender = this.gameObject.GetComponent<JSONStatusMaker>();
 
     }
@@ -50,7 +50,7 @@ public class ZMQServer : MonoBehaviour
         // sends to scenic
         string newSendData = sender.getUnityData();
         zmqRequester.SetSendData(newSendData);
-        
+
         // gets json from scenic
         string newData = zmqRequester.GetData();
         if (newData == null || newData.Equals("Null") || newData.Equals(""))
@@ -85,30 +85,31 @@ public class ZMQServer : MonoBehaviour
             Debug.LogError("json failed " + e);
         }
     }
-    
-    private void OnDestroy() {
+
+    private void OnDestroy()
+    {
         zmqRequester.Stop();
         //Following command crashes my editor for some reason
         //NetMQConfig.Cleanup(false); 
     }
-    
+
     private List<ScenicMovementData> ParseMovementData(ScenicParser.ScenicJson data)
     {
         Debug.Log("Parse Movement Data!");
         List<ScenicMovementData> moveData = parser.ScenicMovementParser(data);
-
         //init = true;
         return moveData;
     }
-    
+
     private int GetTickFromData(ScenicParser.ScenicJson data)
     {
         int tick = -1;
         tick = data.TimestepNumber;
         return tick;
     }
-    
-    private void ApplyMovement(List<ScenicMovementData> movementData) {
+
+    private void ApplyMovement(List<ScenicMovementData> movementData)
+    {
         // We want to ensure players spawned. We use this check.
         int numPlayersCheck = 0;
         int[] listOfScenicPlayerIndices = new int[movementData.Count];
@@ -116,6 +117,7 @@ public class ZMQServer : MonoBehaviour
         int currScenicPlayerListIdx = 0;
         int currScenicObjectListIdx = 0;
         int currMovementDataIndex = 0;
+        int aiAgentIndex = 0;
         foreach (ScenicMovementData s in movementData)
         {
             if (s.model.modelType == "Player")
@@ -124,9 +126,13 @@ public class ZMQServer : MonoBehaviour
                 currScenicPlayerListIdx += 1;
                 numPlayersCheck++;
             }
-            if(s.model.modelType == "Human")
+            else if (s.model.modelType == "aiAgent")
             {
-                //when this is human — check for boolean for pause, raise event if it changed
+                aiAgentIndex = currMovementDataIndex;
+            }
+            else if(s.model.modelType == "Human")
+            {
+                //broadcast the pause boolean which may be set by scenic AI agent at any given moment. TimelineManager would handle it
                 FindObjectOfType<TimelineManager>().NotifyPauseStatus(s.pause);
             }
             // else if (s.model.modelType != "player.human")
@@ -140,14 +146,22 @@ public class ZMQServer : MonoBehaviour
         {
             Debug.LogError("Scenic Players Mismatched? MovementData Received = " + movementData.Count + " Scenic Players = " + objectList.scenicPlayers.Count);
         }
-        
-        for(int i = 0; i < numPlayersCheck; i++)
+
+        for (int i = 0; i < numPlayersCheck; i++)
         {
             //Note: Because we apply controls at a set index, this *should* retain order...
             int currPlayerIdx = listOfScenicPlayerIndices[i];
             PlayerInterface p = objectList.scenicPlayers[i].GetComponentInChildren<PlayerInterface>();
             p.ApplyMovement(movementData[currPlayerIdx]);
         }
+
+        // TODO: enable this when we get the AI agent prefab/gameobject
+        // if (objectList.AIAgent != null)
+        // {
+        //     AIInterface ai = objectList.AIAgent.GetComponentInChildren<AIInterface>();
+        //     ai.ApplyMovement(movementData[aiAgentIndex]);
+        // }
+
         /**
         for (int i = 0; i < objectList.scenicPlayers.Count; i ++)
         {   
@@ -158,13 +172,14 @@ public class ZMQServer : MonoBehaviour
                 p.ApplyMovement(movementData[i]);
             }
         }*/
-        for(int i = 0; i < objectList.scenicObjects.Count; i++)
+        for (int i = 0; i < objectList.scenicObjects.Count; i++)
         {
-                PlayerInterface p = objectList.scenicObjects[i].GetComponentInChildren<PlayerInterface>();
-                if (p != null){
-                    int currObjectIdx = listOfScenicObjectIndices[i];
-                    p.ApplyMovement(movementData[currObjectIdx]);
-                }
+            PlayerInterface p = objectList.scenicObjects[i].GetComponentInChildren<PlayerInterface>();
+            if (p != null)
+            {
+                int currObjectIdx = listOfScenicObjectIndices[i];
+                p.ApplyMovement(movementData[currObjectIdx]);
+            }
         }
         //checking for human players to apply to
         // foreach (ScenicMovementData s in movementData){
@@ -199,7 +214,7 @@ public class ZMQServer : MonoBehaviour
         //The reason for this is because HumanInterface has issues saving the data when received server side. 
     }
 
-    
+
     //[ServerRpc]
     public void ResetTickServerRpc()
     {
@@ -209,3 +224,17 @@ public class ZMQServer : MonoBehaviour
         lastTick = -1;
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+

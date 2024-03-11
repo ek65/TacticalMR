@@ -36,13 +36,14 @@ public class ScenicParser
         // Quaternion rot = ListToQuaternion(data.Rotation);
         string modelType = data.Model.ModelType;
         bool stopButton = data.Stopbutton;
-        bool pause = data.pause;
+        bool pause = data.Pause;
+        string behavior = data.Behavior;
         if (data.ActionDict.Count > 0)
         {
             string actionFunc = data.ActionDict.First().Key;
             ActionDictType actionValues = data.ActionDict.First().Value;
             Debug.Log(actionFunc);
-            
+
             Type classType = Type.GetType("ActionAPI");
             if (classType.GetMethod(actionFunc) == null)
             {
@@ -52,7 +53,7 @@ public class ScenicParser
             {
                 MethodBase method = classType.GetMethod(actionFunc);
                 ParameterInfo[] parameters = method.GetParameters();
-                
+
                 List<object> actionArgs = new List<object>();
                 int vector3Index = 0;
                 int boolIndex = 0;
@@ -62,7 +63,7 @@ public class ScenicParser
 
                 foreach (ParameterInfo param in parameters)
                 {
-                    Debug.Log("For parameter #" + param.Position 
+                    Debug.Log("For parameter #" + param.Position
                                                 + ", the ParameterType is: " + param.ParameterType);
                     if (param.ParameterType == typeof(Vector3))
                     {
@@ -79,7 +80,8 @@ public class ScenicParser
                             actionArgs.Add(null);
                         }
                         vector3Index++;
-                    } else if (param.ParameterType == typeof(bool))
+                    }
+                    else if (param.ParameterType == typeof(bool))
                     {
                         bool val;
                         if (actionValues.BoolVals.Count - boolIndex > 0 &&
@@ -125,12 +127,12 @@ public class ScenicParser
                         floatIndex++;
                     }
                 }
-                return new ScenicMovementData(pos, modelType, actionFunc, actionArgs, stopButton, pause);
+                return new ScenicMovementData(pos, modelType, behavior, actionFunc, actionArgs, stopButton,pause);
             }
-            return new ScenicMovementData(pos, modelType, stopButton, pause);
+            return new ScenicMovementData(pos, modelType, behavior, stopButton,pause);
         }
 
-        return new ScenicMovementData(pos, modelType, stopButton,pause);
+        return new ScenicMovementData(pos, modelType, behavior, stopButton,pause);
     }
     public void HandleControl(ScenicJson data)
     {
@@ -188,7 +190,7 @@ public class ScenicParser
         */
         return new Quaternion(q[0], q[2], q[1], q[3]);
     }
-    
+
 
     //Json deparsing stuff here 
 
@@ -208,7 +210,7 @@ public class ScenicParser
         [JsonProperty("timestepNumber")]
         public int TimestepNumber { get; set; }
         [JsonProperty("destroy")]
-        public bool Destroy{ get; set; }
+        public bool Destroy { get; set; }
     }
     public partial class Model
     {
@@ -269,15 +271,20 @@ public class ScenicParser
         // public int MercunaDistance { get; set; }
         // [JsonProperty("doTransform")]
         // public bool DoTransform { get; set; }
+        [JsonProperty("behavior")]
+        public string Behavior { get; set; }
+
         [JsonProperty("destroy")]
         public bool Destroy { get; set; }
 
         // Added variables to the Player Class
         // They will be read by the HandleMovementData above to populate the ScenicMovementData
-        [JsonProperty("pause")]
-        public bool pause { get; set; }
+
         [JsonProperty("stopButton")]
         public bool Stopbutton { get; set; }
+        [JsonProperty("pause")]
+        public bool Pause { get; set; }
+
         [JsonProperty("heldByHuman")]
         public bool HeldByHuman { get; set; }
         [JsonProperty("heldByScenic")]
@@ -288,13 +295,13 @@ public class ScenicParser
 public partial class ActionDictType
 {
     [JsonProperty("intVals")]
-    public List<int> IntVals{ get; set; }
+    public List<int> IntVals { get; set; }
     [JsonProperty("floatVals")]
-    public List<float> FloatVals{ get; set; }
+    public List<float> FloatVals { get; set; }
     [JsonProperty("stringVals")]
-    public List<string> StringVals{ get; set; }
+    public List<string> StringVals { get; set; }
     [JsonProperty("tupleVals")]
-    public List<List<float>> TupleVals{ get; set; }
+    public List<List<float>> TupleVals { get; set; }
     [JsonProperty("boolVals")]
-    public List<bool> BoolVals{ get; set; }
+    public List<bool> BoolVals { get; set; }
 }

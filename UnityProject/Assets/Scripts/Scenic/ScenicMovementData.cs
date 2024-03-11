@@ -6,30 +6,34 @@ public class ScenicMovementData : MonoBehaviour
 {
     public Model model;
     public Vector3 position;
-    
+
     public string actionFunc;
     public List<object> actionArgs;
-    
-    public bool stopButton;
-    public bool pause;
+    public string behavior;
 
+    public bool stopButton;
+
+    public bool pause;
     // Prepare the ScenicMovementData using the data received from scenic
-    public ScenicMovementData(Vector3 position, string modelType, bool stopButton, bool pause)
+    public ScenicMovementData(Vector3 position, string modelType, string behavior, bool stopButton, bool pause)
     {
         this.position = position;
         this.model = new Model(modelType);
-        
+        this.behavior = behavior;
+
         this.stopButton = stopButton;
         this.pause = pause;
     }
 
-    public ScenicMovementData(Vector3 position, string modelType, string actionFunc, List<object> actionArgs, bool stopButton,bool pause)
+
+    public ScenicMovementData(Vector3 position, string modelType, string behavior, string actionFunc, List<object> actionArgs, bool stopButton,bool pause)
     {
         this.position = position;
         this.model = new Model(modelType);
+        this.behavior = behavior;
         this.actionFunc = actionFunc;
         this.actionArgs = actionArgs;
-        
+
         this.stopButton = stopButton;
         this.pause = pause;
     }
