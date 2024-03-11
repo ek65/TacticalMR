@@ -32,11 +32,12 @@ public class RewindableTimeSeries
 public class TimelineManager : MonoBehaviour
 {
     public List<Rewindable> rewindables;
+    
     public Dictionary<GameObject, RewindableTimeSeries> Timeseries;
     public bool rewinding = false;
-    public bool Initialized = false;
     public bool Paused = false;
     public TextMeshProUGUI pauseBtnTxt;
+    public TextMeshProUGUI pauseTxt;
     public TextMeshProUGUI posText;
     public int TimeIndex = 0;
     public Camera camera;
@@ -46,25 +47,77 @@ public class TimelineManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-      
+        Timeseries = new Dictionary<GameObject, RewindableTimeSeries>();
+        rewindables = new List<Rewindable>();
+        InstantiateScenicObject.Publish += InitializeOnScenicAdd;
     }
-    public void InitializeTimeline()
+    public void NotifyPauseStatus(bool pause)
+    {
+
+        if (pause&&!Paused)
+        {
+            Pause();
+        }
+        else if(!pause&&Paused)
+        {
+            Unpause();
+        }
+    }
+public void InitializeTimeline()
     {
         rewindables = FindObjectsOfType<Rewindable>().ToList();
-        Timeseries = new Dictionary<GameObject, RewindableTimeSeries>();
-        foreach (Rewindable r in rewindables)
+  
+  
+    }
+    public void InitializeOnScenicAdd(ScenicObectAddEventArg eventArg)
+    {
+        Rewindable rewindable = eventArg.gameObject.GetComponent<Rewindable>();
+        if (rewindable != null)
         {
-            Timeseries.Add(r.gameObject, new RewindableTimeSeries());
+            rewindables.Add(rewindable);
         }
-        Initialized = true;
+ 
+        Timeseries.Add(eventArg.gameObject, new RewindableTimeSeries());
+        
     }
     public void ClickPause()
     {
+        
 
         pauseBtnTxt.text = Paused?"Pause":"Unpause";
-        Paused = Paused?false:true;
-        Time.timeScale = Paused?1:0;
+        if (Paused)
+        {
+            Unpause();
+        }
+        else
+        {
+            Pause();
+        }
    
+    }
+    public void Pause()
+    {
+        foreach (Rewindable r in rewindables)
+        {
+            if (r.Pausible)
+            {
+                r.Freeze();
+            }
+        }
+        pauseTxt.text = "Scenic Called Pause...Everything paused except ego";
+        Paused = true;
+    }
+    public void Unpause()
+    {
+        foreach (Rewindable r in rewindables)
+        {
+            if (r.Pausible)
+            {
+                r.Unfreeze();
+            }
+        }
+        pauseTxt.text = "Unpaused";
+        Paused = false;
     }
     public void RaycastClick()
     {
@@ -89,11 +142,8 @@ public class TimelineManager : MonoBehaviour
         {
             rewinding = true;
         }
-        if (!Initialized)
-        {
-            return;
-        }
-        if (Paused) { Time.timeScale = 0; return; }
+       
+        if (Paused) {  return; }
         if (rewinding)
         {
             if(RewindTimeIndex <= 0)
@@ -141,4 +191,5 @@ public class TimelineManager : MonoBehaviour
         }
 
     }
+   
 }

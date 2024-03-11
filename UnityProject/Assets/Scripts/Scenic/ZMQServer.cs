@@ -96,6 +96,7 @@ public class ZMQServer : MonoBehaviour
     {
         Debug.Log("Parse Movement Data!");
         List<ScenicMovementData> moveData = parser.ScenicMovementParser(data);
+
         //init = true;
         return moveData;
     }
@@ -116,13 +117,18 @@ public class ZMQServer : MonoBehaviour
         int currScenicObjectListIdx = 0;
         int currMovementDataIndex = 0;
         foreach (ScenicMovementData s in movementData)
-        {   
+        {
             if (s.model.modelType == "Player")
             {
                 listOfScenicPlayerIndices[currScenicPlayerListIdx] = currMovementDataIndex;
                 currScenicPlayerListIdx += 1;
                 numPlayersCheck++;
-            } 
+            }
+            if(s.model.modelType == "Human")
+            {
+                //when this is human — check for boolean for pause, raise event if it changed
+                FindObjectOfType<TimelineManager>().NotifyPauseStatus(s.pause);
+            }
             // else if (s.model.modelType != "player.human")
             // {
             //     listOfScenicObjectIndices[currScenicObjectListIdx] = currMovementDataIndex;

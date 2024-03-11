@@ -36,6 +36,7 @@ public class ScenicParser
         // Quaternion rot = ListToQuaternion(data.Rotation);
         string modelType = data.Model.ModelType;
         bool stopButton = data.Stopbutton;
+        bool pause = data.pause;
         if (data.ActionDict.Count > 0)
         {
             string actionFunc = data.ActionDict.First().Key;
@@ -124,12 +125,12 @@ public class ScenicParser
                         floatIndex++;
                     }
                 }
-                return new ScenicMovementData(pos, modelType, actionFunc, actionArgs, stopButton);
+                return new ScenicMovementData(pos, modelType, actionFunc, actionArgs, stopButton, pause);
             }
-            return new ScenicMovementData(pos, modelType, stopButton);
+            return new ScenicMovementData(pos, modelType, stopButton, pause);
         }
 
-        return new ScenicMovementData(pos, modelType, stopButton);
+        return new ScenicMovementData(pos, modelType, stopButton,pause);
     }
     public void HandleControl(ScenicJson data)
     {
@@ -273,6 +274,8 @@ public class ScenicParser
 
         // Added variables to the Player Class
         // They will be read by the HandleMovementData above to populate the ScenicMovementData
+        [JsonProperty("pause")]
+        public bool pause { get; set; }
         [JsonProperty("stopButton")]
         public bool Stopbutton { get; set; }
         [JsonProperty("heldByHuman")]
