@@ -12,6 +12,7 @@ public class PlayerInterface : MonoBehaviour
 {
     public bool enemy;
     public bool ally;
+    public bool self;
     public Renderer shirt;
     public float speed;
     public Transform ball;
@@ -40,6 +41,10 @@ public class PlayerInterface : MonoBehaviour
         if (ally)
         {
             shirt.material.SetColor("_Color", Color.blue);
+        }
+        if (self)
+        {
+            shirt.material.SetColor("_Color", Color.yellow);
         }
         // ballOnTheGround.x = ball.transform.position.x;
         // ballOnTheGround.y = 0;

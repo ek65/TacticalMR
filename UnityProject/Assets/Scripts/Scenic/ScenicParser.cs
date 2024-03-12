@@ -149,7 +149,8 @@ public class ScenicParser
                     rot.x = -rot.x;
                     rot.z = -rot.z;
                     string tag = p.Model.ModelType;
-                    InstantiateScenicObject instObj = new InstantiateScenicObject(v, rot, tag);
+                    Color color = ListToColor(p.Model.color);
+                    InstantiateScenicObject instObj = new InstantiateScenicObject(v, rot, tag, color);
                 }
             }
             else if (data.Destroy)
@@ -189,6 +190,10 @@ public class ScenicParser
         NOTE: We switch y and z
         */
         return new Quaternion(q[0], q[2], q[1], q[3]);
+    }
+    private Color ListToColor(List<float> v)
+    {
+        return new Color(v[0], v[1], v[2], v[3]);
     }
 
 

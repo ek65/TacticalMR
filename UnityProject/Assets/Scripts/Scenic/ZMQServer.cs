@@ -126,14 +126,16 @@ public class ZMQServer : MonoBehaviour
                 currScenicPlayerListIdx += 1;
                 numPlayersCheck++;
             }
-            else if (s.model.modelType == "aiAgent")
-            {
-                aiAgentIndex = currMovementDataIndex;
-            }
+            // else if (s.model.modelType == "aiAgent")
+            // {
+            //     aiAgentIndex = currMovementDataIndex;
+            // }
             else if(s.model.modelType == "Human")
             {
                 //broadcast the pause boolean which may be set by scenic AI agent at any given moment. TimelineManager would handle it
                 FindObjectOfType<TimelineManager>().NotifyPauseStatus(s.pause);
+                HumanInterface human = objectList.humanPlayers[0].GetComponentInChildren<HumanInterface>();
+                human.ApplyMovement(movementData[aiAgentIndex]);
             }
             // else if (s.model.modelType != "player.human")
             // {

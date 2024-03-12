@@ -10,16 +10,16 @@ public class InstantiateScenicObject
     //timeline manager will subscribe to this event
     public static event PublishScenicAddObjectEvent Publish;
 
-    public InstantiateScenicObject(Vector3 pos, Quaternion rot, string tag)
+    public InstantiateScenicObject(Vector3 pos, Quaternion rot, string tag, Color color)
     {
         objectList = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<ObjectsList>();
         Debug.Log(tag);
         //Debug.Log(objectList.modelList);
-        AddScenicObject(pos, rot, tag);
+        AddScenicObject(pos, rot, tag, color);
         
     }
 
-    private void AddScenicObject(Vector3 pos, Quaternion rot, string tag)
+    private void AddScenicObject(Vector3 pos, Quaternion rot, string tag, Color color)
     {
         GameObject addedGameObject = null;
         if (tag == "Ball")
@@ -36,17 +36,29 @@ public class InstantiateScenicObject
             addedGameObject = MonoBehaviour.Instantiate(objectList.modelList["goal"], pos, rot);
             objectList.scenicObjects.Add(addedGameObject);
         }
-        else if (tag == "aiAgent")
-        {
-            GameObject agent = MonoBehaviour.Instantiate(objectList.modelList["Convai NPC Daniel He"], pos, Quaternion.Euler(-90,0,0));
-            agent.transform.parent = GameObject.Find("AI Interface").transform;
-            objectList.AIAgent = agent;
-        }
+        // else if (tag == "aiAgent")
+        // {
+        //     addedGameObject = MonoBehaviour.Instantiate(objectList.modelList["Convai NPC Daniel He"], pos, Quaternion.Euler(-90,0,0));
+        //     addedGameObject.transform.parent = GameObject.Find("AI Interface").transform;
+        //     objectList.AIAgent = addedGameObject;
+        // }
         else if (tag == "Player")
         {
             addedGameObject = MonoBehaviour.Instantiate(objectList.modelList["player.scenic"], pos, rot);
             //scenicPlayer.GetComponent<NetworkObject>().Spawn();
             objectList.scenicPlayers.Add(addedGameObject);
+            if (color == new Color(145f, 224f, 255f, 255f))
+            {
+                addedGameObject.GetComponentInChildren<PlayerInterface>().ally = true;
+            } else if (color == new Color(255f, 255f, 0f, 255f))
+            {
+                addedGameObject.GetComponentInChildren<PlayerInterface>().self = true;
+            }
+            else
+            {
+                addedGameObject.GetComponentInChildren<PlayerInterface>().enemy = true;
+            }
+            
             //objectList.orangePlayers.Add(scenicPlayer.GetComponent<NetworkObject>().NetworkInstanceId);
             Debug.Log("Added Scenic Player");
         }

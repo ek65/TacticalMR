@@ -145,6 +145,8 @@ class UnityMessageServer:
                 game_object.ChangeColor((254,216,177,1))
             elif obj.team == "blue":
                 game_object.ChangeColor((145,224,255,255))
+            elif obj.team == "self":
+                game_object.ChangeColor((255,255,0,255))
             self.sendData.addToQueue(obj.gameObject)
             self.sendData.control, self.sendData.addObject = True, True
             self.ScenicPlayers.append(game_object)

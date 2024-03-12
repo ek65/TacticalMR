@@ -41,6 +41,10 @@ class Defendant(Player):
     closeLeft: None
     closeRight: None
     isHuman: False
+    explained1: False
+    explained2: False
+    explained3: False
+    team : "blue"
 
 class Opponent(Player):
     friendly: False
@@ -100,9 +104,10 @@ behavior opponentBehavior():
         if self.debug:
             print("passing ball")
         do Idle() for Range(2, 3) seconds
-        available = Uniform(*self.close)
-        print(f"decided to pass ball to {available.name}")
-        do GroundPassFast(available.position)
+        if self.gameObject.ballPossession:
+            available = Uniform(*self.close)
+            print(f"decided to pass ball to {available.name}")
+            do GroundPassFast(available.position)
 
 balanceExplanation = "Alright, let's talk about balancing on the field. When you see your teammate covering another player, that's your cue to balance things out. It's like maintaining equilibrium in the defense. So, when you're balancing, your role is to position yourself behind the player who's covering and in front of any teammates of the attacker who might receive a potential pass. This setup helps us anticipate and intercept any long passes that could come our way. It's about staying in control and ready to react to whatever the opposition throws at us. Got it?"
 coverExplanation = "Alright, here's the scoop on covering. When you're on the field and you see your teammate pressing another player, that's your signal to step in and cover. Imagine it like a safety net for your teammate's move. So, when you're covering, your job is to position yourself behind your teammate who is pressing and between the two closest attackers. This setup ensures you're ready if the attacker tries to bypass your teammate who's pressing, or if they decide to pass the ball to a teammate instead. It's all about being that extra layer of defense, ready to intercept or block any moves they make. Makes sense?"
@@ -116,27 +121,32 @@ behavior defendantBehavior(front: Opponent):
         do MoveTo(self.tacticalPosition, "Idling")
         do Idle()
     interrupt when (self.closeRight and self.closeRight.action == "cover") or (self.closeLeft and self.closeLeft.action ==  "cover"): # Balance condition
-        if self.isHuman: 
-            do explain(balanceExplanation)
+        if self.isHuman and self.explained1 == False: 
+            do explain(40, balanceExplanation)
+            self.explained1 = True
         self.action = "balance"
         do SetPlayerSpeed(5.0)
         do MoveTo(self.tacticalPosition + Vector((football.position.x - self.position.x) * 0.6, -2 - abs(football.position.x - self.position.x) * 0.2, 0), "Balancing") for 0.1 seconds
     interrupt when (self.closeRight and self.closeRight.action == "press") or (self.closeLeft and self.closeLeft.action ==  "press"): # Cover condition
-        if self.isHuman:
-            do explain(coverExplanation)
+        if self.isHuman and self.explained2 == False:
+            do explain(40,coverExplanation)
+            self.explained2 = True
         self.action = "cover"
         do SetPlayerSpeed(7.5)
         do MoveTo(self.tacticalPosition + Vector((football.position.x - self.position.x) * 0.6, 0, 0), "Covering") for 0.1 seconds
     interrupt when pressCondition(self, [front, football]):
-        if self.isHuman:
-            do explain(pressExplanation)
+        if self.isHuman and self.explained3 == False:
+            do explain(35, pressExplanation)
+            self.explained3 = True
         final = lambda x: self.tacticalPosition + Vector((x[1].position.x - self.position.x) * 0.6, x[0].position.y - 2.5, 0)
         do SetPlayerSpeed(20.0)
         do positionAction(final, 10, [front, football])
 
-behavior explain(string):
+behavior explain(time, string):
+    do Idle() for 1 seconds
     ego.gameObject.pause = True
-    take TalkAction(string)
+    do Speak("Say \"" + string + "\"")
+    do Idle() for time seconds
     ego.gameObject.pause = False
     do Idle() for 1 seconds
 
@@ -190,6 +200,7 @@ defendant_b = new Defendant at (0, 0, 0),
                     with behavior defendantBehavior(opponent_b)
 defendant_b.tacticalPosition = (0, 0, 0)
 defendant_b.isHuman = True
+defendant_b.team = "self"
 
 defendant_c = new Defendant at (8, 0, 0),
                     with behavior defendantBehavior(opponent_c)

@@ -3107,8 +3107,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 189b4c9bf1f341f428485e3ed904fd74, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  enemy: 1
+  enemy: 0
   ally: 0
+  self: 0
   shirt: {fileID: 8665160898560163737}
   speed: 3
   ball: {fileID: 0}
@@ -3190,7 +3191,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   version: 5
-  radius: 1
+  radius: 0.5
   height: 2
   canMove: 1
   maxSpeed: 7
@@ -3443,6 +3444,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   RewindTransform: 1
+  Pausible: 1
 --- !u!1 &8665160898920370538
 GameObject:
   m_ObjectHideFlags: 0

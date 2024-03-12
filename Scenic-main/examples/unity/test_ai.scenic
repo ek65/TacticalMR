@@ -9,14 +9,19 @@ penalty_box = MeshVolumeRegion(trimesh.creation.box((1, 1, 1)), dimensions = (4,
 
 behavior aiBehavior():
     do Idle() for 5 seconds
+    ego.gameObject.pause = True
     do Speak("Say \"I did this thing\"")
+    do Idle() for 5 seconds
+    ego.gameObject.pause = False
+    do Idle()
+    
     
 
 
-ego = new Human at (5, 0, 0)
+ego = new Human at (0, 0, 0), with behavior aiBehavior
 
 # ai = new AIAgent at (0, 0, 0)
-ai = new AIAgent at (0, 0, 0), with behavior aiBehavior()
+# ai = new AIAgent at (0, 0, 0), with behavior aiBehavior()
 
 
 terminate when (ego.gameObject.stopButton)

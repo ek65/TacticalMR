@@ -2582,7 +2582,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3789383312014079073, guid: 05b56f9aa08424c5192cd63aba461dc8, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 3789383312014079073, guid: 05b56f9aa08424c5192cd63aba461dc8, type: 3}
       propertyPath: m_LocalPosition.y
@@ -2590,7 +2590,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3789383312014079073, guid: 05b56f9aa08424c5192cd63aba461dc8, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 3789383312014079073, guid: 05b56f9aa08424c5192cd63aba461dc8, type: 3}
       propertyPath: m_LocalRotation.w
@@ -2644,13 +2644,17 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5716485824173042194, guid: 05b56f9aa08424c5192cd63aba461dc8, type: 3}
+      propertyPath: characterName
+      value: Expert
+      objectReference: {fileID: 0}
     - target: {fileID: 6444845599705650242, guid: 05b56f9aa08424c5192cd63aba461dc8, type: 3}
       propertyPath: m_Name
       value: Convai NPC Daniel He
       objectReference: {fileID: 0}
     - target: {fileID: 6444845599705650242, guid: 05b56f9aa08424c5192cd63aba461dc8, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7082124636852000437, guid: 05b56f9aa08424c5192cd63aba461dc8, type: 3}
       propertyPath: m_IsActive
@@ -3260,7 +3264,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &821670119
 RectTransform:
   m_ObjectHideFlags: 0
@@ -4952,7 +4956,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   instantiateIdentity: 1
   replayIdentity:
-    id: 27066
+    id: 47929
   prefabIdentity:
     id: 12837
   observedComponents:
@@ -4974,7 +4978,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   replayIdentity:
-    id: 28501
+    id: 60183
   replayObject:
     reference: {fileID: 1429554335}
   replayPosition: 23
@@ -5955,7 +5959,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1782099613
 RectTransform:
   m_ObjectHideFlags: 0
@@ -6729,7 +6733,7 @@ MonoBehaviour:
   questionAnswerPrefab: {fileID: 3579091036758702676, guid: a39998bccd08b1a42825de3cebc0858e, type: 3}
   characters:
   - characterGameObject: {fileID: 636616935}
-    characterName: Daniel He
+    characterName: Expert
     characterTextColor: {r: 0, g: 0.7, b: 0.4, a: 1}
   playerName: Player
   playerTextColor: {r: 0.16216493, g: 1, b: 0, a: 1}
@@ -7011,7 +7015,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1883788612738105472, guid: 3fc60925b72651f4d8454f2dc785e354, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 1883788612738105472, guid: 3fc60925b72651f4d8454f2dc785e354, type: 3}
       propertyPath: m_LocalPosition.y
@@ -7019,7 +7023,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1883788612738105472, guid: 3fc60925b72651f4d8454f2dc785e354, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0.41
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 1883788612738105472, guid: 3fc60925b72651f4d8454f2dc785e354, type: 3}
       propertyPath: m_LocalRotation.w
@@ -7129,7 +7133,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   instantiateIdentity: 1
   replayIdentity:
-    id: 36720
+    id: 7785
   prefabIdentity:
     id: 2697
   observedComponents:
@@ -7151,7 +7155,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   replayIdentity:
-    id: 1543
+    id: 13856
   replayObject:
     reference: {fileID: 2015253260}
   replayPosition: 23

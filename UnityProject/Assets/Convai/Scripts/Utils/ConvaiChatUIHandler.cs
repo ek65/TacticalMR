@@ -238,7 +238,11 @@ namespace Convai.Scripts.Utils
         /// <param name="text">The text to send.</param>
         public void SendPlayerText(string text)
         {
-            _currentUIImplementation?.SendPlayerText(playerName, text, playerTextColor);
+            // Debug.LogError(playerName);
+            if (playerName != "Player")
+            {
+                _currentUIImplementation?.SendPlayerText(playerName, text, playerTextColor);
+            }
         }
 
         /// <summary>

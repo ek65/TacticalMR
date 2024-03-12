@@ -2343,6 +2343,7 @@ GameObject:
   - component: {fileID: 5716485824173042194}
   - component: {fileID: 4230230197966741112}
   - component: {fileID: 4779967359598583748}
+  - component: {fileID: -9038481406257943808}
   m_Layer: 0
   m_Name: Convai NPC Daniel He
   m_TagString: Character
@@ -2557,6 +2558,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   actionAPI: {fileID: 4230230197966741112}
+--- !u!114 &-9038481406257943808
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6444845599705650242}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d899b7a26687b4cb4afbee0dbd6e1833, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  RewindTransform: 1
+  Pausible: 0
 --- !u!1 &6489379964591739241
 GameObject:
   m_ObjectHideFlags: 0
