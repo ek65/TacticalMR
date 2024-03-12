@@ -398,6 +398,7 @@ class gameObject:
     angularVelocity : Vector
     speed : float
     stopButton : bool
+    pause:bool
     ballPossession : bool
     
     actionDict : dict
@@ -413,6 +414,7 @@ class gameObject:
         self.tag = ""
         self.clientID = 0
         self.stopButton = False
+        self.pause = False
         self.ballPossession = False
         self.actionDict = {}
         self.behavior = ""

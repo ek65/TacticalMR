@@ -30,5 +30,6 @@ public class HumanInterface : MonoBehaviour
         source.PlayOneShot(source.clip);
         this.transform.position = pos;
         Debug.LogWarning("Local: I am transforming to: " + pos.ToString());
+
     }
 }

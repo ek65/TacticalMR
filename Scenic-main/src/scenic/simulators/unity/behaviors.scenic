@@ -10,7 +10,7 @@ behavior Idle():
         take IdleAction()
 
 behavior ShootBall(vec : Vector, string : str):
-    take ShootAction(vec, string)
+    take ShootAction(vec, string, "Shoot Ball")
     take StopAction()
 
 behavior InterceptBall(ball):
@@ -46,3 +46,7 @@ behavior SetPlayerSpeed(s):
 
 behavior Print(o):
     take PrintAction(o)
+
+behavior Speak(input : str):
+    take SpeakAction(input)
+    take StopAction()

@@ -424,6 +424,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   RewindTransform: 1
+  Pausible: 0
 --- !u!1 &1300100732955076933
 GameObject:
   m_ObjectHideFlags: 0
