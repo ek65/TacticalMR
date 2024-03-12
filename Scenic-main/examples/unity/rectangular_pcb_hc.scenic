@@ -134,7 +134,7 @@ behavior defendantBehavior(front: Opponent):
         self.action = "cover"
         do SetPlayerSpeed(7.5)
         do MoveTo(self.tacticalPosition + Vector((football.position.x - self.position.x) * 0.6, 0, 0), "Covering") for 0.1 seconds
-    interrupt when pressCondition(self, [front, football]):
+    interrupt when pressCondition(self, [front, football]): # Press condition
         if self.isHuman and self.explained3 == False:
             do explain(35, pressExplanation)
             self.explained3 = True
