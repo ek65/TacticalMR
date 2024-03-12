@@ -317,8 +317,9 @@ class ChipFrontAction(Action):
             obj.gameObject.DoAction(self.actionName, self.position, self.height)
 
 class ShootAction(Action):
-    def __init__(self, obj, zone):
+    def __init__(self, obj, zone, behavior = None):
         self.actionName = "Shoot"
+        self.behavior = behavior
 
         if not isinstance(zone, str):
             raise RuntimeError("zone must be a str.")
@@ -338,6 +339,7 @@ class ShootAction(Action):
         if self.position is None:
             obj.gameObject.MoveToObject(self.clientID)
         else:
+            obj.gameObject.SetBehavior(self.behavior)
             obj.gameObject.DoAction(self.actionName, self.position, self.zone)
 
 class BallThrowAction(Action):
@@ -523,12 +525,12 @@ class PlacingAndShortPassAction(Action):
 
 # AIAgent Actions
 class SpeakAction(Action):
-    def __init__(self, output):
+    def __init__(self, input):
         self.actionName = "Speak"
         
-        if not isinstance(output, str):
+        if not isinstance(input, str):
             raise RuntimeError("output must be a string")
-        self.output = output
+        self.input = input
 
     def applyTo(self, obj, sim):
-        obj.gameObject.DoAction(self.actionName, self.output)
+        obj.gameObject.DoAction(self.actionName, self.input)

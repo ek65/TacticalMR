@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.ConstrainedExecution;
+using Convai.Scripts;
 using Pathfinding;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -94,7 +95,8 @@ public class ActionAPI : MonoBehaviour
     #region Methods for AIAgent
     public void Speak(string text)
     {
-        // TODO: Add Text to Speech
+        ConvaiNPC charObj = GameObject.FindGameObjectWithTag("Character").GetComponentInChildren<ConvaiNPC>();
+        charObj.HandleInputSubmission(text);
     }
     #endregion
 

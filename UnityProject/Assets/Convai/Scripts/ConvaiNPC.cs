@@ -330,7 +330,7 @@ namespace Convai.Scripts
             // If no active and interactable input field is found, return null
         }
 
-        private void HandleInputSubmission(string input)
+        public void HandleInputSubmission(string input)
         {
             Logger.DebugLog("Sending user text to the server...", Logger.LogCategory.Character);
             _convaiChatUIHandler.SendPlayerText(input);

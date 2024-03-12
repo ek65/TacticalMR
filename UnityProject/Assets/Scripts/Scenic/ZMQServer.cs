@@ -154,14 +154,13 @@ public class ZMQServer : MonoBehaviour
             PlayerInterface p = objectList.scenicPlayers[i].GetComponentInChildren<PlayerInterface>();
             p.ApplyMovement(movementData[currPlayerIdx]);
         }
-
-        // TODO: enable this when we get the AI agent prefab/gameobject
-        // if (objectList.AIAgent != null)
-        // {
-        //     AIInterface ai = objectList.AIAgent.GetComponentInChildren<AIInterface>();
-        //     ai.ApplyMovement(movementData[aiAgentIndex]);
-        // }
-
+        
+        if (objectList.AIAgent != null)
+        {
+            AIInterface ai = objectList.AIAgent.GetComponentInChildren<AIInterface>();
+            ai.ApplyMovement(movementData[aiAgentIndex]);
+        }
+        
         /**
         for (int i = 0; i < objectList.scenicPlayers.Count; i ++)
         {   

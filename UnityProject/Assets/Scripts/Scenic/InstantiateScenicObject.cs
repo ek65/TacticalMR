@@ -38,8 +38,8 @@ public class InstantiateScenicObject
         }
         else if (tag == "aiAgent")
         {
-            //TODO: add prefab for AI agent
-            GameObject agent = MonoBehaviour.Instantiate(objectList.modelList["..."], pos, rot);
+            GameObject agent = MonoBehaviour.Instantiate(objectList.modelList["Convai NPC Daniel He"], pos, Quaternion.Euler(-90,0,0));
+            agent.transform.parent = GameObject.Find("AI Interface").transform;
             objectList.AIAgent = agent;
         }
         else if (tag == "Player")

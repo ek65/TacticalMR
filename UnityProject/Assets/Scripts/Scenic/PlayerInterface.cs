@@ -86,7 +86,7 @@ public class PlayerInterface : MonoBehaviour
             return;
         }
 
-        if (data.behavior == " " || data.behavior == "")
+        if (data.behavior == " " || data.behavior == "" || data.behavior == "Idle")
         {
             floatingText.SetText("Idle");
         }
