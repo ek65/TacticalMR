@@ -111,9 +111,8 @@ behavior opponentBehavior():
 
 balanceExplanation = "Alright, let's talk about balancing on the field. When you see your teammate covering another player, that's your cue to balance things out. It's like maintaining equilibrium in the defense. So, when you're balancing, your role is to position yourself behind the player who's covering and in front of any teammates of the attacker who might receive a potential pass. This setup helps us anticipate and intercept any long passes that could come our way. It's about staying in control and ready to react to whatever the opposition throws at us. Got it?"
 coverExplanation = "Alright, here's the scoop on covering. When you're on the field and you see your teammate pressing another player, that's your signal to step in and cover. Imagine it like a safety net for your teammate's move. So, when you're covering, your job is to position yourself behind your teammate who is pressing and between the two closest attackers. This setup ensures you're ready if the attacker tries to bypass your teammate who's pressing, or if they decide to pass the ball to a teammate instead. It's all about being that extra layer of defense, ready to intercept or block any moves they make. Makes sense?"
-pressExplanation = "Alright, here's the deal. When you're on the field and you notice you're the one closest to the opponent with the ball, that's your cue to press. It's like seeing an opening and seizing it. You move in, keeping yourself within a meter of them, and position yourself at a 45-degree angle. This setup allows you to react quickly if they try to make a move past you. Pressing is all about seizing the right moment and disrupting their play. Clear enough?"
+pressExplanation = "When you're on the field and you notice you're the one closest to the opponent with the ball, that's your cue to press. You move in, keeping yourself within a meter of them. This setup allows you to react quickly if they try to make a move past you."
 
-#TODO: Add is humna to enable talk, pasue and resume
 behavior defendantBehavior(front: Opponent):
     try: 
         self.action = "idle"
@@ -136,7 +135,7 @@ behavior defendantBehavior(front: Opponent):
         do MoveTo(self.tacticalPosition + Vector((football.position.x - self.position.x) * 0.6, 0, 0), "Covering") for 0.1 seconds
     interrupt when pressCondition(self, [front, football]): # Press condition
         if self.isHuman and self.explained3 == False:
-            do explain(35, pressExplanation)
+            do explain(17, pressExplanation)
             self.explained3 = True
         final = lambda x: self.tacticalPosition + Vector((x[1].position.x - self.position.x) * 0.6, x[0].position.y - 2.5, 0)
         do SetPlayerSpeed(20.0)

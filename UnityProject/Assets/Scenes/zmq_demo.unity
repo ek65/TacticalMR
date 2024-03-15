@@ -4956,7 +4956,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   instantiateIdentity: 1
   replayIdentity:
-    id: 47929
+    id: 62394
   prefabIdentity:
     id: 12837
   observedComponents:
@@ -4978,7 +4978,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   replayIdentity:
-    id: 60183
+    id: 30957
   replayObject:
     reference: {fileID: 1429554335}
   replayPosition: 23
@@ -6734,7 +6734,7 @@ MonoBehaviour:
   characters:
   - characterGameObject: {fileID: 636616935}
     characterName: Expert
-    characterTextColor: {r: 0, g: 0.7, b: 0.4, a: 1}
+    characterTextColor: {r: 1, g: 1, b: 0, a: 1}
   playerName: Player
   playerTextColor: {r: 0.16216493, g: 1, b: 0, a: 1}
 --- !u!4 &1983799399
@@ -7133,7 +7133,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   instantiateIdentity: 1
   replayIdentity:
-    id: 7785
+    id: 53405
   prefabIdentity:
     id: 2697
   observedComponents:
@@ -7155,7 +7155,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   replayIdentity:
-    id: 13856
+    id: 35881
   replayObject:
     reference: {fileID: 2015253260}
   replayPosition: 23

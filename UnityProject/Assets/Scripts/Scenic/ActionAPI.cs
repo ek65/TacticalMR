@@ -92,7 +92,7 @@ public class ActionAPI : MonoBehaviour
     }
     #endregion
     
-    #region Methods for AIAgent
+    #region Methods for Human/AI Agent
     public void Speak(string text)
     {
         ConvaiNPC charObj = GameObject.FindGameObjectWithTag("Character").GetComponentInChildren<ConvaiNPC>();

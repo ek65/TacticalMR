@@ -29,6 +29,8 @@ namespace Convai.Scripts
         private const int RECORDING_LENGTH = 30;
         private static readonly int Talk = Animator.StringToHash("Talk");
 
+        public string currResponse; // Daniel added this line
+
         [Header("Character Information")]
         [Tooltip("Enter the character name for this NPC.")]
         public string characterName;
@@ -498,9 +500,12 @@ namespace Convai.Scripts
                         // Assumes _chatUIHandler could be null
                         if (_convaiChatUIHandler != null)
                             if (!string.IsNullOrEmpty(currentResponseAudio.AudioTranscript))
+                            {
+                                currResponse = currentResponseAudio.AudioTranscript.Trim(); // Daniel edited
                                 _convaiChatUIHandler.SendCharacterText(characterName,
-                                    currentResponseAudio.AudioTranscript.Trim());
-
+                                    currResponse);
+                            }
+                                
                         yield return new WaitForSeconds(currentResponseAudio.AudioClip.length);
 
                         _audioSource.Stop();
