@@ -23,6 +23,14 @@ public class SpeechRecognition : MonoBehaviour {
         if (recording && Microphone.GetPosition(null) >= clip.samples) {
             StopRecording();
         }
+        if (Input.GetKeyDown(KeyCode.T)) {
+            StartRecording();
+        }
+
+        // Stop recording when the T key is released.
+        if (Input.GetKeyUp(KeyCode.T)) {
+            StopRecording();
+        }
     }
 
     private void StartRecording() {
