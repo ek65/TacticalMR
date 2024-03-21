@@ -34,6 +34,7 @@ public class InstantiateScenicObject
         else if (tag == "goal")
         {
             addedGameObject = MonoBehaviour.Instantiate(objectList.modelList["goal"], pos, rot);
+            objectList.goalObject = addedGameObject;
             objectList.scenicObjects.Add(addedGameObject);
         }
         // else if (tag == "aiAgent")

@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -16,7 +17,15 @@ public class Fade : MonoBehaviour
         fade = false; //turn to false later
         fadeRate = 10.0f;
     }
-    
+
+    private void Update()
+    {
+        if (blackout == null)
+        {
+            blackout = GameObject.FindGameObjectWithTag("MainCamera").GetComponentInChildren<Image>();
+        }
+    }
+
     void LateUpdate()
     {
         Color currentColor = blackout.color;

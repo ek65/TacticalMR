@@ -4,8 +4,9 @@ using UnityEngine;
 
 public class ObjectsList : MonoBehaviour
 {
-    //in-game objects
+    //in-game objects created from Scenic
     public GameObject ballObject;
+    public GameObject goalObject;
     public List<ulong> bluePlayers;
     public List<ulong> orangePlayers;
 

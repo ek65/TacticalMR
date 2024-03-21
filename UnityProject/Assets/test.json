@@ -1,0 +1,60 @@
+{
+    "offsensePlayers": [
+        {
+            "name": "player.scenic(Clone)",
+            "positionX": 5.577402114868164,
+            "positionZ": 4.7492828369140629
+        },
+        {
+            "name": "player.scenic(Clone)",
+            "positionX": 11.364965438842774,
+            "positionZ": 0.010457439348101616
+        },
+        {
+            "name": "player.scenic(Clone)",
+            "positionX": 5.6287841796875,
+            "positionZ": 4.619693756103516
+        },
+        {
+            "name": "player.scenic(Clone)",
+            "positionX": 11.364965438842774,
+            "positionZ": 0.010457443073391915
+        },
+        {
+            "name": "player.scenic(Clone)",
+            "positionX": 5.628775596618652,
+            "positionZ": 4.6197099685668949
+        },
+        {
+            "name": "player.scenic(Clone)",
+            "positionX": 11.364965438842774,
+            "positionZ": 0.010457443073391915
+        },
+        {
+            "name": "player.scenic(Clone)",
+            "positionX": 5.629271030426025,
+            "positionZ": 4.608342170715332
+        },
+        {
+            "name": "player.scenic(Clone)",
+            "positionX": 11.364965438842774,
+            "positionZ": 0.010457443073391915
+        }
+    ],
+    "defensePlayers": [],
+    "ball": {
+        "name": "soccer_ball(Clone)",
+        "positionX": 5.569255352020264,
+        "positionZ": 4.273681163787842
+    },
+    "goal": {
+        "name": "goal(Clone)",
+        "positionX": 5.0,
+        "positionZ": -4.454025745391846
+    },
+    "coach": {
+        "name": "player.human(Clone)",
+        "positionX": 5.0,
+        "positionZ": 0.010456085205078125
+    }
+}

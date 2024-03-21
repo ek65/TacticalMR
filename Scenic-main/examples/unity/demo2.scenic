@@ -1,0 +1,61 @@
+from scenic.simulators.unity.actions import *
+from scenic.simulators.unity.behaviors import *
+model scenic.simulators.unity.model
+import trimesh
+from scenic.core.regions import MeshVolumeRegion
+import random
+
+# TODO: Right now the ball automatically gets recieved by AI when near ball, 
+# instead make an action or paramter that enables this when we want
+
+penalty_box = MeshVolumeRegion(trimesh.creation.box((1, 1, 1)), dimensions = (4, 2, .1), position = (-1, -1.5, 0))
+
+behavior opponent1Behavior():
+    try:
+        do InterceptBall(ball)
+        do Idle() 
+    interrupt when ((distance from ego to self) < 4 and self.gameObject.ballPossession and distance from self to pt > 0.1):
+        do Idle() for 0.5 seconds
+        ego.gameObject.pause = True
+        test = True
+        do Idle() for 2 seconds
+        ego.gameObject.pause = False
+        do Idle() for 2 seconds
+        do GroundPassFast(opponent2.position)
+        do Idle() for 1 seconds
+        do ApproachGoal(pt)
+    interrupt when (distance from self to pt < 0.5 and self.gameObject.ballPossession):
+        option = Uniform(1, 2, 3)
+        # The finishing shot will be skewed left, center, or right
+        if (option == 1):
+            do ShootBall(goal.position, "left-middle")
+        elif (option == 2):
+            do ShootBall(goal.position, "center-middle")
+        elif (option == 3):
+            do ShootBall(goal.position, "right-middle")
+        abort
+    
+behavior opponent2Behavior():
+    try:
+        do Idle()
+    interrupt when (self.gameObject.ballPossession):
+        do GroundPassFast(pt.position)
+        abort
+
+test = False
+spawn_range = Range(0,0.1)
+ego = new Human at (5, spawn_range, 0)
+ball = new Ball at ego offset by Range(-4, 4) @ Range(4, 4.5)
+pt = new Point in penalty_box
+goal = new Goal behind ego by Range(2.9,3), facing away from ego
+
+opponent1 = new Player at ball offset by Range(-1, 1) @ Range(4.6, 4.7),
+                    facing toward ego,
+                    with behavior opponent1Behavior()
+
+
+opponent2 = new Player right of ego by Range(4, 6), 
+                    facing toward opponent1,
+                    with behavior opponent2Behavior()
+
+terminate when (ego.gameObject.stopButton)

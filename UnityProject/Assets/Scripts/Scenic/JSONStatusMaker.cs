@@ -114,7 +114,13 @@ public class JSONStatusMaker : MonoBehaviour
             {
                 Debug.LogError("stopbutton: " + pData.movementData.stopButton);
             }
-            // player.GetComponent<ExitScenario>().endScenario = false;
+            // dont need to set endScenario to false here because it is set to false in InstantiateScenicObject on the next simulation
+            
+            // assumes that the player has a reference to TimelineManager since ExitScenario is not null, so I'm not checking if it's null
+            TimelineManager tlManager =
+                GameObject.FindGameObjectWithTag("TimelineManager").GetComponent<TimelineManager>();
+            // pData.movementData.pause = tlManager.Paused;
+
         }
         pData.movementData.speed = rb.velocity.magnitude;
         //NOTE: We go from (x,y,z) to (x,z,y) because that is how scenic handles the coordinate system.
