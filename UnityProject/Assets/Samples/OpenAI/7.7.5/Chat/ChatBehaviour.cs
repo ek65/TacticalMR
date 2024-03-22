@@ -6,6 +6,7 @@ using OpenAI.Images;
 using OpenAI.Models;
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
@@ -21,6 +22,7 @@ namespace OpenAI.Samples.Chat
 {
     public class ChatBehaviour : MonoBehaviour
     {
+        public CancellationToken destroyCancellationToken;
         [SerializeField]
         private OpenAIConfiguration configuration;
 
