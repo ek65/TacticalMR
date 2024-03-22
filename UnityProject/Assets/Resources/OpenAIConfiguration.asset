@@ -12,11 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5d7ca99533264e939ed60ffc81f03d20, type: 3}
   m_Name: OpenAIConfiguration
   m_EditorClassIdentifier: 
-  apiKey: 
+  apiKey: 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
   organizationId: 
   useAzureOpenAI: 0
   proxyDomain: 
   resourceName: 
   deploymentId: 
   useAzureActiveDirectory: 0
-  apiVersion: 
+  apiVersion: v1
