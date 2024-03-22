@@ -49,7 +49,7 @@ namespace OpenAI.Samples.Chat
 
         [SerializeField]
         [TextArea(3, 10)]
-        private string systemPrompt = "You are a helpful assistant.\n- If an image is requested then use \"![Image](output.jpg)\" to display it.\n- When performing function calls, use the defaults unless explicitly told to use a specific value.\n- Images should always be generated in base64.";
+        private string systemPrompt = "You are a helpful soccer training expert and are willing to help in all things soccer related.";
 
         private OpenAIClient openAI;
 
@@ -97,7 +97,7 @@ namespace OpenAI.Samples.Chat
             userMessageContent.text = $"User: {inputField.text}";
             inputField.text = string.Empty;
             var assistantMessageContent = AddNewTextMessageContent(Role.Assistant);
-            assistantMessageContent.text = "Assistant: ";
+            assistantMessageContent.text = "Expert: ";
 
             try
             {
