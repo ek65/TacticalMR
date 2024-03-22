@@ -1,0 +1,64 @@
+{
+    "offsensePlayers": [
+        {
+            "name": "Opponent A",
+            "positionX": 4.550930500030518,
+            "positionZ": 5.235757827758789,
+            "rotation": {
+                "x": 0.0,
+                "y": 171.1519012451172,
+                "z": 0.0
+            },
+            "behavior": "Intercept Ball"
+        },
+        {
+            "name": "Opponent B",
+            "positionX": 10.313152313232422,
+            "positionZ": 0.04369771108031273,
+            "rotation": {
+                "x": 0.0,
+                "y": 324.90966796875,
+                "z": 0.0
+            },
+            "behavior": "Idle"
+        }
+    ],
+    "defensePlayers": [
+        {
+            "name": "coach",
+            "positionX": 5.0,
+            "positionZ": 0.04369926452636719,
+            "rotation": {
+                "x": 0.0,
+                "y": -1.1238514979750036e-10,
+                "z": 0.0
+            },
+            "behavior": ""
+        }
+    ],
+    "ball": {
+        "name": "ball",
+        "positionX": 4.667490005493164,
+        "positionZ": 4.488561153411865
+    },
+    "goal": {
+        "name": "goal",
+        "positionX": 5.0,
+        "positionZ": -4.362240791320801,
+        "rotation": {
+            "x": 0.0,
+            "y": 180.0,
+            "z": 0.0
+        }
+    },
+    "coach": {
+        "name": "coach",
+        "positionX": 5.0,
+        "positionZ": 0.04369926452636719,
+        "rotation": {
+            "x": 0.0,
+            "y": -1.1238514979750036e-10,
+            "z": 0.0
+        }
+    }
+}

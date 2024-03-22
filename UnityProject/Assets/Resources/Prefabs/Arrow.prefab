@@ -96,7 +96,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a04b3c93ae697448ca372ab76b35b761, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  stemLength: 3.75
-  stemWidth: 0.3
+  stemLength: 4.5
+  stemWidth: 0.4
   tipLength: 0.5
   tipWidth: 1

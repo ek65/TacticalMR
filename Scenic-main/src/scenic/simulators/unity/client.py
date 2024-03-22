@@ -140,13 +140,11 @@ class UnityMessageServer:
             game_object = gameObject(position, rotation)
             obj.gameObject = game_object
             obj.gameObject.model = Model(3,1, (255,255,255,1), "Player")
-            if obj.team == "orange":
-                #Color to light orange
-                game_object.ChangeColor((254,216,177,1))
+            if obj.team == "red":
+                game_object.ChangeColor((255,0,0,1))
             elif obj.team == "blue":
-                game_object.ChangeColor((145,224,255,255))
-            elif obj.team == "self":
-                game_object.ChangeColor((255,255,0,255))
+                game_object.ChangeColor((0,0,255,1))
+            game_object.name = obj.name
             self.sendData.addToQueue(obj.gameObject)
             self.sendData.control, self.sendData.addObject = True, True
             self.ScenicPlayers.append(game_object)
@@ -162,7 +160,7 @@ class UnityMessageServer:
             game_object = gameObject(position, rotation)
             obj.gameObject = game_object
             #We will only have one human for now, call it 'ego' in the dict
-            obj.gameObject.model = Model(1,1, (255,255,255,1), "Human")
+            obj.gameObject.model = Model(1,1, (255,255,0,1), "Human")
             self.sendData.addToQueue(obj.gameObject)
             self.sendData.control, self.sendData.addObject = True, True
             self.HumanPlayers[tag] = game_object
@@ -407,6 +405,8 @@ class gameObject:
 
     behavior : str
 
+    name : str
+
     def __init__(self, position, rotation):
         self.position = position
         self.rotation = (rotation.x, rotation.y, rotation.z, rotation.w)
@@ -420,6 +420,7 @@ class gameObject:
         self.ballPossession = False
         self.actionDict = {}
         self.behavior = ""
+        self.name = ""
         self.model = Model()
 
     #############################################################################################

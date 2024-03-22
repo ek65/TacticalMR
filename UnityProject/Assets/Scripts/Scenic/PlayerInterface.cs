@@ -31,6 +31,7 @@ public class PlayerInterface : MonoBehaviour
 
     public ActionAPI actionAPI;
     public FloatingText floatingText;
+    public string behavior = "Idle";
 
     private void Start()
     {
@@ -93,14 +94,17 @@ public class PlayerInterface : MonoBehaviour
 
         if (data.behavior == " " || data.behavior == "" || data.behavior == "Idle")
         {
+            behavior = "Idle";
             floatingText.SetText("Idle");
         }
         else if (data.behavior != "" || data.behavior != null)
         {
+            behavior = data.behavior;
             floatingText.SetText(data.behavior);
         }
         else
         {
+            behavior = "Idle";
             floatingText.SetText("Idle");
         }
         

@@ -142,15 +142,16 @@ public class ScenicParser
             {
                 foreach (Object p in data.SpawnObjectQueue)
                 {
-                    Vector3 v = ListToVector(p.Position);
+                    Vector3 pos = ListToVector(p.Position);
                     Quaternion rot = ListToQuaternion(p.Rotation);
                     //Scenic uses right hand coord system so have to flip?
                     rot.y = -rot.y;
                     rot.x = -rot.x;
                     rot.z = -rot.z;
-                    string tag = p.Model.ModelType;
+                    string modelType = p.Model.ModelType;
                     Color color = ListToColor(p.Model.color);
-                    InstantiateScenicObject instObj = new InstantiateScenicObject(v, rot, tag, color);
+                    string name = p.Name;
+                    InstantiateScenicObject instObj = new InstantiateScenicObject(pos, rot, modelType, color, name);
                 }
             }
             else if (data.Destroy)
@@ -278,6 +279,9 @@ public class ScenicParser
         // public bool DoTransform { get; set; }
         [JsonProperty("behavior")]
         public string Behavior { get; set; }
+        
+        [JsonProperty("name")]
+        public string Name { get; set; }
 
         [JsonProperty("destroy")]
         public bool Destroy { get; set; }

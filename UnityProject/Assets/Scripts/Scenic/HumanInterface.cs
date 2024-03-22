@@ -6,6 +6,7 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using System.Reflection;
 using System;
+using System.Linq;
 using Convai.Scripts;
 
 public class HumanInterface : MonoBehaviour
@@ -25,11 +26,12 @@ public class HumanInterface : MonoBehaviour
     private bool circleSpawned = false;
     private bool arrowSpawned = false;
 
-    private GameObject circle0;
-    private GameObject circle1;
-    private GameObject arrow0;
+    private List<GameObject> circleObjects;
+    private List<GameObject> arrowObjects;
+    // private GameObject circle1;
+    // private GameObject arrow0;
 
-    private GameObject coach;
+    private GameObject coach; // TODO: make scenic tag strings/names so can easily assign these
     
     // Start is called before the first frame update
     void Start()
@@ -40,24 +42,27 @@ public class HumanInterface : MonoBehaviour
         npc = GameObject.FindGameObjectWithTag("Character").GetComponent<ConvaiNPC>();
         objectList = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<ObjectsList>();
         coach = objectList.scenicPlayers[5];
-        SpawnCircle0(coach.transform.position);
+        circleObjects = new List<GameObject>();
+        arrowObjects = new List<GameObject>();
+        SpawnCircle(coach.transform.position);
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (circle0 != null)
+        if (circleObjects[0] != null)
         {
             var temp = new Vector3(coach.transform.position.x, 2f, coach.transform.position.z);
-            circle0.transform.position = temp;
+            circleObjects[0].transform.position = temp;
         }
         if (npc.currResponse != null)
         {
             Debug.LogError("current response: " + npc.currResponse);
         }
-        if (!circleSpawned && npc.currResponse == "When you're on the field and you notice you're the one closest to the opponent with the ball, that's your cue to press.")
+        if (!circleSpawned && ContainsAll(npc.currResponse, "closest", "opponent"))
         {
-            SpawnCircle1(objectList.scenicPlayers[1].transform.position); // hardcoded 2nd opponent position
+            // var closest = 
+            SpawnCircle(objectList.scenicPlayers[1].transform.position); // hardcoded 2nd opponent position
             circleSpawned = true;
         } 
         if (!arrowSpawned && npc.currResponse == "You move in, keeping yourself within a meter of them.")
@@ -66,13 +71,25 @@ public class HumanInterface : MonoBehaviour
             arrowSpawned = true;
         }
         
-        if (tlManager.Paused == false && circleSpawned && arrowSpawned)
+        if (tlManager.Paused == false && circleObjects.Count > 1 || arrowObjects.Count > 0)
         {
-            Destroy(circle1);
-            Destroy(arrow0);
+            if (circleObjects.Count > 1)
+            {
+                for (int i = 1; i < circleObjects.Count; i++)
+                {
+                    Destroy(circleObjects[i]);
+                }
+                circleObjects.RemoveRange(1, circleObjects.Count - 1);
+            }
             circleSpawned = false;
             arrowSpawned = false;
         }
+    }
+    
+    public static bool ContainsAll(string source, params string[] values)
+    {
+        Debug.LogError("values: " + values[0]);
+        return values.All(x => source.Contains(x));
     }
 
     public void PlayAudioClip()
@@ -88,28 +105,28 @@ public class HumanInterface : MonoBehaviour
 
     }
     
-    public void SpawnCircle0(Vector3 pos)
+    public void SpawnCircle(Vector3 pos)
     {
         pos = new Vector3(pos.x, 2f, pos.z);
         GameObject circle = Instantiate(circleGenerator, pos, circleGenerator.transform.rotation);
-        circle.GetComponent<Renderer>().material.SetColor("_Color", Color.yellow);
-        circle0 = circle;
+        circleObjects.Add(circle);
+        if (circleObjects.Count == 1) // 0th circle should always be the one circling the coach
+        {
+            circle.GetComponent<Renderer>().material.SetColor("_Color", Color.yellow);
+        }
+        else if (circleObjects.Count > 1)
+        {
+            circle.GetComponent<Renderer>().material.SetColor("_Color", Color.red);
+
+        }
     }
-    
-    public void SpawnCircle1(Vector3 pos)
-    {
-        pos = new Vector3(pos.x, 2f, pos.z);
-        GameObject circle = Instantiate(circleGenerator, pos, circleGenerator.transform.rotation);
-        circle.GetComponent<Renderer>().material.SetColor("_Color", Color.red);
-        circle1 = circle;
-    }
-    
+
     public void SpawnArrow(Vector3 pos)
     {
         pos = new Vector3(pos.x, 2f, pos.z + 1.25f);
         GameObject arrow = Instantiate(arrowGenerator, pos, arrowGenerator.transform.rotation);
         arrow.GetComponent<Renderer>().material.SetColor("_Color", Color.yellow);
-        arrow0 = arrow;
+        // arrow0 = arrow;
     }
     
     public void ApplyMovement(ScenicMovementData data)
