@@ -84,17 +84,22 @@ namespace OpenAI.Samples.Chat
 
         private static bool isChatPending;
 
-        private async void SubmitChat()
+        public void SetInputTextAndSubmit(string text)
+        {
+            inputField.text = text;
+            SubmitChat(); // Assuming SubmitChat is already a public method
+        }
+        public async void SubmitChat()
         {
             if (isChatPending || string.IsNullOrWhiteSpace(inputField.text)) { return; }
             isChatPending = true;
 
-            inputField.ReleaseSelection();
+            // inputField.ReleaseSelection();
             inputField.interactable = false;
             submitButton.interactable = false;
             conversation.AppendMessage(new Message(Role.User, inputField.text));
-            var userMessageContent = AddNewTextMessageContent(Role.User);
-            userMessageContent.text = $"User: {inputField.text}";
+            // var userMessageContent = AddNewTextMessageContent(Role.User);
+            // userMessageContent.text = $"User: {inputField.text}";
             inputField.text = string.Empty;
             var assistantMessageContent = AddNewTextMessageContent(Role.Assistant);
             assistantMessageContent.text = "Expert: ";

@@ -121,14 +121,14 @@ behavior defendantBehavior(front: Opponent):
         do Idle()
     interrupt when (self.closeRight and self.closeRight.action == "cover") or (self.closeLeft and self.closeLeft.action ==  "cover"): # Balance condition
         if self.isHuman and self.explained1 == False: 
-            do explain(40, balanceExplanation)
+            do explain(45, balanceExplanation)
             self.explained1 = True
         self.action = "balance"
         do SetPlayerSpeed(5.0)
         do MoveTo(self.tacticalPosition + Vector((football.position.x - self.position.x) * 0.6, -2 - abs(football.position.x - self.position.x) * 0.2, 0), "Balancing") for 0.1 seconds
     interrupt when (self.closeRight and self.closeRight.action == "press") or (self.closeLeft and self.closeLeft.action ==  "press"): # Cover condition
         if self.isHuman and self.explained2 == False:
-            do explain(40,coverExplanation)
+            do explain(45,coverExplanation)
             self.explained2 = True
         self.action = "cover"
         do SetPlayerSpeed(7.5)

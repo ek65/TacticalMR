@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.ConstrainedExecution;
 using Convai.Scripts;
+using OpenAI.Samples.Chat;
 using Pathfinding;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -95,8 +96,18 @@ public class ActionAPI : MonoBehaviour
     #region Methods for Human/AI Agent
     public void Speak(string text)
     {
-        ConvaiNPC charObj = GameObject.FindGameObjectWithTag("Character").GetComponentInChildren<ConvaiNPC>();
-        charObj.HandleInputSubmission(text);
+        // ConvaiNPC charObj = GameObject.FindGameObjectWithTag("Character").GetComponentInChildren<ConvaiNPC>();
+        // charObj.HandleInputSubmission(text);
+        ChatBehaviour chatBehaviour = GameObject.FindGameObjectWithTag("Character").GetComponentInChildren<ChatBehaviour>();
+        if (chatBehaviour != null)
+        {
+            // Call the new method to set the text and submit
+            chatBehaviour.SetInputTextAndSubmit(text);
+        }
+        else
+        {
+            Debug.LogError("ChatBehaviour instance not found in the scene.");
+        }
     }
     #endregion
 
