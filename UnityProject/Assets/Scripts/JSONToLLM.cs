@@ -14,6 +14,8 @@ public class JSONToLLM : MonoBehaviour
         public string name;
         public float positionX;
         public float positionZ;
+        public Vector3 rotation;
+        public string behavior;
     }
     
     [System.Serializable]
@@ -22,6 +24,8 @@ public class JSONToLLM : MonoBehaviour
         public string name;
         public float positionX;
         public float positionZ;
+        public Vector3 rotation;
+        public string behavior;
     }
     
     [System.Serializable]
@@ -38,6 +42,7 @@ public class JSONToLLM : MonoBehaviour
         public string name;
         public float positionX;
         public float positionZ;
+        public Vector3 rotation;
     }
     
     [System.Serializable]
@@ -46,6 +51,7 @@ public class JSONToLLM : MonoBehaviour
         public string name;
         public float positionX;
         public float positionZ;
+        public Vector3 rotation;
     }
     
     [System.Serializable]
@@ -78,25 +84,30 @@ public class JSONToLLM : MonoBehaviour
     // TODO: change scenic so that there are "offense players" and "defense players".
     public void PopulateSceneObjects()
     {
-        SceneObjects mySceneObjects = new SceneObjects();
+        mySceneObjects.offsensePlayers = new List<OffensePlayer>();
+        mySceneObjects.defensePlayers = new List<DefensePlayer>();
         
-        foreach (GameObject offense in objectsList.scenicPlayers)
+        foreach (GameObject offense in objectsList.offensePlayers)
         {
             OffensePlayer offensePlayer = new OffensePlayer();
             offensePlayer.name = offense.name;
             offensePlayer.positionX = offense.transform.position.x;
             offensePlayer.positionZ = offense.transform.position.z;
+            offensePlayer.rotation = offense.transform.rotation.eulerAngles;
+            offensePlayer.behavior = offense.GetComponent<PlayerInterface>().behavior;
             mySceneObjects.offsensePlayers.Add(offensePlayer);
         }
         
-        // foreach (GameObject defender in objectsList.humanPlayers)
-        // {
-        //     DefensePlayer defensePlayer = new DefensePlayer();
-        //     defensePlayer.name = defender.name;
-        //     defensePlayer.positionX = defender.transform.position.x;
-        //     defensePlayer.positionZ = defender.transform.position.z;
-        //     mySceneObjectsList.defensePlayers.Add(defensePlayer);
-        // }
+        foreach (GameObject defender in objectsList.defensePlayers)
+        {
+            DefensePlayer defensePlayer = new DefensePlayer();
+            defensePlayer.name = defender.name;
+            defensePlayer.positionX = defender.transform.position.x;
+            defensePlayer.positionZ = defender.transform.position.z;
+            defensePlayer.rotation = defender.transform.rotation.eulerAngles;
+            defensePlayer.behavior = defender.GetComponent<PlayerInterface>().behavior;
+            mySceneObjects.defensePlayers.Add(defensePlayer);
+        }
 
         GameObject ball = objectsList.ballObject;
         Ball ballObject = new Ball();
@@ -110,6 +121,7 @@ public class JSONToLLM : MonoBehaviour
         goalObject.name = goal.name;
         goalObject.positionX = goal.transform.position.x;
         goalObject.positionZ = goal.transform.position.z;
+        goalObject.rotation = goal.transform.rotation.eulerAngles;
         mySceneObjects.goal = goalObject;
         
         GameObject coach = objectsList.humanPlayers[0];
@@ -117,7 +129,16 @@ public class JSONToLLM : MonoBehaviour
         coachObject.name = coach.name;
         coachObject.positionX = coach.transform.position.x;
         coachObject.positionZ = coach.transform.position.z;
+        coachObject.rotation = coach.transform.rotation.eulerAngles;
         mySceneObjects.coach = coachObject;
+        
+        // Adding coach to defense players list as well
+        DefensePlayer coachDefense = new DefensePlayer();
+        coachDefense.name = coach.name;
+        coachDefense.positionX = coach.transform.position.x;
+        coachDefense.positionZ = coach.transform.position.z;
+        coachDefense.rotation = coach.transform.rotation.eulerAngles;
+        mySceneObjects.defensePlayers.Add(coachDefense);
     }
 
     // public void WriteCSV()

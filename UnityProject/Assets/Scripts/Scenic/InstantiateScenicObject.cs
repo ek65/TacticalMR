@@ -10,30 +10,32 @@ public class InstantiateScenicObject
     //timeline manager will subscribe to this event
     public static event PublishScenicAddObjectEvent Publish;
 
-    public InstantiateScenicObject(Vector3 pos, Quaternion rot, string tag, Color color)
+    public InstantiateScenicObject(Vector3 pos, Quaternion rot, string modelType, Color color, string name)
     {
         objectList = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<ObjectsList>();
-        Debug.Log(tag);
+        Debug.Log(modelType);
         //Debug.Log(objectList.modelList);
-        AddScenicObject(pos, rot, tag, color);
+        AddScenicObject(pos, rot, modelType, color, name);
         
     }
 
-    private void AddScenicObject(Vector3 pos, Quaternion rot, string tag, Color color)
+    private void AddScenicObject(Vector3 pos, Quaternion rot, string modelType, Color color, string name)
     {
         GameObject addedGameObject = null;
-        if (tag == "Ball")
+        if (modelType == "Ball")
         {
             addedGameObject = MonoBehaviour.Instantiate(objectList.modelList["soccer_ball"], pos, Quaternion.identity);
-
+            addedGameObject.name = "ball";
             // disc.GetComponent<NetworkObject>().Spawn();
             objectList.ballObject = addedGameObject;
             objectList.scenicObjects.Add(addedGameObject);
             
         }
-        else if (tag == "goal")
+        else if (modelType == "goal")
         {
             addedGameObject = MonoBehaviour.Instantiate(objectList.modelList["goal"], pos, rot);
+            // assuming always 1 goal for now
+            addedGameObject.name = "goal";
             objectList.goalObject = addedGameObject;
             objectList.scenicObjects.Add(addedGameObject);
         }
@@ -43,32 +45,33 @@ public class InstantiateScenicObject
         //     addedGameObject.transform.parent = GameObject.Find("AI Interface").transform;
         //     objectList.AIAgent = addedGameObject;
         // }
-        else if (tag == "Player")
+        else if (modelType == "Player")
         {
             addedGameObject = MonoBehaviour.Instantiate(objectList.modelList["player.scenic"], pos, rot);
+            addedGameObject.name = name;
             //scenicPlayer.GetComponent<NetworkObject>().Spawn();
             objectList.scenicPlayers.Add(addedGameObject);
-            if (color == new Color(145f, 224f, 255f, 255f))
+            if (color == new Color(0f, 0f, 255f, 1f)) // defense team
             {
                 addedGameObject.GetComponentInChildren<PlayerInterface>().ally = true;
-            } else if (color == new Color(255f, 255f, 0f, 255f))
-            {
-                addedGameObject.GetComponentInChildren<PlayerInterface>().self = true;
+                objectList.defensePlayers.Add(addedGameObject);
             }
-            else
+            else if (color == new Color(255f, 0f, 0f, 1f)) // offense team
             {
                 addedGameObject.GetComponentInChildren<PlayerInterface>().enemy = true;
+                objectList.offensePlayers.Add(addedGameObject);
             }
             
             //objectList.orangePlayers.Add(scenicPlayer.GetComponent<NetworkObject>().NetworkInstanceId);
             Debug.Log("Added Scenic Player");
         }
-        else if (tag == "Human")
+        else if (modelType == "Human")
         {
             if (objectList.humanPlayers.Count == 0)
             {
                 addedGameObject = MonoBehaviour.Instantiate(objectList.modelList["player.human"], pos, rot);
                 //scenicPlayer.GetComponent<NetworkObject>().Spawn();
+                addedGameObject.name = "coach";
                 objectList.humanPlayers.Add(addedGameObject);
                 //objectList.orangePlayers.Add(scenicPlayer.GetComponent<NetworkObject>().NetworkInstanceId);
                 Debug.Log("Added Human Player");

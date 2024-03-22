@@ -7,8 +7,10 @@ public class ObjectsList : MonoBehaviour
     //in-game objects created from Scenic
     public GameObject ballObject;
     public GameObject goalObject;
-    public List<ulong> bluePlayers;
-    public List<ulong> orangePlayers;
+    // public List<ulong> bluePlayers;
+    // public List<ulong> orangePlayers;
+    public List<GameObject> defensePlayers;
+    public List<GameObject> offensePlayers;
 
     public List<GameObject> scenicPlayers;
     public List<GameObject> humanPlayers;
@@ -19,33 +21,33 @@ public class ObjectsList : MonoBehaviour
 
     void Start()
     {
-        bluePlayers = new List<ulong>();
-        orangePlayers = new List<ulong>();
+        // bluePlayers = new List<ulong>();
+        // orangePlayers = new List<ulong>();
         scenicPlayers = new List<GameObject>();
         humanPlayers = new List<GameObject>();
         modelList = new Dictionary<string, GameObject>();
         scenicObjects = new List<GameObject>();
         InitModelDict();
     }
-    public void addToBlue(ulong id)
-    {
-        bluePlayers.Add(id);
-    }
-
-    public void addToOrange(ulong id)
-    {
-        orangePlayers.Add(id);
-    }
-
-    public void removeFromBlue(ulong id)
-    {
-        bluePlayers.Remove(id);
-    }
-
-    public void removeFromOrange(ulong id)
-    {
-        orangePlayers.Remove(id);
-    }
+    // public void addToBlue(ulong id)
+    // {
+    //     bluePlayers.Add(id);
+    // }
+    //
+    // public void addToOrange(ulong id)
+    // {
+    //     orangePlayers.Add(id);
+    // }
+    //
+    // public void removeFromBlue(ulong id)
+    // {
+    //     bluePlayers.Remove(id);
+    // }
+    //
+    // public void removeFromOrange(ulong id)
+    // {
+    //     orangePlayers.Remove(id);
+    // }
     private void InitModelDict()
     {
         List<GameObject> models = new List<GameObject>();
