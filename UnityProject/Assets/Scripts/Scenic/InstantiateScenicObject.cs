@@ -25,7 +25,7 @@ public class InstantiateScenicObject
         if (modelType == "Ball")
         {
             addedGameObject = MonoBehaviour.Instantiate(objectList.modelList["soccer_ball"], pos, Quaternion.identity);
-            addedGameObject.name = "ball";
+            addedGameObject.name = "Ball";
             // disc.GetComponent<NetworkObject>().Spawn();
             objectList.ballObject = addedGameObject;
             objectList.scenicObjects.Add(addedGameObject);
@@ -35,7 +35,7 @@ public class InstantiateScenicObject
         {
             addedGameObject = MonoBehaviour.Instantiate(objectList.modelList["goal"], pos, rot);
             // assuming always 1 goal for now
-            addedGameObject.name = "goal";
+            addedGameObject.name = "Goal";
             objectList.goalObject = addedGameObject;
             objectList.scenicObjects.Add(addedGameObject);
         }
@@ -71,7 +71,7 @@ public class InstantiateScenicObject
             {
                 addedGameObject = MonoBehaviour.Instantiate(objectList.modelList["player.human"], pos, rot);
                 //scenicPlayer.GetComponent<NetworkObject>().Spawn();
-                addedGameObject.name = "coach";
+                addedGameObject.name = "Coach";
                 objectList.humanPlayers.Add(addedGameObject);
                 //objectList.orangePlayers.Add(scenicPlayer.GetComponent<NetworkObject>().NetworkInstanceId);
                 Debug.Log("Added Human Player");

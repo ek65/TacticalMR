@@ -50,3 +50,7 @@ behavior Print(o):
 behavior Speak(input : str):
     take SpeakAction(input)
     take StopAction()
+
+behavior Pause():
+    take PauseAction()
+    take StopAction()

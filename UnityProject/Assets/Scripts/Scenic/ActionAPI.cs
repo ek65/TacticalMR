@@ -109,6 +109,14 @@ public class ActionAPI : MonoBehaviour
             Debug.LogError("ChatBehaviour instance not found in the scene.");
         }
     }
+
+    public void CallPause()
+    {
+        // Debug.LogError("called pause");
+        TimelineManager tlManager =
+            GameObject.FindGameObjectWithTag("TimelineManager").GetComponent<TimelineManager>();
+        tlManager.Pause();
+    }
     #endregion
 
     #region API Methods for Singleton Animations

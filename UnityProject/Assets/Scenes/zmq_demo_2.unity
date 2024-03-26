@@ -3843,10 +3843,12 @@ MonoBehaviour:
       name: 
       positionX: 0
       positionZ: 0
+      rotation: {x: 0, y: 0, z: 0}
     coach:
       name: 
       positionX: 0
       positionZ: 0
+      rotation: {x: 0, y: 0, z: 0}
 --- !u!1 &945852221
 GameObject:
   m_ObjectHideFlags: 0

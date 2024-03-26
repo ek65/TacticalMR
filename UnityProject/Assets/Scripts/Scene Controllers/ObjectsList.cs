@@ -15,7 +15,7 @@ public class ObjectsList : MonoBehaviour
     public List<GameObject> scenicPlayers;
     public List<GameObject> humanPlayers;
     public List<GameObject> scenicObjects;
-    public GameObject AIAgent; 
+    // public GameObject AIAgent; 
     
     public Dictionary<string, GameObject> modelList;
 
@@ -23,6 +23,8 @@ public class ObjectsList : MonoBehaviour
     {
         // bluePlayers = new List<ulong>();
         // orangePlayers = new List<ulong>();
+        defensePlayers = new List<GameObject>();
+        offensePlayers = new List<GameObject>();
         scenicPlayers = new List<GameObject>();
         humanPlayers = new List<GameObject>();
         modelList = new Dictionary<string, GameObject>();
@@ -80,11 +82,20 @@ public class ObjectsList : MonoBehaviour
         {
             Destroy(obj);
         }
-        Destroy(ballObject);
         foreach (GameObject player in scenicPlayers)
         {
             Destroy(player);
         }
+        foreach (GameObject player in offensePlayers)
+        {
+            Destroy(player);
+        }
+        foreach (GameObject player in defensePlayers)
+        {
+            Destroy(player);
+        }
+        Destroy(ballObject);
+        Destroy(goalObject);
         // foreach (GameObject human in humanPlayers)
         // {
         //     Destroy(human);
@@ -92,7 +103,10 @@ public class ObjectsList : MonoBehaviour
         // RemoveAllHumans();
         scenicObjects = new List<GameObject>();
         scenicPlayers = new List<GameObject>();
+        offensePlayers = new List<GameObject>();
+        defensePlayers = new List<GameObject>();
         ballObject = null;
+        goalObject = null;
         //call reset function on the ready boolean for human and index
         // humanPlayers[0].GetComponentInChildren<HumanInterface>().ResetValues();
     }

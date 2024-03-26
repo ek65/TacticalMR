@@ -43,7 +43,7 @@ public class KeyboardInput : MonoBehaviour
         //     moveSpeed = 4f;
         // }
         
-        if (Input.GetKeyDown(KeyCode.R))
+        if (Input.GetKeyDown(KeyCode.E))
         {
             exitScenario.EndScenario();
         }
@@ -57,21 +57,46 @@ public class KeyboardInput : MonoBehaviour
             else
             {
                 timelineManager.Pause();
-                try
+            }
+        }
+
+        if (timelineManager.Paused)
+        {
+            if (Input.GetKeyDown(KeyCode.R))
+            {
+                if (timelineManager.advancing)
                 {
-                    jsonToLLM.PopulateSceneObjects();
+                    // can't rewind while advancing
                 }
-                catch(Exception e)
+                else
                 {
-                    Debug.LogError("Error populating scene objects: " + e.Message);
+                    timelineManager.rewinding = !timelineManager.rewinding;
                 }
+            }
+            
+            if (Input.GetKeyDown(KeyCode.T))
+            {
+                if (timelineManager.rewinding)
+                {
+                    // can't advance while rewinding
+                }
+                else
+                {
+                    timelineManager.advancing = !timelineManager.advancing;
+                }
+            }
+            
+            if (Input.GetKeyDown(KeyCode.Space) && !timelineManager.rewinding && !timelineManager.advancing)
+            {
+                jsonToLLM.PopulateSceneObjects();
+                jsonToLLM.WriteJSON();
             }
         }
         
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            jsonToLLM.WriteJSON();
-        }
+        
+        
+        
+        
     }
 
     void FixedUpdate()

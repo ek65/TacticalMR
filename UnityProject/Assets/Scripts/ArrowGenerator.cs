@@ -10,13 +10,33 @@ public class ArrowGenerator : MonoBehaviour
     public float tipLength;
     public float tipWidth;
 
+    public Vector3 origin;
+    public Vector3 target;
+    
+
     [System.NonSerialized]
     public List<Vector3> verticesList;
     [System.NonSerialized]
     public List<int> trianglesList;
 
     Mesh mesh;
+    
+    public void SetOrigin(Vector3 origin)
+    {
+        this.origin = origin;
+    }
+    public void SetTarget(Vector3 target)
+    {
+        this.target = target;
+    }
 
+    // length is destination position minus origin position
+    private void CalculateStemLength(Vector3 origin, Vector3 destination)
+    {
+        stemLength = Vector3.Distance(origin, destination);
+        stemLength = stemLength - 2; // subtract 1 to prevent tip from clipping into target (and another 1 to keep it 1 meter away)
+    }
+    
     void Start()
     {
         //make sure Mesh Renderer has a material
@@ -27,6 +47,19 @@ public class ArrowGenerator : MonoBehaviour
     void Update()
     {
         GenerateArrow();
+        
+        if (target == new Vector3(0,0,0) || origin == new Vector3(0,0,0))
+        {
+            return;
+        }
+        
+        transform.parent.position = origin;
+        
+        // rotate parent to face target
+        transform.parent.right = target - transform.parent.position;
+        
+        // calculate stem length
+        CalculateStemLength(origin, target);
     }
 
     //arrow is generated starting at Vector3.zero

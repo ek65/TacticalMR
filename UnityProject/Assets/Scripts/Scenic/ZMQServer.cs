@@ -134,7 +134,7 @@ public class ZMQServer : MonoBehaviour
             else if(s.model.modelType == "Human")
             {
                 //broadcast the pause boolean which may be set by scenic AI agent at any given moment. TimelineManager would handle it
-                tlManager.NotifyPauseStatus(s.pause);
+                // tlManager.NotifyPauseStatus(s.pause);
                 HumanInterface human = objectList.humanPlayers[0].GetComponentInChildren<HumanInterface>();
                 human.ApplyMovement(movementData[aiAgentIndex]);
             }
@@ -155,7 +155,7 @@ public class ZMQServer : MonoBehaviour
             //Note: Because we apply controls at a set index, this *should* retain order...
             int currPlayerIdx = listOfScenicPlayerIndices[i];
             PlayerInterface p = objectList.scenicPlayers[i].GetComponentInChildren<PlayerInterface>();
-            if (tlManager.Paused == true && movementData[currPlayerIdx].behavior == "Pass Ball")
+            if (tlManager.Paused)
             {
                 continue;
             }
@@ -165,11 +165,11 @@ public class ZMQServer : MonoBehaviour
             }
         }
         
-        if (objectList.AIAgent != null)
-        {
-            AIInterface ai = objectList.AIAgent.GetComponentInChildren<AIInterface>();
-            ai.ApplyMovement(movementData[aiAgentIndex]);
-        }
+        // if (objectList.AIAgent != null)
+        // {
+        //     AIInterface ai = objectList.AIAgent.GetComponentInChildren<AIInterface>();
+        //     ai.ApplyMovement(movementData[aiAgentIndex]);
+        // }
         
         /**
         for (int i = 0; i < objectList.scenicPlayers.Count; i ++)

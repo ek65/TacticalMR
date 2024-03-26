@@ -3021,6 +3021,8 @@ GameObject:
   - component: {fileID: 7655554097699065721}
   - component: {fileID: 5500030923864448597}
   - component: {fileID: 2568870781181288605}
+  - component: {fileID: 250408199}
+  - component: {fileID: 250408200}
   m_Layer: 6
   m_Name: player.human
   m_TagString: player
@@ -3109,8 +3111,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   actionAPI: {fileID: 8665160898893140851}
-  arrowGenerator: {fileID: 4424933064737025094, guid: 26b12c5175ce74367855bef2c3770e55, type: 3}
+  arrowGenerator: {fileID: 7110823724380065530, guid: 26b12c5175ce74367855bef2c3770e55, type: 3}
   circleGenerator: {fileID: 1733937925117977002, guid: 0bbdbc210306445569ca42107d04ac14, type: 3}
+  circleObjects: []
+  arrowObjects: []
 --- !u!114 &-7641071680297636533
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3123,16 +3127,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9fd25f0d51b674e35bb058c5b8ee2d47, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  button: 0
-  trigger: 0
-  controllerRight: 0
-  controllerLeft: 0
-  buttonX: 0
-  buttonY: 0
-  recordingActive: 0
   endScenario: 0
-  playerHuman: {fileID: 0}
-  bodyTrackingTarget: {fileID: 0}
 --- !u!82 &-4388894118483782122
 AudioSource:
   m_ObjectHideFlags: 0
@@ -3309,7 +3304,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   replayIdentity:
-    id: 59343
+    id: 44058
   replayObject:
     reference: {fileID: 5886457986238108556}
   replayBodyPosition: 6
@@ -3334,7 +3329,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   instantiateIdentity: 1
   replayIdentity:
-    id: 13216
+    id: 44001
   prefabIdentity:
     id: 16648
   observedComponents:
@@ -3358,7 +3353,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   replayIdentity:
-    id: 15991
+    id: 29078
   replayObject:
     reference: {fileID: 5886457986238108556}
   replayPosition: 23
@@ -3382,7 +3377,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   replayIdentity:
-    id: 51728
+    id: 31499
   replayObject:
     reference: {fileID: 5886457986238108556}
   replayRootBonePosition: 23
@@ -3477,6 +3472,49 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   RewindTransform: 1
   Pausible: 0
+--- !u!114 &250408199
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8665160898893140854}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 62899f850307741f2a39c98a8b639597, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Actions: {fileID: -944628639613478452, guid: b277640baaf59410a972a670edd870f9, type: 3}
+  m_NotificationBehavior: 0
+  m_UIInputModule: {fileID: 0}
+  m_DeviceLostEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_DeviceRegainedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_ControlsChangedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_ActionEvents: []
+  m_NeverAutoSwitchControlSchemes: 0
+  m_DefaultControlScheme: 
+  m_DefaultActionMap: Controller
+  m_SplitScreenIndex: -1
+  m_Camera: {fileID: 0}
+--- !u!114 &250408200
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8665160898893140854}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d172ecfbd99184b849e2ff7857c1ae40, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  speed: 4
 --- !u!1 &8665160898920370538
 GameObject:
   m_ObjectHideFlags: 0

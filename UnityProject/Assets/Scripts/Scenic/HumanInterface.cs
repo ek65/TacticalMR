@@ -8,6 +8,7 @@ using System.Reflection;
 using System;
 using System.Linq;
 using Convai.Scripts;
+using OpenAI.Samples.Chat;
 
 public class HumanInterface : MonoBehaviour
 {
@@ -20,58 +21,62 @@ public class HumanInterface : MonoBehaviour
     public GameObject circleGenerator;
     
     private TimelineManager tlManager;
-    private ConvaiNPC npc;
+    // private ConvaiNPC npc;
+    private ChatBehaviour chatBehaviour;
     private ObjectsList objectList;
 
     private bool circleSpawned = false;
     private bool arrowSpawned = false;
 
-    private List<GameObject> circleObjects;
-    private List<GameObject> arrowObjects;
+    public List<GameObject> circleObjects;
+    public List<GameObject> arrowObjects;
     // private GameObject circle1;
     // private GameObject arrow0;
-
-    private GameObject coach; // TODO: make scenic tag strings/names so can easily assign these
     
     // Start is called before the first frame update
     void Start()
     {
         exitScene = GetComponent<ExitScenario>();
         source = GetComponent<AudioSource>();
-        tlManager = FindObjectOfType<TimelineManager>();
-        npc = GameObject.FindGameObjectWithTag("Character").GetComponent<ConvaiNPC>();
+        tlManager = GameObject.FindGameObjectWithTag("TimelineManager").GetComponent<TimelineManager>();
+        // npc = GameObject.FindGameObjectWithTag("Character").GetComponent<ConvaiNPC>();
+        chatBehaviour = GameObject.FindGameObjectWithTag("Character").GetComponentInChildren<ChatBehaviour>();
         objectList = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<ObjectsList>();
-        coach = objectList.scenicPlayers[5];
         circleObjects = new List<GameObject>();
         arrowObjects = new List<GameObject>();
-        SpawnCircle(coach.transform.position);
+        SpawnCircle(this.transform.position); // spawn the circle around the coach
     }
 
     // Update is called once per frame
     void Update()
     {
+        string currResponse = "";
+        if (chatBehaviour.sentences.Length > 0)
+        {
+            currResponse = chatBehaviour.sentences[chatBehaviour.sentenceIndex];
+        }
         if (circleObjects[0] != null)
         {
-            var temp = new Vector3(coach.transform.position.x, 2f, coach.transform.position.z);
+            var temp = new Vector3(this.transform.position.x, 2f, this.transform.position.z);
             circleObjects[0].transform.position = temp;
         }
-        if (npc.currResponse != null)
+        if (currResponse != null)
         {
-            Debug.LogError("current response: " + npc.currResponse);
+            Debug.LogError("current response: " + currResponse);
         }
-        if (!circleSpawned && ContainsAll(npc.currResponse, "closest", "opponent"))
+        if (!circleSpawned && ContainsAll(currResponse, "closest", "opponent"))
         {
-            // var closest = 
-            SpawnCircle(objectList.scenicPlayers[1].transform.position); // hardcoded 2nd opponent position
             circleSpawned = true;
+            GameObject closest = objectList.scenicPlayers[0]; // hardcoded closest opponent
+            SpawnCircle(closest.transform.position); 
         } 
-        if (!arrowSpawned && npc.currResponse == "You move in, keeping yourself within a meter of them.")
+        if (!arrowSpawned && ContainsAll(currResponse, "move in", "within a meter"))
         {
-            SpawnArrow(coach.transform.position);
             arrowSpawned = true;
+            GameObject closest = objectList.scenicPlayers[0]; // hardcoded closest opponent
+            SpawnArrow(this.transform.position, closest.transform.position);
         }
-        
-        if (tlManager.Paused == false && circleObjects.Count > 1 || arrowObjects.Count > 0)
+        if (tlManager.Paused == false && (circleObjects.Count > 1 || arrowObjects.Count > 0))
         {
             if (circleObjects.Count > 1)
             {
@@ -81,6 +86,14 @@ public class HumanInterface : MonoBehaviour
                 }
                 circleObjects.RemoveRange(1, circleObjects.Count - 1);
             }
+            if (arrowObjects.Count > 0)
+            {
+                for (int i = 0; i < arrowObjects.Count; i++)
+                {
+                    Destroy(arrowObjects[i]);
+                }
+                arrowObjects.RemoveRange(0, arrowObjects.Count - 1);
+            }
             circleSpawned = false;
             arrowSpawned = false;
         }
@@ -88,7 +101,7 @@ public class HumanInterface : MonoBehaviour
     
     public static bool ContainsAll(string source, params string[] values)
     {
-        Debug.LogError("values: " + values[0]);
+        // Debug.LogError("values: " + values[0]);
         return values.All(x => source.Contains(x));
     }
 
@@ -121,12 +134,14 @@ public class HumanInterface : MonoBehaviour
         }
     }
 
-    public void SpawnArrow(Vector3 pos)
+    public void SpawnArrow(Vector3 from, Vector3 to)
     {
-        pos = new Vector3(pos.x, 2f, pos.z + 1.25f);
-        GameObject arrow = Instantiate(arrowGenerator, pos, arrowGenerator.transform.rotation);
-        arrow.GetComponent<Renderer>().material.SetColor("_Color", Color.yellow);
-        // arrow0 = arrow;
+        Vector3 spawnPos = new Vector3(from.x, from.y, from.z);
+        GameObject arrow = Instantiate(arrowGenerator, spawnPos, arrowGenerator.transform.rotation);
+        arrow.GetComponentInChildren<ArrowGenerator>().SetOrigin(from);
+        arrow.GetComponentInChildren<ArrowGenerator>().SetTarget(to);
+        arrowObjects.Add(arrow);
+        arrow.GetComponentInChildren<Renderer>().material.SetColor("_Color", Color.yellow);
     }
     
     public void ApplyMovement(ScenicMovementData data)

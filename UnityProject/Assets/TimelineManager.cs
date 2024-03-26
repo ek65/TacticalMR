@@ -35,6 +35,7 @@ public class TimelineManager : MonoBehaviour
     
     public Dictionary<GameObject, RewindableTimeSeries> Timeseries;
     public bool rewinding = false;
+    public bool advancing = false;
     public bool Paused = false;
     public TextMeshProUGUI pauseBtnTxt;
     public TextMeshProUGUI pauseTxt;
@@ -44,6 +45,7 @@ public class TimelineManager : MonoBehaviour
 
   
     public int RewindTimeIndex = 0;
+    public int maxRewindTimeIndex = 0;
     // Start is called before the first frame update
     void Start()
     {
@@ -67,6 +69,11 @@ public void InitializeTimeline()
     {
         rewindables = FindObjectsOfType<Rewindable>().ToList();
   
+        foreach (Rewindable r in rewindables)
+        {
+            Timeseries.Add(r.gameObject, new RewindableTimeSeries());
+        }
+        // InstantiateScenicObject.Pub(this.gameObject);
   
     }
     public void InitializeOnScenicAdd(ScenicObectAddEventArg eventArg)
@@ -106,6 +113,7 @@ public void InitializeTimeline()
         }
         pauseTxt.text = "Scenic Called Pause...Everything paused except ego";
         Paused = true;
+        maxRewindTimeIndex = 0;
     }
     public void Unpause()
     {
@@ -134,17 +142,37 @@ public void InitializeTimeline()
     //0.02 seconds, 50 frames per second
     public void FixedUpdate()
     {
-        if (Input.GetKeyDown(KeyCode.I))
+        // if (Input.GetKeyDown(KeyCode.I))
+        // {
+        //     Debug.LogError("test");
+        //     InitializeTimeline();
+        // }
+        // if (Input.GetKeyDown(KeyCode.R))
+        // {
+        //     rewinding = true;
+        // }
+        
+        // foreach (KeyValuePair<GameObject, RewindableTimeSeries> entry in Timeseries)
+        // {
+        //     Debug.LogError(entry.Key.name);
+        //     Debug.LogError(entry.Value);
+        // }
+
+        if (Paused)
         {
-            InitializeTimeline();
+            if (maxRewindTimeIndex < RewindTimeIndex)
+            {
+                maxRewindTimeIndex = RewindTimeIndex;
+            }
         }
-        if (Input.GetKeyDown(KeyCode.R))
+        else
         {
-            rewinding = true;
+            TimeIndex += 1;
+            RewindTimeIndex += 1;
+            RecordData();
         }
-       
-        if (Paused) {  return; }
-        if (rewinding)
+        
+        if (Paused && rewinding)
         {
             if(RewindTimeIndex <= 0)
             {
@@ -157,14 +185,27 @@ public void InitializeTimeline()
             {
                 r.ApplySnippet(Timeseries[r.gameObject].GetMomentSnippet(RewindTimeIndex));
             }
-        }   
-        else
-        {
-            TimeIndex += 1;
-            RewindTimeIndex += 1;
-            RecordData();
-
         }
+        else if (Paused && advancing)
+        {
+            if(RewindTimeIndex >= maxRewindTimeIndex)
+            {
+                //idk, stop??
+                return;
+            }
+            
+            RewindTimeIndex += 1;
+            foreach(Rewindable r in rewindables)
+            {
+                r.ApplySnippet(Timeseries[r.gameObject].GetMomentSnippet(RewindTimeIndex));
+            }
+            
+        }
+        else if (Paused && !rewinding || !advancing)
+        {
+            return;
+        }
+        
 
     }
     public void RecordData()

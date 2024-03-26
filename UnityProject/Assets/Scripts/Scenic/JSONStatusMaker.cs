@@ -106,7 +106,7 @@ public class JSONStatusMaker : MonoBehaviour
     void AddPlayerData(GameObject player, Player pData, bool isHuman) {
         Rigidbody rb = player.GetComponentInChildren<Rigidbody>();
         GameObject rig = rb.gameObject;
-        if (player.GetComponent<ExitScenario>() != null && lastTick > 5)
+        if (player.GetComponent<ExitScenario>() != null && lastTick > 5) // Makes sure it's human/coach player
         {
             
             pData.movementData.stopButton = player.GetComponent<ExitScenario>().endScenario;
@@ -116,10 +116,9 @@ public class JSONStatusMaker : MonoBehaviour
             }
             // dont need to set endScenario to false here because it is set to false in InstantiateScenicObject on the next simulation
             
-            // assumes that the player has a reference to TimelineManager since ExitScenario is not null, so I'm not checking if it's null
             TimelineManager tlManager =
                 GameObject.FindGameObjectWithTag("TimelineManager").GetComponent<TimelineManager>();
-            // pData.movementData.pause = tlManager.Paused;
+            pData.movementData.pause = tlManager.Paused;
 
         }
         pData.movementData.speed = rb.velocity.magnitude;
@@ -250,6 +249,7 @@ public class JSONStatusMaker : MonoBehaviour
             angularVelocity = new Vector3Json();
             rotation = new QuaternionJson();
             stopButton = false;
+            pause = false;
             ballPossession = false;
             heldByHuman = false;
             heldByScenic = false;
@@ -260,6 +260,7 @@ public class JSONStatusMaker : MonoBehaviour
         public Vector3Json angularVelocity { get; set; }
         public QuaternionJson rotation { get; set; }
         public bool stopButton { get; set; }
+        public bool pause { get; set; }
         public bool ballPossession { get; set; }
         public bool heldByHuman { get; set; }
         public bool heldByScenic { get; set; }

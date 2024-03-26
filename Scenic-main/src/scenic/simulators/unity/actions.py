@@ -523,7 +523,7 @@ class PlacingAndShortPassAction(Action):
         else:
             obj.gameObject.DoAction(self.actionName, self.position)
 
-# AIAgent Actions
+# Coach/Human/AIAgent Actions
 class SpeakAction(Action):
     def __init__(self, input):
         self.actionName = "Speak"
@@ -534,3 +534,10 @@ class SpeakAction(Action):
 
     def applyTo(self, obj, sim):
         obj.gameObject.DoAction(self.actionName, self.input)
+
+class PauseAction(Action):
+    def __init__(self):
+        self.actionName = "CallPause"
+
+    def applyTo(self, obj, sim):
+        obj.gameObject.DoAction(self.actionName)

@@ -465,6 +465,7 @@ class gameObject:
         self.clientID = data.clientID
         self.rotation = self.toQuaternion(data.movement_data.rotation)
         self.stopButton = data.movement_data.stopButton
+        self.pause = data.movement_data.pause
         self.ballPossession = data.movement_data.ballPossession
         # self.heldByHuman = data.movement_data.heldByHuman
         # self.heldByScenic = data.movement_data.heldByScenic
@@ -614,6 +615,7 @@ class MovementData:
     angular_velocity: UnityVector3
     rotation: UnityVector3
     stopButton: bool
+    pause: bool
     ballPossession: bool
     heldByHuman: bool
     heldByScenic: bool
@@ -626,10 +628,11 @@ class MovementData:
         angular_velocity = UnityVector3.from_dict(obj.get("angularVelocity"))
         rotation = UnityVector3.from_dict(obj.get("rotation"))
         stopButton = from_bool(obj.get("stopButton"))
+        pause = from_bool(obj.get("pause"))
         ballPossession = from_bool(obj.get("ballPossession"))
         heldByHuman = from_bool(obj.get("heldByHuman"))
         heldByScenic = from_bool(obj.get("heldByScenic"))
-        return MovementData(transform, speed, velocity, angular_velocity, rotation, stopButton, ballPossession, heldByHuman, heldByScenic)
+        return MovementData(transform, speed, velocity, angular_velocity, rotation, stopButton, pause, ballPossession, heldByHuman, heldByScenic)
 
     def to_dict(self) -> dict:
         result: dict = {}
@@ -639,6 +642,7 @@ class MovementData:
         result["UnityVector3"] = to_class(UnityVector3, self.angular_velocity)
         result["rotation"] = to_class(UnityVector3, self.rotation)
         result["stopButton"] = from_bool(self.stopButton)
+        result["pause"] = from_bool(self.pause)
         result["ballPossession"] = from_bool(self.ballPossession)
         result["heldByHuman"] = from_bool(self.heldByHuman)
         result["heldByScenic"] = from_bool(self.heldByScenic)

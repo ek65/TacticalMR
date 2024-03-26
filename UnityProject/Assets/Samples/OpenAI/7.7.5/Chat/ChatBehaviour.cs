@@ -5,7 +5,9 @@ using OpenAI.Chat;
 using OpenAI.Images;
 using OpenAI.Models;
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using TMPro;
@@ -56,6 +58,11 @@ namespace OpenAI.Samples.Chat
         private readonly Conversation conversation = new();
 
         private readonly List<Tool> assistantTools = new();
+        
+        // Daniel added variables
+        public string[] sentences;
+        public AudioClip[] clips;
+        public int sentenceIndex;
 
         private void OnValidate()
         {
@@ -121,7 +128,7 @@ namespace OpenAI.Samples.Chat
                     response = await ProcessToolCallsAsync(response);
                     assistantMessageContent.text += response.ToString().Replace("![Image](output.jpg)", string.Empty);
                 }
-
+                
                 GenerateSpeech(response);
             }
             catch (Exception e)
@@ -219,17 +226,72 @@ namespace OpenAI.Samples.Chat
             }
         }
 
-        private async void GenerateSpeech(string text)
+        public async void GenerateSpeech(string text)
         {
             text = text.Replace("![Image](output.jpg)", string.Empty);
             if (string.IsNullOrWhiteSpace(text)) { return; }
-            var request = new SpeechRequest(text, Model.TTS_1);
-            var (clipPath, clip) = await openAI.AudioEndpoint.CreateSpeechAsync(request, destroyCancellationToken);
-            audioSource.PlayOneShot(clip);
-
-            if (enableDebug)
+            
+            sentences = Regex.Split(text, @"(?<=[\.!\?])\s+");
+            clips = new AudioClip[sentences.Length];
+            sentenceIndex = 0;
+            int i = 0;
+            bool initAudio = true;
+            foreach (string sentence in sentences)
             {
-                Debug.Log(clipPath);
+                var request = new SpeechRequest(sentence, Model.TTS_1);
+                var (clipPath, clip) = await openAI.AudioEndpoint.CreateSpeechAsync(request, destroyCancellationToken);
+                
+                clips[i] = clip;
+                i++;
+                
+                // audioSource.PlayOneShot(clip);
+                if (initAudio)
+                {
+                    StartCoroutine(PlayAudioSequentially());
+                    initAudio = false;
+                }
+                
+                if (enableDebug)
+                {
+                    Debug.Log(clipPath);
+                }
+            }
+            
+            
+            // text = text.Replace("![Image](output.jpg)", string.Empty);
+            // if (string.IsNullOrWhiteSpace(text)) { return; }
+            // var request = new SpeechRequest(text, Model.TTS_1);
+            // var (clipPath, clip) = await openAI.AudioEndpoint.CreateSpeechAsync(request, destroyCancellationToken);
+            // audioSource.PlayOneShot(clip);
+            //
+            // if (enableDebug)
+            // {
+            //     Debug.Log(clipPath);
+            // }
+        }
+        
+        IEnumerator PlayAudioSequentially()
+        {
+            yield return null;
+
+            //1.Loop through each AudioClip
+            for (int i = 0; i < clips.Length; i++)
+            {
+                sentenceIndex = i;
+                //2.Assign current AudioClip to audiosource
+                audioSource.clip = clips[i];
+
+                //3.Play Audio
+                audioSource.Play();
+                // Debug.LogError(sentenceIndex);
+
+                //4.Wait for it to finish playing
+                while (audioSource.isPlaying)
+                {
+                    yield return null;
+                }
+
+                //5. Go back to #2 and play the next audio in the clips array
             }
         }
 

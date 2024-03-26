@@ -53,9 +53,11 @@ class Player(UnityObject):
     width : 1.0
     length : 2.0
     height : 1.0
+    team : "red"
     path : None
     ballPossession : False
     tacticalPosition : Vector(0, 0, 0)
+    name : "Unknown"
     debug: True
 
 class OffensePlayer(Player):
@@ -73,7 +75,7 @@ class DefensePlayer(Player):
     tacticalPosition : Vector(0, 0, 0)
     name : "Unknown"
     debug: True
-
+    
 class GoalKeeper(Player):
     gameObjectType : "goalkeeper"
 
