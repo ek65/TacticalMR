@@ -67,13 +67,13 @@ public class HumanInterface : MonoBehaviour
         if (!circleSpawned && ContainsAll(currResponse, "closest", "opponent"))
         {
             circleSpawned = true;
-            GameObject closest = objectList.scenicPlayers[0]; // hardcoded closest opponent
+            GameObject closest = objectList.scenicPlayers[1]; // hardcoded closest opponent
             SpawnCircle(closest.transform.position); 
         } 
         if (!arrowSpawned && ContainsAll(currResponse, "move in", "within a meter"))
         {
             arrowSpawned = true;
-            GameObject closest = objectList.scenicPlayers[0]; // hardcoded closest opponent
+            GameObject closest = objectList.scenicPlayers[1]; // hardcoded closest opponent
             SpawnArrow(this.transform.position, closest.transform.position);
         }
         if (tlManager.Paused == false && (circleObjects.Count > 1 || arrowObjects.Count > 0))

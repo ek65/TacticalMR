@@ -135,7 +135,7 @@ behavior defendantBehavior(front: Opponent):
         do MoveTo(self.tacticalPosition + Vector((football.position.x - self.position.x) * 0.6, 0, 0), "Covering") for 0.1 seconds
     interrupt when pressCondition(self, [front, football]): # Press condition
         if self.isHuman and self.explained3 == False:
-            do Idle() for 1 seconds
+            do Idle() for 2 seconds
             do Pause()
             # ego.gameObject.pause = True
             try:
@@ -176,7 +176,19 @@ def coverCondition(self, targets) -> bool:
 # Try interrupt while moving to (no idling after)
 
 football = new Ball at (0, 6, 0)
-ego = new Human at (-20, 20, 0)
+# ego = new Human at (-20, 20, 0)
+
+class Coach(Human):
+    friendly: True
+    action: "idle"
+    closeLeft: None
+    closeRight: None
+    isHuman: False
+    explained1: False
+    explained2: False
+    explained3: False
+    team : "blue"
+    tacticalPosition: Vector(0, 0, 0)
 
 opponent_a = new Opponent at (-8, 8, 0),
                     with behavior opponentBehavior()
@@ -204,11 +216,11 @@ defendant_a = new Defendant at (-8, 0, 0),
                     with behavior defendantBehavior(opponent_a)
 defendant_a.tacticalPosition = (-8, 0, 0)
 
-defendant_b = new Defendant at (0, 0, 0),
+ego = new Coach at (0, 0, 0),
                     with behavior defendantBehavior(opponent_b)
-defendant_b.tacticalPosition = (0, 0, 0)
-defendant_b.isHuman = True
-defendant_b.team = "self"
+ego.tacticalPosition = (0, 0, 0)
+ego.isHuman = True
+ego.team = "self"
 
 defendant_c = new Defendant at (8, 0, 0),
                     with behavior defendantBehavior(opponent_c)
@@ -218,15 +230,15 @@ defendant_d = new Defendant at (16, 0, 0),
                     with behavior defendantBehavior(opponent_d)
 defendant_d.tacticalPosition = (16, 0, 0)
 
-defendant_a.closeRight = defendant_b
-defendant_b.closeLeft = defendant_a
-defendant_b.closeRight = defendant_c
-defendant_c.closeLeft = defendant_b
+defendant_a.closeRight = ego
+ego.closeLeft = defendant_a
+ego.closeRight = defendant_c
+defendant_c.closeLeft = ego
 defendant_c.closeRight = defendant_d
 defendant_d.closeLeft = defendant_c
 
 defendant_a.name = "Defendant A"
-defendant_b.name = "Defendant B"
+ego.name = "Defendant B"
 defendant_c.name = "Defendant C"
 defendant_d.name = "Defendant D"
 

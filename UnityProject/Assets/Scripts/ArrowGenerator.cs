@@ -48,7 +48,7 @@ public class ArrowGenerator : MonoBehaviour
     {
         GenerateArrow();
         
-        if (target == new Vector3(0,0,0) || origin == new Vector3(0,0,0))
+        if (target == new Vector3(0,0,0))
         {
             return;
         }
