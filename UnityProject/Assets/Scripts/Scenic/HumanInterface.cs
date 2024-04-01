@@ -32,6 +32,8 @@ public class HumanInterface : MonoBehaviour
     public List<GameObject> arrowObjects;
     // private GameObject circle1;
     // private GameObject arrow0;
+
+    public string explanation;
     
     // Start is called before the first frame update
     void Start()
@@ -156,6 +158,10 @@ public class HumanInterface : MonoBehaviour
         
         if (data.actionFunc != null)
         {
+            if (data.actionFunc == "Speak")
+            {
+                explanation = data.actionArgs[0].ToString();
+            }
             Type type = actionAPI.GetType();
             MethodInfo method = type.GetMethod(data.actionFunc);
             

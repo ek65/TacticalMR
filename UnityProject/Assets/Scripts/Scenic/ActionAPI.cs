@@ -109,6 +109,19 @@ public class ActionAPI : MonoBehaviour
             Debug.LogError("ChatBehaviour instance not found in the scene.");
         }
     }
+    
+    public void Explain(string text)
+    {
+        ChatBehaviour chatBehaviour = GameObject.FindGameObjectWithTag("Character").GetComponentInChildren<ChatBehaviour>();
+        if (chatBehaviour != null)
+        {
+            chatBehaviour.SetInputTextAndSubmit(text);
+        }
+        else
+        {
+            Debug.LogError("ChatBehaviour instance not found in the scene.");
+        }
+    }
 
     public void CallPause()
     {

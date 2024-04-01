@@ -88,6 +88,7 @@ class Human(UnityObject):
     height : 1.0
     team : "blue"
     path : None
+    name : "Coach"
 
 class AIAgent(UnityObject):
     gameObjectType : "aiAgent"

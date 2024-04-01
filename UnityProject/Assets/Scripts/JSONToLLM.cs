@@ -52,6 +52,7 @@ public class JSONToLLM : MonoBehaviour
         public float positionX;
         public float positionZ;
         public Vector3 rotation;
+        public string explanation;
     }
     
     [System.Serializable]
@@ -130,6 +131,7 @@ public class JSONToLLM : MonoBehaviour
         coachObject.positionX = coach.transform.position.x;
         coachObject.positionZ = coach.transform.position.z;
         coachObject.rotation = coach.transform.rotation.eulerAngles;
+        coachObject.explanation = coach.GetComponent<HumanInterface>().explanation;
         mySceneObjects.coach = coachObject;
         
         // Adding coach to defense players list as well

@@ -63,6 +63,8 @@ namespace OpenAI.Samples.Chat
         public string[] sentences;
         public AudioClip[] clips;
         public int sentenceIndex;
+        public string responseText;
+        public string userInput;
 
         private void OnValidate()
         {
@@ -93,6 +95,7 @@ namespace OpenAI.Samples.Chat
 
         public void SetInputTextAndSubmit(string text)
         {
+            userInput = text;
             inputField.text = text;
             SubmitChat(); // Assuming SubmitChat is already a public method
         }
@@ -128,7 +131,8 @@ namespace OpenAI.Samples.Chat
                     response = await ProcessToolCallsAsync(response);
                     assistantMessageContent.text += response.ToString().Replace("![Image](output.jpg)", string.Empty);
                 }
-                
+
+                responseText = response;
                 GenerateSpeech(response);
             }
             catch (Exception e)

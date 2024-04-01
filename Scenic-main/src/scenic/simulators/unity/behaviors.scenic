@@ -51,6 +51,10 @@ behavior Speak(input : str):
     take SpeakAction(input)
     take StopAction()
 
+behavior Explain(input : str):
+    take SpeakAction(input)
+    take StopAction()
+
 behavior Pause():
     take PauseAction()
     take StopAction()

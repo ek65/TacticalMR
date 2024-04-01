@@ -541,3 +541,14 @@ class PauseAction(Action):
 
     def applyTo(self, obj, sim):
         obj.gameObject.DoAction(self.actionName)
+
+class ExplainAction(Action):
+    def __init__(self, input):
+        self.actionName = "Explain"
+        
+        if not isinstance(input, str):
+            raise RuntimeError("output must be a string")
+        self.input = input
+
+    def applyTo(self, obj, sim):
+        obj.gameObject.DoAction(self.actionName, self.input)
