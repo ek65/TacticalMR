@@ -499,7 +499,7 @@ namespace OpenAI.Samples.Chat
                     Debug.Log(userInput);
                 }
 
-                combinedInput = userInput + " " + jsonText;
+                // combinedInput = userInput + " " + jsonText;
             }
             catch (Exception e)
             {
@@ -514,6 +514,8 @@ namespace OpenAI.Samples.Chat
 
         public void SubmitCombinedInput()
         {
+            combinedInput = userInput + " " + jsonText;
+
             inputField.text = combinedInput;
             SubmitChatNoSpeech();
         }

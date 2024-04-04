@@ -92,8 +92,9 @@ public class KeyboardInput : MonoBehaviour
             if (Input.GetKeyDown(KeyCode.Space) && !timelineManager.rewinding && !timelineManager.advancing)
             {
                 jsonToLLM.PopulateSceneObjects();
-                jsonToLLM.WriteJSON();
+                jsonToLLM.CreateJSONString();
                 chatBehaviour.SubmitCombinedInput();
+                jsonToLLM.WriteJSON();
             } 
             
         }

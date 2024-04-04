@@ -1,1 +1,65 @@
-I'm a soccer expert explaining a give-and-go scenario. 
+Hello, I am an expert {
+    "offsensePlayers": [
+        {
+            "name": "Opponent A",
+            "positionX": 2.959761619567871,
+            "positionZ": 4.523315906524658,
+            "rotation": {
+                "x": 0.0,
+                "y": 105.13668823242188,
+                "z": 0.0
+            },
+            "behavior": "Intercept Ball"
+        },
+        {
+            "name": "Opponent B",
+            "positionX": 11.706594467163086,
+            "positionZ": 0.05286933481693268,
+            "rotation": {
+                "x": 0.0,
+                "y": 314.9673156738281,
+                "z": 0.0
+            },
+            "behavior": "Idle"
+        }
+    ],
+    "defensePlayers": [
+        {
+            "name": "Coach",
+            "positionX": 5.0,
+            "positionZ": 0.05286979675292969,
+            "rotation": {
+                "x": 0.0,
+                "y": -1.382144443340394e-8,
+                "z": 0.0
+            },
+            "behavior": ""
+        }
+    ],
+    "ball": {
+        "name": "Ball",
+        "positionX": 2.9494588375091554,
+        "positionZ": 4.183472156524658
+    },
+    "goal": {
+        "name": "Goal",
+        "positionX": 5.0,
+        "positionZ": -4.350727558135986,
+        "rotation": {
+            "x": 0.0,
+            "y": 180.0,
+            "z": 0.0
+        }
+    },
+    "coach": {
+        "name": "Coach",
+        "positionX": 5.0,
+        "positionZ": 0.05286979675292969,
+        "rotation": {
+            "x": 0.0,
+            "y": -1.382144443340394e-8,
+            "z": 0.0
+        },
+        "explanation": ""
+    }
+}
