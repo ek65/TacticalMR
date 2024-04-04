@@ -9504,11 +9504,15 @@ MonoBehaviour:
   contentArea: {fileID: 1922995384}
   scrollView: {fileID: 1914219367}
   audioSource: {fileID: 2040348441}
-  systemPrompt: "You are a helpful soccer training expert and are willing to help
-    in all things soccer related. Make sure to not generate images AT ALL. \n"
+  systemPrompt: "I am a soccer expert giving explanations of the strategy I am using
+    against my opponents. Please parse the explanations I give you into a json format
+    where each explanation I give can be divided into three fields: \u201Cmotion\u201D,
+    \u201Crationale\u201D, and \u201Ccondition\u201D."
   sentences: []
   clips: []
   sentenceIndex: 0
+  responseText: 
+  userInput: 
 --- !u!114 &2040348443
 MonoBehaviour:
   m_ObjectHideFlags: 0

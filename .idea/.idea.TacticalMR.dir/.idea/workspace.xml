@@ -5,7 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ab507957-9e7f-49dc-9236-a3fdce7f3a8a" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/UnityProject/Assets/Scenes/zmq.unity" beforeDir="false" afterPath="$PROJECT_DIR$/UnityProject/Assets/Scenes/zmq.unity" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UnityProject/Assets/KeyboardInput.cs" beforeDir="false" afterPath="$PROJECT_DIR$/UnityProject/Assets/KeyboardInput.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UnityProject/Assets/Samples/OpenAI/7.7.5/Chat/ChatBehaviour.cs" beforeDir="false" afterPath="$PROJECT_DIR$/UnityProject/Assets/Samples/OpenAI/7.7.5/Chat/ChatBehaviour.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UnityProject/Assets/Scenes/zmq_demo.unity" beforeDir="false" afterPath="$PROJECT_DIR$/UnityProject/Assets/Scenes/zmq_demo.unity" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -15,10 +17,10 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "customColor": "",
-  "associatedIndex": 4
-}]]></component>
+  <component name="ProjectColorInfo">{
+  &quot;customColor&quot;: &quot;&quot;,
+  &quot;associatedIndex&quot;: 4
+}</component>
   <component name="ProjectId" id="2dFC64Ccj9h9Ois269yBFqwyepv" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
@@ -28,7 +30,7 @@
   "keyToString": {
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
-    "git-widget-placeholder": "jdiazchao",
+    "git-widget-placeholder": "llm-lowlatency",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -53,6 +55,7 @@
       <option name="presentableId" value="Default" />
       <updated>1709594260746</updated>
       <workItem from="1709594261888" duration="1250000" />
+      <workItem from="1711147173424" duration="1263000" />
     </task>
     <servers />
   </component>

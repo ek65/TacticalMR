@@ -23,26 +23,7 @@ public class KeyboardInput : MonoBehaviour
     }
     void Update()
     {
-        // Vector3 mousePos = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, Camera.main.transform.position.y));
-        // transform.LookAt(mousePos);
-        //
-        // if (userCircle == null)
-        // {
-        //     userCircle = GameObject.FindGameObjectWithTag("UserCircle");
-        // }
-        // else
-        // {
-        //     var temp = new Vector3(mousePos.x, 2f, mousePos.z);
-        //     userCircle.transform.position = temp;
-        // }
-
-        // if (Input.GetKeyDown("shift"))
-        // {
-        //     moveSpeed = 2f;
-        // } else {
-        //     moveSpeed = 4f;
-        // }
-        
+      
         if (Input.GetKeyDown(KeyCode.E))
         {
             exitScenario.EndScenario();

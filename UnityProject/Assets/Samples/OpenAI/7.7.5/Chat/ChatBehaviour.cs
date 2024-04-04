@@ -51,7 +51,7 @@ namespace OpenAI.Samples.Chat
 
         [SerializeField]
         [TextArea(3, 10)]
-        private string systemPrompt = "You are a helpful soccer training expert and are willing to help in all things soccer related.";
+        private string systemPrompt = "I am a soccer expert giving explanations of the strategy I am using against my opponents. Please parse the explanations I give you into a json format where each explanation I give can be divided into three fields: “motion”, “rationale”, and “condition”.";
 
         private OpenAIClient openAI;
 
@@ -73,6 +73,27 @@ namespace OpenAI.Samples.Chat
             submitButton.Validate();
             recordButton.Validate();
             audioSource.Validate();
+        }
+        
+        void Update()
+        {
+            // Check if the T key is held down
+            if (Input.GetKeyDown(KeyCode.T))
+            {
+                // Start recording if not already recording
+                if (!RecordingManager.IsRecording)
+                {
+                    ToggleRecording();
+                }
+            }
+            else if (Input.GetKeyUp(KeyCode.T))
+            {
+                // Stop recording if currently recording
+                if (RecordingManager.IsRecording)
+                {
+                    ToggleRecording();
+                }
+            }
         }
 
         private void Awake()
@@ -97,7 +118,7 @@ namespace OpenAI.Samples.Chat
         {
             userInput = text;
             inputField.text = text;
-            SubmitChat(); // Assuming SubmitChat is already a public method
+            SubmitChat();
         }
         public async void SubmitChat()
         {
@@ -134,6 +155,136 @@ namespace OpenAI.Samples.Chat
 
                 responseText = response;
                 GenerateSpeech(response);
+            }
+            catch (Exception e)
+            {
+                switch (e)
+                {
+                    case TaskCanceledException:
+                    case OperationCanceledException:
+                        break;
+                    default:
+                        Debug.LogError(e);
+                        break;
+                }
+            }
+            finally
+            {
+                if (destroyCancellationToken is { IsCancellationRequested: false })
+                {
+                    inputField.interactable = true;
+                    EventSystem.current.SetSelectedGameObject(inputField.gameObject);
+                    submitButton.interactable = true;
+                }
+
+                isChatPending = false;
+            }
+
+            async Task<ChatResponse> ProcessToolCallsAsync(ChatResponse response)
+            {
+                var toolCalls = new List<Task>();
+
+                foreach (var toolCall in response.FirstChoice.Message.ToolCalls)
+                {
+                    if (enableDebug)
+                    {
+                        Debug.Log($"{response.FirstChoice.Message.Role}: {toolCall.Function.Name} | Finish Reason: {response.FirstChoice.FinishReason}");
+                        Debug.Log($"{toolCall.Function.Arguments}");
+                    }
+
+                    toolCalls.Add(ProcessToolCall());
+
+                    async Task ProcessToolCall()
+                    {
+                        await Awaiters.UnityMainThread;
+
+                        try
+                        {
+                            var imageResults = await toolCall.InvokeFunctionAsync<IReadOnlyList<ImageResult>>().ConfigureAwait(true);
+
+                            foreach (var imageResult in imageResults)
+                            {
+                                AddNewImageContent(imageResult);
+                            }
+                        }
+                        catch (Exception e)
+                        {
+                            Debug.LogError(e);
+                            conversation.AppendMessage(new(toolCall, $"{{\"result\":\"{e.Message}\"}}"));
+                            return;
+                        }
+
+                        conversation.AppendMessage(new(toolCall, "{\"result\":\"completed\"}"));
+                    }
+                }
+
+
+                await Task.WhenAll(toolCalls).ConfigureAwait(true);
+                ChatResponse toolCallResponse;
+
+                try
+                {
+                    var toolCallRequest = new ChatRequest(conversation.Messages, tools: assistantTools);
+                    toolCallResponse = await openAI.ChatEndpoint.GetCompletionAsync(toolCallRequest);
+                    conversation.AppendMessage(toolCallResponse.FirstChoice.Message);
+                }
+                catch (RestException restEx)
+                {
+                    Debug.LogError(restEx);
+
+                    foreach (var toolCall in response.FirstChoice.Message.ToolCalls)
+                    {
+                        conversation.AppendMessage(new Message(toolCall, restEx.Response.Body));
+                    }
+
+                    var toolCallRequest = new ChatRequest(conversation.Messages, tools: assistantTools);
+                    toolCallResponse = await openAI.ChatEndpoint.GetCompletionAsync(toolCallRequest);
+                    conversation.AppendMessage(toolCallResponse.FirstChoice.Message);
+                }
+
+                if (toolCallResponse.FirstChoice.FinishReason == "tool_calls")
+                {
+                    return await ProcessToolCallsAsync(toolCallResponse);
+                }
+
+                return toolCallResponse;
+            }
+        }
+        
+        public async void SubmitChatNoSpeech()
+        {
+            if (isChatPending || string.IsNullOrWhiteSpace(inputField.text)) { return; }
+            isChatPending = true;
+
+            // inputField.ReleaseSelection();
+            inputField.interactable = false;
+            submitButton.interactable = false;
+            conversation.AppendMessage(new Message(Role.User, inputField.text));
+            // var userMessageContent = AddNewTextMessageContent(Role.User);
+            // userMessageContent.text = $"User: {inputField.text}";
+            inputField.text = string.Empty;
+            var assistantMessageContent = AddNewTextMessageContent(Role.Assistant);
+            assistantMessageContent.text = "Expert: ";
+
+            try
+            {
+                var request = new ChatRequest(conversation.Messages, tools: assistantTools);
+                var response = await openAI.ChatEndpoint.StreamCompletionAsync(request, resultHandler: deltaResponse =>
+                {
+                    if (deltaResponse?.FirstChoice?.Delta == null) { return; }
+                    assistantMessageContent.text += deltaResponse.FirstChoice.Delta.ToString();
+                    scrollView.verticalNormalizedPosition = 0f;
+                }, destroyCancellationToken);
+
+                conversation.AppendMessage(response.FirstChoice.Message);
+
+                if (response.FirstChoice.FinishReason == "tool_calls")
+                {
+                    response = await ProcessToolCallsAsync(response);
+                    assistantMessageContent.text += response.ToString().Replace("![Image](output.jpg)", string.Empty);
+                }
+
+                responseText = response;
             }
             catch (Exception e)
             {
