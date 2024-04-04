@@ -52,7 +52,7 @@ behavior coachBehavior():
         do Pause()
     interrupt when self.gameObject.pause == True and self.explained == False:
         if (self.explained == False):
-            do Speak("Say \"" + pressExplanation + "\"")
+            # do Speak("Say \"" + pressExplanation + "\"")
             self.explained = True
     interrupt when self.gameObject.pause == False and self.explained == True:
         do Idle()

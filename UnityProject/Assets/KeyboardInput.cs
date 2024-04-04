@@ -1,7 +1,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using OpenAI.Samples.Chat;
 using UnityEngine;
+using Utilities.Audio;
 
 public class KeyboardInput : MonoBehaviour
 {
@@ -10,6 +12,7 @@ public class KeyboardInput : MonoBehaviour
     [SerializeField] public float moveSpeed = 4f;
     public ExitScenario exitScenario;
     private Rigidbody rb;
+    private ChatBehaviour chatBehaviour;
     
     private TimelineManager timelineManager;
     private JSONToLLM jsonToLLM;
@@ -20,6 +23,7 @@ public class KeyboardInput : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         timelineManager = GameObject.FindGameObjectWithTag("TimelineManager").GetComponent<TimelineManager>();
         jsonToLLM = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<JSONToLLM>();
+        chatBehaviour = GameObject.FindGameObjectWithTag("Character").GetComponent<ChatBehaviour>();
     }
     void Update()
     {
@@ -38,6 +42,24 @@ public class KeyboardInput : MonoBehaviour
             else
             {
                 timelineManager.Pause();
+            }
+        }
+        
+        // Check if the T key is held down
+        if (Input.GetKeyDown(KeyCode.V))
+        {
+            // Start recording if not already recording
+            if (!RecordingManager.IsRecording)
+            {
+                chatBehaviour.ToggleRecording();
+            }
+        }
+        else if (Input.GetKeyUp(KeyCode.V))
+        {
+            // Stop recording if currently recording
+            if (RecordingManager.IsRecording)
+            {
+                chatBehaviour.ToggleRecording();
             }
         }
 

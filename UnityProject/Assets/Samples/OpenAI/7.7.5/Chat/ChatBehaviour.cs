@@ -78,23 +78,7 @@ namespace OpenAI.Samples.Chat
         
         void Update()
         {
-            // Check if the T key is held down
-            if (Input.GetKeyDown(KeyCode.T))
-            {
-                // Start recording if not already recording
-                if (!RecordingManager.IsRecording)
-                {
-                    ToggleRecording();
-                }
-            }
-            else if (Input.GetKeyUp(KeyCode.T))
-            {
-                // Stop recording if currently recording
-                if (RecordingManager.IsRecording)
-                {
-                    ToggleRecording();
-                }
-            }
+            
         }
 
         private void Awake()
@@ -479,7 +463,7 @@ namespace OpenAI.Samples.Chat
             aspectRatioFitter.aspectRatio = texture.width / (float)texture.height;
         }
 
-        private void ToggleRecording()
+        public void ToggleRecording()
         {
             RecordingManager.EnableDebug = enableDebug;
 
@@ -507,7 +491,7 @@ namespace OpenAI.Samples.Chat
             {
                 recordButton.interactable = false;
                 var request = new AudioTranscriptionRequest(clip, temperature: 0.1f, language: "en");
-                var userInput = await openAI.AudioEndpoint.CreateTranscriptionAsync(request, destroyCancellationToken);
+                userInput = await openAI.AudioEndpoint.CreateTranscriptionAsync(request, destroyCancellationToken);
 
                 if (enableDebug)
                 {

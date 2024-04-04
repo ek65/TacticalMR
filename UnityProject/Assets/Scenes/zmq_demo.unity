@@ -1615,7 +1615,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 1658017393}
   m_Direction: 0
   m_Value: 1
-  m_Size: 1
+  m_Size: 0.9999998
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -5991,7 +5991,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 684.19257, y: 0}
+  m_AnchoredPosition: {x: 678.73236, y: 0}
   m_SizeDelta: {x: 0, y: 64}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1359183744
@@ -9979,3 +9979,51 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 666baf2eca0804901807bbe20b856a51, type: 3}
+--- !u!1 &777379925808647183 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 777379923757108248, guid: 666baf2eca0804901807bbe20b856a51, type: 3}
+  m_PrefabInstance: {fileID: 777379925808647182}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &777379925808647184 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 777379923757108247, guid: 666baf2eca0804901807bbe20b856a51, type: 3}
+  m_PrefabInstance: {fileID: 777379925808647182}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 777379925808647183}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7f871b83c09a74dd1a7bd0e043118f6c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &777379925808647185
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 777379925808647183}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 956534c9e32d7473caebacd6d6adbdbf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  objectsList: {fileID: 777379925808647184}
+  chatBehaviour: {fileID: 2040348442}
+  mySceneObjects:
+    offsensePlayers: []
+    defensePlayers: []
+    ball:
+      name: 
+      positionX: 0
+      positionZ: 0
+    goal:
+      name: 
+      positionX: 0
+      positionZ: 0
+      rotation: {x: 0, y: 0, z: 0}
+    coach:
+      name: 
+      positionX: 0
+      positionZ: 0
+      rotation: {x: 0, y: 0, z: 0}
+      explanation: 
