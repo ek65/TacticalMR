@@ -66,6 +66,7 @@ namespace OpenAI.Samples.Chat
         public string responseText;
         public string userInput;
         public string jsonText; // json text to be appended to userInput
+        public string combinedInput; // userinput + jsonText to send to LLM
 
         private void OnValidate()
         {
@@ -497,10 +498,8 @@ namespace OpenAI.Samples.Chat
                 {
                     Debug.Log(userInput);
                 }
-                
-                string combinedInput = userInput + " " + jsonText;
-                inputField.text = combinedInput;
-                SubmitChatNoSpeech();
+
+                combinedInput = userInput + " " + jsonText;
             }
             catch (Exception e)
             {
@@ -511,6 +510,12 @@ namespace OpenAI.Samples.Chat
             {
                 recordButton.interactable = true;
             }
+        }
+
+        public void SubmitCombinedInput()
+        {
+            inputField.text = combinedInput;
+            SubmitChatNoSpeech();
         }
     }
 }

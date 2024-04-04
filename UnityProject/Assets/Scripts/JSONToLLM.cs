@@ -167,7 +167,7 @@ public class JSONToLLM : MonoBehaviour
         string json = JsonUtility.ToJson(mySceneObjects, true);
         chatBehaviour.jsonText = json;
         Debug.Log("Chat behavior's global jsonText variable is changed to " + chatBehaviour.jsonText);
-        File.WriteAllText(filename, json);
+        File.WriteAllText(filename, chatBehaviour.combinedInput);
         Debug.Log("JSON file written to " + filename);
     }
 }

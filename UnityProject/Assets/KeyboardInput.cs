@@ -93,7 +93,9 @@ public class KeyboardInput : MonoBehaviour
             {
                 jsonToLLM.PopulateSceneObjects();
                 jsonToLLM.WriteJSON();
-            }
+                chatBehaviour.SubmitCombinedInput();
+            } 
+            
         }
         
         
