@@ -220,6 +220,14 @@ public void InitializeTimeline()
     {
         rewinding = true;
     }
+
+
+    public void Reset()
+    {
+        Timeseries = new Dictionary<GameObject, RewindableTimeSeries>();
+        rewindables = new List<Rewindable>();
+    }
+    
     // Update is called once per frame
     void Update()
     {

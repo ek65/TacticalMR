@@ -43,7 +43,10 @@ public class BallInteraction : MonoBehaviour
         }
         else
         {
-            transformPlayer.parent.GetComponent<PlayerInterface>().ballPossession = false;
+            if (transformPlayer != null)
+            {
+                transformPlayer.parent.GetComponent<PlayerInterface>().ballPossession = false;
+            }
         }
     }
 }

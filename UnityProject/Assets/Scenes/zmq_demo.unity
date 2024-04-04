@@ -1615,7 +1615,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 1658017393}
   m_Direction: 0
   m_Value: 1
-  m_Size: 1
+  m_Size: 0.9999998
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -6266,7 +6266,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   instantiateIdentity: 1
   replayIdentity:
-    id: 10926
+    id: 2055
   prefabIdentity:
     id: 12837
   observedComponents:
@@ -6288,7 +6288,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   replayIdentity:
-    id: 9055
+    id: 40072
   replayObject:
     reference: {fileID: 1429554335}
   replayPosition: 23
@@ -9229,7 +9229,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   instantiateIdentity: 1
   replayIdentity:
-    id: 38742
+    id: 18306
   prefabIdentity:
     id: 2697
   observedComponents:
@@ -9251,7 +9251,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   replayIdentity:
-    id: 38953
+    id: 59271
   replayObject:
     reference: {fileID: 2015253260}
   replayPosition: 23
@@ -9509,6 +9509,8 @@ MonoBehaviour:
   sentences: []
   clips: []
   sentenceIndex: 0
+  responseText: 
+  userInput: 
 --- !u!114 &2040348443
 MonoBehaviour:
   m_ObjectHideFlags: 0

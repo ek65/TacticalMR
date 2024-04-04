@@ -69,14 +69,20 @@ public class HumanInterface : MonoBehaviour
         if (!circleSpawned && ContainsAll(currResponse, "closest", "opponent"))
         {
             circleSpawned = true;
-            GameObject closest = objectList.scenicPlayers[1]; // hardcoded closest opponent
-            SpawnCircle(closest.transform.position); 
+            if (objectList.scenicPlayers[0] != null)
+            {
+                GameObject closest = objectList.scenicPlayers[0]; // hardcoded closest opponent
+                SpawnCircle(closest.transform.position); 
+            }
         } 
         if (!arrowSpawned && ContainsAll(currResponse, "move in", "within a meter"))
         {
             arrowSpawned = true;
-            GameObject closest = objectList.scenicPlayers[1]; // hardcoded closest opponent
-            SpawnArrow(this.transform.position, closest.transform.position);
+            if (objectList.scenicPlayers[0] != null)
+            {
+                GameObject closest = objectList.scenicPlayers[0]; // hardcoded closest opponent
+                SpawnArrow(this.transform.position, closest.transform.position);
+            }
         }
         if (tlManager.Paused == false && (circleObjects.Count > 1 || arrowObjects.Count > 0))
         {
@@ -165,13 +171,13 @@ public class HumanInterface : MonoBehaviour
             Type type = actionAPI.GetType();
             MethodInfo method = type.GetMethod(data.actionFunc);
             
-            Debug.LogError("im in here");
+            // Debug.LogError("im in here");
 
             method.Invoke(actionAPI, data.actionArgs.ToArray());
         }
         else //idle
         {
-            Debug.LogError("im in here2");
+            // Debug.LogError("im in here2");
             actionAPI.stopMovement = true;
         }
     }
