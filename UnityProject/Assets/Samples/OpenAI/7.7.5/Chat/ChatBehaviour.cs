@@ -65,6 +65,7 @@ namespace OpenAI.Samples.Chat
         public int sentenceIndex;
         public string responseText;
         public string userInput;
+        public string jsonText; // json text to be appended to userInput
 
         private void OnValidate()
         {
@@ -512,9 +513,10 @@ namespace OpenAI.Samples.Chat
                 {
                     Debug.Log(userInput);
                 }
-
-                inputField.text = userInput;
-                SubmitChat();
+                
+                string combinedInput = userInput + " " + jsonText;
+                inputField.text = combinedInput;
+                SubmitChatNoSpeech();
             }
             catch (Exception e)
             {
