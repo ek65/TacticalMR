@@ -2,11 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
+using OpenAI.Samples.Chat;
 
 public class JSONToLLM : MonoBehaviour
 {
     public ObjectsList objectsList;
     private string filename = "";
+    public ChatBehaviour chatBehaviour;
 
     [System.Serializable]
     public class OffensePlayer
@@ -159,11 +161,13 @@ public class JSONToLLM : MonoBehaviour
     //     }
     // }
 
+    
     public void WriteJSON()
     {
         string json = JsonUtility.ToJson(mySceneObjects, true);
+        chatBehaviour.jsonText = json;
+        Debug.Log("Chat behavior's global jsonText variable is changed to " + chatBehaviour.jsonText);
         File.WriteAllText(filename, json);
-        
         Debug.Log("JSON file written to " + filename);
     }
 }

@@ -1615,7 +1615,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 1658017393}
   m_Direction: 0
   m_Value: 1
-  m_Size: 0.9999998
+  m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -1823,7 +1823,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &521947363
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1840,10 +1840,10 @@ RectTransform:
   m_Father: {fileID: 2047078679}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 952.38513, y: -96}
-  m_SizeDelta: {x: 920.38513, y: 64}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 64}
   m_Pivot: {x: 1, y: 0}
 --- !u!114 &521947364
 MonoBehaviour:
@@ -3235,7 +3235,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 9, y: -217}
+  m_AnchoredPosition: {x: 9, y: -178}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &664996037
@@ -5972,7 +5972,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1359183743
 RectTransform:
   m_ObjectHideFlags: 0
@@ -5989,10 +5989,10 @@ RectTransform:
   m_Father: {fileID: 2047078679}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 224.59628, y: -64}
-  m_SizeDelta: {x: 64, y: 64}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 684.19257, y: 0}
+  m_SizeDelta: {x: 0, y: 64}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1359183744
 MonoBehaviour:
@@ -6266,7 +6266,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   instantiateIdentity: 1
   replayIdentity:
-    id: 2055
+    id: 10926
   prefabIdentity:
     id: 12837
   observedComponents:
@@ -6288,7 +6288,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   replayIdentity:
-    id: 40072
+    id: 9055
   replayObject:
     reference: {fileID: 1429554335}
   replayPosition: 23
@@ -7712,7 +7712,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1786694865
 RectTransform:
   m_ObjectHideFlags: 0
@@ -7729,10 +7729,10 @@ RectTransform:
   m_Father: {fileID: 2047078679}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 322.39752, y: -96}
-  m_SizeDelta: {x: 580.79504, y: 64}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 64}
   m_Pivot: {x: 0.5, y: 0}
 --- !u!114 &1786694866
 MonoBehaviour:
@@ -9229,7 +9229,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   instantiateIdentity: 1
   replayIdentity:
-    id: 18306
+    id: 38742
   prefabIdentity:
     id: 2697
   observedComponents:
@@ -9251,7 +9251,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   replayIdentity:
-    id: 59271
+    id: 38953
   replayObject:
     reference: {fileID: 2015253260}
   replayPosition: 23
@@ -9504,13 +9504,16 @@ MonoBehaviour:
   contentArea: {fileID: 1922995384}
   scrollView: {fileID: 1914219367}
   audioSource: {fileID: 2040348441}
-  systemPrompt: "You are a helpful soccer training expert and are willing to help
-    in all things soccer related. Make sure to not generate images AT ALL. \n"
+  systemPrompt: "I am a soccer expert giving explanations of the strategy I am using
+    against my opponents. Please parse the explanations I give you into a json format
+    where each explanation I give can be divided into three fields: \u201Cmotion\u201D,
+    \u201Crationale\u201D, and \u201Ccondition\u201D."
   sentences: []
   clips: []
   sentenceIndex: 0
   responseText: 
   userInput: 
+  jsonText: 
 --- !u!114 &2040348443
 MonoBehaviour:
   m_ObjectHideFlags: 0
