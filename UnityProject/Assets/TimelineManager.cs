@@ -218,6 +218,13 @@ public void InitializeTimeline()
     }
     public void Rewind()
     {
+        foreach (Rewindable r in rewindables)
+        {
+            if (r.Pausible)
+            {
+                r.Unfreeze();
+            }
+        }
         rewinding = true;
     }
 
