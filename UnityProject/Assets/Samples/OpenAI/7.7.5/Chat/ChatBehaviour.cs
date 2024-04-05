@@ -51,13 +51,13 @@ namespace OpenAI.Samples.Chat
 
         [SerializeField]
         [TextArea(3, 10)]
-        private string systemPrompt = "I am a soccer expert giving explanations of the strategy I am using against my opponents. Please parse the explanations I give you into a json format where each explanation I give can be divided into three fields: “motion”, “rationale”, and “condition”.";
+        private string systemPrompt = "I am a soccer coach giving explanations of the strategy I am using against my opponents. Based on the given soccer strategy explanation provided by the coach who is on the field and the provided positioning data of the field, output a JSON object with three fields: 'motion', 'rationale', and 'condition'. The 'motion' field should describe the action to be taken, 'rationale' explains why this action is necessary within the strategy, and 'condition' specifies the circumstances under which the action is to be initiated.";
 
         private OpenAIClient openAI;
 
         private readonly Conversation conversation = new();
 
-        private readonly List<Tool> assistantTools = new();
+        // private readonly List<Tool> assistantTools = new();
         
         // Daniel added variables
         public string[] sentences;
@@ -89,7 +89,6 @@ namespace OpenAI.Samples.Chat
             {
                 EnableDebug = enableDebug
             };
-            assistantTools.Add(Tool.GetOrCreateTool(openAI.ImagesEndPoint, nameof(ImagesEndpoint.GenerateImageAsync)));
             conversation.AppendMessage(new Message(Role.System, systemPrompt));
             inputField.onSubmit.AddListener(SubmitChat);
             submitButton.onClick.AddListener(SubmitChat);
@@ -123,7 +122,7 @@ namespace OpenAI.Samples.Chat
 
             try
             {
-                var request = new ChatRequest(conversation.Messages, tools: assistantTools);
+                var request = new ChatRequest(conversation.Messages);
                 var response = await openAI.ChatEndpoint.StreamCompletionAsync(request, resultHandler: deltaResponse =>
                 {
                     if (deltaResponse?.FirstChoice?.Delta == null) { return; }
@@ -186,12 +185,12 @@ namespace OpenAI.Samples.Chat
 
                         try
                         {
-                            var imageResults = await toolCall.InvokeFunctionAsync<IReadOnlyList<ImageResult>>().ConfigureAwait(true);
-
-                            foreach (var imageResult in imageResults)
-                            {
-                                AddNewImageContent(imageResult);
-                            }
+                            // var imageResults = await toolCall.InvokeFunctionAsync<IReadOnlyList<ImageResult>>().ConfigureAwait(true);
+                            //
+                            // foreach (var imageResult in imageResults)
+                            // {
+                            //     AddNewImageContent(imageResult);
+                            // }
                         }
                         catch (Exception e)
                         {
@@ -210,7 +209,7 @@ namespace OpenAI.Samples.Chat
 
                 try
                 {
-                    var toolCallRequest = new ChatRequest(conversation.Messages, tools: assistantTools);
+                    var toolCallRequest = new ChatRequest(conversation.Messages);
                     toolCallResponse = await openAI.ChatEndpoint.GetCompletionAsync(toolCallRequest);
                     conversation.AppendMessage(toolCallResponse.FirstChoice.Message);
                 }
@@ -223,7 +222,7 @@ namespace OpenAI.Samples.Chat
                         conversation.AppendMessage(new Message(toolCall, restEx.Response.Body));
                     }
 
-                    var toolCallRequest = new ChatRequest(conversation.Messages, tools: assistantTools);
+                    var toolCallRequest = new ChatRequest(conversation.Messages);
                     toolCallResponse = await openAI.ChatEndpoint.GetCompletionAsync(toolCallRequest);
                     conversation.AppendMessage(toolCallResponse.FirstChoice.Message);
                 }
@@ -254,7 +253,7 @@ namespace OpenAI.Samples.Chat
 
             try
             {
-                var request = new ChatRequest(conversation.Messages, tools: assistantTools);
+                var request = new ChatRequest(conversation.Messages);
                 var response = await openAI.ChatEndpoint.StreamCompletionAsync(request, resultHandler: deltaResponse =>
                 {
                     if (deltaResponse?.FirstChoice?.Delta == null) { return; }
@@ -318,10 +317,10 @@ namespace OpenAI.Samples.Chat
                         {
                             var imageResults = await toolCall.InvokeFunctionAsync<IReadOnlyList<ImageResult>>().ConfigureAwait(true);
 
-                            foreach (var imageResult in imageResults)
-                            {
-                                AddNewImageContent(imageResult);
-                            }
+                            // foreach (var imageResult in imageResults)
+                            // {
+                            //     AddNewImageContent(imageResult);
+                            // }
                         }
                         catch (Exception e)
                         {
@@ -340,7 +339,7 @@ namespace OpenAI.Samples.Chat
 
                 try
                 {
-                    var toolCallRequest = new ChatRequest(conversation.Messages, tools: assistantTools);
+                    var toolCallRequest = new ChatRequest(conversation.Messages);
                     toolCallResponse = await openAI.ChatEndpoint.GetCompletionAsync(toolCallRequest);
                     conversation.AppendMessage(toolCallResponse.FirstChoice.Message);
                 }
@@ -353,7 +352,7 @@ namespace OpenAI.Samples.Chat
                         conversation.AppendMessage(new Message(toolCall, restEx.Response.Body));
                     }
 
-                    var toolCallRequest = new ChatRequest(conversation.Messages, tools: assistantTools);
+                    var toolCallRequest = new ChatRequest(conversation.Messages);
                     toolCallResponse = await openAI.ChatEndpoint.GetCompletionAsync(toolCallRequest);
                     conversation.AppendMessage(toolCallResponse.FirstChoice.Message);
                 }
@@ -498,8 +497,7 @@ namespace OpenAI.Samples.Chat
                 {
                     Debug.Log(userInput);
                 }
-
-                // combinedInput = userInput + " " + jsonText;
+                
             }
             catch (Exception e)
             {
@@ -515,7 +513,6 @@ namespace OpenAI.Samples.Chat
         public void SubmitCombinedInput()
         {
             combinedInput = userInput + " " + jsonText;
-
             inputField.text = combinedInput;
             SubmitChatNoSpeech();
         }

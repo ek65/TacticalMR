@@ -1615,7 +1615,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 1658017393}
   m_Direction: 0
   m_Value: 1
-  m_Size: 0.9999998
+  m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -5991,7 +5991,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 678.73236, y: 0}
+  m_AnchoredPosition: {x: 669.8269, y: 0}
   m_SizeDelta: {x: 0, y: 64}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1359183744
@@ -9504,16 +9504,17 @@ MonoBehaviour:
   contentArea: {fileID: 1922995384}
   scrollView: {fileID: 1914219367}
   audioSource: {fileID: 2040348441}
-  systemPrompt: "I am a soccer expert giving explanations of the strategy I am using
-    against my opponents. Please parse the explanations I give you into a json format
-    where each explanation I give can be divided into three fields: \u201Cmotion\u201D,
-    \u201Crationale\u201D, and \u201Ccondition\u201D."
+  systemPrompt: "I am a soccer coach giving explanations of the strategy I am using
+    against my opponents. Please parse the explanation and json file with positioning
+    data I give you into a json format where each explanation I give can be divided
+    into three fields: \u201Cmotion\u201D, \u201Crationale\u201D, and \u201Ccondition\u201D.\n"
   sentences: []
   clips: []
   sentenceIndex: 0
   responseText: 
   userInput: 
   jsonText: 
+  combinedInput: 
 --- !u!114 &2040348443
 MonoBehaviour:
   m_ObjectHideFlags: 0

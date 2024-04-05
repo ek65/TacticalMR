@@ -167,16 +167,15 @@ public class JSONToLLM : MonoBehaviour
     {
         jsonString = JsonUtility.ToJson(mySceneObjects, true);
         chatBehaviour.jsonText = jsonString;
-        // chatBehaviour.combinedInput = chatBehaviour.jsonText + chatBehaviour.userInput;
     }
     
     public void WriteJSON()
     {
         // chatBehaviour.jsonText = jsonString;
         Debug.Log("Chat behavior's global jsonText variable is changed to " + chatBehaviour.jsonText);
-        // Debug.LogError(chatBehaviour.combinedInput);
-        // Debug.LogError(chatBehaviour.jsonText);
-        // Debug.LogError(chatBehaviour.userInput);
+        Debug.LogError(chatBehaviour.combinedInput);
+        Debug.LogError(chatBehaviour.jsonText);
+        Debug.LogError(chatBehaviour.userInput);
         // chatBehaviour.combinedInput = chatBehaviour.jsonText + chatBehaviour.userInput;
         File.WriteAllText(filename, chatBehaviour.combinedInput);
         Debug.Log("JSON file written to " + filename);

@@ -1,23 +1,23 @@
-Hello, I am an expert {
+I want you to do two things. I want you to intercept the ball to whoever is closest to you and then run away with the ball so the other opponents cannot catch up to you. {
     "offsensePlayers": [
         {
             "name": "Opponent A",
-            "positionX": 2.959761619567871,
-            "positionZ": 4.523315906524658,
+            "positionX": 3.69720458984375,
+            "positionZ": 4.731235504150391,
             "rotation": {
                 "x": 0.0,
-                "y": 105.13668823242188,
+                "y": 164.46653747558595,
                 "z": 0.0
             },
             "behavior": "Intercept Ball"
         },
         {
             "name": "Opponent B",
-            "positionX": 11.706594467163086,
-            "positionZ": 0.05286933481693268,
+            "positionX": 10.694537162780762,
+            "positionZ": 0.047847747802734378,
             "rotation": {
                 "x": 0.0,
-                "y": 314.9673156738281,
+                "y": 321.43353271484377,
                 "z": 0.0
             },
             "behavior": "Idle"
@@ -27,10 +27,10 @@ Hello, I am an expert {
         {
             "name": "Coach",
             "positionX": 5.0,
-            "positionZ": 0.05286979675292969,
+            "positionZ": 0.04785728454589844,
             "rotation": {
                 "x": 0.0,
-                "y": -1.382144443340394e-8,
+                "y": 2.146448352391417e-8,
                 "z": 0.0
             },
             "behavior": ""
@@ -38,13 +38,13 @@ Hello, I am an expert {
     ],
     "ball": {
         "name": "Ball",
-        "positionX": 2.9494588375091554,
-        "positionZ": 4.183472156524658
+        "positionX": 3.6367480754852297,
+        "positionZ": 4.422422409057617
     },
     "goal": {
         "name": "Goal",
         "positionX": 5.0,
-        "positionZ": -4.350727558135986,
+        "positionZ": -4.366665840148926,
         "rotation": {
             "x": 0.0,
             "y": 180.0,
@@ -54,10 +54,10 @@ Hello, I am an expert {
     "coach": {
         "name": "Coach",
         "positionX": 5.0,
-        "positionZ": 0.05286979675292969,
+        "positionZ": 0.04785728454589844,
         "rotation": {
             "x": 0.0,
-            "y": -1.382144443340394e-8,
+            "y": 2.146448352391417e-8,
             "z": 0.0
         },
         "explanation": ""
