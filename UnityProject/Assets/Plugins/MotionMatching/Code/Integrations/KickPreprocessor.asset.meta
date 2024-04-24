@@ -1,0 +1,12 @@
+fileFormatVersion: 2
+<<<<<<<< HEAD:UnityProject/Assets/Resources/HuggingFaceAPIConfig.asset.meta
+guid: 957f5c646ead74f9892eb6d45a430259
+========
+guid: 0892b2239043945018c65ce502568c8a
+>>>>>>>> main:UnityProject/Assets/Plugins/MotionMatching/Code/Integrations/KickPreprocessor.asset.meta
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

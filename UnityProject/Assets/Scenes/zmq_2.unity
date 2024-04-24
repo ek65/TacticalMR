@@ -757,6 +757,75 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 336116971}
   m_CullTransparentMesh: 1
+<<<<<<< HEAD:UnityProject/Assets/Scenes/zmq_2.unity
+=======
+--- !u!1001 &367696441
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 597747226, guid: 54b6364f34d7b4fe4a525f86c0b5ec19, type: 3}
+      propertyPath: m_animData.Array.data[0]
+      value: 
+      objectReference: {fileID: 11400000, guid: be4277227fd0f403ca3313d6376aac76, type: 2}
+    - target: {fileID: 8665160898893140850, guid: 54b6364f34d7b4fe4a525f86c0b5ec19, type: 3}
+      propertyPath: m_RootOrder
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8665160898893140850, guid: 54b6364f34d7b4fe4a525f86c0b5ec19, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 1.0083673
+      objectReference: {fileID: 0}
+    - target: {fileID: 8665160898893140850, guid: 54b6364f34d7b4fe4a525f86c0b5ec19, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8665160898893140850, guid: 54b6364f34d7b4fe4a525f86c0b5ec19, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 2.419025
+      objectReference: {fileID: 0}
+    - target: {fileID: 8665160898893140850, guid: 54b6364f34d7b4fe4a525f86c0b5ec19, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8665160898893140850, guid: 54b6364f34d7b4fe4a525f86c0b5ec19, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8665160898893140850, guid: 54b6364f34d7b4fe4a525f86c0b5ec19, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8665160898893140850, guid: 54b6364f34d7b4fe4a525f86c0b5ec19, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8665160898893140850, guid: 54b6364f34d7b4fe4a525f86c0b5ec19, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8665160898893140850, guid: 54b6364f34d7b4fe4a525f86c0b5ec19, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8665160898893140850, guid: 54b6364f34d7b4fe4a525f86c0b5ec19, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8665160898893140854, guid: 54b6364f34d7b4fe4a525f86c0b5ec19, type: 3}
+      propertyPath: m_Name
+      value: player.scenic (1)
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 54b6364f34d7b4fe4a525f86c0b5ec19, type: 3}
+--- !u!1 &367696442 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8665160898893140854, guid: 54b6364f34d7b4fe4a525f86c0b5ec19, type: 3}
+  m_PrefabInstance: {fileID: 367696441}
+  m_PrefabAsset: {fileID: 0}
+>>>>>>> main:UnityProject/Assets/Scenes/FakeScenicTest2.unity
 --- !u!1 &373639261
 GameObject:
   m_ObjectHideFlags: 0
@@ -1160,6 +1229,7 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 482928741}
   m_CullTransparentMesh: 1
+<<<<<<< HEAD:UnityProject/Assets/Scenes/zmq_2.unity
 --- !u!114 &519348133 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 8937797799668855672, guid: 2f94427b8dd14ea498fd92aee3ec9f0f, type: 3}
@@ -1187,6 +1257,8 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 6357171400049970933, guid: 2f94427b8dd14ea498fd92aee3ec9f0f, type: 3}
   m_PrefabInstance: {fileID: 948207144}
   m_PrefabAsset: {fileID: 0}
+=======
+>>>>>>> main:UnityProject/Assets/Scenes/FakeScenicTest2.unity
 --- !u!1 &527469073
 GameObject:
   m_ObjectHideFlags: 0
@@ -4186,6 +4258,64 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1651117214}
   m_CullTransparentMesh: 1
+<<<<<<< HEAD:UnityProject/Assets/Scenes/zmq_2.unity
+=======
+--- !u!1 &1667920650
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1667920651}
+  m_Layer: 0
+  m_Name: LeftHandAnchorDetached
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1667920651
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1667920650}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1347213869}
+  m_RootOrder: 6
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1688015203 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8665160898893140851, guid: 54b6364f34d7b4fe4a525f86c0b5ec19, type: 3}
+  m_PrefabInstance: {fileID: 367696441}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 367696442}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 35bcac9dd1874c44d9e8101253d74932, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1688015204
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 367696442}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dff2a7b6571e84cacb0e40b9a2175557, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  kickEvent: {fileID: 11400000, guid: f0fbb8ec96ca442008a413b2e263ad04, type: 2}
+>>>>>>> main:UnityProject/Assets/Scenes/FakeScenicTest2.unity
 --- !u!1 &1698788314
 GameObject:
   m_ObjectHideFlags: 0

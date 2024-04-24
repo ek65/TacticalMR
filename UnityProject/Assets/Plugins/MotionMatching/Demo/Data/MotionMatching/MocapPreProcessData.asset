@@ -118,8 +118,7 @@ MonoBehaviour:
   m_eventNames: []
   m_getBonesByName: 0
   m_lastSaveDirectory: Assets/Plugins/MotionMatching/Demo/Data/MotionMatching/MocapAnimData
-  m_lastCreatedAnimData: {fileID: 11400000, guid: 44aad25f13ae3f5449f303814fa1e4bb,
-    type: 2}
+  m_lastCreatedAnimData: {fileID: 11400000, guid: 44aad25f13ae3f5449f303814fa1e4bb, type: 2}
   m_hideSubAssets: 1
   m_jointVelocityGlobal: 0
   m_compositeCategories:
@@ -131,12 +130,9 @@ MonoBehaviour:
     RuntimeSplicing_default: 0
     RequireTags_default: 0
     FavourTags_default: 0
-  m_overrideConfigModule: {fileID: 11400000, guid: 32c1ff2fef3daf043a403372854e968a,
-    type: 2}
-  m_overrideTagModule: {fileID: 11400000, guid: 6b7014982c117a4419587441e184f2a2,
-    type: 2}
-  m_overrideEventModule: {fileID: 11400000, guid: 1e3c70b0e11d14d4c9eaa577f4c3fa44,
-    type: 2}
+  m_overrideConfigModule: {fileID: 11400000, guid: 32c1ff2fef3daf043a403372854e968a, type: 2}
+  m_overrideTagModule: {fileID: 11400000, guid: 6b7014982c117a4419587441e184f2a2, type: 2}
+  m_overrideEventModule: {fileID: 11400000, guid: 1e3c70b0e11d14d4c9eaa577f4c3fa44, type: 2}
   m_animModules:
   - {fileID: 11400000, guid: db8632e0b0760b948ace3361ba303823, type: 2}
   - {fileID: 11400000, guid: 5ea4a05c23a41004d88e6843e70e779a, type: 2}
