@@ -1,9 +1,5 @@
 fileFormatVersion: 2
-<<<<<<<< HEAD:UnityProject/Assets/Scenes/zmq_2.unity.meta
 guid: 80e0fc00d0c46400db16bad4c4214ba5
-========
-guid: fe82a75be9c8e7145bf54f2ce6e128b3
->>>>>>>> main:UnityProject/Assets/Plugins/MotionMatching/Code/Integrations/MxMIntegration_KCC.unitypackage.meta
 DefaultImporter:
   externalObjects: {}
   userData: 

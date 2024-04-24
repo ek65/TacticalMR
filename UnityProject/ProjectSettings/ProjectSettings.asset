@@ -255,11 +255,7 @@ PlayerSettings:
   AndroidSplashScreenScale: 0
   androidSplashScreen: {fileID: 0}
   AndroidKeystoreName: '{inproject}: user.keystore'
-<<<<<<< HEAD
   AndroidKeyaliasName: user
-=======
-  AndroidKeyaliasName: 123
->>>>>>> main
   AndroidBuildApkPerCpuArchitecture: 0
   AndroidTVCompatibility: 0
   AndroidIsGame: 1
@@ -720,15 +716,8 @@ PlayerSettings:
   webGLDecompressionFallback: 0
   webGLPowerPreference: 2
   scriptingDefineSymbols:
-<<<<<<< HEAD
     Android: READY_PLAYER_ME
     Standalone: READY_PLAYER_ME
-=======
-    Android: READY_PLAYER_ME;USE_INPUT_SYSTEM_POSE_CONTROL
-    Standalone: AutoSetupForUnity;READY_PLAYER_ME;USE_INPUT_SYSTEM_POSE_CONTROL
-    WebGL: READY_PLAYER_ME
-    Windows Store Apps: USE_INPUT_SYSTEM_POSE_CONTROL;USE_INPUT_SYSTEM_POSE_CONTROL
->>>>>>> main
   additionalCompilerArguments: {}
   platformArchitecture: {}
   scriptingBackend:
