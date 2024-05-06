@@ -124,6 +124,11 @@ public void InitializeTimeline()
                 r.Unfreeze();
             }
         }
+        // reset timeseries
+        Timeseries = new Dictionary<GameObject, RewindableTimeSeries>();
+        // reset time index on unpause
+        TimeIndex = 0;
+        RewindTimeIndex = 0;
         pauseTxt.text = "Unpaused";
         Paused = false;
     }
