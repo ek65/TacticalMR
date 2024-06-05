@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -11,6 +12,9 @@ public class JSONToLLM : MonoBehaviour
     private string filename = "";
     public ChatBehaviour chatBehaviour;
     private string jsonString;
+
+    private string segmentFilename = "";
+    private int filenameCounter = 0;
 
     [System.Serializable]
     public class OffensePlayer
@@ -69,12 +73,22 @@ public class JSONToLLM : MonoBehaviour
         public Coach coach;
     }
     
+    [System.Serializable]
+    public class RootSegment
+    {
+        public int timestep;
+        public SceneObjects sceneObjects;
+    }
+    
     public SceneObjects mySceneObjects = new SceneObjects();
+    public RootSegment myRootSegment = new RootSegment();
     
     // Start is called before the first frame update
     void Start()
     {
         filename = Application.dataPath + "/test.json";
+        segmentFilename = Application.dataPath + "/segment" + filenameCounter + ".json";
+        filenameCounter++;
     }
 
     // Update is called once per frame
@@ -84,6 +98,13 @@ public class JSONToLLM : MonoBehaviour
         // {
         //     WriteCSV();
         // }
+    }
+
+    public void PopulateSegment(int time)
+    {
+        PopulateSceneObjects();
+        myRootSegment.timestep = time;
+        myRootSegment.sceneObjects = mySceneObjects;
     }
 
     // TODO: change scenic so that there are "offense players" and "defense players".
@@ -135,7 +156,11 @@ public class JSONToLLM : MonoBehaviour
         coachObject.positionX = coach.transform.position.x;
         coachObject.positionZ = coach.transform.position.z;
         coachObject.rotation = coach.transform.rotation.eulerAngles;
-        coachObject.explanation = coach.GetComponent<HumanInterface>().explanation;
+        if (coach.GetComponent<HumanInterface>().explanation != null)
+        {
+            coachObject.explanation = coach.GetComponent<HumanInterface>().explanation;
+        }
+        coachObject.explanation = "No explanation given.";
         mySceneObjects.coach = coachObject;
         
         // Adding coach to defense players list as well

@@ -46,9 +46,12 @@ public class TimelineManager : MonoBehaviour
   
     public int RewindTimeIndex = 0;
     public int maxRewindTimeIndex = 0;
+    
+    private JSONToLLM jsonToLLM;
     // Start is called before the first frame update
     void Start()
     {
+        jsonToLLM = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<JSONToLLM>();
         Timeseries = new Dictionary<GameObject, RewindableTimeSeries>();
         rewindables = new List<Rewindable>();
         InstantiateScenicObject.Publish += InitializeOnScenicAdd;
@@ -174,6 +177,7 @@ public void InitializeTimeline()
         {
             TimeIndex += 1;
             RewindTimeIndex += 1;
+            jsonToLLM.PopulateSegment(TimeIndex);
             RecordData();
         }
         
