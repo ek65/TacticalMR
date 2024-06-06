@@ -24,6 +24,7 @@ simulator UnitySimulator(
 )
 class UnityObject:
     position : (0,0,0)
+    prevPosition: (0,0,0)
     isUnityObject : True
     gameObjectType : ""
     yaw : 0 deg

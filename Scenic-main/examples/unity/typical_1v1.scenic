@@ -22,7 +22,7 @@ behavior opponentBehavior():
         do MoveTo(goal.position) for 0.1 seconds
     interrupt when self.gameObject.ballPossession and distance from self to ego < pressingDistance:
         do SetPlayerSpeed(10.0)
-        if abs(xOpponentOffset - xEgoOffset) < 1:
+        if abs(opponent.position.x - ego.position.x) < 1:
             do MoveTo(ego.position + Vector(1.5 * footed, 1.5, 0)) for 0.1 seconds
         else:
             do MoveTo(ego.position + Vector(2 * footed, -1, 0)) for 0.1 seconds
