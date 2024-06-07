@@ -36,12 +36,21 @@ public class KeyboardInput : MonoBehaviour
             if (timelineManager.Paused)
             {
                 timelineManager.Unpause();
-                chatBehaviour.ToggleRecording(); // Start recording again
+                if (!chatBehaviour.isRecording)
+                {
+                    StartCoroutine(ToggleCoroutine());
+                }
+                
             }
             else
             {
                 timelineManager.Pause();
                 chatBehaviour.ToggleRecording(); // Stop recording
+                Debug.Log("Chat behaviour is:" + chatBehaviour.isRecording);
+                if (!chatBehaviour.isRecording)
+                {
+                    StartCoroutine(ToggleCoroutine());
+                }
             }
         }
         if (Input.GetKeyDown(KeyCode.I))
@@ -49,10 +58,23 @@ public class KeyboardInput : MonoBehaviour
            
             chatBehaviour.ToggleRecording();
         }
+        IEnumerator ToggleCoroutine()
+        {
+            //Print the time of when the function is first called.
+            Debug.Log("Started Coroutine at timestamp : " + Time.time);
+
+            //yield on a new YieldInstruction that waits for 5 seconds.
+            yield return new WaitForSeconds(2);
+            chatBehaviour.ToggleRecording(); // Start recording
+
+            //After we have waited 5 seconds print the time again.
+            Debug.Log("Finished Coroutine at timestamp : " + Time.time);
+        }
        
 
         if (Input.GetKeyUp(KeyCode.O))
         {
+            chatBehaviour.ToggleRecording(); // Stop recording again
             jsonToLLM.CreateJSONString();
             chatBehaviour.SubmitCombinedInput();
             jsonToLLM.WriteJSON();

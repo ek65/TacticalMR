@@ -3270,9 +3270,9 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 664996035}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 5.9649}
-  m_LocalScale: {x: 0.25437927, y: 0.25437927, z: 0.25437927}
-  m_ConstrainProportionsScale: 1
+  m_LocalPosition: {x: 0, y: 0, z: 5.1331}
+  m_LocalScale: {x: 0.35, y: 0.5, z: 0.35}
+  m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1914219368}
   - {fileID: 2047078679}
@@ -3281,7 +3281,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 9, y: -178}
+  m_AnchoredPosition: {x: 317, y: 126}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &664996037
@@ -8671,7 +8671,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -0.00030517578, y: -0.000030517578}
+  m_AnchoredPosition: {x: -0.00012207031, y: 0.000061035156}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &1922995385
@@ -9550,78 +9550,12 @@ MonoBehaviour:
   scrollView: {fileID: 1914219367}
   audioSource: {fileID: 2040348441}
   systemPrompt: "I am a soccer coach giving explanations of the strategy I am using
-    against my opponents. \nAfter generating, I want you to generate a python function
-    based on these instructions:\n\nIt is your job to parse out the condition, action,
-    and rationale from my explanation and \nMake sure to use primarily the information
-    from the \"condition\" field\nNote that the objects in the scene are already
-    defined and their properties are readily accessible (e.g. opponent.position.x).
-    \nWrite the expressions(s) within the function including properties of objects
-    relevant to the action (e.g player.position.x).\n\nThe objects are defined as
-    follows:\n\nclass Object:\n\tdef __init__(self, position):\n\t\tself.name: string\n\t\tself.position:
-    Vector # Vector describing position of object (x, y, z)\nself.rotation: int #
-    Direction at which the player is facing (roll, pitch, yaw)\n\nclass Player(Object):\n
-    \tdef __init__(self, name, position, rotation, behavior=None):\nsuper.__init__(name,
-    position)\nself.behavior: Behavior # Behavior that is assigned to the player
-    (e.g. Intercept Ball, Shoot Ball, etc.)\n\ndef hasBehavior(self, behavior): \n\"\"Checks
-    if a player's behavior is the action we want\"\n\ndef distanceBetween(self, target):
-    \n\"\"Return the distance between current player with another object\"\"\n\ndef
-    hasBallPosession(self):\n\u201C\u201DReturns whether or not the current player
-    instance has possession of the ball\u201D\u201D\n\ndef movingTowards(self, target):\n\u201C\u201DReturns
-    whether or not the current instance of the player is heading towards the target
-    object.\u201D\u201D\n\ndef lookingAt(self, target):\n\u201C\u201DReturns whether
-    or not the current instance of the player is facing towards the target object.\u201D\u201D\n\nThe
-    scene contains the initialized classes [goal, football, defendant, attacker]\n\nYou
-    may use the following already implemented class methods:\n\ndef closest(objectType:
-    ObjectType, referenceObj: UnityObject) -> UnityObject\L\t\u201C\u201D\u201D\n\tGets
-    the closest object of specified type to a reference object\n\t\n\tArgs:\n\t\tobjectType
-    (ObjectType): the type of the target objects who\u2019s distance to the reference
-    object will be compared to\n\t\treferenceObj (UnityObject): the reference object
-    to which the closest object of the specified type will be returned\n\n\tReturns:\n\t\tUnityObject:
-    the object of specified type that is closest to the specified reference object\n\t\u201C\u201D\u201D\n\ndef
-    likelyTo(object: Player, futureAction: str) -> Probability:\n\t\u201C\u201D\u201D\n\tReturns
-    the probability of a specified object to take a future specified action \n\t\n\tArgs:\n\t\tobject
-    (Player): the player performing an action and who\u2019s future action probability
-    is being examined\n\t\tfutureAction (str): the future action to be checked to
-    get a probability of the specified object taking it\n\n\tReturns:\n\t\tProbability:
-    a probability represented as an enum with possible cases [.low, .mid, .high]\n\t\u201C\u201D\u201D\n\ndef
-    lookingAt(object: UnityObject) -> bool\L\t\u201C\u201D\u201D\L\tDetermines if
-    the player is looking at the specified object.\n\n\tArgs:\n   \tobject (UnityObject):
-    The object that is being checked if it is being looked at.\n\n\tReturns:\n  
-    \t bool: True if the player is looking at the specified object, False otherwise.\n\t\u201C\u201D\u201D\n\ndef
-    movingTowards(object: UnityObject) -> bool\L\t\u201C\u201D\u201D\L\tChecks if
-    the player is moving towards the specified object.\n\n\tArgs:\n    \t\tobject
-    (UnityObject): The object that is being checked if the player is moving towards
-    it.\n\n\tReturns:\n    \t\tbool: True if the player is moving towards the specified
-    object, False otherwise.\L\t\u201C\u201D\u201D\n\ndef hasBallPossession(object:
-    Player) -> bool\L\t\u201C\u201D\u201D\L\tDetermines if the specified player has
-    possession of the ball.\n\n\tArgs:\n    \t\tobject (Player): The player whose
-    ball possession status is being checked.\n\n\tReturns:\n   \t\tbool: True if
-    the player has possession of the ball, False otherwise.\n\t\u201C\u201D\u201D\n\ndef
-    isPerformingAction(action: str) -> bool\n\t\u201C\u201D\u201D\n\tChecks if the
-    player is currently performing the specified action.\n\n\tArgs:\n    \t\taction
-    (str): The action that is being checked if it is currently being performed by
-    the player.\n\n\tReturns:\n    \t\tbool: True if the player is performing the
-    specified action, False otherwise.\n\t\u201C\u201D\u201D\n\nReturn ONLY the condition
-    function.\n\nAssume the following behaviors for the Player class have been correctly
-    implemented.\n\ndef Idle(self):\n\t\u201C\u201D\u201D\n\tplayer will stand still\n\t\u201C\u201D\u201D\n\ndef
-    ShootBall(point: Vector):\n\t\u201C\u201D\u201D\n\tplayer will shoot the ball
-    to the point defined as a vector\n\t\u201C\u201D\u201D\n\ndef InterceptBall(ball):\n\t\u201C\u201D\u201D\n\tplayer
-    will approach the ball and attempt to intercept it\n\t\u201C\u201D\u201D\n\ndef
-    GroundPassFast(point: Vector):\n\t\u201C\u201D\u201D\n\tplayer will pass the
-    ball to the point defined as a vector\n\t\u201C\u201D\u201D\n\ndef MoveTo(point:
-    Vector):\n\t\u201C\u201D\u201D\n\tplayer will move to the point defined as a
-    vector\n\t\u201C\u201D\u201D\n\ndef MoveTowards(object: UnityObject)\n\t\u201C\u201D\u201D\n\tplayer
-    will move towards the object defined as another UnityObject, like the goal, the
-    ball or other players\n\t\u201C\u201D\u201D\n\nYou are allowed to check whether
-    a player is performing a specific behavior by using the hasBehavior() helper
-    function. For instance, to check if the attacker is approaching the goal for
-    example, one should check if attacker.hasBehavior(MoveTo) returns true.\n\nIf
-    you feel like there would be a helpful API function that is missing from the
-    list given to you, feel free to come up with your own. If you do so, write a
-    list of your assumed functions and variables with a description of the arguments
-    and return value.\n\nIf some of the inputs to a function are not well defined,
-    make sure to mark them with \"!\" in code.\n\n\nThe JSON should already be generated
-    by you so use that."
+    against my opponents. Based on the given soccer strategy explanation provided
+    by the coach who is on the field and the provided positioning data of the field,
+    output a JSON object with three fields: 'motion', 'rationale', and 'condition'
+    The 'motion' field should describe the action to be taken, 'rationale' explains
+    why this action is necessary within the strategy, and 'condition' specifies the
+    circumstances under which the action is to be initiated.\" \n"
   sentences: []
   clips: []
   sentenceIndex: 0
@@ -9814,8 +9748,8 @@ RectTransform:
   m_GameObject: {fileID: 2047078678}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 1
+  m_LocalScale: {x: 1, y: 0.7, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1786694865}
   - {fileID: 1359183743}
