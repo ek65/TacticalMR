@@ -1,22 +1,19 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using OpenAI.Samples.Chat;
 using UnityEngine;
 using Utilities.Audio;
+using Utilities.Encoding.Wav;
 
 public class KeyboardInput : MonoBehaviour
 {
-    // Start is called before the first frame update
-
     [SerializeField] public float moveSpeed = 4f;
     public ExitScenario exitScenario;
     private Rigidbody rb;
     private ChatBehaviour chatBehaviour;
-    
+
     private TimelineManager timelineManager;
     private JSONToLLM jsonToLLM;
-    // public GameObject userCircle;
 
     void Start()
     {
@@ -24,85 +21,71 @@ public class KeyboardInput : MonoBehaviour
         timelineManager = GameObject.FindGameObjectWithTag("TimelineManager").GetComponent<TimelineManager>();
         jsonToLLM = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<JSONToLLM>();
         chatBehaviour = GameObject.FindGameObjectWithTag("Character").GetComponent<ChatBehaviour>();
+        Debug.Log("KeyboardInput script initialized");
     }
+
     void Update()
     {
-      
         if (Input.GetKeyDown(KeyCode.E))
         {
             exitScenario.EndScenario();
         }
-        
+
         if (Input.GetKeyDown(KeyCode.P))
         {
             if (timelineManager.Paused)
             {
                 timelineManager.Unpause();
+                chatBehaviour.ToggleRecording(); // Start recording again
             }
             else
             {
                 timelineManager.Pause();
+                chatBehaviour.ToggleRecording(); // Stop recording
             }
         }
-        
-        // Check if the T key is held down
-        if (Input.GetKeyDown(KeyCode.V))
+        if (Input.GetKeyDown(KeyCode.I))
         {
-            // Start recording if not already recording
-            if (!RecordingManager.IsRecording)
-            {
-                chatBehaviour.ToggleRecording();
-            }
+           
+            chatBehaviour.ToggleRecording();
         }
-        else if (Input.GetKeyUp(KeyCode.V))
+       
+
+        if (Input.GetKeyUp(KeyCode.O))
         {
-            // Stop recording if currently recording
-            if (RecordingManager.IsRecording)
-            {
-                chatBehaviour.ToggleRecording();
-            }
+            jsonToLLM.CreateJSONString();
+            chatBehaviour.SubmitCombinedInput();
+            jsonToLLM.WriteJSON();
+            Debug.Log($"Processed {chatBehaviour.userInput} after pausing");
         }
 
         if (timelineManager.Paused)
         {
             if (Input.GetKeyDown(KeyCode.R))
             {
-                if (timelineManager.advancing)
-                {
-                    // can't rewind while advancing
-                }
-                else
+                if (!timelineManager.advancing)
                 {
                     timelineManager.rewinding = !timelineManager.rewinding;
                 }
             }
-            
+
             if (Input.GetKeyDown(KeyCode.T))
             {
-                if (timelineManager.rewinding)
-                {
-                    // can't advance while rewinding
-                }
-                else
+                if (!timelineManager.rewinding)
                 {
                     timelineManager.advancing = !timelineManager.advancing;
                 }
             }
-            
+
             if (Input.GetKeyDown(KeyCode.Space) && !timelineManager.rewinding && !timelineManager.advancing)
             {
-                // jsonToLLM.PopulateSceneObjects();
+                jsonToLLM.PopulateSceneObjects();
                 jsonToLLM.CreateJSONString();
                 chatBehaviour.SubmitCombinedInput();
                 jsonToLLM.WriteJSON();
-            } 
-            
+                Debug.Log("Sent input");
+            }
         }
-        
-        
-        
-        
-        
     }
 
     void FixedUpdate()
@@ -111,16 +94,13 @@ public class KeyboardInput : MonoBehaviour
         {
             return;
         }
+
         float horizontalInput = Input.GetAxis("Horizontal");
         float verticalInput = Input.GetAxis("Vertical");
 
-        //Vector3 moveDirection = (transform.forward * verticalInput + transform.right * horizontalInput).normalized;
-
-        //Vector3 velocity = moveDirection * moveSpeed;
-        //rb.velocity = velocity;
-
         Vector3 forwardDirection = transform.forward;
-        Vector3 movement = (forwardDirection * verticalInput + transform.right * horizontalInput).normalized * moveSpeed;
+        Vector3 movement = (forwardDirection * verticalInput + transform.right * horizontalInput).normalized *
+                           moveSpeed;
 
         rb.MovePosition(rb.position + movement * Time.fixedDeltaTime);
     }
