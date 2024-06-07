@@ -512,8 +512,8 @@ namespace OpenAI.Samples.Chat
 
         public void SubmitCombinedInput()
         {
-            combinedInput = userInput + " " + jsonText;
-            inputField.text = combinedInput;
+            // combinedInput = userInput + " " + jsonText;
+            inputField.text = userInput;
             SubmitChatNoSpeech();
         }
     }

@@ -177,7 +177,7 @@ public class JSONToLLM : MonoBehaviour
         Debug.LogError(chatBehaviour.jsonText);
         Debug.LogError(chatBehaviour.userInput);
         // chatBehaviour.combinedInput = chatBehaviour.jsonText + chatBehaviour.userInput;
-        File.WriteAllText(filename, chatBehaviour.combinedInput);
+        File.WriteAllText(filename, chatBehaviour.userInput);
         Debug.Log("JSON file written to " + filename);
     }
 }
