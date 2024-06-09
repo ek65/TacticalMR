@@ -25,90 +25,93 @@ public class KeyboardInput : MonoBehaviour
     }
 
     void Update()
+{
+    if (Input.GetKeyDown(KeyCode.E))
     {
-        if (Input.GetKeyDown(KeyCode.E))
-        {
-            exitScenario.EndScenario();
-        }
+        exitScenario.EndScenario();
+    }
 
-        if (Input.GetKeyDown(KeyCode.P))
-        {
-            if (timelineManager.Paused)
-            {
-                timelineManager.Unpause();
-                if (!chatBehaviour.isRecording)
-                {
-                    StartCoroutine(ToggleCoroutine());
-                }
-                
-            }
-            else
-            {
-                timelineManager.Pause();
-                chatBehaviour.ToggleRecording(); // Stop recording
-                Debug.Log("Chat behaviour is:" + chatBehaviour.isRecording);
-                if (!chatBehaviour.isRecording)
-                {
-                    StartCoroutine(ToggleCoroutine());
-                }
-            }
-        }
-        if (Input.GetKeyDown(KeyCode.I))
-        {
-           
-            chatBehaviour.ToggleRecording();
-        }
-        IEnumerator ToggleCoroutine()
-        {
-            //Print the time of when the function is first called.
-            Debug.Log("Started Coroutine at timestamp : " + Time.time);
-
-            //yield on a new YieldInstruction that waits for 5 seconds.
-            yield return new WaitForSeconds(2);
-            chatBehaviour.ToggleRecording(); // Start recording
-
-            //After we have waited 5 seconds print the time again.
-            Debug.Log("Finished Coroutine at timestamp : " + Time.time);
-        }
-       
-
-        if (Input.GetKeyUp(KeyCode.O))
-        {
-            chatBehaviour.ToggleRecording(); // Stop recording again
-            jsonToLLM.CreateJSONString();
-            chatBehaviour.SubmitCombinedInput();
-            jsonToLLM.WriteJSON();
-            Debug.Log($"Processed {chatBehaviour.userInput} after pausing");
-        }
-
+    if (Input.GetKeyDown(KeyCode.P))
+    {
         if (timelineManager.Paused)
         {
-            if (Input.GetKeyDown(KeyCode.R))
+            timelineManager.Unpause();
+            chatBehaviour.ToggleRecording();
+        }
+        else
+        {
+            timelineManager.Pause();
+            chatBehaviour.ToggleRecording(); // Stop recording
+            Debug.Log("Chat behaviour is:" + chatBehaviour.isRecording);
+            if (!chatBehaviour.isRecording)
             {
-                if (!timelineManager.advancing)
-                {
-                    timelineManager.rewinding = !timelineManager.rewinding;
-                }
-            }
-
-            if (Input.GetKeyDown(KeyCode.T))
-            {
-                if (!timelineManager.rewinding)
-                {
-                    timelineManager.advancing = !timelineManager.advancing;
-                }
-            }
-
-            if (Input.GetKeyDown(KeyCode.Space) && !timelineManager.rewinding && !timelineManager.advancing)
-            {
-                jsonToLLM.PopulateSceneObjects();
-                jsonToLLM.CreateJSONString();
-                chatBehaviour.SubmitCombinedInput();
-                jsonToLLM.WriteJSON();
-                Debug.Log("Sent input");
+                StartCoroutine(ToggleRecordingCoroutine());
             }
         }
     }
+    if (Input.GetKeyDown(KeyCode.I))
+    {
+        chatBehaviour.ToggleRecording();
+    }
+    IEnumerator ToggleRecordingCoroutine()
+    {
+        Debug.Log("Started Coroutine at timestamp : " + Time.time);
+        yield return new WaitForSeconds(2);
+        chatBehaviour.ToggleRecording(); // Start recording
+        Debug.Log("Finished Coroutine at timestamp : " + Time.time);
+    }
+    
+    if (Input.GetKeyUp(KeyCode.O))
+    {
+        // StartCoroutine(ToggleRecordingCoroutine()); // Stop recording again
+        // jsonToLLM.CreateJSONString();
+        chatBehaviour.SubmitCombinedInput("explain");
+    }
+
+    if (Input.GetKeyUp(KeyCode.Q))
+    {
+        jsonToLLM.WriteFile();
+    }
+
+    if (timelineManager.Paused)
+    {
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            if (!timelineManager.advancing)
+            {
+                timelineManager.rewinding = !timelineManager.rewinding;
+            }
+        }
+
+        if (Input.GetKeyDown(KeyCode.T))
+        {
+            if (!timelineManager.rewinding)
+            {
+                timelineManager.advancing = !timelineManager.advancing;
+            }
+        }
+
+        if (Input.GetKeyDown(KeyCode.C))
+        {
+            chatBehaviour.SubmitCombinedInput("condition");
+        }
+
+        if (Input.GetKeyDown(KeyCode.A))
+        {
+            chatBehaviour.SubmitCombinedInput("action");
+        }
+
+        if (Input.GetKeyDown(KeyCode.Space) && !timelineManager.rewinding && !timelineManager.advancing)
+        {
+            jsonToLLM.PopulateSceneObjects();
+            jsonToLLM.CreateJSONString();
+            chatBehaviour.SubmitCombinedInput("condition"); 
+            jsonToLLM.WriteFile();
+            Debug.Log("Sent input");
+        }
+    }
+}
+
 
     void FixedUpdate()
     {
