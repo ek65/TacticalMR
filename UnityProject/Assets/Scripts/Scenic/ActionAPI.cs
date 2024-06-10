@@ -63,6 +63,13 @@ public class ActionAPI : MonoBehaviour
 
 
     #region API Methods for BlendTrees
+    public void Idle()
+    {
+        SetAnimController("Movement");
+        this.gameObject.GetComponent<Animator>().SetFloat("VelZ", 0);
+        this.gameObject.GetComponent<Animator>().SetFloat("VelX", 0);
+    }
+    
     public void MoveToPos(Vector3 destinationPosition, float speed = 2f, bool lookAt = true)
     {
         // TODO: replace this anim controller with movement, need to merge humanoid AI movement with the movement controller

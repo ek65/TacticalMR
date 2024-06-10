@@ -81,6 +81,11 @@ public class PlayerInterface : MonoBehaviour
         ballOnTheGround.y = ball.transform.position.y;
         ballOnTheGround.z = ball.transform.position.z;
         distToBall = Vector3.Distance(transform.position, ballOnTheGround);
+        
+        if (actionAPI.stopMovement == true)
+        {
+            actionAPI.Idle();
+        }
     }
 
     public void ApplyMovement(ScenicMovementData data)
