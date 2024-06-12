@@ -1,30 +1,43 @@
 
+        
+        
         Segment # 1
-        Coach Explanation: When you are approaching the opponent, you want to pass the ball to your nearest teammate to approach the goal faster.
+        Coach Explanation: When the opponent has the ball and is approaching the goal, you should get close to him and stay a meter ahead between him and the goal. We want to get close to him to slow him down, but not too close so he can't get the ball around you so easily.
         JSON:
         {
-  "motion": "Shift our defensive line higher up the field",
-  "rationale": "By moving our defensive line higher, we can put pressure on the opposing team earlier, reduce the space for their attackers to operate, and force them into making mistakes in their build-up play.",
-  "condition": "Initiate this action when the opposition gains possession in their own half and we have players available to cover potential attacking threats behind the defensive line."
+  "motion": "Close down the opponent and position yourself one meter ahead between the opponent and the goal.",
+  "rationale": "This action is necessary to slow down the opponent's progress towards the goal while maintaining a defensive stance that makes it difficult for the opponent to bypass you easily.",
+  "condition": "When the opponent has possession of the ball and is advancing towards the goal."
 }
         Condition:
         ```python
-def condition():
-    attacker = closest(ObjectType.Player, attacker)
-    opponent = closest(ObjectType.Player, defendant)
+def shouldIntercept():
+    opponent = closest(ObjectType.OPPONENT, goal)
 
-    if attacker.hasBehavior(MoveTowards) and attacker.movingTowards(opponent) and hasBallPossession(attacker):
-        return True
+    # Check if the opponent has the ball and is approaching the goal
+    if hasBallPossession(opponent) and movingTowards(opponent) and lookingAt(goal):
+        distance_to_opponent = distanceBetween(opponent)
+        
+        # Calculate the distance between the player and the opponent, and check if it is within the desired range
+        if distance_to_opponent >= 1 and distance_to_opponent <= 2:
+            return True
+
     return False
 ```
         Action:
         ```python
-def approachOpponentAndPass():
-    if hasBehavior(MoveTowards) and closest(Player, self).team != self.team: 
-        # Approach the opponent
-        MoveTowards(closest(Player, self))
+def defendOpponentWithBall():
+    opponent = closest(Player(team="opponent", possession=True), self)
+    goal = closest(Object(name="goal"), self)
+    
+    if movingTowards(opponent, goal):
+        # get close to opponent and stay a meter ahead between him and the goal
+        position_to_defend = positionInLine(opponent, goal, 1)
+        if self.position.distance_to(opponent.position) > 1:
+            MoveTo(position_to_defend)
+        else:
+            MoveTo(self.position)
     else:
-        # Pass the ball to the nearest teammate
-        GroundPassFast(closest(Player, self.team))
+        Idle()
 ```
         

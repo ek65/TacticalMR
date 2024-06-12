@@ -86,7 +86,7 @@ namespace OpenAI.Samples.Chat
         submitButton.onClick.AddListener(SubmitChat);
 
         // Start continuous recording when the script initializes
-        StartContinuousRecording();
+        
     }
 
     private void SubmitChat(string _) => SubmitChat();
@@ -428,12 +428,12 @@ public async void SubmitChatNoSpeech(string field)
     }
 }
 
-public void StartContinuousRecording()
-{
-    RecordingManager.EnableDebug = enableDebug;
-    RecordingManager.StartRecording<WavEncoder>(callback: ProcessRecording);
-    isRecording = true;
-}
+// public void StartContinuousRecording()
+// {
+//     RecordingManager.EnableDebug = enableDebug;
+//     RecordingManager.StartRecording<WavEncoder>(callback: ProcessRecording);
+//     isRecording = true;
+// }
 
 private async void ProcessRecording(Tuple<string, AudioClip> recording)
 {

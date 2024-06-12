@@ -38,7 +38,6 @@ public class KeyboardInput : MonoBehaviour
         if (timelineManager.Paused)
         {
             timelineManager.Unpause();
-            chatBehaviour.ToggleRecording();
         }
         else
         {
@@ -77,7 +76,7 @@ public class KeyboardInput : MonoBehaviour
     IEnumerator JSONCoroutine()
     {
         Debug.Log("Started Coroutine at timestamp : " + Time.time);
-        yield return new WaitForSeconds(1);
+        yield return new WaitForSeconds(2);
         chatBehaviour.SubmitCombinedInput("explain");
         yield return new WaitForSeconds(1);
         StartCoroutine(ConditionCoroutine());
@@ -86,7 +85,7 @@ public class KeyboardInput : MonoBehaviour
     IEnumerator ConditionCoroutine()
     {
         Debug.Log("Started Coroutine at timestamp : " + Time.time);
-        yield return new WaitForSeconds(1);
+        yield return new WaitForSeconds(2);
         chatBehaviour.SubmitCombinedInput("condition");
         yield return new WaitForSeconds(1);
         StartCoroutine(ActionCoroutine());
@@ -95,7 +94,7 @@ public class KeyboardInput : MonoBehaviour
     IEnumerator ActionCoroutine()
     {
         Debug.Log("Started Coroutine at timestamp : " + Time.time);
-        yield return new WaitForSeconds(1);
+        yield return new WaitForSeconds(2);
         chatBehaviour.SubmitCombinedInput("action");
         yield return new WaitForSeconds(1);
         StartCoroutine(FileCoroutine());
@@ -144,7 +143,7 @@ public class KeyboardInput : MonoBehaviour
         for (int i = 5; i > 0; i--)
         {
             countdownText.text = i.ToString();
-            yield return new WaitForSeconds(2);
+            yield return new WaitForSeconds(1);
         }
         
         countdownText.text = "GO";
