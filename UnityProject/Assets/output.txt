@@ -1,30 +1,79 @@
 
         Segment # 1
-        Coach Explanation: When you are approaching the opponent, you want to pass the ball to your nearest teammate to approach the goal faster.
+        Coach Explanation # If you are a good distance away from the attacker and you are close to the ball, then you should shoot in order to score.
         JSON:
         {
-  "motion": "Shift our defensive line higher up the field",
-  "rationale": "By moving our defensive line higher, we can put pressure on the opposing team earlier, reduce the space for their attackers to operate, and force them into making mistakes in their build-up play.",
-  "condition": "Initiate this action when the opposition gains possession in their own half and we have players available to cover potential attacking threats behind the defensive line."
+  "motion": "shoot",
+  "rationale": "Scoring a goal is the ultimate objective of the game, and shooting when in a good position increases the chances of scoring.",
+  "condition": "being a good distance away from the attacker and close to the ball"
 }
         Condition:
         ```python
 def condition():
-    attacker = closest(ObjectType.Player, attacker)
-    opponent = closest(ObjectType.Player, defendant)
+    # Get the player and attacker objects
+    player = closest(ObjectType.Player, goal)  # Assuming "goal" object represents the player's goal
+    attacker = closest(ObjectType.Player, football)  # Assuming "football" object represents the ball
 
-    if attacker.hasBehavior(MoveTowards) and attacker.movingTowards(opponent) and hasBallPossession(attacker):
-        return True
+    # Check if player is close to the ball
+    if player.distanceBetween(attacker) < 5:  # 5 is assumed close range
+        # Check if the attacker is not approaching the player
+        if not attacker.hasBehavior(MoveTowards) or attacker.distanceBetween(player) > 10:  # 10 is assumed good distance away from attacker
+            # Check if player has possession of the ball
+            if player.hasBallPossession():
+                return True  # Player should shoot
+    return False
+```
+        Action:
+        def ShootIfClose():
+    attacker = closest(Player, self) # assuming self is the current player
+    ball = closest(Object, self)
+    
+    if attacker and ball:
+        if dist(attacker.position, self.position) > 10 and dist(self.position, ball.position) < 5: # assuming dist() calculates distance between two positions
+            ShootBall(attacker.position)
+        
+        Segment # 2
+        Coach Explanation # In a give-and-go scenario, when you're up against two opponents, you want to swerve to the right in order to avoid the player to your right so you can score the ball more easily.
+        JSON:
+        {
+  "motion": "swerve to the right",
+  "rationale": "to avoid the player to the right and create space to score more easily",
+  "condition": "when in a give-and-go scenario with two opponents, and there is a need to create space for a better scoring opportunity"
+}
+        Condition:
+        ```python
+def condition():
+    # Check if the player is moving towards the football and has possession of the ball
+    if movingTowards(football) and hasBallPossession():
+        # Determine the closest opponent to the player
+        closest_opponent = closest(ObjectType.Opponent, player)
+        # Check if the player is looking at the closest opponent and not moving towards the player on the right
+        if lookingAt(closest_opponent) and not movingTowards(opponent_on_right):
+            return True
     return False
 ```
         Action:
         ```python
-def approachOpponentAndPass():
-    if hasBehavior(MoveTowards) and closest(Player, self).team != self.team: 
-        # Approach the opponent
-        MoveTowards(closest(Player, self))
+def giveAndGoSwerve():
+    # Check if the player has the ball possession
+    if hasBallPossession(self):
+        # Find the nearest opponent to the right of the player
+        opponent_right = closest(Player, self)
+        
+        # Check if both opponents are in line with the player
+        if positionInLine(self, opponent_right, 5):
+            # Check if the player is likely to shoot the ball in a future action
+            if likelyTo(self, "shoot") == .high:
+                # Move towards the goal
+                MoveTowards(goal)
+            else:
+                # Swerve to the right to avoid the opponent on the right
+                MoveTo(Vector(self.position.x + 5, self.position.y, self.position.z))
+        else:
+            # Intercept the ball to continue the play
+            InterceptBall(ball)
     else:
-        # Pass the ball to the nearest teammate
-        GroundPassFast(closest(Player, self.team))
+        # Idle if the player does not have ball possession
+        Idle()
 ```
         
