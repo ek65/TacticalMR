@@ -157,7 +157,7 @@ public class JSONToLLM : MonoBehaviour
         string outputFilePath = Application.dataPath + "/output.txt";
         string segmentOutput = $@"
         Segment # {segments}
-        Coach Explanation # {chatBehaviour.userInput}
+        Coach Explanation: {chatBehaviour.userInput}
         JSON:
         {formattedJson}
         Condition:

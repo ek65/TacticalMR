@@ -16,6 +16,7 @@ TagManager:
   - Node
   - Character
   - TimelineManager
+  - countdown
   layers:
   - Default
   - TransparentFX
