@@ -15,6 +15,7 @@ public class KeyboardInput : MonoBehaviour
     private TimelineManager timelineManager;
     private JSONToLLM jsonToLLM;
     public TextMeshProUGUI countdownText;
+    private SynthConnect synthConnect;
 
     void Start()
     {
@@ -23,6 +24,7 @@ public class KeyboardInput : MonoBehaviour
         jsonToLLM = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<JSONToLLM>();
         countdownText = GameObject.FindGameObjectWithTag("countdown").GetComponent<TextMeshProUGUI>();
         chatBehaviour = GameObject.FindGameObjectWithTag("Character").GetComponent<ChatBehaviour>();
+        synthConnect = GameObject.FindGameObjectWithTag("connect").GetComponent<SynthConnect>();
         Debug.Log("KeyboardInput script initialized");
     }
 
@@ -57,6 +59,7 @@ public class KeyboardInput : MonoBehaviour
         {
             chatBehaviour.ToggleRecording();
             StartCoroutine(JSONCoroutine());
+            StartCoroutine(SynthCoroutine());
         }
         else
         {
@@ -70,6 +73,13 @@ public class KeyboardInput : MonoBehaviour
         Debug.Log("Started Coroutine at timestamp : " + Time.time);
         yield return new WaitForSeconds(1);
         chatBehaviour.ToggleRecording(); // Start recording
+        Debug.Log("Finished Coroutine at timestamp : " + Time.time);
+    }
+    IEnumerator SynthCoroutine()
+    {
+        Debug.Log("Started Coroutine at timestamp : " + Time.time);
+        yield return new WaitForSeconds(1);
+        synthConnect.SendExplanation(chatBehaviour.userInput);
         Debug.Log("Finished Coroutine at timestamp : " + Time.time);
     }
     
