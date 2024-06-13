@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 // Android Resolver Repos Start
 ([rootProject] + (rootProject.subprojects as List)).each { project ->
     project.repositories {
@@ -13,11 +14,14 @@
     }
 }
 // Android Resolver Repos End
+=======
+>>>>>>> Stashed changes
 apply plugin: 'com.android.library'
 **APPLY_PLUGINS**
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
+<<<<<<< Updated upstream
 // Android Resolver Dependencies Start
     implementation 'com.google.android.gms:play-services-base:18.4.0' // Assets/Firebase/Editor/AppDependencies.xml:17
     implementation 'com.google.firebase:firebase-analytics:22.0.0' // Assets/Firebase/Editor/FirestoreDependencies.xml:15
@@ -44,6 +48,10 @@ android {
   }
 }
 // Android Resolver Exclusions End
+=======
+**DEPS**}
+
+>>>>>>> Stashed changes
 android {
     compileSdkVersion **APIVERSION**
     buildToolsVersion '**BUILDTOOLS**'
