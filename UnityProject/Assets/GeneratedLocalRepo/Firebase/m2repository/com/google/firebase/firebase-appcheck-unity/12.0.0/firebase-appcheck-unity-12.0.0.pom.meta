@@ -1,7 +1,12 @@
 fileFormatVersion: 2
+<<<<<<<< HEAD:UnityProject/Assets/GeneratedLocalRepo/Firebase/m2repository/com/google/firebase/firebase-appcheck-unity/12.0.0/firebase-appcheck-unity-12.0.0.pom.meta
 guid: 374b977d654ba4ef58a87efc035c9525
 labels:
 - gpsr
+========
+guid: 263329615dc2a4afc9c3dcdbfd07c6a6
+folderAsset: yes
+>>>>>>>> synth-and-segments:UnityProject/Assets/ExternalDependencyManager/Editor.meta
 DefaultImporter:
   externalObjects: {}
   userData: 
