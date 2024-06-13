@@ -17,7 +17,7 @@ using Utilities.Audio;
 using Utilities.Encoding.Wav;
 using Utilities.Extensions;
 using Utilities.WebRequestRest;
-using SynthNetworkKit;
+// using SynthNetworkKit;
 
 namespace OpenAI.Samples.Chat
 {

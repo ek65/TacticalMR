@@ -15,13 +15,13 @@ public class SynthNetwork : MonoBehaviour
 {
     [Header("Service")]
     [SerializeField] private string id;
-    private FirebaseFirestore db;
+    // private FirebaseFirestore db;
 
     // Start is called before the first frame update
     void Start()
     {
         db = FirebaseFirestore.DefaultInstance;
-
+        
         DocumentReference docRef = db.Collection("services").Document(id);
         docRef.Listen(snapshot => {
             if (snapshot.Exists)
@@ -29,13 +29,13 @@ public class SynthNetwork : MonoBehaviour
                 Debug.Log("Callback received document snapshot.");
                 Debug.Log(String.Format("Document data for {0} document:", snapshot.Id));
                 Dictionary<string, object> data = snapshot.ToDictionary();
-
+        
                 // Convert Dictionary to JSON
                 string json = JsonConvert.SerializeObject(data);
-
+        
                 // Deserialize JSON to Service object
                 SynthService service = JsonConvert.DeserializeObject<SynthService>(json);
-
+        
                 // Print out the Service object properties
                 Debug.Log($"ID: {service.Id}");
                 Debug.Log("InterfaceIN: " + string.Join(", ", service.InterfaceIN));
@@ -43,10 +43,10 @@ public class SynthNetwork : MonoBehaviour
                 Debug.Log("DeviceIN: " + string.Join(", ", service.DeviceIN));
                 Debug.Log("DeviceOUT: " + string.Join(", ", service.DeviceOUT));
                 Debug.Log($"LastUpdated: {service.LastUpdated}");
-
+        
                 var timestamp = (Timestamp)data["lastUpdated"];
                 var myDateTime = timestamp.ToDateTime();
-
+        
                 Debug.Log(data["lastUpdated"]);
                 Debug.Log(data["lastUpdated"].GetType());
                 Debug.Log(myDateTime);
@@ -77,11 +77,11 @@ public class SynthNetwork : MonoBehaviour
     }
 
     // Update is called once per frame
-    void UploadTask(string type, string content)
+    public void UploadTask(string type, string content)
     {
         ServiceTask serviceTask = new ServiceTask(type, content);
-        DocumentReference docRef = db.Collection("services").Document(id).Collection("tasks").Document(serviceTask.id);
-        docRef.SetAsync(serviceTask);
+        // DocumentReference docRef = db.Collection("services").Document(id).Collection("tasks").Document(serviceTask.id);
+        // docRef.SetAsync(serviceTask);
     }
 }
 
