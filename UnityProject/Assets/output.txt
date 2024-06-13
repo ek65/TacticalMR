@@ -1,43 +1,79 @@
-
-        
-        
+    
         Segment # 1
-        Coach Explanation: When the opponent has the ball and is approaching the goal, you should get close to him and stay a meter ahead between him and the goal. We want to get close to him to slow him down, but not too close so he can't get the ball around you so easily.
+        Coach Explanation: When the opponent has the ball and is approaching the goal you should get close to him and stay a meter ahead between him and the goal. We want to get close to him to slow down but not too close so he can't get the ball around you so easily.
         JSON:
         {
-  "motion": "Close down the opponent and position yourself one meter ahead between the opponent and the goal.",
-  "rationale": "This action is necessary to slow down the opponent's progress towards the goal while maintaining a defensive stance that makes it difficult for the opponent to bypass you easily.",
+  "motion": "Maintain a distance of one meter from the opponent and position yourself between the opponent and the goal.",
+  "rationale": "This strategy allows the player to apply pressure on the opponent to slow down their advance towards the goal while also creating a barrier to prevent easy ball penetration.",
   "condition": "When the opponent has possession of the ball and is advancing towards the goal."
 }
         Condition:
         ```python
-def shouldIntercept():
+def condition():
+    # Get the opponent and the goal
     opponent = closest(ObjectType.OPPONENT, goal)
-
-    # Check if the opponent has the ball and is approaching the goal
-    if hasBallPossession(opponent) and movingTowards(opponent) and lookingAt(goal):
-        distance_to_opponent = distanceBetween(opponent)
+    goal_position = goal.position
+    
+    # Check if opponent has the ball and is approaching the goal
+    if hasBallPossession(opponent) and movingTowards(opponent) and distanceBetween(opponent) < distanceBetween(goal):
+        # Calculate the position to stay a meter ahead between opponent and goal
+        target_position = opponent.position - (opponent.position - goal_position).normalized * 1
         
-        # Calculate the distance between the player and the opponent, and check if it is within the desired range
-        if distance_to_opponent >= 1 and distance_to_opponent <= 2:
+        # Check if the player is not too close to the target position
+        if distanceBetween(target_position) > 0.5:
             return True
-
+            
     return False
 ```
         Action:
-        ```python
-def defendOpponentWithBall():
-    opponent = closest(Player(team="opponent", possession=True), self)
-    goal = closest(Object(name="goal"), self)
+        def DefendOpponent():
+    opponent = closest(Player, self)
+    goal = closest(Goal, self)
+    distance_to_goal = self.position.distance(goal.position)
     
-    if movingTowards(opponent, goal):
-        # get close to opponent and stay a meter ahead between him and the goal
-        position_to_defend = positionInLine(opponent, goal, 1)
-        if self.position.distance_to(opponent.position) > 1:
-            MoveTo(position_to_defend)
+    if hasBallPossession(opponent) and movingTowards(opponent, goal):
+        point_in_line = positionInLine(opponent, goal, 1)
+        if self.position.distance(opponent.position) > 2:
+            MoveTowards(point_in_line)
         else:
-            MoveTo(self.position)
+            Idle()
+        
+        Segment # 2
+        Coach Explanation: If the opponent is moving to any of the sides of the field, stay a meter ahead of him between him and the ball and try to catch up with him by moving in the same direction he is. This will difficult him to touch the ball around you.
+        JSON:
+        {
+  "motion": "Stay a meter ahead of the opponent and move in the same direction as the opponent.",
+  "rationale": "By staying ahead and mirroring the opponent's movements, you can maintain a defensive position that makes it difficult for the opponent to pass or dribble around you.",
+  "condition": "When the opponent is moving towards the sides of the field and trying to advance with the ball."
+}
+        Condition:
+        ```python
+def condition():
+    opponent = closest(ObjectType.OPPONENT, attacker)
+    ball = closest(ObjectType.BALL, attacker)
+    
+    # Check if opponent is moving towards any of the sides of the field
+    if opponent and movingTowards(opponent) and abs(opponent.position.x) > 30:
+        # Calculate a point a meter ahead of opponent between him and the ball
+        target_point = Vector((opponent.position.x + ball.position.x) / 2, 0, (opponent.position.z + ball.position.z) / 2)
+        
+        # Check if player is moving in the same direction as opponent
+        if movingTowards(opponent):
+            # Check if player is trying to catch up with the opponent
+            if distanceBetween(attacker, opponent) > distanceBetween(attacker, target_point):
+                return True
+    
+    return False
+```
+        Action:
+        def CatchUpWithOpponent():
+    side1 = positionInLine(opponent, ball, 1)
+    side2 = positionInLine(opponent, ball, -1)
+    
+    if movingTowards(opponent, side1) or movingTowards(opponent, side2):
+        moveTo(positionInLine(opponent, ball, 2))
     else:
         Idle()
-```
+
+CatchUpWithOpponent()
         
