@@ -24,6 +24,8 @@
 /[Aa]ssets/Plugins/Editor/JetBrains*
 /[Aa]ssets/Firebase
 
+/[Aa]ssets/Firebase
+
 # Visual Studio cache directory
 .vs/
 
