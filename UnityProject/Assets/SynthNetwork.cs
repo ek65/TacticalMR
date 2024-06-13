@@ -9,6 +9,8 @@ using Newtonsoft.Json.Converters;
 using Firebase.Firestore;
 using Firebase.Extensions;
 
+namespace SynthNetworkKit
+{
 public class SynthNetwork : MonoBehaviour
 {
     [Header("Service")]
@@ -56,7 +58,7 @@ public class SynthNetwork : MonoBehaviour
         });
     }
 
-    void Upload() {
+    /*void Upload() {
         DocumentReference docRef = db.Collection("cities").Document("LA");
         Dictionary<string, object> city = new Dictionary<string, object>
         {
@@ -67,21 +69,33 @@ public class SynthNetwork : MonoBehaviour
         docRef.SetAsync(city).ContinueWithOnMainThread(task => {
                 Debug.Log("Added data to the LA document in the cities collection.");
         });
+    }*/
+
+    void Update()
+    {
+
     }
 
     // Update is called once per frame
-    void UploadTask(type: string, content: string)
+    void UploadTask(string type, string content)
     {
-        ServiceTask serviceTask = new ServiceTask(Guid.NewGuid().ToString(), type, content)
+        ServiceTask serviceTask = new ServiceTask(type, content);
         DocumentReference docRef = db.Collection("services").Document(id).Collection("tasks").Document(serviceTask.id);
         docRef.SetAsync(serviceTask);
     }
 }
 
 public class ServiceTask {
-    public string id { get; set;}
-    public string type { get; set;}
-    public string content { get; set;}
+    public string id { get; set; }
+    public string type { get; set; }
+    public string content { get; set; }
+
+    public ServiceTask(string type, string content)
+    {
+        id = Guid.NewGuid().ToString();
+        this.type = type;
+        this.content = content;
+    }
 }
 
 public class SynthService
@@ -137,4 +151,6 @@ public class TestService
         string serializedJson = JsonConvert.SerializeObject(service, Formatting.Indented);
         Console.WriteLine("Serialized JSON: " + serializedJson);
     }
+}
+
 }

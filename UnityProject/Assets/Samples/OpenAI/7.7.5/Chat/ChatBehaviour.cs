@@ -17,6 +17,7 @@ using Utilities.Audio;
 using Utilities.Encoding.Wav;
 using Utilities.Extensions;
 using Utilities.WebRequestRest;
+using SynthNetworkKit;
 
 namespace OpenAI.Samples.Chat
 {
@@ -25,7 +26,7 @@ namespace OpenAI.Samples.Chat
     public CancellationToken destroyCancellationToken;
     [SerializeField] private OpenAIConfiguration configuration;
 
-    private ScenicSynth scenicSynth;
+    public GameObject synthNetwork;
 
     [SerializeField] private bool enableDebug;
 
@@ -86,8 +87,6 @@ namespace OpenAI.Samples.Chat
         conversation.AppendMessage(new Message(Role.System, systemPrompt));
         inputField.onSubmit.AddListener(SubmitChat);
         submitButton.onClick.AddListener(SubmitChat);
-
-        scenicSynth = GameObject.FindGameObjectWithTag("synth").GetComponent<ScenicSynth>();
 
         // Start continuous recording when the script initializes
         StartContinuousRecording();
