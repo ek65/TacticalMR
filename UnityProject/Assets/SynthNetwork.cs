@@ -15,7 +15,7 @@ public class SynthNetwork : MonoBehaviour
 {
     [Header("Service")]
     [SerializeField] private string id;
-    // private FirebaseFirestore db;
+    private FirebaseFirestore db;
 
     // Start is called before the first frame update
     void Start()
@@ -58,19 +58,6 @@ public class SynthNetwork : MonoBehaviour
         });
     }
 
-    /*void Upload() {
-        DocumentReference docRef = db.Collection("cities").Document("LA");
-        Dictionary<string, object> city = new Dictionary<string, object>
-        {
-                { "Name", "Los Angeles" },
-                { "State", "CA" },
-                { "Country", "USA" }
-        };
-        docRef.SetAsync(city).ContinueWithOnMainThread(task => {
-                Debug.Log("Added data to the LA document in the cities collection.");
-        });
-    }*/
-
     void Update()
     {
 
@@ -80,8 +67,8 @@ public class SynthNetwork : MonoBehaviour
     public void UploadTask(string type, string content)
     {
         ServiceTask serviceTask = new ServiceTask(type, content);
-        // DocumentReference docRef = db.Collection("services").Document(id).Collection("tasks").Document(serviceTask.id);
-        // docRef.SetAsync(serviceTask);
+        DocumentReference docRef = db.Collection("services").Document(id).Collection("tasks").Document(serviceTask.id);
+        docRef.SetAsync(serviceTask);
     }
 }
 
