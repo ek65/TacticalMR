@@ -1,10 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using OpenAI.Samples.Chat;
+using TMPro;
 using UnityEngine;
 using Utilities.Audio;
 using Utilities.Encoding.Wav;
-
 public class KeyboardInput : MonoBehaviour
 {
     [SerializeField] public float moveSpeed = 4f;
@@ -14,12 +14,14 @@ public class KeyboardInput : MonoBehaviour
 
     private TimelineManager timelineManager;
     private JSONToLLM jsonToLLM;
+    public TextMeshProUGUI countdownText;
 
     void Start()
     {
         rb = GetComponent<Rigidbody>();
         timelineManager = GameObject.FindGameObjectWithTag("TimelineManager").GetComponent<TimelineManager>();
         jsonToLLM = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<JSONToLLM>();
+        countdownText = GameObject.FindGameObjectWithTag("countdown").GetComponent<TextMeshProUGUI>();
         chatBehaviour = GameObject.FindGameObjectWithTag("Character").GetComponent<ChatBehaviour>();
         Debug.Log("KeyboardInput script initialized");
     }
@@ -36,11 +38,11 @@ public class KeyboardInput : MonoBehaviour
         if (timelineManager.Paused)
         {
             timelineManager.Unpause();
-            chatBehaviour.ToggleRecording();
         }
         else
         {
             timelineManager.Pause();
+            StartCoroutine(Countdown());
             chatBehaviour.ToggleRecording(); // Stop recording
             Debug.Log("Chat behaviour is:" + chatBehaviour.isRecording);
             if (!chatBehaviour.isRecording)
@@ -51,25 +53,57 @@ public class KeyboardInput : MonoBehaviour
     }
     if (Input.GetKeyDown(KeyCode.I))
     {
-        chatBehaviour.ToggleRecording();
+        if (chatBehaviour.isRecording)
+        {
+            chatBehaviour.ToggleRecording();
+            StartCoroutine(JSONCoroutine());
+        }
+        else
+        {
+            chatBehaviour.ToggleRecording();
+        }
     }
+    
+    // Coroutines
     IEnumerator ToggleRecordingCoroutine()
     {
         Debug.Log("Started Coroutine at timestamp : " + Time.time);
-        yield return new WaitForSeconds(2);
+        yield return new WaitForSeconds(1);
         chatBehaviour.ToggleRecording(); // Start recording
         Debug.Log("Finished Coroutine at timestamp : " + Time.time);
     }
     
-    if (Input.GetKeyUp(KeyCode.O))
+    IEnumerator JSONCoroutine()
     {
-        // StartCoroutine(ToggleRecordingCoroutine()); // Stop recording again
-        // jsonToLLM.CreateJSONString();
+        Debug.Log("Started Coroutine at timestamp : " + Time.time);
+        yield return new WaitForSeconds(2);
         chatBehaviour.SubmitCombinedInput("explain");
+        yield return new WaitForSeconds(1);
+        StartCoroutine(ConditionCoroutine());
+        Debug.Log("Finished Coroutine at timestamp : " + Time.time);
     }
-
-    if (Input.GetKeyUp(KeyCode.Q))
+    IEnumerator ConditionCoroutine()
     {
+        Debug.Log("Started Coroutine at timestamp : " + Time.time);
+        yield return new WaitForSeconds(2);
+        chatBehaviour.SubmitCombinedInput("condition");
+        yield return new WaitForSeconds(1);
+        StartCoroutine(ActionCoroutine());
+        Debug.Log("Finished Coroutine at timestamp : " + Time.time);
+    }
+    IEnumerator ActionCoroutine()
+    {
+        Debug.Log("Started Coroutine at timestamp : " + Time.time);
+        yield return new WaitForSeconds(2);
+        chatBehaviour.SubmitCombinedInput("action");
+        yield return new WaitForSeconds(1);
+        StartCoroutine(FileCoroutine());
+        Debug.Log("Finished Coroutine at timestamp : " + Time.time);
+    }
+    IEnumerator FileCoroutine()
+    {
+        Debug.Log("Started Coroutine at timestamp : " + Time.time);
+        yield return new WaitForSeconds(1);
         jsonToLLM.WriteFile();
     }
 
@@ -90,17 +124,8 @@ public class KeyboardInput : MonoBehaviour
                 timelineManager.advancing = !timelineManager.advancing;
             }
         }
-
-        if (Input.GetKeyDown(KeyCode.C))
-        {
-            chatBehaviour.SubmitCombinedInput("condition");
-        }
-
-        if (Input.GetKeyDown(KeyCode.A))
-        {
-            chatBehaviour.SubmitCombinedInput("action");
-        }
-
+        
+        // not being used rn
         if (Input.GetKeyDown(KeyCode.Space) && !timelineManager.rewinding && !timelineManager.advancing)
         {
             jsonToLLM.PopulateSceneObjects();
@@ -111,6 +136,20 @@ public class KeyboardInput : MonoBehaviour
         }
     }
 }
+    
+    private IEnumerator Countdown()
+    {
+        countdownText.gameObject.SetActive(true);
+        for (int i = 5; i > 0; i--)
+        {
+            countdownText.text = i.ToString();
+            yield return new WaitForSeconds(1);
+        }
+        
+        countdownText.text = "GO";
+        yield return new WaitForSeconds(1);
+        countdownText.gameObject.SetActive(false);
+    }
 
 
     void FixedUpdate()

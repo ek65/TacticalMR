@@ -17,7 +17,6 @@ using Utilities.Audio;
 using Utilities.Encoding.Wav;
 using Utilities.Extensions;
 using Utilities.WebRequestRest;
-// using SynthNetworkKit;
 
 namespace OpenAI.Samples.Chat
 {
@@ -25,8 +24,6 @@ namespace OpenAI.Samples.Chat
 {
     public CancellationToken destroyCancellationToken;
     [SerializeField] private OpenAIConfiguration configuration;
-
-    public GameObject synthNetwork;
 
     [SerializeField] private bool enableDebug;
 
@@ -89,7 +86,7 @@ namespace OpenAI.Samples.Chat
         submitButton.onClick.AddListener(SubmitChat);
 
         // Start continuous recording when the script initializes
-        StartContinuousRecording();
+        
     }
 
     private void SubmitChat(string _) => SubmitChat();
@@ -431,12 +428,12 @@ public async void SubmitChatNoSpeech(string field)
     }
 }
 
-public void StartContinuousRecording()
-{
-    RecordingManager.EnableDebug = enableDebug;
-    RecordingManager.StartRecording<WavEncoder>(callback: ProcessRecording);
-    isRecording = true;
-}
+// public void StartContinuousRecording()
+// {
+//     RecordingManager.EnableDebug = enableDebug;
+//     RecordingManager.StartRecording<WavEncoder>(callback: ProcessRecording);
+//     isRecording = true;
+// }
 
 private async void ProcessRecording(Tuple<string, AudioClip> recording)
 {
