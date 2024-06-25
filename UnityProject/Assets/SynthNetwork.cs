@@ -6,8 +6,8 @@ using UnityEngine;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-using Firebase.Firestore;
-using Firebase.Extensions;
+// using Firebase.Firestore;
+// using Firebase.Extensions;
 
 namespace SynthNetworkKit
 {
@@ -15,47 +15,47 @@ public class SynthNetwork : MonoBehaviour
 {
     [Header("Service")]
     [SerializeField] private string id;
-    private FirebaseFirestore db;
+    // private FirebaseFirestore db;
 
     // Start is called before the first frame update
     void Start()
     {
-        db = FirebaseFirestore.DefaultInstance;
-        
-        DocumentReference docRef = db.Collection("services").Document(id);
-        docRef.Listen(snapshot => {
-            if (snapshot.Exists)
-            {
-                Debug.Log("Callback received document snapshot.");
-                Debug.Log(String.Format("Document data for {0} document:", snapshot.Id));
-                Dictionary<string, object> data = snapshot.ToDictionary();
-        
-                // Convert Dictionary to JSON
-                string json = JsonConvert.SerializeObject(data);
-        
-                // Deserialize JSON to Service object
-                SynthService service = JsonConvert.DeserializeObject<SynthService>(json);
-        
-                // Print out the Service object properties
-                Debug.Log($"ID: {service.Id}");
-                Debug.Log("InterfaceIN: " + string.Join(", ", service.InterfaceIN));
-                Debug.Log("InterfaceOUT: " + string.Join(", ", service.InterfaceOUT));
-                Debug.Log("DeviceIN: " + string.Join(", ", service.DeviceIN));
-                Debug.Log("DeviceOUT: " + string.Join(", ", service.DeviceOUT));
-                Debug.Log($"LastUpdated: {service.LastUpdated}");
-        
-                var timestamp = (Timestamp)data["lastUpdated"];
-                var myDateTime = timestamp.ToDateTime();
-        
-                Debug.Log(data["lastUpdated"]);
-                Debug.Log(data["lastUpdated"].GetType());
-                Debug.Log(myDateTime);
-            }
-            else
-            {
-                Debug.Log("No such document!");
-            }
-        });
+        // db = FirebaseFirestore.DefaultInstance;
+        //
+        // DocumentReference docRef = db.Collection("services").Document(id);
+        // docRef.Listen(snapshot => {
+        //     if (snapshot.Exists)
+        //     {
+        //         Debug.Log("Callback received document snapshot.");
+        //         Debug.Log(String.Format("Document data for {0} document:", snapshot.Id));
+        //         Dictionary<string, object> data = snapshot.ToDictionary();
+        //
+        //         // Convert Dictionary to JSON
+        //         string json = JsonConvert.SerializeObject(data);
+        //
+        //         // Deserialize JSON to Service object
+        //         SynthService service = JsonConvert.DeserializeObject<SynthService>(json);
+        //
+        //         // Print out the Service object properties
+        //         Debug.Log($"ID: {service.Id}");
+        //         Debug.Log("InterfaceIN: " + string.Join(", ", service.InterfaceIN));
+        //         Debug.Log("InterfaceOUT: " + string.Join(", ", service.InterfaceOUT));
+        //         Debug.Log("DeviceIN: " + string.Join(", ", service.DeviceIN));
+        //         Debug.Log("DeviceOUT: " + string.Join(", ", service.DeviceOUT));
+        //         Debug.Log($"LastUpdated: {service.LastUpdated}");
+        //
+        //         var timestamp = (Timestamp)data["lastUpdated"];
+        //         var myDateTime = timestamp.ToDateTime();
+        //
+        //         Debug.Log(data["lastUpdated"]);
+        //         Debug.Log(data["lastUpdated"].GetType());
+        //         Debug.Log(myDateTime);
+        //     }
+        //     else
+        //     {
+        //         Debug.Log("No such document!");
+        //     }
+        // });
     }
 
     void Update()
@@ -64,12 +64,12 @@ public class SynthNetwork : MonoBehaviour
     }
 
     // Update is called once per frame
-    public void UploadTask(string type, string content)
-    {
-        ServiceTask serviceTask = new ServiceTask(type, content);
-        DocumentReference docRef = db.Collection("services").Document(id).Collection("tasks").Document(serviceTask.id);
-        docRef.SetAsync(serviceTask);
-    }
+    // public void UploadTask(string type, string content)
+    // {
+    //     ServiceTask serviceTask = new ServiceTask(type, content);
+    //     DocumentReference docRef = db.Collection("services").Document(id).Collection("tasks").Document(serviceTask.id);
+    //     docRef.SetAsync(serviceTask);
+    // }
 }
 
 public class ServiceTask {
@@ -102,17 +102,17 @@ public class SynthService
     [JsonProperty("deviceOUT")]
     public List<string> DeviceOUT { get; set; }
 
-    [JsonProperty("lastUpdated")]
-    public Timestamp LastUpdated { get; set; }
+    // [JsonProperty("lastUpdated")]
+    // public Timestamp LastUpdated { get; set; }
 
     public SynthService()
     {
-        Id = Guid.NewGuid().ToString();
-        InterfaceIN = new List<string>();
-        InterfaceOUT = new List<string>();
-        DeviceIN = new List<string>();
-        DeviceOUT = new List<string>();
-        LastUpdated = Timestamp.GetCurrentTimestamp();
+        // Id = Guid.NewGuid().ToString();
+        // InterfaceIN = new List<string>();
+        // InterfaceOUT = new List<string>();
+        // DeviceIN = new List<string>();
+        // DeviceOUT = new List<string>();
+        // LastUpdated = Timestamp.GetCurrentTimestamp();
     }
 }
 
