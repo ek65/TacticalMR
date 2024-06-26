@@ -245,8 +245,9 @@ MonoBehaviour:
   actionAPI: {fileID: 5512008216080906706}
   arrowGenerator: {fileID: 4424933064737025094, guid: 26b12c5175ce74367855bef2c3770e55, type: 3}
   circleGenerator: {fileID: 1733937925117977002, guid: 0bbdbc210306445569ca42107d04ac14, type: 3}
-  npc: {fileID: 0}
-  objectList: {fileID: 0}
+  circleObjects: []
+  arrowObjects: []
+  explanation: 
 --- !u!114 &5512008216080906706
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -278,16 +279,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9fd25f0d51b674e35bb058c5b8ee2d47, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  button: 1
-  trigger: 8192
-  controllerRight: 2
-  controllerLeft: 1
-  buttonX: 1
-  buttonY: 2
-  recordingActive: 0
   endScenario: 0
-  playerHuman: {fileID: 532548465081309300}
-  bodyTrackingTarget: {fileID: 6442339640656868302}
 --- !u!82 &1690535038236189044
 AudioSource:
   m_ObjectHideFlags: 0
@@ -420,6 +412,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 6
+  exitScenario: {fileID: 0}
 --- !u!54 &-4658693439495069158
 Rigidbody:
   m_ObjectHideFlags: 0

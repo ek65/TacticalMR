@@ -1,10 +1,10 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
 using OpenAI.Samples.Chat;
 using OVRSimpleJSON;
-using Newtonsoft.Json.Linq;
 
 public class JSONToLLM : MonoBehaviour
 {
@@ -12,7 +12,9 @@ public class JSONToLLM : MonoBehaviour
     private string filename = "";
     public ChatBehaviour chatBehaviour;
     private string jsonString;
-    public int segments;
+
+    private string segmentFilename = "";
+    private int filenameCounter = 0;
 
     [System.Serializable]
     public class OffensePlayer
@@ -71,17 +73,41 @@ public class JSONToLLM : MonoBehaviour
         public Coach coach;
     }
     
-    public SceneObjects mySceneObjects = new SceneObjects();
+    [System.Serializable]
+    public class RootSegment
+    {
+        public int timestep;
+        public SceneObjects sceneObjects;
+    }
     
+    public SceneObjects mySceneObjects = new SceneObjects();
+    public RootSegment myRootSegment = new RootSegment();
+    
+    // Start is called before the first frame update
     void Start()
     {
-        filename = Application.dataPath + "/output.txt";
+        filename = Application.dataPath + "/test.json";
+        segmentFilename = Application.dataPath + "/segment" + filenameCounter + ".json";
+        filenameCounter++;
     }
 
+    // Update is called once per frame
     void Update()
     {
+        // if (Input.GetKeyDown(KeyCode.Space))
+        // {
+        //     WriteCSV();
+        // }
     }
 
+    public void PopulateSegment(int time)
+    {
+        PopulateSceneObjects();
+        myRootSegment.timestep = time;
+        myRootSegment.sceneObjects = mySceneObjects;
+    }
+
+    // TODO: change scenic so that there are "offense players" and "defense players".
     public void PopulateSceneObjects()
     {
         mySceneObjects.offsensePlayers = new List<OffensePlayer>();
@@ -130,7 +156,11 @@ public class JSONToLLM : MonoBehaviour
         coachObject.positionX = coach.transform.position.x;
         coachObject.positionZ = coach.transform.position.z;
         coachObject.rotation = coach.transform.rotation.eulerAngles;
-        coachObject.explanation = coach.GetComponent<HumanInterface>().explanation;
+        if (coach.GetComponent<HumanInterface>().explanation != null)
+        {
+            coachObject.explanation = coach.GetComponent<HumanInterface>().explanation;
+        }
+        coachObject.explanation = "No explanation given.";
         mySceneObjects.coach = coachObject;
         
         // Adding coach to defense players list as well
@@ -142,30 +172,37 @@ public class JSONToLLM : MonoBehaviour
         mySceneObjects.defensePlayers.Add(coachDefense);
     }
 
+    // public void WriteCSV()
+    // {
+    //     if (mySceneObjectsList.sceneObjects.Count > 0)
+    //     {
+    //         TextWriter tw = new StreamWriter(filename, false);
+    //         tw.WriteLine("Name,PositionX,PositionZ");
+    //         foreach (SceneObjects sceneObject in mySceneObjectsList.sceneObjects)
+    //         {
+    //             tw.WriteLine(sceneObject.name + "," + sceneObject.positionX + "," + sceneObject.positionZ);
+    //         }
+    //         tw.Close();
+    //         
+    //         Debug.Log("CSV file written to " + filename);
+    //     }
+    // }
+
     public void CreateJSONString()
     {
         jsonString = JsonUtility.ToJson(mySceneObjects, true);
         chatBehaviour.jsonText = jsonString;
     }
     
-    public void WriteFile()
+    public void WriteJSON()
     {
-        JObject parsedJson = JObject.Parse(chatBehaviour.jsonResponseText);
-        string formattedJson = parsedJson.ToString(Newtonsoft.Json.Formatting.Indented);
-        int newSeg = segments + 1;
-        segments = newSeg;
-        string outputFilePath = Application.dataPath + "/output.txt";
-        string segmentOutput = $@"
-        Segment # {segments}
-        Coach Explanation: {chatBehaviour.userInput}
-        JSON:
-        {formattedJson}
-        Condition:
-        {chatBehaviour.conditionOutput}
-        Action:
-        {chatBehaviour.actionOutput}
-        ";
-        File.AppendAllText(outputFilePath, segmentOutput);
-        Debug.Log($"Segment written to {outputFilePath}");
+        // chatBehaviour.jsonText = jsonString;
+        Debug.Log("Chat behavior's global jsonText variable is changed to " + chatBehaviour.jsonText);
+        Debug.LogError(chatBehaviour.combinedInput);
+        Debug.LogError(chatBehaviour.jsonText);
+        Debug.LogError(chatBehaviour.userInput);
+        // chatBehaviour.combinedInput = chatBehaviour.jsonText + chatBehaviour.userInput;
+        File.WriteAllText(filename, chatBehaviour.combinedInput);
+        Debug.Log("JSON file written to " + filename);
     }
 }
