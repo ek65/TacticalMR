@@ -76,11 +76,18 @@ public class Rewindable : MonoBehaviour
         isKinematic = r.isKinematic;
         r.isKinematic = true;
         savedPosition = transform.position;
+        
+        r.constraints = RigidbodyConstraints.FreezePosition;
+        r.constraints = RigidbodyConstraints.FreezeRotation;
 
     }
     private void UnfreezePhysics()
     {
         Rigidbody r = GetComponent<Rigidbody>();
+        
+        r.constraints = RigidbodyConstraints.FreezePosition;
+        r.constraints = RigidbodyConstraints.FreezeRotation;
+        
         r.velocity = savedVelocity;
         r.isKinematic = isKinematic;
         
