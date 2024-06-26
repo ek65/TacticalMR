@@ -13,6 +13,7 @@ public class JSONToLLM : MonoBehaviour
     public ChatBehaviour chatBehaviour;
     private string jsonString;
     public int segments;
+    public TimelineManager timelineManager;
 
     [System.Serializable]
     public class OffensePlayer
@@ -71,7 +72,16 @@ public class JSONToLLM : MonoBehaviour
         public Coach coach;
     }
     
+    [System.Serializable]
+    public class RootSegment
+    {
+        public int timestep;
+        public SceneObjects sceneObjects;
+    }
+
+    
     public SceneObjects mySceneObjects = new SceneObjects();
+    public RootSegment myRootSegment = new RootSegment();
     
     void Start()
     {
@@ -130,7 +140,14 @@ public class JSONToLLM : MonoBehaviour
         coachObject.positionX = coach.transform.position.x;
         coachObject.positionZ = coach.transform.position.z;
         coachObject.rotation = coach.transform.rotation.eulerAngles;
-        coachObject.explanation = coach.GetComponent<HumanInterface>().explanation;
+        if (coach.GetComponent<HumanInterface>().explanation != null)
+        {
+            coachObject.explanation = coach.GetComponent<HumanInterface>().explanation;
+        }
+        else
+        {
+            coachObject.explanation = "No explanation given.";
+        }
         mySceneObjects.coach = coachObject;
         
         // Adding coach to defense players list as well
@@ -140,6 +157,13 @@ public class JSONToLLM : MonoBehaviour
         coachDefense.positionZ = coach.transform.position.z;
         coachDefense.rotation = coach.transform.rotation.eulerAngles;
         mySceneObjects.defensePlayers.Add(coachDefense);
+    }
+    
+    public void PopulateSegment()
+    {
+        PopulateSceneObjects();
+        myRootSegment.timestep = timelineManager.TimeIndex;
+        myRootSegment.sceneObjects = mySceneObjects;
     }
 
     public void CreateJSONString()

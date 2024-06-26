@@ -78,6 +78,8 @@ public class KeyboardInput : MonoBehaviour
         Debug.Log("Started Coroutine at timestamp : " + Time.time);
         yield return new WaitForSeconds(2);
         chatBehaviour.SubmitCombinedInput("explain");
+        // Uncomment this line to populate the scene objects
+        // jsonToLLM.PopulateSegment();
         yield return new WaitForSeconds(1);
         StartCoroutine(ConditionCoroutine());
         Debug.Log("Finished Coroutine at timestamp : " + Time.time);
