@@ -3123,6 +3123,7 @@ MonoBehaviour:
   ballInteraction: {fileID: 0}
   actionAPI: {fileID: 8665160898893140851}
   floatingText: {fileID: 2924768386710636713}
+  behavior: Idle
 --- !u!114 &6020389869188668907
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3191,7 +3192,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   version: 5
-  radius: 0.5
+  radius: 0.1
   height: 2
   canMove: 1
   maxSpeed: 7
