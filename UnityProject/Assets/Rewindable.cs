@@ -96,10 +96,10 @@ public class Rewindable : MonoBehaviour
     //TODO: need to be changed if u switch to Motion Matching systm
     private void FreezeAnimation()
     {
-        GetComponent<Animator>().speed = 0;
+        GetComponent<Animator>().enabled = false;
     }
     private void UnfreezeAnimation()
     {
-        GetComponent<Animator>().speed = 1;
+        GetComponent<Animator>().enabled = true;
     }
 }

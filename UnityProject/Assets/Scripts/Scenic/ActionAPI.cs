@@ -175,6 +175,10 @@ public class ActionAPI : MonoBehaviour
 
     public void GroundPassFast(Vector3 destinationPosition)
     {
+        if (this.GetComponent<Animator>().enabled == false)
+        {
+            return;
+        }
         stopMovement = true;
         SetAnimController("Dribbling");
         StartCoroutine(LookTowards(destinationPosition, "GroundPassFast"));
