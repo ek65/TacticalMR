@@ -42,7 +42,7 @@ opponent = new Player ahead of ego by Uniform(8, 10),
                 facing directly toward ego,
                 with behavior opponentBehavior()
 
-football = new Ball ahead of opponent by 0.5
+football = new Ball ahead of opponent by 5
 goal = new Goal behind ego by 8, facing away from ego
         
 terminate when (ego.gameObject.stopButton)

@@ -105,6 +105,9 @@ public class JSONToLLM : MonoBehaviour
             offensePlayer.positionZ = offense.transform.position.z;
             offensePlayer.rotation = offense.transform.rotation.eulerAngles;
             offensePlayer.behavior = offense.GetComponent<PlayerInterface>().behavior;
+            // Can add things like speed here by doing:
+            // offensePlayer.speed = offense.GetComponent<PlayerInterface>().currVelocity.magnitude;
+            // need to add speed to the OffensePlayer class
             mySceneObjects.offsensePlayers.Add(offensePlayer);
         }
         

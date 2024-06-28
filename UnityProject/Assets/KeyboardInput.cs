@@ -16,6 +16,8 @@ public class KeyboardInput : MonoBehaviour
     private JSONToLLM jsonToLLM;
     public TextMeshProUGUI countdownText;
 
+    public Vector3 movement;
+
     void Start()
     {
         rb = GetComponent<Rigidbody>();
@@ -161,11 +163,15 @@ public class KeyboardInput : MonoBehaviour
             return;
         }
 
+        // THIS IS WHERE HUMAN MOVEMENT HAPPENS WITH KEYBOARD
+        // TODO: MAKE THIS BETTER WHERE WE CAN MOVE ROTATION AROUND WITH MOUSE OR ARROW KEYS AND HAVE ACCEL/DECCEL 
+        // CURRENTLY ONLY HAS SET SPEED DEFINED IN moveSpeed AND NO ACCELERATION
+        
         float horizontalInput = Input.GetAxis("Horizontal");
         float verticalInput = Input.GetAxis("Vertical");
 
         Vector3 forwardDirection = transform.forward;
-        Vector3 movement = (forwardDirection * verticalInput + transform.right * horizontalInput).normalized *
+        movement = (forwardDirection * verticalInput + transform.right * horizontalInput).normalized *
                            moveSpeed;
 
         rb.MovePosition(rb.position + movement * Time.fixedDeltaTime);

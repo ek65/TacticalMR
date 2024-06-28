@@ -3115,6 +3115,7 @@ MonoBehaviour:
   circleGenerator: {fileID: 1733937925117977002, guid: 0bbdbc210306445569ca42107d04ac14, type: 3}
   circleObjects: []
   arrowObjects: []
+  explanation: 
 --- !u!114 &-7641071680297636533
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3261,6 +3262,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   moveSpeed: 4
   exitScenario: {fileID: -7641071680297636533}
+  countdownText: {fileID: 0}
+  movement: {x: 0, y: 0, z: 0}
 --- !u!54 &1422487927
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -3269,9 +3272,9 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8665160898893140854}
   serializedVersion: 2
-  m_Mass: 1
+  m_Mass: 100
   m_Drag: 0
-  m_AngularDrag: 0.05
+  m_AngularDrag: 100
   m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 0

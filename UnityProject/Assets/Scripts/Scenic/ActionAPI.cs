@@ -59,13 +59,14 @@ public class ActionAPI : MonoBehaviour
         {
             soccerBall = GameObject.FindGameObjectWithTag("ball");
         }
+        
+        Debug.LogError(this.GetComponent<Animator>().runtimeAnimatorController.name);
     }
 
 
     #region API Methods for BlendTrees
     public void Idle()
     {
-        SetAnimController("Movement");
         this.gameObject.GetComponent<Animator>().SetFloat("VelZ", 0);
         this.gameObject.GetComponent<Animator>().SetFloat("VelX", 0);
     }
@@ -179,8 +180,12 @@ public class ActionAPI : MonoBehaviour
         {
             return;
         }
+        // Debug.LogError("in gpf");
         stopMovement = true;
         SetAnimController("Dribbling");
+        // Debug.LogError(this.GetComponent<Animator>().runtimeAnimatorController.name);
+        // Debug.LogError(this.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0));
+        // Debug.LogError("in gpf2");
         StartCoroutine(LookTowards(destinationPosition, "GroundPassFast"));
         
         SetMoveBallValues(destinationPosition, 0, strongPassForce);
@@ -738,7 +743,7 @@ public class ActionAPI : MonoBehaviour
 
     void SetMoveBallValues(Vector3 finalPos, float aerialOffset, float forceMagnitude)
     {
-        Debug.LogError(finalPos);
+        // Debug.LogError(finalPos);
         this.finalPos = finalPos;
         this.aerialOffset = aerialOffset;
         this.forceMagnitude = forceMagnitude;
@@ -804,32 +809,13 @@ public class ActionAPI : MonoBehaviour
         return quadrant;
     }
 
-    // TODO: should be an animation event for passes/kicks/shoots
-    // public void MoveBall(Vector3 xzDir, float yDir, float forceMagnitude)
-    // {
-    //     Vector3 ballMotionVector = xzDir - soccerBall.transform.position;
-    //     Vector3 forceDirection = new(ballMotionVector.x, yDir, ballMotionVector.z);
-    //     Debug.Log("force vector: " + forceDirection);
-    //     GameObject ballTriggerCollider = GameObject.FindGameObjectWithTag("BallTrigger");
-    //     ballTriggerCollider.SetActive(false);
-    //     soccerBall.GetComponent<BallInteraction>().InRangeofPlayer = false;
-    //     soccerBall.GetComponent<Rigidbody>().AddForce(forceDirection * forceMagnitude * forceFactor);
-    //     // soccerBall.GetComponent<Rigidbody>().AddForce(forceDirection * 10f * forceFactor);
-    //     Debug.Log("in moveball");
-    //     Debug.Log("force:" + forceDirection * forceMagnitude * forceFactor);
-    // }
-
     public void MoveBall()
     {
+        this.GetComponent<PlayerInterface>().LosePossession();
         Vector3 ballMotionVector = finalPos - soccerBall.transform.position;
         Vector3 forceDirection = new(ballMotionVector.x, aerialOffset, ballMotionVector.z);
         Debug.Log("force vector: " + forceDirection);
-        GameObject ballTriggerCollider = GameObject.FindGameObjectWithTag("BallTrigger");
-        ballTriggerCollider.SetActive(false);
-        StartCoroutine(BallTriggerColliderDebounce(ballTriggerCollider));
-        soccerBall.GetComponentInChildren<BallInteraction>().InRangeofPlayer = false;
-        soccerBall.GetComponentInChildren<Rigidbody>().AddForce(forceDirection * forceMagnitude * forceFactor);
-        // soccerBall.GetComponent<Rigidbody>().AddForce(forceDirection * 10f * forceFactor);
+        soccerBall.GetComponent<Rigidbody>().AddForce(forceDirection * forceMagnitude * forceFactor);
         Debug.Log("in moveball");
         Debug.Log("force:" + forceDirection * forceMagnitude * forceFactor);
     }

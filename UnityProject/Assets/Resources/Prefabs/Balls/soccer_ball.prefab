@@ -13,11 +13,10 @@ GameObject:
   - component: {fileID: 3221801584547617781}
   - component: {fileID: 7172696931210757005}
   - component: {fileID: 3442403623897738406}
-  - component: {fileID: 3921024852601414337}
   - component: {fileID: 1305441553037246982}
   - component: {fileID: -3407304534098775852}
   - component: {fileID: 6530373356952103038}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: soccer_ball
   m_TagString: ball
   m_Icon: {fileID: 0}
@@ -96,22 +95,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 843579e976a5243c88eff85bc6b08c20, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &3921024852601414337
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 321828648448824057}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7b0c70909eed3574db719e5e7c002a6d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  StickToPlayer: 0
-  transformPlayer: {fileID: 0}
-  PlayerBallPosition: {fileID: 0}
-  InRangeofPlayer: 0
 --- !u!114 &1305441553037246982
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -172,6 +155,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   RewindTransform: 1
+  Pausible: 1
 --- !u!1 &7625300658249437402
 GameObject:
   m_ObjectHideFlags: 0
@@ -183,7 +167,7 @@ GameObject:
   - component: {fileID: 421923955450815469}
   - component: {fileID: 5390788798469438562}
   - component: {fileID: 4900969372757258867}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: ball
   m_TagString: ball
   m_Icon: {fileID: 0}

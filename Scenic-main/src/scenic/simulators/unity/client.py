@@ -85,6 +85,7 @@ class UnityMessageServer:
             while not received:
                 try:
                     inData = self.socket.recv(flags=zmq.NOBLOCK)
+                    # print(inData)
                 except zmq.ZMQError:
                     received = False
                 else:
@@ -208,6 +209,7 @@ class UnityMessageServer:
                     k += 1
             #change if more than 1 human player implemented
             if "ego" in self.HumanPlayers and len(human_players) > 0:
+                # print(human_players[0].movement_data)
                 self.HumanPlayers["ego"].ConvertFromJson(human_players[0])
                 # humanLeftController = data.tick_data.human_players[0].leftController
                 # humanRightController = data.tick_data.human_players[0].rightController
