@@ -16,6 +16,7 @@ public class SynthNetwork : MonoBehaviour
     [Header("Service")]
     [SerializeField] private string id;
     private FirebaseFirestore db;
+    private SynthService service;
 
     // Start is called before the first frame update
     void Start()
@@ -29,27 +30,18 @@ public class SynthNetwork : MonoBehaviour
                 Debug.Log("Callback received document snapshot.");
                 Debug.Log(String.Format("Document data for {0} document:", snapshot.Id));
                 Dictionary<string, object> data = snapshot.ToDictionary();
-        
-                // Convert Dictionary to JSON
+
                 string json = JsonConvert.SerializeObject(data);
+                service = JsonConvert.DeserializeObject<SynthService>(json);
         
-                // Deserialize JSON to Service object
-                SynthService service = JsonConvert.DeserializeObject<SynthService>(json);
-        
-                // Print out the Service object properties
+                /*
                 Debug.Log($"ID: {service.Id}");
                 Debug.Log("InterfaceIN: " + string.Join(", ", service.InterfaceIN));
                 Debug.Log("InterfaceOUT: " + string.Join(", ", service.InterfaceOUT));
                 Debug.Log("DeviceIN: " + string.Join(", ", service.DeviceIN));
                 Debug.Log("DeviceOUT: " + string.Join(", ", service.DeviceOUT));
                 Debug.Log($"LastUpdated: {service.LastUpdated}");
-        
-                var timestamp = (Timestamp)data["lastUpdated"];
-                var myDateTime = timestamp.ToDateTime();
-        
-                Debug.Log(data["lastUpdated"]);
-                Debug.Log(data["lastUpdated"].GetType());
-                Debug.Log(myDateTime);
+                */
             }
             else
             {
@@ -58,23 +50,47 @@ public class SynthNetwork : MonoBehaviour
         });
     }
 
+    // Update is called once per frame
     void Update()
     {
 
     }
 
-    // Update is called once per frame
     public void UploadTask(string type, string content)
     {
+        Debug.Log(content);
+
         ServiceTask serviceTask = new ServiceTask(type, content);
         DocumentReference docRef = db.Collection("services").Document(id).Collection("tasks").Document(serviceTask.id);
         docRef.SetAsync(serviceTask);
+
+        print("hi");
+        print(service.InterfaceIN);
+        service.InterfaceIN.Add(serviceTask.id);
+        print(service.InterfaceIN);
+
+        DocumentReference serviceRef = db.Collection("services").Document(id);
+        Dictionary<string, object> updates = new Dictionary<string, object>
+        {
+            { "interfaceIN", service.InterfaceIN },
+            { "lastUpdated", DateTime.Now }
+        };
+
+        serviceRef.UpdateAsync(updates).ContinueWithOnMainThread(task => {
+            Debug.Log(
+                "Updated the Capital field of the new-city-id document in the cities collection.");
+        });
     }
 }
 
+[FirestoreData]
 public class ServiceTask {
+
+    [FirestoreProperty]
     public string id { get; set; }
+    [FirestoreProperty]
     public string type { get; set; }
+    [FirestoreProperty]
     public string content { get; set; }
 
     public ServiceTask(string type, string content)
@@ -82,6 +98,10 @@ public class ServiceTask {
         id = Guid.NewGuid().ToString();
         this.type = type;
         this.content = content;
+    }
+
+    public ServiceTask()
+    {
     }
 }
 

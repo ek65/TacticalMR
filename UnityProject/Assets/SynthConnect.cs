@@ -19,9 +19,8 @@ public class SynthConnect : MonoBehaviour
 
     public void SendExplanation(string explanation)
     {
-        explanation = chatBehaviour.userInput;
-        network.UploadTask("language",explanation);
         Debug.Log($"{chatBehaviour.userInput} sent to firebase!");
+        network.UploadTask("language",explanation);
     }
 
     // Update is called once per frame

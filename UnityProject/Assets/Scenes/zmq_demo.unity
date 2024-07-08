@@ -435,6 +435,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d56d44a0138a44a9388f84895f262f07, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  id: 1FFEEA93-7434-4E70-B7B4-A69062753A7C
 --- !u!4 &88982470
 Transform:
   m_ObjectHideFlags: 0
@@ -976,7 +977,7 @@ GameObject:
   - component: {fileID: 168333234}
   m_Layer: 0
   m_Name: SynthConnect
-  m_TagString: Untagged
+  m_TagString: connect
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1749,7 +1750,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1658017394}
   m_HandleRect: {fileID: 1658017393}
   m_Direction: 0
-  m_Value: 1
+  m_Value: 0
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -6127,7 +6128,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 679.80884, y: 0}
+  m_AnchoredPosition: {x: 714.7836, y: 0}
   m_SizeDelta: {x: 0, y: 64}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1359183744
