@@ -59,7 +59,6 @@ public class KeyboardInput : MonoBehaviour
         {
             chatBehaviour.ToggleRecording();
             StartCoroutine(JSONCoroutine());
-            StartCoroutine(SynthCoroutine());
         }
         else
         {
@@ -86,9 +85,9 @@ public class KeyboardInput : MonoBehaviour
     IEnumerator JSONCoroutine()
     {
         Debug.Log("Started Coroutine at timestamp : " + Time.time);
-        yield return new WaitForSeconds(2);
-        chatBehaviour.SubmitCombinedInput("explain");
         yield return new WaitForSeconds(1);
+        chatBehaviour.SubmitCombinedInput("explain");
+        yield return new WaitForSeconds(2);
         StartCoroutine(ConditionCoroutine());
         Debug.Log("Finished Coroutine at timestamp : " + Time.time);
     }
@@ -97,7 +96,7 @@ public class KeyboardInput : MonoBehaviour
         Debug.Log("Started Coroutine at timestamp : " + Time.time);
         yield return new WaitForSeconds(2);
         chatBehaviour.SubmitCombinedInput("condition");
-        yield return new WaitForSeconds(1);
+        yield return new WaitForSeconds(2);
         StartCoroutine(ActionCoroutine());
         Debug.Log("Finished Coroutine at timestamp : " + Time.time);
     }
@@ -106,7 +105,7 @@ public class KeyboardInput : MonoBehaviour
         Debug.Log("Started Coroutine at timestamp : " + Time.time);
         yield return new WaitForSeconds(2);
         chatBehaviour.SubmitCombinedInput("action");
-        yield return new WaitForSeconds(1);
+        yield return new WaitForSeconds(2);
         StartCoroutine(FileCoroutine());
         Debug.Log("Finished Coroutine at timestamp : " + Time.time);
     }

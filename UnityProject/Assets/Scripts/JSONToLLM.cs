@@ -150,8 +150,6 @@ public class JSONToLLM : MonoBehaviour
     
     public void WriteFile()
     {
-        JObject parsedJson = JObject.Parse(chatBehaviour.jsonResponseText);
-        string formattedJson = parsedJson.ToString(Newtonsoft.Json.Formatting.Indented);
         int newSeg = segments + 1;
         segments = newSeg;
         string outputFilePath = Application.dataPath + "/output.txt";
@@ -159,7 +157,7 @@ public class JSONToLLM : MonoBehaviour
         Segment # {segments}
         Coach Explanation # {chatBehaviour.userInput}
         JSON:
-        {formattedJson}
+        {chatBehaviour.jsonResponseText}
         Condition:
         {chatBehaviour.conditionOutput}
         Action:
