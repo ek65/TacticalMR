@@ -58,7 +58,7 @@ class Player(UnityObject):
     path : None
     ballPossession : False
     tacticalPosition : Vector(0, 0, 0)
-    name : "Unknown"
+    name : "Player"
     debug: True
 
 class OffensePlayer(Player):
