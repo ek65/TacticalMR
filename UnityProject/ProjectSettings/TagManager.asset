@@ -19,6 +19,7 @@ TagManager:
   - countdown
   - synth
   - connect
+  - stream
   layers:
   - Default
   - TransparentFX

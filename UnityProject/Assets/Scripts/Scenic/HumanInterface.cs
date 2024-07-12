@@ -53,10 +53,10 @@ public class HumanInterface : MonoBehaviour
     void Update()
     {
         string currResponse = "";
-        if (chatBehaviour.sentences.Length > 0)
-        {
-            currResponse = chatBehaviour.sentences[chatBehaviour.sentenceIndex];
-        }
+        // if (chatBehaviour.sentences.Length > 0)
+        // {
+        //     currResponse = chatBehaviour.sentences[chatBehaviour.sentenceIndex];
+        // }
         if (circleObjects[0] != null)
         {
             var temp = new Vector3(this.transform.position.x, 2f, this.transform.position.z);
