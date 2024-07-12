@@ -158,8 +158,6 @@ MonoBehaviour:
   rayLength: 9999
   visionConeAngle: 360
   activeConvaiNPC: {fileID: 0}
-  _lastHitNpc: {fileID: 0}
-  _mainCamera: {fileID: 0}
 --- !u!114 &11567819
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -172,9 +170,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ac3bfdb7f1f556540bc41acc9a375817, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _activeConvaiNPC: {fileID: 0}
-  _chatUIHandler: {fileID: 0}
-  <APIKey>k__BackingField: 
 --- !u!81 &11567820
 AudioListener:
   m_ObjectHideFlags: 0
@@ -210,7 +205,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 10
+  orthographic size: 7
   m_Depth: 0
   m_CullingMask:
     serializedVersion: 2
@@ -1013,8 +1008,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c0dc80f0ae29b4a44a3e1277e2812c5f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  chatBehaviour: {fileID: 0}
-  network: {fileID: 0}
 --- !u!1 &180332044
 GameObject:
   m_ObjectHideFlags: 0
@@ -1196,18 +1189,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   moveSpeed: 4
   exitScenario: {fileID: 0}
-  rb: {fileID: 0}
-  chatBehaviour: {fileID: 0}
-  streamingSampleMic: {fileID: 0}
-  timelineManager: {fileID: 0}
-  jsonToLLM: {fileID: 0}
   countdownText: {fileID: 0}
-  synthConnect: {fileID: 0}
-  clickOrder: 0
-  isAnnotationMode: 0
-  isReferenceMode: 0
-  firstObject: {fileID: 0}
-  secondObject: {fileID: 0}
 --- !u!4 &260912233
 Transform:
   m_ObjectHideFlags: 0
@@ -1311,7 +1293,7 @@ GameObject:
   - component: {fileID: 318410348}
   - component: {fileID: 318410347}
   m_Layer: 0
-  m_Name: DemoMic
+  m_Name: Mic
   m_TagString: stream
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1364,10 +1346,6 @@ MonoBehaviour:
   buttonText: {fileID: 1432786277}
   text: {fileID: 775949360}
   scroll: {fileID: 756420436}
-  segments: []
-  currentSegment: 
-  finalTranscription: 
-  segmentUpdated: 0
 --- !u!4 &318410349
 Transform:
   m_ObjectHideFlags: 0
@@ -1914,9 +1892,9 @@ RectTransform:
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
+  m_AnchorMax: {x: 1, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 20, y: -17}
+  m_SizeDelta: {x: 20, y: 0}
   m_Pivot: {x: 1, y: 1}
 --- !u!114 &438274085
 MonoBehaviour:
@@ -1992,9 +1970,9 @@ RectTransform:
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: -17, y: 20}
+  m_SizeDelta: {x: 0, y: 20}
   m_Pivot: {x: 0, y: 0}
 --- !u!114 &456776493
 MonoBehaviour:
@@ -2077,7 +2055,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1658017394}
   m_HandleRect: {fileID: 1658017393}
   m_Direction: 0
-  m_Value: 0
+  m_Value: 1
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -2425,10 +2403,10 @@ RectTransform:
   m_Father: {fileID: 2047078679}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 830.71686, y: -96}
-  m_SizeDelta: {x: 156.23895, y: 64}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 64}
   m_Pivot: {x: 1, y: 0}
 --- !u!114 &521947364
 MonoBehaviour:
@@ -3986,7 +3964,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 315, y: -94}
+  m_AnchoredPosition: {x: 440, y: -24}
   m_SizeDelta: {x: -320.0522, y: -67.3312}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &664996037
@@ -6737,7 +6715,7 @@ MonoBehaviour:
   enableTokens: 0
   initialPrompt: 
   stepSec: 1
-  keepSec: 0.2
+  keepSec: 1
   lengthSec: 10
   updatePrompt: 1
   dropOldBuffer: 0
@@ -7274,9 +7252,9 @@ RectTransform:
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
+  m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: -17, y: -17}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1336604875
 MonoBehaviour:
@@ -7439,10 +7417,10 @@ RectTransform:
   m_Father: {fileID: 2047078679}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 623.3584, y: -64}
-  m_SizeDelta: {x: 64, y: 64}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 602.03625, y: 0}
+  m_SizeDelta: {x: 0, y: 64}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1359183744
 MonoBehaviour:
@@ -8553,7 +8531,7 @@ RectTransform:
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
+  m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -9257,7 +9235,7 @@ RectTransform:
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
+  m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -9711,10 +9689,10 @@ RectTransform:
   m_Father: {fileID: 2047078679}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 302.11948, y: -96}
-  m_SizeDelta: {x: 540.23895, y: 64}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 64}
   m_Pivot: {x: 0.5, y: 0}
 --- !u!114 &1786694866
 MonoBehaviour:
@@ -10688,7 +10666,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: -0.00012207031, y: 0.000061035156}
-  m_SizeDelta: {x: 0, y: 16}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &1922995385
 MonoBehaviour:
@@ -10874,7 +10852,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3e8b13f4d5b1d4742a6a02493b450f0c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _currentAlpha: 0
 --- !u!114 &1983799398
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10891,18 +10868,11 @@ MonoBehaviour:
   subtitlePrefab: {fileID: 3081664865783353665, guid: 1adcb97c9f11ce44f9a7368a0bbdde81, type: 3}
   questionAnswerPrefab: {fileID: 3579091036758702676, guid: a39998bccd08b1a42825de3cebc0858e, type: 3}
   characters:
-  - {characterGameObject: {fileID: 636616935}, characterName: Expert, characterTextColor:
-      r: 1
-      g: 1
-      b: 0
-      a: 1
-}
+  - characterGameObject: {fileID: 636616935}
+    characterName: Expert
+    characterTextColor: {r: 1, g: 1, b: 0, a: 1}
   playerName: Player
-  playerTextColor:
-    r: 1
-    g: 1
-    b: 1
-    a: 1
+  playerTextColor: {r: 1, g: 1, b: 1, a: 1}
 --- !u!4 &1983799399
 Transform:
   m_ObjectHideFlags: 0
@@ -11655,7 +11625,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 2129545209}
   m_HandleRect: {fileID: 2129545208}
   m_Direction: 2
-  m_Value: 1
+  m_Value: 0
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -11719,7 +11689,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!82 &2040348441
 AudioSource:
   m_ObjectHideFlags: 0
@@ -12742,9 +12712,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   objectsList: {fileID: 777379925808647184}
-  filename: 
   chatBehaviour: {fileID: 2040348442}
-  jsonString: 
   segments: 0
   mySceneObjects:
     offsensePlayers: []
