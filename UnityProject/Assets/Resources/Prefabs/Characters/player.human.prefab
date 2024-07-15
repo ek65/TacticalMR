@@ -3115,6 +3115,7 @@ MonoBehaviour:
   circleGenerator: {fileID: 1733937925117977002, guid: 0bbdbc210306445569ca42107d04ac14, type: 3}
   circleObjects: []
   arrowObjects: []
+  explanation: 
 --- !u!114 &-7641071680297636533
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3254,13 +3255,14 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8665160898893140854}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 384686566afb54528b014901628ae937, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 4
   exitScenario: {fileID: -7641071680297636533}
+  countdownText: {fileID: 0}
 --- !u!54 &1422487927
 Rigidbody:
   m_ObjectHideFlags: 0

@@ -19,6 +19,7 @@ public class KeyboardInput : MonoBehaviour
     private SynthConnect synthConnect;
 
     private Dictionary<int, object> annotations = new Dictionary<int, object>();
+    private Dictionary<int, string> annotationDescriptions = new Dictionary<int, string>();
     private int clickOrder = 0;
     private bool isAnnotationMode = false;
     private bool isReferenceMode = false;
@@ -36,6 +37,7 @@ public class KeyboardInput : MonoBehaviour
         chatBehaviour = GameObject.FindGameObjectWithTag("Character").GetComponent<ChatBehaviour>();
         streamingSampleMic = GameObject.FindGameObjectWithTag("stream").GetComponent<StreamingSampleMic>();
         Debug.Log("KeyboardInput script initialized");
+        
     }
 
     void Update()
@@ -108,13 +110,13 @@ public class KeyboardInput : MonoBehaviour
         {
             foreach (var annotation in annotations)
             {
-                if (annotation.Value is GameObject)
+                if (annotation.Value is GameObject gameObject)
                 {
-                    Debug.Log($"Key: {annotation.Key}, Object: {(annotation.Value as GameObject).name}");
+                    Debug.Log($"Key: {annotation.Key}, Object: {gameObject.name}");
                 }
-                else if (annotation.Value is Vector3)
+                else if (annotation.Value is Vector3 vector)
                 {
-                    Debug.Log($"Key: {annotation.Key}, Reference Vector: {(Vector3)annotation.Value}");
+                    Debug.Log($"Key: {annotation.Key}, Reference Vector: {vector}");
                 }
             }
         }
@@ -127,6 +129,7 @@ public class KeyboardInput : MonoBehaviour
         {
             GameObject clickedObject = hit.collider.gameObject;
             annotations.Add(clickOrder, clickedObject);
+            annotationDescriptions.Add(clickOrder, GetDescriptionAnnotation(clickedObject));
             streamingSampleMic.InsertAnnotationKey(clickOrder); // Insert annotation key into transcription
             Debug.Log($"Added {clickedObject.name} to annotations with key {clickOrder}");
             clickOrder++;
@@ -152,6 +155,7 @@ public class KeyboardInput : MonoBehaviour
 
                 Vector3 referenceVector = secondObject.transform.position - firstObject.transform.position;
                 annotations.Add(clickOrder, referenceVector);
+                annotationDescriptions.Add(clickOrder, GetDescriptionReference(firstObject, secondObject));
                 streamingSampleMic.InsertAnnotationKey(clickOrder); // Insert reference key into transcription
                 Debug.Log($"Added reference vector {referenceVector} to annotations with key {clickOrder}");
                 clickOrder++;
@@ -170,10 +174,42 @@ public class KeyboardInput : MonoBehaviour
         {
             Vector3 clickedPosition = hit.point;
             annotations.Add(clickOrder, clickedPosition);
+            annotationDescriptions.Add(clickOrder, $"(Position at {clickedPosition})");
             streamingSampleMic.InsertAnnotationKey(clickOrder); // Insert position key into transcription
             Debug.Log($"Added position {clickedPosition} to annotations with key {clickOrder}");
             clickOrder++;
         }
+    }
+
+    private string GetDescriptionAnnotation(GameObject gameObject)
+    {
+        return $"(Coach is pointing at {gameObject.name})";
+    }
+    private string GetDescriptionReference(GameObject object1, GameObject object2)
+    {
+        return $"(Coach is referring from {object1.name} to {object2.name})";
+    }
+    private string GetDescriptionPosition(Vector3 vector)
+    {
+        return $"(Coach is set on the position vector, {vector})";
+    }
+
+
+    public void OnTranscriptionFinished(string finalTranscription)
+    {
+        string processedTranscription = ReplaceAnnotationKeys(finalTranscription);
+        Debug.Log("Processed Transcription: " + processedTranscription);
+    }
+
+    private string ReplaceAnnotationKeys(string transcription)
+    {
+        foreach (var entry in annotationDescriptions)
+        {
+            string key = $"[{entry.Key}]";
+            string description = entry.Value;
+            transcription = transcription.Replace(key, description);
+        }
+        return transcription;
     }
 
     IEnumerator ToggleRecordingCoroutine()

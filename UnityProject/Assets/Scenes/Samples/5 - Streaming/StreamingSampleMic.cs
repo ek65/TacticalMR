@@ -24,15 +24,16 @@ namespace Whisper.Samples
         private string currentSegment = "";
         private string finalTranscription = "";
         private bool segmentUpdated = false;
+        private KeyboardInput keyboard;
 
         private async void Start()
         {
+            keyboard = GameObject.FindGameObjectWithTag("player").GetComponent<KeyboardInput>();
             _stream = await whisper.CreateStream(microphoneRecord);
             _stream.OnResultUpdated += OnResult;
             _stream.OnSegmentUpdated += OnSegmentUpdated;
             _stream.OnSegmentFinished += OnSegmentFinished;
             _stream.OnStreamFinished += OnFinished;
-
             microphoneRecord.OnRecordStop += OnRecordStop;
             button.onClick.AddListener(OnButtonPressed);
         }
@@ -121,6 +122,7 @@ namespace Whisper.Samples
             text.text = finalTranscription;
             Debug.Log("Final");
             Debug.Log(finalTranscription);
+            keyboard.OnTranscriptionFinished(finalTranscription);
         }
 
         public void InsertAnnotationKey(int key)
