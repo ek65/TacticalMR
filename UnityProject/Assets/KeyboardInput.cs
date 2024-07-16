@@ -20,6 +20,7 @@ public class KeyboardInput : MonoBehaviour
 
     private Dictionary<int, object> annotations = new Dictionary<int, object>();
     private Dictionary<int, string> annotationDescriptions = new Dictionary<int, string>();
+    private Dictionary<GameObject, int> objectToKey = new Dictionary<GameObject, int>();
     private int clickOrder = 0;
     private bool isAnnotationMode = false;
     private bool isReferenceMode = false;
@@ -37,7 +38,6 @@ public class KeyboardInput : MonoBehaviour
         chatBehaviour = GameObject.FindGameObjectWithTag("Character").GetComponent<ChatBehaviour>();
         streamingSampleMic = GameObject.FindGameObjectWithTag("stream").GetComponent<StreamingSampleMic>();
         Debug.Log("KeyboardInput script initialized");
-        
     }
 
     void Update()
@@ -128,11 +128,21 @@ public class KeyboardInput : MonoBehaviour
         if (Physics.Raycast(ray, out RaycastHit hit))
         {
             GameObject clickedObject = hit.collider.gameObject;
-            annotations.Add(clickOrder, clickedObject);
-            annotationDescriptions.Add(clickOrder, GetDescriptionAnnotation(clickedObject));
-            streamingSampleMic.InsertAnnotationKey(clickOrder); // Insert annotation key into transcription
-            Debug.Log($"Added {clickedObject.name} to annotations with key {clickOrder}");
-            clickOrder++;
+
+            if (objectToKey.TryGetValue(clickedObject, out int existingKey))
+            {
+                streamingSampleMic.InsertAnnotationKey(existingKey); // Use existing key
+                Debug.Log($"Referred {clickedObject.name} with existing key {existingKey}");
+            }
+            else
+            {
+                annotations.Add(clickOrder, clickedObject);
+                annotationDescriptions.Add(clickOrder, GetDescriptionAnnotation(clickedObject));
+                objectToKey[clickedObject] = clickOrder; // Map object to key
+                streamingSampleMic.InsertAnnotationKey(clickOrder); // Insert annotation key into transcription
+                Debug.Log($"Added {clickedObject.name} to annotations with key {clickOrder}");
+                clickOrder++;
+            }
         }
     }
 
