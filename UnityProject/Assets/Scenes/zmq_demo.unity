@@ -1065,6 +1065,7 @@ MonoBehaviour:
   moveSpeed: 4
   exitScenario: {fileID: 0}
   countdownText: {fileID: 0}
+  movement: {x: 0, y: 0, z: 0}
 --- !u!4 &260912233
 Transform:
   m_ObjectHideFlags: 0
@@ -1662,7 +1663,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 1658017393}
   m_Direction: 0
   m_Value: 1
-  m_Size: 1
+  m_Size: 0.99999976
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -6174,7 +6175,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 679.80884, y: 0}
+  m_AnchoredPosition: {x: 708.08606, y: 0}
   m_SizeDelta: {x: 0, y: 64}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1359183744
@@ -9686,13 +9687,8 @@ MonoBehaviour:
   contentArea: {fileID: 1922995384}
   scrollView: {fileID: 1914219367}
   audioSource: {fileID: 2040348441}
-  systemPrompt: "I am a soccer coach giving explanations of the strategy I am using
-    against my opponents. Based on the given soccer strategy explanation provided
-    by the coach who is on the field and the provided positioning data of the field,
-    output a JSON object with three fields: 'motion', 'rationale', and 'condition'
-    The 'motion' field should describe the action to be taken, 'rationale' explains
-    why this action is necessary within the strategy, and 'condition' specifies the
-    circumstances under which the action is to be initiated.\" \n"
+  systemPrompt: I am explaining the strategy I am taking. Repeat what I tell you
+    to say.
   conditionOutput: 
   actionOutput: 
   jsonResponseText: 
@@ -10275,6 +10271,7 @@ MonoBehaviour:
   objectsList: {fileID: 777379925808647184}
   chatBehaviour: {fileID: 2040348442}
   segments: 0
+  timelineManager: {fileID: 0}
   mySceneObjects:
     offsensePlayers: []
     defensePlayers: []
@@ -10293,3 +10290,23 @@ MonoBehaviour:
       positionZ: 0
       rotation: {x: 0, y: 0, z: 0}
       explanation: 
+  myRootSegment:
+    timestep: 0
+    sceneObjects:
+      offsensePlayers: []
+      defensePlayers: []
+      ball:
+        name: 
+        positionX: 0
+        positionZ: 0
+      goal:
+        name: 
+        positionX: 0
+        positionZ: 0
+        rotation: {x: 0, y: 0, z: 0}
+      coach:
+        name: 
+        positionX: 0
+        positionZ: 0
+        rotation: {x: 0, y: 0, z: 0}
+        explanation: 
