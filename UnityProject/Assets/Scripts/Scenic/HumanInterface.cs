@@ -62,7 +62,7 @@ public class HumanInterface : MonoBehaviour
             var temp = new Vector3(this.transform.position.x, 2f, this.transform.position.z);
             circleObjects[0].transform.position = temp;
         }
-        if (currResponse != null)
+        if (currResponse != null || currResponse != "")
         {
             Debug.LogError("current response: " + currResponse);
         }

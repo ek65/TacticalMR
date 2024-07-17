@@ -219,7 +219,7 @@ defendant_a.tacticalPosition = (-8, 0, 0)
 ego = new Coach at (0, 0, 0),
                     with behavior defendantBehavior(opponent_b)
 ego.tacticalPosition = (0, 0, 0)
-ego.isHuman = True
+ego.isHuman = False
 ego.team = "self"
 
 defendant_c = new Defendant at (8, 0, 0),

@@ -80,3 +80,19 @@ opponent2 = new OffensePlayer right of ego by Range(4, 6),
 opponent2.name = "Opponent B"
 
 terminate when (ego.gameObject.stopButton)
+
+
+
+
+try:
+    do Idle()
+interrupt when CONDITION1():
+    do ACTION1():
+interrupt when CONDITION2():
+    do ACTION2():
+interrupt when CONDITION3():
+    do ACTION3():
+interrupt when CONDITION4():
+    do ACTION4():
+ interrupt when CONDITION5():
+    do ACTION5():

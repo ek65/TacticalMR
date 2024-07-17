@@ -3255,7 +3255,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8665160898893140854}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 384686566afb54528b014901628ae937, type: 3}
   m_Name: 
@@ -3263,6 +3263,7 @@ MonoBehaviour:
   moveSpeed: 4
   exitScenario: {fileID: -7641071680297636533}
   countdownText: {fileID: 0}
+  movement: {x: 0, y: 0, z: 0}
 --- !u!54 &1422487927
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -3271,9 +3272,9 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8665160898893140854}
   serializedVersion: 2
-  m_Mass: 1
+  m_Mass: 100
   m_Drag: 0
-  m_AngularDrag: 0.05
+  m_AngularDrag: 100
   m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 0

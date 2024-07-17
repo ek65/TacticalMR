@@ -1,10 +1,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Newtonsoft.Json;
+using Pathfinding;
 
 public class JSONStatusMaker : MonoBehaviour
 {
     ObjectsList objectList;
+    BallOwnership ownership;
     Root root;
     // private TickData tickData;
     private bool snapTurnedLastTimestep;
@@ -14,7 +16,9 @@ public class JSONStatusMaker : MonoBehaviour
     void Start()
     {
         //we want to start this from the server?
-        objectList = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<ObjectsList>();
+        var scenicManager = GameObject.FindGameObjectWithTag("ScenicManager");
+        objectList = scenicManager.GetComponent<ObjectsList>();
+        ownership = scenicManager.GetComponent<BallOwnership>();
         lastTick = -1;
         server = GetComponent<ZMQServer>();
     }
@@ -55,6 +59,7 @@ public class JSONStatusMaker : MonoBehaviour
         {
             Player p = new Player();
             AddPlayerData(objectList.scenicPlayers[i], p, false);
+            // Debug.LogError(p.movementData);
             r.TickData.ScenicPlayers.Add(p);
         }
         for (int i = 0; i < objectList.scenicObjects.Count; i++)
@@ -76,6 +81,7 @@ public class JSONStatusMaker : MonoBehaviour
 
         root = r;
     }
+    // UNUSED. Left for reference (from echo arena project) if we want to add a whole new class for controller data
     /*void AddControllerData(GameObject humanRig, GameObject controller, ControllerInputData cData, bool isLeftController)
     {
         //NOTE: this does not read the actual button press but rather if they are in "Thrust" or not
@@ -104,58 +110,50 @@ public class JSONStatusMaker : MonoBehaviour
         }
     }*/
     void AddPlayerData(GameObject player, Player pData, bool isHuman) {
-        Rigidbody rb = player.GetComponentInChildren<Rigidbody>();
-        GameObject rig = rb.gameObject;
-        if (player.GetComponent<ExitScenario>() != null && lastTick > 5) // Makes sure it's human/coach player
+        //NOTE: We go from (x,y,z) to (x,z,y) because that is how scenic handles the coordinate system.
+        Vector3ToJsonClass(player.transform.position, pData.movementData.transform);
+        QuaternionToJsonClass(player.transform.rotation, pData.movementData.rotation);
+        
+        // Unused for now
+        // pData.clientID = ((int)player.GetComponent<NetworkObject>().NetworkObjectId);
+        
+        /* NOTE: We can't get speed, velocity, and angular velocity from rigidbody because we're using this RichAI pathfinding thing for movement
+        angular velocity sent is (0,0,0) right now since we don't have a way to get it from rigidbody and it's not really important.
+        If we really DO want angular velocity, we have to calculate it ourselves */
+        
+        // Vector3ToJsonClass(rb.angularVelocity, pData.movementData.angularVelocity);
+        // Vector3ToJsonClass(rb.velocity, pData.movementData.velocity);
+        
+        if (isHuman)
         {
-            
             pData.movementData.stopButton = player.GetComponent<ExitScenario>().endScenario;
+            // dont need to set endScenario back to false here because it is set to false in InstantiateScenicObject on the next simulation
             if (pData.movementData.stopButton == true)
             {
                 Debug.LogError("stopbutton: " + pData.movementData.stopButton);
             }
-            // dont need to set endScenario to false here because it is set to false in InstantiateScenicObject on the next simulation
-            
+
             TimelineManager tlManager =
                 GameObject.FindGameObjectWithTag("TimelineManager").GetComponent<TimelineManager>();
             pData.movementData.pause = tlManager.Paused;
 
-        }
-        pData.movementData.speed = rb.velocity.magnitude;
-        //NOTE: We go from (x,y,z) to (x,z,y) because that is how scenic handles the coordinate system.
-        Vector3ToJsonClass(rb.angularVelocity, pData.movementData.angularVelocity);
-        Vector3ToJsonClass(rb.velocity, pData.movementData.velocity);
-        // MercunaAI mercuna = player.GetComponentInChildren<MercunaAI>();
-        // if (mercuna != null && mercuna.mercunaPath != null)
-        // {
-        //     Vector3ListToJsonList(mercuna.mercunaPath, pData.movementData.path);
-        // }
-        
-        // if (pI != null)
-        // {
-        //     bool b = (pI.trigger || pI.laserPointed);
-        //     pData.movementData.trigger = b;
-        // }
-        
-        // pData.clientID = ((int)player.GetComponent<NetworkObject>().NetworkObjectId);
-        if (isHuman)
-        {
-            GameObject camera = GameObject.FindGameObjectWithTag("MainCamera");
-            Quaternion realRotation = camera.transform.rotation;
-            Vector3ToJsonClass(rig.transform.position, pData.movementData.transform);
+            // TODO: should change this when we have better movement system for human
+            Vector3 velo = player.GetComponent<KeyboardInput>().movement;
+            Vector3ToJsonClass(velo, pData.movementData.velocity);
+            pData.movementData.speed = velo.magnitude;
+            
+            // rotation stuff for VR camera, not needed for now
+            // GameObject camera = GameObject.FindGameObjectWithTag("MainCamera");
+            // Quaternion realRotation = camera.transform.rotation;
             // QuaternionToJsonClass(realRotation, pData.movementData.rotation);
-            QuaternionToJsonClass(rig.transform.rotation, pData.movementData.rotation);
-
         }
-        else
+        else // non-human player
         {
-            PlayerInterface pI = rig.GetComponent<PlayerInterface>();
-            // Debug.LogError(pI.ballPossession);
+            PlayerInterface pI = player.GetComponent<PlayerInterface>();
             pData.movementData.ballPossession = pI.ballPossession;
-            Vector3 offsetPos = new Vector3(rig.transform.position.x, rig.transform.position.y, rig.transform.position.z);
-            Vector3ToJsonClass(offsetPos, pData.movementData.transform);
-            // Debug.LogError(offsetPos);
-            QuaternionToJsonClass(rig.transform.rotation, pData.movementData.rotation);
+            Vector3 velo = pI.currVelocity;
+            Vector3ToJsonClass(velo, pData.movementData.velocity);
+            pData.movementData.speed = velo.magnitude;
         }
         
     }
@@ -174,8 +172,8 @@ public class JSONStatusMaker : MonoBehaviour
         Vector3ToJsonClass(disc.transform.position, dData.movementData.transform);
         QuaternionToJsonClass(disc.transform.rotation, dData.movementData.rotation);
         // DiscOwnership ownership = disc.GetComponent<DiscOwnership>();
-        // dData.movementData.heldByHuman = ownership.heldByHuman;
-        // dData.movementData.heldByScenic = ownership.heldByScenic;
+        dData.movementData.heldByHuman = ownership.heldByHuman;
+        dData.movementData.heldByScenic = ownership.heldByScenic;
         // dData.clientID = ((int)disc.GetComponent<NetworkObject>().NetworkObjectId);
     }
     void Vector3ListToJsonList(List<Vector3> v3List, List<Vector3Json> v3jList)
@@ -244,7 +242,7 @@ public class JSONStatusMaker : MonoBehaviour
     {
         public MovementData(){
             transform = new Vector3Json();
-            speed = 0.0;
+            speed = 0.0f;
             velocity = new Vector3Json();
             angularVelocity = new Vector3Json();
             rotation = new QuaternionJson();
@@ -255,7 +253,7 @@ public class JSONStatusMaker : MonoBehaviour
             heldByScenic = false;
         }
         public Vector3Json transform { get; set; }
-        public double speed { get; set; }
+        public float speed { get; set; }
         public Vector3Json velocity { get; set; }
         public Vector3Json angularVelocity { get; set; }
         public QuaternionJson rotation { get; set; }

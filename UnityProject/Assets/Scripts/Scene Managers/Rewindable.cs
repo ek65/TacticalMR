@@ -76,11 +76,18 @@ public class Rewindable : MonoBehaviour
         isKinematic = r.isKinematic;
         r.isKinematic = true;
         savedPosition = transform.position;
+        
+        r.constraints = RigidbodyConstraints.FreezePosition;
+        r.constraints = RigidbodyConstraints.FreezeRotation;
 
     }
     private void UnfreezePhysics()
     {
         Rigidbody r = GetComponent<Rigidbody>();
+        
+        r.constraints = RigidbodyConstraints.FreezePosition;
+        r.constraints = RigidbodyConstraints.FreezeRotation;
+        
         r.velocity = savedVelocity;
         r.isKinematic = isKinematic;
         
@@ -89,10 +96,10 @@ public class Rewindable : MonoBehaviour
     //TODO: need to be changed if u switch to Motion Matching systm
     private void FreezeAnimation()
     {
-        GetComponent<Animator>().speed = 0;
+        GetComponent<Animator>().enabled = false;
     }
     private void UnfreezeAnimation()
     {
-        GetComponent<Animator>().speed = 1;
+        GetComponent<Animator>().enabled = true;
     }
 }

@@ -6,6 +6,7 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using System.Reflection;
 using System;
+using Pathfinding;
 
 // TODO: Rename script, this is the player logic script
 public class PlayerInterface : MonoBehaviour
@@ -15,15 +16,16 @@ public class PlayerInterface : MonoBehaviour
     public bool self;
     public Renderer shirt;
     public float speed;
-    public Transform ball;
+    public GameObject ball;
     public Vector3 ballOnTheGround;
     public Vector3 targetPosition;
     public float force;
     public float distToBall;
-    public float distToPos;
-    public Transform goal;
+    public GameObject goal;
     public bool ballPossession;
-    public BallInteraction ballInteraction;
+    public Transform ballPosition;
+
+    public Vector3 currVelocity => this.GetComponent<RichAI>().velocity;
 
     private float kickDebounce;
     
@@ -32,7 +34,8 @@ public class PlayerInterface : MonoBehaviour
     public ActionAPI actionAPI;
     public FloatingText floatingText;
     public string behavior = "Idle";
-
+    public string currAction = "No Action"; // just for debugging to see what actions function is being called
+    
     private void Start()
     {
         if (enemy)
@@ -47,19 +50,14 @@ public class PlayerInterface : MonoBehaviour
         {
             shirt.material.SetColor("_Color", Color.yellow);
         }
-        // ballOnTheGround.x = ball.transform.position.x;
-        // ballOnTheGround.y = 0;
-        // ballOnTheGround.z = ball.transform.position.z;
-        // transform.LookAt(ballOnTheGround);
-        // correctPosition = calculateCorrectPosition(transform.position, ballOnTheGround);
         localTick = -1;
         if (ball == null)
         {
-            ball = GameObject.FindGameObjectWithTag("ball").transform;
+            ball = GameObject.FindGameObjectWithTag("ball");
         }
         if (goal == null)
         {
-            goal = GameObject.FindGameObjectWithTag("goal").transform;
+            goal = GameObject.FindGameObjectWithTag("goal");
         }
 
         ballPossession = false;
@@ -70,11 +68,11 @@ public class PlayerInterface : MonoBehaviour
     {
         if (ball == null)
         {
-            ball = GameObject.FindGameObjectWithTag("ball").transform;
+            ball = GameObject.FindGameObjectWithTag("ball");
         }
         if (goal == null)
         {
-            goal = GameObject.FindGameObjectWithTag("goal").transform;
+            goal = GameObject.FindGameObjectWithTag("goal");
         }
 
         ballOnTheGround.x = ball.transform.position.x;
@@ -86,6 +84,31 @@ public class PlayerInterface : MonoBehaviour
         {
             actionAPI.Idle();
         }
+    }
+    
+    // For ball possession
+    private void OnCollisionEnter(Collision other)
+    {
+        if (other.collider.CompareTag("ball"))
+        {
+            GainPossession(other);
+        }
+    }
+    
+    private void GainPossession(Collision other)
+    {
+        ball.transform.position = ballPosition.position;
+        ball.transform.SetParent(ballPosition);
+        ball.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
+        ballPossession = true;
+        this.GetComponentInParent<ActionAPI>().ReceiveBall(other.transform.position);
+    }
+    
+    public void LosePossession()
+    {
+        ball.transform.SetParent(null);
+        ball.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
+        ballPossession = false;
     }
 
     public void ApplyMovement(ScenicMovementData data)
@@ -112,9 +135,15 @@ public class PlayerInterface : MonoBehaviour
             behavior = "Idle";
             floatingText.SetText("Idle");
         }
+
+        if (behavior == "Idle")
+        {
+            currAction = "No Action";
+        }
         
         if (data.actionFunc != null)
         {
+            currAction = data.actionFunc;
             Type type = actionAPI.GetType();
             MethodInfo method = type.GetMethod(data.actionFunc);
             // Debug.Log("here12");

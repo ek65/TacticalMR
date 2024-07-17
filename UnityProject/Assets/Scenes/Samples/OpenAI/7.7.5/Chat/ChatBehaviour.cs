@@ -38,8 +38,7 @@ namespace OpenAI.Samples.Chat
     [SerializeField] private AudioSource audioSource;
 
     [SerializeField] [TextArea(3, 10)] public string systemPrompt =
-        "I am a soccer coach giving explanations of the strategy I am using against my opponents. Based on the given soccer strategy explanation provided by the coach who is on the field and the provided positioning data of the field, output a JSON object with three fields: 'motion', 'rationale', and 'condition'. The 'motion' field should describe the action to be taken, 'rationale' explains why this action is necessary within the strategy, and 'condition' specifies the circumstances under which the action is to be initiated."; 
-    private List<string> transcriptions = new List<string>();
+        "I am a soccer coach explaining the strategy I am taking. Repeat what I tell you to say.";
     private OpenAIClient openAI;
     public string conditionOutput;
     public string actionOutput;
@@ -454,7 +453,7 @@ private async void ProcessRecording(Tuple<string, AudioClip> recording)
 
         if (!string.IsNullOrWhiteSpace(transcriptionResult))
         {
-            transcriptions.Add(transcriptionResult);
+            // transcriptions.Add(transcriptionResult);
             userInput = transcriptionResult; // Set the userInput to the latest transcription
             combinedInput = transcriptionResult;
             
@@ -508,10 +507,10 @@ public void SubmitCombinedInput(string field)
     
 }
 
-    public List<string> GetTranscriptions()
-    {
-        return transcriptions;
-    }
+    // public List<string> GetTranscriptions()
+    // {
+    //     return transcriptions;
+    // }
 }
 
     
