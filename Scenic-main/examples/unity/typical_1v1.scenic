@@ -38,11 +38,13 @@ behavior opponentBehavior():
                 do Idle()
 
 ego = new Human at (0, 0, 0)
-opponent = new Player ahead of ego by Uniform(6, 8),
-                facing directly toward ego,
-                with behavior opponentBehavior()
+opponent_A = new Player ahead of ego by Uniform(5, 6),
+                facing directly toward ego
 
-football = new Ball ahead of opponent by 0.5
+opponent_B = new Player ahead of ego by Uniform(3, 4),
+                facing directly toward ego,
+
+football = new Ball ahead of opponent_B by 0.5
 goal = new Goal behind ego by 3, facing away from ego
         
 terminate when (ego.gameObject.stopButton)
