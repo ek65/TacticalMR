@@ -155,11 +155,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c5777a8a41e942f5a05df965241ef598, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rayLength: 9999
-  visionConeAngle: 360
-  activeConvaiNPC: {fileID: 0}
-  _lastHitNpc: {fileID: 0}
-  _mainCamera: {fileID: 0}
 --- !u!114 &11567819
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -172,9 +167,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ac3bfdb7f1f556540bc41acc9a375817, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _activeConvaiNPC: {fileID: 0}
-  _chatUIHandler: {fileID: 0}
-  <APIKey>k__BackingField: 
 --- !u!81 &11567820
 AudioListener:
   m_ObjectHideFlags: 0
@@ -784,7 +776,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d56d44a0138a44a9388f84895f262f07, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  id: '23F8F9A9-9877-449B-8167-9401C7F2B61E '
+  id: 124
 --- !u!4 &88982470
 Transform:
   m_ObjectHideFlags: 0
@@ -989,20 +981,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b3b04a8e56d4a394585355d57021ba7a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Characters:
-  - Name: Amelia
-    Bio: 
-    gameObject: {fileID: 0}
-  - Name: Player
-    Bio: 
-    gameObject: {fileID: 2013755789}
-  Objects:
-  - Name: Box
-    Description: 
-    gameObject: {fileID: 57209768}
-  - Name: Ball
-    Description: 
-    gameObject: {fileID: 1955581266}
 --- !u!1 &131765266
 GameObject:
   m_ObjectHideFlags: 0
@@ -2126,7 +2104,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3e8b13f4d5b1d4742a6a02493b450f0c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _currentAlpha: 0
 --- !u!114 &219867663
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2139,45 +2116,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ad1fae26184a1504bbf417585440fe12, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _uiNotificationPrefab: {fileID: 1403518103547408502, guid: 6c81d849dc312a849996cafab7acb17d, type: 3}
-  _spacing: 110
-  _activeNotificationPos: {x: 0, y: -100}
-  _deactivatedNotificationPos: {x: 500, y: -100}
-  _activeDuration: 4
-  _slipDuration: 0.3
-  _delay: 0.5
-  _slipAnimationCurve:
-    m_Curve:
-    - time: 0
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - time: 0.72942615
-      value: 0.3663223
-      inSlope: 2.1068919
-      outSlope: 2.1068919
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.5252713
-      outWeight: 0.06004942
-    - time: 1
-      value: 1
-      inSlope: -0.16809578
-      outSlope: -0.16809578
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.61400145
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  _isNotificationAnimationInProgress: 0
-  _canvasGroup: {fileID: 0}
-  _fadeCanvas: {fileID: 0}
 --- !u!225 &219867664
 CanvasGroup:
   m_ObjectHideFlags: 0
@@ -6047,8 +5985,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9075946a1a51c9f4abe905231892b484, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _camera: {fileID: 0}
-  _interactablesData: {fileID: 0}
 --- !u!114 &557248333
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7140,26 +7076,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4b38e4bc919e1f040ba78aea7472893e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  currResponse: 
-  characterName: Expert
-  characterID: 5bf7122a-d1ae-11ee-8e2e-42010a7be006
-  sessionID: -1
-  isCharacterActive: 0
-  actionsHandler: {fileID: 0}
-  convaiLipSync: {fileID: 0}
-  isCharacterTalking: 0
-  _animationPlaying: 0
-  _audioSource: {fileID: 0}
-  _characterAnimator: {fileID: 0}
-  _convaiChatUIHandler: {fileID: 0}
-  _convaiCrosshairHandler: {fileID: 0}
-  _currentInputField: {fileID: 0}
-  _faceModel: 0
-  _grpcAPI: {fileID: 0}
-  _isActionActive: 0
-  _isLipSyncActive: 0
-  _stopAudioPlayingLoop: 0
-  _stopHandlingInput: 0
 --- !u!4 &636616936
 Transform:
   m_ObjectHideFlags: 0
@@ -13388,205 +13304,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7a69a6bc2bf58e64883c79cf732d1bfd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  PlayerMovementKeyAction:
-    m_Name: Player Movement Key
-    m_Type: 0
-    m_ExpectedControlType: 
-    m_Id: e53c746f-637e-45fd-8261-c5f4435e182e
-    m_Processors: 
-    m_Interactions: 
-    m_SingletonActionBindings:
-    - m_Name: WASD
-      m_Id: 4a6106af-60c8-4632-a52e-2361f230bc01
-      m_Path: 2DVector
-      m_Interactions: 
-      m_Processors: 
-      m_Groups: 
-      m_Action: Player Movement Key
-      m_Flags: 4
-    - m_Name: up
-      m_Id: f293da4c-df6a-42d7-9c5f-378819fc3966
-      m_Path: <Keyboard>/w
-      m_Interactions: 
-      m_Processors: 
-      m_Groups: 
-      m_Action: Player Movement Key
-      m_Flags: 8
-    - m_Name: down
-      m_Id: ca559f53-7bff-4d7c-9824-f149f1dc830b
-      m_Path: <Keyboard>/s
-      m_Interactions: 
-      m_Processors: 
-      m_Groups: 
-      m_Action: Player Movement Key
-      m_Flags: 8
-    - m_Name: left
-      m_Id: 8036c5c7-6b53-4b94-97b0-5721f3ff20a1
-      m_Path: <Keyboard>/a
-      m_Interactions: 
-      m_Processors: 
-      m_Groups: 
-      m_Action: Player Movement Key
-      m_Flags: 8
-    - m_Name: right
-      m_Id: cc0db5ce-ef07-474c-972a-0369cfd6ae6e
-      m_Path: <Keyboard>/d
-      m_Interactions: 
-      m_Processors: 
-      m_Groups: 
-      m_Action: Player Movement Key
-      m_Flags: 8
-    - m_Name: Arrow Keys
-      m_Id: 41388d41-76dc-41f3-a841-0b0c7b4086b2
-      m_Path: 2DVector
-      m_Interactions: 
-      m_Processors: 
-      m_Groups: 
-      m_Action: Player Movement Key
-      m_Flags: 4
-    - m_Name: up
-      m_Id: 5c2e278e-8f57-477e-93ea-7777d0dc3c17
-      m_Path: <Keyboard>/upArrow
-      m_Interactions: 
-      m_Processors: 
-      m_Groups: 
-      m_Action: Player Movement Key
-      m_Flags: 8
-    - m_Name: down
-      m_Id: 795b791e-9107-44f1-961f-4baff57302b0
-      m_Path: <Keyboard>/downArrow
-      m_Interactions: 
-      m_Processors: 
-      m_Groups: 
-      m_Action: Player Movement Key
-      m_Flags: 8
-    - m_Name: left
-      m_Id: b8353632-7d6d-4837-bdce-3fb809a9431a
-      m_Path: <Keyboard>/leftArrow
-      m_Interactions: 
-      m_Processors: 
-      m_Groups: 
-      m_Action: Player Movement Key
-      m_Flags: 8
-    - m_Name: right
-      m_Id: 6965db76-21f9-4c23-a3fe-6e273f4ff62a
-      m_Path: <Keyboard>/rightArrow
-      m_Interactions: 
-      m_Processors: 
-      m_Groups: 
-      m_Action: Player Movement Key
-      m_Flags: 8
-    m_Flags: 0
-  PlayerJumpKeyAction:
-    m_Name: Player Jump Key
-    m_Type: 0
-    m_ExpectedControlType: 
-    m_Id: a26f1aed-2f31-4a10-a133-c13f72ce7902
-    m_Processors: 
-    m_Interactions: 
-    m_SingletonActionBindings:
-    - m_Name: 
-      m_Id: 5c57d247-995c-4a76-9139-90a9e71eb38d
-      m_Path: <Keyboard>/space
-      m_Interactions: 
-      m_Processors: 
-      m_Groups: 
-      m_Action: Player Jump Key
-      m_Flags: 0
-    m_Flags: 0
-  PlayerRunKeyAction:
-    m_Name: Player Run Key
-    m_Type: 0
-    m_ExpectedControlType: 
-    m_Id: 3b210a56-5ee1-4128-ac4d-1a08ca726569
-    m_Processors: 
-    m_Interactions: 
-    m_SingletonActionBindings:
-    - m_Name: 
-      m_Id: fad90e63-dfff-4b3d-a598-742279a41b97
-      m_Path: <Keyboard>/leftShift
-      m_Interactions: 
-      m_Processors: 
-      m_Groups: 
-      m_Action: Player Run Key
-      m_Flags: 0
-    m_Flags: 0
-  CursorLockKeyAction:
-    m_Name: Cursor Lock Key
-    m_Type: 0
-    m_ExpectedControlType: 
-    m_Id: 74552738-f39e-43ec-a6e7-e02e049cf0a9
-    m_Processors: 
-    m_Interactions: 
-    m_SingletonActionBindings:
-    - m_Name: 
-      m_Id: f10d51a6-1c40-4e1e-9f30-72024d316798
-      m_Path: <Keyboard>/escape
-      m_Interactions: 
-      m_Processors: 
-      m_Groups: 
-      m_Action: Cursor Lock Key
-      m_Flags: 0
-    m_Flags: 0
-  TextSendKeyAction:
-    m_Name: Text Send Key
-    m_Type: 0
-    m_ExpectedControlType: 
-    m_Id: 1a46e824-e41d-4493-8e96-bb6da282dc59
-    m_Processors: 
-    m_Interactions: 
-    m_SingletonActionBindings:
-    - m_Name: 
-      m_Id: 77519610-aa15-4b83-86a5-8c5df902c271
-      m_Path: <Keyboard>/enter
-      m_Interactions: 
-      m_Processors: 
-      m_Groups: 
-      m_Action: Text Send Key
-      m_Flags: 0
-    - m_Name: 
-      m_Id: d697fb56-6362-4c8d-a1fb-872f23227e8a
-      m_Path: <Keyboard>/numpadEnter
-      m_Interactions: 
-      m_Processors: 
-      m_Groups: 
-      m_Action: Text Send Key
-      m_Flags: 0
-    m_Flags: 0
-  TalkKeyAction:
-    m_Name: Talk Key
-    m_Type: 0
-    m_ExpectedControlType: 
-    m_Id: c3b25b0c-2667-4366-96fd-7d6f24d647a4
-    m_Processors: 
-    m_Interactions: 
-    m_SingletonActionBindings:
-    - m_Name: 
-      m_Id: aac6ab46-ce52-4497-b1fa-4c1bdf5ace5c
-      m_Path: <Keyboard>/t
-      m_Interactions: 
-      m_Processors: 
-      m_Groups: 
-      m_Action: Talk Key
-      m_Flags: 0
-    m_Flags: 0
-  SettingsKeyAction:
-    m_Name: Settings Key
-    m_Type: 0
-    m_ExpectedControlType: 
-    m_Id: fdac321c-1b81-4446-8411-d18df0224253
-    m_Processors: 
-    m_Interactions: 
-    m_SingletonActionBindings:
-    - m_Name: 
-      m_Id: 6cbc32f2-70c5-489b-b8c5-f08ad4d66ffa
-      m_Path: <Keyboard>/f10
-      m_Interactions: 
-      m_Processors: 
-      m_Groups: 
-      m_Action: Settings Key
-      m_Flags: 0
-    m_Flags: 0
 --- !u!1 &1299264370
 GameObject:
   m_ObjectHideFlags: 0
@@ -14246,7 +13963,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 562.2725, y: 0}
+  m_AnchoredPosition: {x: 523.3125, y: 0}
   m_SizeDelta: {x: 0, y: 64}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1359183744
@@ -16687,10 +16404,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ce5db0c0354de754f99bd35c9f7fb96a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _timer: 0
-  IsTalkKeyReleasedEarly: 0
-  _activeInputField: {fileID: 0}
-  _uiAppearanceSettings: {fileID: 0}
 --- !u!114 &1572905599
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -16715,8 +16428,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d911410153c6d594098cac3c3bfa456d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _notificationGroup: {fileID: 11400000, guid: fe9295a7cd110d545b49f77fcc49c489, type: 2}
-  _isNotificationSystemActive: 1
 --- !u!1 &1576178244
 GameObject:
   m_ObjectHideFlags: 0
@@ -19817,11 +19528,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c5777a8a41e942f5a05df965241ef598, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rayLength: 9999
-  visionConeAngle: 360
-  activeConvaiNPC: {fileID: 0}
-  _lastHitNpc: {fileID: 0}
-  _mainCamera: {fileID: 0}
 --- !u!114 &1844651118
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -19834,9 +19540,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ac3bfdb7f1f556540bc41acc9a375817, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _activeConvaiNPC: {fileID: 0}
-  _chatUIHandler: {fileID: 0}
-  <APIKey>k__BackingField: 
 --- !u!81 &1844651119
 AudioListener:
   m_ObjectHideFlags: 0
@@ -20786,7 +20489,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3e8b13f4d5b1d4742a6a02493b450f0c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _currentAlpha: 0
 --- !u!114 &1983799398
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -20799,22 +20501,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 119d1116f25796d4da5239037da0977f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  chatBoxPrefab: {fileID: 4335130550182339671, guid: cd72c1d9bf02ebc489993d1c4bf5e521, type: 3}
-  subtitlePrefab: {fileID: 3081664865783353665, guid: 1adcb97c9f11ce44f9a7368a0bbdde81, type: 3}
-  questionAnswerPrefab: {fileID: 3579091036758702676, guid: a39998bccd08b1a42825de3cebc0858e, type: 3}
-  characters:
-  - {characterGameObject: {fileID: 636616935}, characterName: Expert, characterTextColor:
-      r: 1
-      g: 1
-      b: 0
-      a: 1
-}
-  playerName: Player
-  playerTextColor:
-    r: 1
-    g: 1
-    b: 1
-    a: 1
 --- !u!4 &1983799399
 Transform:
   m_ObjectHideFlags: 0
@@ -21278,7 +20964,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2c5289bfc72186f40b90ff7b9d45894a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _notificationSystemActiveStatusToggle: {fileID: 2125358341}
 --- !u!114 &2012446436
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -21291,7 +20976,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3e8b13f4d5b1d4742a6a02493b450f0c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _currentAlpha: 0
 --- !u!114 &2012446437
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -21304,7 +20988,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 596b00c62fa88c645938df61b488e084, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _talkButtonDurationChecker: {fileID: 0}
 --- !u!114 &2012446438
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -21317,10 +21000,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e673a03d46af90446baa34d979119284, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  waveVisualizerUI: {fileID: 755173856}
-  _audioSource: {fileID: 0}
-  _microphoneTestController: {fileID: 0}
-  _startSizeDelta: {x: 0, y: 0}
 --- !u!114 &2012446439
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -21333,12 +21012,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 518be0891425e7543bee2e69fb5ffc86, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _audioSource: {fileID: 0}
-  _isAudioPlaying: 0
-  _isRecording: 0
-  _microphoneInputChecker: {fileID: 0}
-  _selectedDevice: 
-  _uiMicrophoneSettings: {fileID: 0}
 --- !u!114 &2012446440
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -21351,8 +21024,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 139f8e0a80b8c38428e24202d3bb9ae4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _uiMicrophoneSettings: {fileID: 0}
-  _selectedDevice: 
 --- !u!114 &2012446441
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -21365,7 +21036,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6995c132b7884398811c9d7df7806a59, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _playerNameInputField: {fileID: 2094639421}
 --- !u!114 &2012446442
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -21378,13 +21048,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0f5afe5603f66984b88bd5f54bbd762e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _microphoneSelectDropdown: {fileID: 931303532}
-  _recordControllerButton: {fileID: 42004120}
-  _recordSystemStatusText: {fileID: 1819244476}
-  _buttonImage: {fileID: 0}
-  _buttonText: {fileID: 0}
-  _microphoneTestController: {fileID: 0}
-  _selectedMicrophoneDeviceNumber: 0
 --- !u!114 &2012446443
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -21397,10 +21060,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e22ed8432ed28324891d428b6a8fa2dd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _appearancePreviewDuration: 1
-  _appearanceDropdown: {fileID: 449453300}
-  _fadeCanvas: {fileID: 1983799397}
-  _uiSettingsPanel: {fileID: 0}
 --- !u!114 &2012446444
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -21413,13 +21072,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d2c69b63f88551e49990c3b9f70f833f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _saveChangesButton: {fileID: 131765268}
-  _settingsPanelExitButton: {fileID: 175918398}
-  _panelCanvasGroup: {fileID: 142526568}
-  _fadeInDuration: 0.35
-  _fadeOutDuration: 0.35
-  _fadeCanvas: {fileID: 0}
-  _uiAppearanceSettings: {fileID: 0}
 --- !u!114 &2012446445
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -21432,10 +21084,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c6b5b7a24f2267c4893e5ca390ff8a7f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  UIType: 0
-  <SelectedMicrophoneDeviceNumber>k__BackingField: 0
-  <PlayerName>k__BackingField: 
-  <NotificationSystemActiveStatus>k__BackingField: 0
 --- !u!82 &2012446446
 AudioSource:
   m_ObjectHideFlags: 0
@@ -21739,17 +21387,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: adc3b3c371ebd1543ad6696b74dbbe9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  walkingSpeed: 5
-  runningSpeed: 10
-  jumpSpeed: 5
-  gravity: 10
-  playerCamera: {fileID: 1844651120}
-  lookSpeedMultiplier: 0.05
-  lookXLimit: 30
-  canMove: 1
-  _characterController: {fileID: 0}
-  _moveDirection: {x: 0, y: 0, z: 0}
-  _rotationX: 0
 --- !u!143 &2013755791
 CharacterController:
   m_ObjectHideFlags: 0
