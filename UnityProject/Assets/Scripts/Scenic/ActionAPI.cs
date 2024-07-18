@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.ConstrainedExecution;
-using Convai.Scripts;
 using OpenAI.Samples.Chat;
 using Pathfinding;
 using Unity.VisualScripting;

@@ -7,7 +7,6 @@ using UnityEngine.UIElements;
 using System.Reflection;
 using System;
 using System.Linq;
-using Convai.Scripts;
 using OpenAI.Samples.Chat;
 
 public class HumanInterface : MonoBehaviour
