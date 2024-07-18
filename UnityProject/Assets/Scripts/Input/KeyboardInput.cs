@@ -39,6 +39,7 @@ public class KeyboardInput : MonoBehaviour
         countdownText = GameObject.FindGameObjectWithTag("countdown").GetComponent<TextMeshProUGUI>();
         chatBehaviour = GameObject.FindGameObjectWithTag("Character").GetComponent<ChatBehaviour>();
         streamingSampleMic = GameObject.FindGameObjectWithTag("stream").GetComponent<StreamingSampleMic>();
+        synthConnect = GameObject.FindGameObjectWithTag("connect").GetComponent<SynthConnect>();
         Debug.Log("KeyboardInput script initialized");
     }
 
@@ -211,6 +212,7 @@ public class KeyboardInput : MonoBehaviour
     {
         string processedTranscription = ReplaceAnnotationKeys(finalTranscription);
         Debug.Log("Processed Transcription: " + processedTranscription);
+        synthConnect.SendExplanation(processedTranscription);
     }
 
     private string ReplaceAnnotationKeys(string transcription)

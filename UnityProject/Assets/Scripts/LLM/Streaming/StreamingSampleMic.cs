@@ -25,9 +25,11 @@ namespace Whisper.Samples
         private string finalTranscription = "";
         private bool segmentUpdated = false;
         private KeyboardInput keyboard;
+        private SynthConnect synthConnect;
 
         private async void Start()
         {
+            synthConnect = GameObject.FindGameObjectWithTag("connect").GetComponent<SynthConnect>();
             keyboard = GameObject.FindGameObjectWithTag("player").GetComponent<KeyboardInput>();
             _stream = await whisper.CreateStream(microphoneRecord);
             _stream.OnResultUpdated += OnResult;
