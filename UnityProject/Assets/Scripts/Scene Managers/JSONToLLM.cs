@@ -1,91 +1,90 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
-using OpenAI.Samples.Chat;
-using OVRSimpleJSON;
-using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
 public class JSONToLLM : MonoBehaviour
 {
+    public KeyboardInput keyboard;
     public ObjectsList objectsList;
-    private string filename = "";
-    public ChatBehaviour chatBehaviour;
+    private string filename;
     private string jsonString;
     public int segments;
     public TimelineManager timelineManager;
 
     [System.Serializable]
-    public class OffensePlayer
+    public class Position
     {
-        public string name;
-        public float positionX;
-        public float positionZ;
-        public Vector3 rotation;
-        public string behavior;
+        public float x;
+        public float y;
+
+        public Position(Vector3 vector)
+        {
+            x = vector.x;
+            y = vector.z;
+        }
     }
-    
+
     [System.Serializable]
-    public class DefensePlayer
+    public class Velocity
     {
-        public string name;
-        public float positionX;
-        public float positionZ;
-        public Vector3 rotation;
+        public float x;
+        public float y;
+
+        public Velocity(Vector3 vector)
+        {
+            float magnitude = vector.magnitude;
+            x = magnitude * vector.x;
+            y = magnitude * vector.z;
+        }
+    }
+
+    [System.Serializable]
+    public class Player
+    {
+        public string id;
+        public string type = "Player";
+        public List<Position> position = new List<Position>();
+        public List<Velocity> velocity = new List<Velocity>();
+        public List<bool> ballPossession = new List<bool>();
         public string behavior;
     }
-    
+
     [System.Serializable]
     public class Ball
     {
-        public string name;
-        public float positionX;
-        public float positionZ;
+        public string id;
+        public string type = "Ball";
+        public List<Position> position = new List<Position>();
     }
-    
+
     [System.Serializable]
     public class Goal
     {
-        public string name;
-        public float positionX;
-        public float positionZ;
-        public Vector3 rotation;
+        public string id;
+        public string type = "Goal";
+        public List<Position> position = new List<Position>();
+        // public List<Vector3> rotation = new List<Vector3>();
     }
-    
-    [System.Serializable]
-    public class Coach
-    {
-        public string name;
-        public float positionX;
-        public float positionZ;
-        public Vector3 rotation;
-        public string explanation;
-    }
-    
-    [System.Serializable]
-    public class SceneObjects
-    {
-        public List<OffensePlayer> offsensePlayers;
-        public List<DefensePlayer> defensePlayers;
-        public Ball ball;
-        public Goal goal;
-        public Coach coach;
-    }
-    
+
     [System.Serializable]
     public class RootSegment
     {
         public int timestep;
-        public SceneObjects sceneObjects;
+        public List<object> objects = new List<object>();
     }
 
-    
-    public SceneObjects mySceneObjects = new SceneObjects();
     public RootSegment myRootSegment = new RootSegment();
-    
+    private List<RootSegment> segmentsList = new List<RootSegment>();
+
     void Start()
     {
-        filename = Application.dataPath + "/output.txt";
+        filename = Application.dataPath + "/sanjit.json";
+        keyboard = GameObject.FindGameObjectWithTag("player").GetComponent<KeyboardInput>();
+        timelineManager = GameObject.FindGameObjectWithTag("TimelineManager").GetComponent<TimelineManager>();
     }
 
     void Update()
@@ -94,103 +93,93 @@ public class JSONToLLM : MonoBehaviour
 
     public void PopulateSceneObjects()
     {
-        mySceneObjects.offsensePlayers = new List<OffensePlayer>();
-        mySceneObjects.defensePlayers = new List<DefensePlayer>();
-        
-        foreach (GameObject offense in objectsList.offensePlayers)
+        foreach (GameObject currPlayer in objectsList.scenicPlayers)
         {
-            OffensePlayer offensePlayer = new OffensePlayer();
-            offensePlayer.name = offense.name;
-            offensePlayer.positionX = offense.transform.position.x;
-            offensePlayer.positionZ = offense.transform.position.z;
-            offensePlayer.rotation = offense.transform.rotation.eulerAngles;
-            offensePlayer.behavior = offense.GetComponent<PlayerInterface>().behavior;
-            // Can add things like speed here by doing:
-            // offensePlayer.speed = offense.GetComponent<PlayerInterface>().currVelocity.magnitude;
-            // need to add speed to the OffensePlayer class
-            mySceneObjects.offsensePlayers.Add(offensePlayer);
+            Player player = (Player)myRootSegment.objects.Find(obj => obj is Player p && p.id == currPlayer.name);
+            if (player == null)
+            {
+                player = new Player
+                {
+                    id = currPlayer.name,
+                    behavior = currPlayer.GetComponent<PlayerInterface>().behavior
+                };
+                myRootSegment.objects.Add(player);
+            }
+            player.position.Add(new Position(currPlayer.transform.position));
+            player.velocity.Add(new Velocity(currPlayer.GetComponent<PlayerInterface>().currVelocity));
+            player.ballPossession.Add(currPlayer.GetComponent<PlayerInterface>().ballPossession);
         }
-        
-        foreach (GameObject defender in objectsList.defensePlayers)
+
+        foreach (GameObject humanPlayer in objectsList.humanPlayers)
         {
-            DefensePlayer defensePlayer = new DefensePlayer();
-            defensePlayer.name = defender.name;
-            defensePlayer.positionX = defender.transform.position.x;
-            defensePlayer.positionZ = defender.transform.position.z;
-            defensePlayer.rotation = defender.transform.rotation.eulerAngles;
-            defensePlayer.behavior = defender.GetComponent<PlayerInterface>().behavior;
-            mySceneObjects.defensePlayers.Add(defensePlayer);
+            Player coach = (Player)myRootSegment.objects.Find(obj => obj is Player p && p.id == humanPlayer.name);
+            if (coach == null)
+            {
+                coach = new Player
+                {
+                    id = humanPlayer.name,
+                    behavior = "expert"
+                };
+                myRootSegment.objects.Add(coach);
+            }
+            coach.position.Add(new Position(humanPlayer.transform.position));
+            Vector3 coachVelocity = humanPlayer.GetComponent<KeyboardInput>().movement;
+            coach.velocity.Add(new Velocity(coachVelocity));
+            // TODO: add ball posession to unity human interface
+            coach.ballPossession.Add(humanPlayer.GetComponent<PlayerInterface>().ballPossession);
         }
 
         GameObject ball = objectsList.ballObject;
-        Ball ballObject = new Ball();
-        ballObject.name = ball.name;
-        ballObject.positionX = ball.transform.position.x;
-        ballObject.positionZ = ball.transform.position.z;
-        mySceneObjects.ball = ballObject;
-        
+        Ball ballObject = (Ball)myRootSegment.objects.Find(obj => obj is Ball b && b.id == ball.name);
+        if (ballObject == null)
+        {
+            ballObject = new Ball { id = ball.name };
+            myRootSegment.objects.Add(ballObject);
+        }
+        ballObject.position.Add(new Position(ball.transform.position));
+
         GameObject goal = objectsList.goalObject;
-        Goal goalObject = new Goal();
-        goalObject.name = goal.name;
-        goalObject.positionX = goal.transform.position.x;
-        goalObject.positionZ = goal.transform.position.z;
-        goalObject.rotation = goal.transform.rotation.eulerAngles;
-        mySceneObjects.goal = goalObject;
-        
-        GameObject coach = objectsList.humanPlayers[0];
-        Coach coachObject = new Coach();
-        coachObject.name = coach.name;
-        coachObject.positionX = coach.transform.position.x;
-        coachObject.positionZ = coach.transform.position.z;
-        coachObject.rotation = coach.transform.rotation.eulerAngles;
-        if (coach.GetComponent<HumanInterface>().explanation != null)
+        Goal goalObject = (Goal)myRootSegment.objects.Find(obj => obj is Goal g && g.id == goal.name);
+        if (goalObject == null)
         {
-            coachObject.explanation = coach.GetComponent<HumanInterface>().explanation;
+            goalObject = new Goal { id = goal.name };
+            myRootSegment.objects.Add(goalObject);
         }
-        else
-        {
-            coachObject.explanation = "No explanation given.";
-        }
-        mySceneObjects.coach = coachObject;
-        
-        // Adding coach to defense players list as well
-        DefensePlayer coachDefense = new DefensePlayer();
-        coachDefense.name = coach.name;
-        coachDefense.positionX = coach.transform.position.x;
-        coachDefense.positionZ = coach.transform.position.z;
-        coachDefense.rotation = coach.transform.rotation.eulerAngles;
-        mySceneObjects.defensePlayers.Add(coachDefense);
+        goalObject.position.Add(new Position(goal.transform.position));
+        // goalObject.rotation.Add(goal.transform.rotation.eulerAngles);
     }
-    
+
     public void PopulateSegment()
     {
         PopulateSceneObjects();
         myRootSegment.timestep = timelineManager.TimeIndex;
-        myRootSegment.sceneObjects = mySceneObjects;
     }
 
     public void CreateJSONString()
     {
-        jsonString = JsonUtility.ToJson(mySceneObjects, true);
-        chatBehaviour.jsonText = jsonString;
+        var settings = new JsonSerializerSettings
+        {
+            ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+            Formatting = Formatting.Indented,
+            ContractResolver = new CamelCasePropertyNamesContractResolver()
+        };
+        jsonString = JsonConvert.SerializeObject(new { scene = new { id = "typical_1v1", step = 0.1, objects = myRootSegment.objects }, annotations = keyboard.annotation }, settings);
     }
-    
+
     public void WriteFile()
     {
-        int newSeg = segments + 1;
-        segments = newSeg;
-        string outputFilePath = Application.dataPath + "/output.txt";
-        string segmentOutput = $@"
-        Segment # {segments}
-        Coach Explanation # {chatBehaviour.userInput}
-        JSON:
-        {chatBehaviour.jsonResponseText}
-        Condition:
-        {chatBehaviour.conditionOutput}
-        Action:
-        {chatBehaviour.actionOutput}
-        ";
-        File.AppendAllText(outputFilePath, segmentOutput);
-        Debug.Log($"Segment written to {outputFilePath}");
+        CreateJSONString();
+        File.WriteAllText(filename, jsonString);
+        Debug.Log($"Segment written to {filename}");
+    }
+
+    public void AppendToObjects()
+    {
+        PopulateSegment();
+    }
+
+    private void FixedUpdate()
+    {
+        keyboard.editJSON();
     }
 }

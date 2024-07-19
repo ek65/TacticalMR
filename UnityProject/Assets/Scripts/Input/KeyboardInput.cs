@@ -18,7 +18,7 @@ public class KeyboardInput : MonoBehaviour
     public TextMeshProUGUI countdownText;
     private SynthConnect synthConnect;
 
-    private Dictionary<int, object> annotations = new Dictionary<int, object>();
+    public Dictionary<int, object> annotation = new Dictionary<int, object>();
     private Dictionary<int, string> annotationDescriptions = new Dictionary<int, string>();
     private Dictionary<GameObject, int> objectToKey = new Dictionary<GameObject, int>();
     private int clickOrder = 0;
@@ -43,11 +43,21 @@ public class KeyboardInput : MonoBehaviour
         Debug.Log("KeyboardInput script initialized");
     }
 
+    public void editJSON()
+    {
+        jsonToLLM.AppendToObjects();
+        Debug.Log("Sent json");
+    }
+
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.E))
         {
             exitScenario.EndScenario();
+        }
+        if (Input.GetKeyDown(KeyCode.M))
+        {
+            jsonToLLM.WriteFile();
         }
 
         if (Input.GetKeyDown(KeyCode.P))
@@ -111,7 +121,7 @@ public class KeyboardInput : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.K))
         {
-            foreach (var annotation in annotations)
+            foreach (var annotation in annotation)
             {
                 if (annotation.Value is GameObject gameObject)
                 {
@@ -139,7 +149,7 @@ public class KeyboardInput : MonoBehaviour
             }
             else
             {
-                annotations.Add(clickOrder, clickedObject);
+                annotation.Add(clickOrder, clickedObject);
                 annotationDescriptions.Add(clickOrder, GetDescriptionAnnotation(clickedObject));
                 objectToKey[clickedObject] = clickOrder; // Map object to key
                 streamingSampleMic.InsertAnnotationKey(clickOrder); // Insert annotation key into transcription
@@ -167,7 +177,7 @@ public class KeyboardInput : MonoBehaviour
                 Debug.Log($"Second object selected: {secondObject.name}");
 
                 Vector3 referenceVector = secondObject.transform.position - firstObject.transform.position;
-                annotations.Add(clickOrder, referenceVector);
+                annotation.Add(clickOrder, referenceVector);
                 annotationDescriptions.Add(clickOrder, GetDescriptionReference(firstObject, secondObject));
                 streamingSampleMic.InsertAnnotationKey(clickOrder); // Insert reference key into transcription
                 Debug.Log($"Added reference vector {referenceVector} to annotations with key {clickOrder}");
@@ -186,7 +196,7 @@ public class KeyboardInput : MonoBehaviour
         if (Physics.Raycast(ray, out RaycastHit hit))
         {
             Vector3 clickedPosition = hit.point;
-            annotations.Add(clickOrder, clickedPosition);
+            annotation.Add(clickOrder, clickedPosition);
             annotationDescriptions.Add(clickOrder, $"(Position at {clickedPosition})");
             streamingSampleMic.InsertAnnotationKey(clickOrder); // Insert position key into transcription
             Debug.Log($"Added position {clickedPosition} to annotations with key {clickOrder}");

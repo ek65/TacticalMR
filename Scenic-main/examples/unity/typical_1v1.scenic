@@ -37,12 +37,15 @@ behavior opponentBehavior():
                 do ShootBall(goal.position, "center-middle")
                 do Idle()
 
-ego = new Human at (0, 0, 0)
+ego = new Human at (0, 0, 0), with name "Coach"
+
 opponent_A = new Player ahead of ego by Uniform(5, 6),
-                facing directly toward ego
+                facing directly toward ego,
+                with name "opponent_A"
 
 opponent_B = new Player ahead of ego by Uniform(3, 4),
                 facing directly toward ego,
+                with name "opponent_B"
 
 football = new Ball ahead of opponent_B by 0.5
 goal = new Goal behind ego by 3, facing away from ego
