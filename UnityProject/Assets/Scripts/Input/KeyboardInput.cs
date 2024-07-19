@@ -235,6 +235,39 @@ public class KeyboardInput : MonoBehaviour
         }
         return transcription;
     }
+    
+    public List<Dictionary<string, object>> GetAnnotationsAsJson()
+    {
+        List<Dictionary<string, object>> annotationsList = new List<Dictionary<string, object>>();
+
+        foreach (var entry in annotation)
+        {
+            int id = entry.Key;
+            object value = entry.Value;
+
+            if (value is GameObject gameObject)
+            {
+                annotationsList.Add(new Dictionary<string, object>
+                {
+                    { "id", id.ToString() },
+                    { "type", "Reference" },
+                    { "obj", gameObject.name }
+                });
+            }
+            else if (value is Vector3 vector)
+            {
+                annotationsList.Add(new Dictionary<string, object>
+                {
+                    { "id", id.ToString() },
+                    { "type", "Point" },
+                    { "point", new { x = vector.x, y = vector.z } },
+                    { "ref", "opponent" }
+                });
+            }
+        }
+
+        return annotationsList;
+    }
 
     IEnumerator ToggleRecordingCoroutine()
     {

@@ -163,7 +163,7 @@ public class JSONToLLM : MonoBehaviour
             Formatting = Formatting.Indented,
             ContractResolver = new CamelCasePropertyNamesContractResolver()
         };
-        jsonString = JsonConvert.SerializeObject(new { scene = new { id = "typical_1v1", step = 0.1, objects = myRootSegment.objects }, annotations = keyboard.annotation }, settings);
+        jsonString = JsonConvert.SerializeObject(new { scene = new { id = "typical_1v1", step = 0.1, objects = myRootSegment.objects },  annotations = keyboard.GetAnnotationsAsJson() }, settings);
     }
 
     public void WriteFile()
