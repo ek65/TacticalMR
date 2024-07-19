@@ -8,6 +8,8 @@ using Newtonsoft.Json.Converters;
 
 using Firebase.Firestore;
 using Firebase.Extensions;
+using Firebase.Storage;
+using System.IO;
 
 namespace SynthNetworkKit
 {
@@ -17,11 +19,17 @@ namespace SynthNetworkKit
         private FirebaseFirestore db;
         private SynthService service;
 
+        private FirebaseStorage storage;
+        private StorageReference storageRef;
+
         // Start is called before the first frame update
         void Start()
         {
             Debug.Log("Starting SynthNetwork.");
             db = FirebaseFirestore.DefaultInstance;
+
+            storage = FirebaseStorage.DefaultInstance;
+            storageRef = storage.GetReferenceFromUrl("gs://scenicsynth.appspot.com");
 
             // DocumentReference docRef2 = db.Collection("cities").Document("LA");
             // Dictionary<string, object> city = new Dictionary<string, object>
@@ -102,6 +110,26 @@ namespace SynthNetworkKit
             serviceRef.UpdateAsync(updates).ContinueWithOnMainThread(task =>
             {
                 Debug.Log("Updated the Capital field of the new-city-id document in the cities collection.");
+            });
+        }
+
+        public void StoreScene(string data, string id) {
+            // Create a secure file path in the persistent data path
+            string filePath = Path.Combine(Application.persistentDataPath, id + ".json");
+
+            // Write the JSON data to the file
+            File.WriteAllText(filePath, data);
+
+            // Define the Firebase Storage reference path
+            StorageReference fileRef = storageRef.Child("scenes/" + id + ".json");
+
+            // Upload the file to Firebase Storage
+            fileRef.PutFileAsync(filePath).ContinueWithOnMainThread(task => {
+                if (task.IsCompleted) {
+                    Debug.Log("File uploaded successfully.");
+                } else {
+                    Debug.LogError("File upload failed: " + task.Exception);
+                }
             });
         }
     }
