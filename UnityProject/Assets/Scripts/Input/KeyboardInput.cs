@@ -58,6 +58,7 @@ public class KeyboardInput : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.M))
         {
             jsonToLLM.WriteFile();
+            StartCoroutine(JSONCoroutine());
         }
 
         if (Input.GetKeyDown(KeyCode.P))
@@ -220,9 +221,9 @@ public class KeyboardInput : MonoBehaviour
 
     public void OnTranscriptionFinished(string finalTranscription)
     {
-        string processedTranscription = ReplaceAnnotationKeys(finalTranscription);
-        Debug.Log("Processed Transcription: " + processedTranscription);
-        synthConnect.SendExplanation(processedTranscription);
+        // string processedTranscription = ReplaceAnnotationKeys(finalTranscription);
+        Debug.Log("Processed Transcription: " + finalTranscription);
+        synthConnect.SendExplanation(finalTranscription);
     }
 
     private string ReplaceAnnotationKeys(string transcription)
@@ -279,12 +280,9 @@ public class KeyboardInput : MonoBehaviour
 
     IEnumerator JSONCoroutine()
     {
-        Debug.Log("Started Coroutine at timestamp : " + Time.time);
-        yield return new WaitForSeconds(1);
-        chatBehaviour.SubmitCombinedInput("explain");
         yield return new WaitForSeconds(2);
-        StartCoroutine(ConditionCoroutine());
-        Debug.Log("Finished Coroutine at timestamp : " + Time.time);
+        synthConnect.SendScene(jsonToLLM.jsonString,"123");
+      
     }
 
     IEnumerator ConditionCoroutine()

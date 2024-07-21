@@ -11,7 +11,7 @@ public class JSONToLLM : MonoBehaviour
     public KeyboardInput keyboard;
     public ObjectsList objectsList;
     private string filename;
-    private string jsonString;
+    public string jsonString;
     public int segments;
     public TimelineManager timelineManager;
 

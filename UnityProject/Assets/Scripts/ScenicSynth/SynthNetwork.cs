@@ -114,6 +114,7 @@ namespace SynthNetworkKit
         }
 
         public void StoreScene(string data, string id) {
+            Debug.Log("Scene sent to Firebase!");
             // Create a secure file path in the persistent data path
             string filePath = Path.Combine(Application.persistentDataPath, id + ".json");
 
