@@ -125,6 +125,7 @@ namespace Whisper.Samples
             Debug.Log("Final");
             Debug.Log(finalTranscription);
             keyboard.OnTranscriptionFinished(finalTranscription);
+            keyboard.language = finalTranscription;
         }
 
         public void InsertAnnotationKey(int key)

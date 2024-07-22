@@ -163,7 +163,7 @@ public class JSONToLLM : MonoBehaviour
             Formatting = Formatting.Indented,
             ContractResolver = new CamelCasePropertyNamesContractResolver()
         };
-        jsonString = JsonConvert.SerializeObject(new { scene = new { id = "typical_1v1", step = 0.1, objects = myRootSegment.objects },  annotations = keyboard.GetAnnotationsAsJson() }, settings);
+        jsonString = JsonConvert.SerializeObject(new { scene = new { id = "typical_1v1", language = keyboard.language, step = 0.02, objects = myRootSegment.objects, annotations = keyboard.GetAnnotationsAsJson() } }, settings);
     }
 
     public void WriteFile()
@@ -172,14 +172,10 @@ public class JSONToLLM : MonoBehaviour
         File.WriteAllText(filename, jsonString);
         Debug.Log($"Segment written to {filename}");
     }
-
-    public void AppendToObjects()
-    {
-        PopulateSegment();
-    }
+    
 
     private void FixedUpdate()
     {
-        keyboard.editJSON();
+        PopulateSegment();
     }
 }

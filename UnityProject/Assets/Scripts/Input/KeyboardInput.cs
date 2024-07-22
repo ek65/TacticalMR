@@ -25,6 +25,7 @@ public class KeyboardInput : MonoBehaviour
     private bool isAnnotationMode = false;
     private bool isReferenceMode = false;
     private bool isPositionMode = false;
+    public string language;
 
     private GameObject firstObject = null;
     private GameObject secondObject = null;
@@ -43,11 +44,11 @@ public class KeyboardInput : MonoBehaviour
         Debug.Log("KeyboardInput script initialized");
     }
 
-    public void editJSON()
-    {
-        jsonToLLM.AppendToObjects();
-        Debug.Log("Sent json");
-    }
+    // public void editJSON()
+    // {
+    //     jsonToLLM.AppendToObjects();
+    //     Debug.Log("Sent json");
+    // }
 
     void Update()
     {
