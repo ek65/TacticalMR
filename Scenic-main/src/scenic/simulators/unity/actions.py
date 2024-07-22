@@ -34,6 +34,7 @@ class IdleAction(Action):
     def __init__(self, behavior = "Idle"):
         self.actionName = "Idle"
         self.behavior = behavior
+
     def applyTo(self, obj, sim):
         obj.gameObject.SetBehavior(self.behavior)
         obj.gameObject.DoAction(self.actionName)
@@ -168,6 +169,7 @@ class TackleBallAction(Action):
             self.position = (obj.x, obj.y, obj.z)
         else:
             self.clientID = obj.gameObject.clientID
+
     def applyTo(self, obj, sim):
         if self.position is None:
             obj.gameObject.MoveToObject(self.clientID)
@@ -552,3 +554,111 @@ class ExplainAction(Action):
 
     def applyTo(self, obj, sim):
         obj.gameObject.DoAction(self.actionName, self.input)
+
+
+# MARK: MovingStyle
+class MovingStyle(Enum):
+    WALK = 'walk'
+    RUN = 'run'
+    SPRINT = 'sprint'
+
+
+# MARK: moveTo
+def moveTo(targetPosition: Vector, style: MovingStyle):
+    """
+    A player will move to the specified target with a specified velocity and style.
+
+    Args:
+        targetPosition (Vector): A position of the end point of the trajectory.
+        style (MovingStyle): A moving style out of the options 'walk', 'run' and 'sprint'.
+        velocity (float): The velocity to move to the target.
+    """
+    if style = MovingStyle.WALK:
+        take MoveToWithSpeed(targetPosition, 1)
+    elif style = MovingStyle.RUN:
+        take MoveToWithSpeed(targetPosition, 3)
+    else:
+        take MoveToWithSpeed(targetPosition, 5)
+
+
+# MARK: faceTowards
+# TODO: Need to Create an Action to called "FaceTowards"
+# def faceTowards(player: Player, target: Object, offset: Angle = 0):
+#     """
+#     The player will face towards the specified taget object by an arbitrary offset angle in a 2D plane.
+
+#     Args:
+#         player (Player): The player facing the target object.
+#         target (Object): The object the specified player should face towards.
+#         offset (Angle): The offset angle at which the player should be facing the target object, positive values for right and negative values for left.
+#     """
+    
+
+# MARK: mirrorActions
+def mirrorActions(player: Player, reference: Player):
+    """
+    The player will mirror the actions of the reference player.
+
+    Args:
+        player (Player): The player mirroring the actions.
+        reference (Player): The player whose actions should be mirrored.
+    """
+    return None
+
+# MARK: spaceShoulders
+def spaceShoulders(player: Player, distance: float):
+    """
+    The player will space their shoulders apart by a specified distance.
+
+    Args:
+        player (Player): The player.
+        distance (float): The distance to space the player's shoulder apart from the body.
+    """
+    return None
+
+# MARK: orientArms
+def orientArms(player: Player, angle: int, target: Object = None):
+    """ Orients the player's arms to a specified angle.
+    Args:
+    player (Player): The player whose arms are being oriented.
+    angle (int): The angle to which the player's
+        arms should be raised.
+    target (Object, optional): The target to point the arms towards
+    Returns:
+    None: The function modifies the player's posture but does not return any value.
+    """
+    return None
+
+# MARK: lean
+
+def lean(player: Player, angle: Angle):
+    '''
+    The specified player will lean forward by an arbitrary angle.
+
+    Args:
+        player (Player): The player leaning at an angle.
+        angle (Angle): The amount by which the player should lean. Postive values for fowards, negative for backwards.
+    '''
+    return None
+
+
+# MARK: Tackle
+def tackle(player: Player, target: Player):
+    '''
+    The specified player will attempt to tackle the target player.
+    
+    Args:
+        player (Player): The player performing the tackle.
+        target (Player): The player being tackled.
+    '''
+    take TackleBallAction(target)
+
+def idle(player: Player):
+    '''
+    The specified player will stay in their own place and not move.
+
+    Args:
+        player (Player): The player who will stay idle.
+
+    '''
+    take IdleAction()

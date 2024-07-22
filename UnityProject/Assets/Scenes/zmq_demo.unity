@@ -776,7 +776,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d56d44a0138a44a9388f84895f262f07, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  id: 124
+  id: eddie
 --- !u!4 &88982470
 Transform:
   m_ObjectHideFlags: 0
@@ -13963,7 +13963,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 523.3125, y: 0}
+  m_AnchoredPosition: {x: 460.36722, y: 0}
   m_SizeDelta: {x: 0, y: 64}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1359183744
@@ -21686,7 +21686,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 2129545209}
   m_HandleRect: {fileID: 2129545208}
   m_Direction: 2
-  m_Value: 0
+  m_Value: 1
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -23376,45 +23376,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 956534c9e32d7473caebacd6d6adbdbf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  keyboard: {fileID: 0}
   objectsList: {fileID: 777379925808647184}
-  chatBehaviour: {fileID: 2040348442}
+  jsonString: 
   segments: 0
   timelineManager: {fileID: 0}
-  mySceneObjects:
-    offsensePlayers: []
-    defensePlayers: []
-    ball:
-      name: 
-      positionX: 0
-      positionZ: 0
-    goal:
-      name: 
-      positionX: 0
-      positionZ: 0
-      rotation: {x: 0, y: 0, z: 0}
-    coach:
-      name: 
-      positionX: 0
-      positionZ: 0
-      rotation: {x: 0, y: 0, z: 0}
-      explanation: 
   myRootSegment:
     timestep: 0
-    sceneObjects:
-      offsensePlayers: []
-      defensePlayers: []
-      ball:
-        name: 
-        positionX: 0
-        positionZ: 0
-      goal:
-        name: 
-        positionX: 0
-        positionZ: 0
-        rotation: {x: 0, y: 0, z: 0}
-      coach:
-        name: 
-        positionX: 0
-        positionZ: 0
-        rotation: {x: 0, y: 0, z: 0}
-        explanation: 
