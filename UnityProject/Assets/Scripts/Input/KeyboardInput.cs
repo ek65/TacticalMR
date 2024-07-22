@@ -262,7 +262,6 @@ public class KeyboardInput : MonoBehaviour
                     { "id", id.ToString() },
                     { "type", "Point" },
                     { "point", new { x = vector.x, y = vector.z } },
-                    { "ref", "opponent" }
                 });
             }
         }
