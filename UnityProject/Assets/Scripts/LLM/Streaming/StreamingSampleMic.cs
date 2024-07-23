@@ -42,6 +42,7 @@ namespace Whisper.Samples
 
         public void OnButtonPressed()
         {
+            
             if (!microphoneRecord.IsRecording)
             {
                 _stream.StartStream();

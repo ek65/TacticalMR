@@ -6,6 +6,7 @@ using System.IO;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
+// This script is collects all the necessary input data for ScenicSynth
 public class JSONToLLM : MonoBehaviour
 {
     public KeyboardInput keyboard;
@@ -93,7 +94,7 @@ public class JSONToLLM : MonoBehaviour
 
     public void PopulateSceneObjects()
     {
-        foreach (GameObject currPlayer in objectsList.scenicPlayers)
+        foreach (GameObject currPlayer in objectsList.scenicPlayers) // find all the objects in the scenic scene
         {
             Player player = (Player)myRootSegment.objects.Find(obj => obj is Player p && p.id == currPlayer.name);
             if (player == null)

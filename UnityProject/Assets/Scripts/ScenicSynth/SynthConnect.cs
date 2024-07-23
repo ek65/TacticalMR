@@ -5,6 +5,8 @@ using OpenAI.Samples.Chat;
 using SynthNetworkKit;
 using UnityEngine;
 
+
+// 
 public class SynthConnect : MonoBehaviour
 {
     private ChatBehaviour chatBehaviour;
