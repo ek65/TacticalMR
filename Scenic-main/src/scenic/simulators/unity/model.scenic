@@ -281,33 +281,26 @@ def crouch(player: Player, angle: Angle):
 
 
 # MARK: orientWaist
-
-orientWaist = APIObject(
-    name="orientWaist(player: Player, angle: int)",
-    code='''def orientWaist(player: Player, angle: int) -> None:
-    """ Twists the player's waist in a specified direction by a specified angle.
+def orientWaist(player: Player, angle: int) -> None:
+    ''' Twists the player's waist in a specified direction by a specified angle.
     Args:
     player (Player): The player whose waist is being twisted.
     angle (int): The angle by which to twist the player's waist.
     Returns:
     None: The function modifies the player's posture but does not return any value.
-    """
-    ''',
-    description="The function 'orient waist' twists the player's waist in a specified direction by a specified angle, changing the player's posture without returning any value.",
-    tags = [APITag.ACTION]
-)
-
-
-# MARK: isWithinFieldBounds
-
-def withinBounds(player: Player) -> bool:
     '''
-    Checks if the object is within the specified bounds of the field.
+    return None
 
-    Args:
-    object (Object): The object whose position is being checked.
 
-    Returns:
-    bool: True if the object is within the specified bounds, False otherwise.
-    '''
+# # MARK: isWithinFieldBounds
+# def withinBounds(player: Player) -> bool:
+#     '''
+#     Checks if the object is within the specified bounds of the field.
+
+#     Args:
+#     object (Object): The object whose position is being checked.
+
+#     Returns:
+#     bool: True if the object is within the specified bounds, False otherwise.
+#     '''
     
