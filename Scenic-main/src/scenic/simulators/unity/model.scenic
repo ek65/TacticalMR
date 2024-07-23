@@ -35,6 +35,9 @@ class UnityObject:
     length : 0.0
     height : 0.0
 
+class Angle:
+    angle : 0
+
 class Ball(UnityObject):
     position : (0,0,1)
     gameObject : gameObject((0,0,1), Orientation.fromEuler(0,0,0))
@@ -186,7 +189,7 @@ def closest(objType: type, ref: Object, maxDist: float = float('inf')) -> Object
         if not isinstance(obj, objType):
             continue
 
-        d = distance from origin to obj
+        d = distance from Vector(0,0,0) to obj
 
         if 0 < d < maxDist:
             maxDist = d
@@ -208,7 +211,7 @@ def hasBallPosession(player: Player) -> bool:
     Returns:
     bool: True if the player has the ball posession, False otherwise.
     """
-    return player.ballPosession
+    return player.ballPossession
 
 
 # MARK: isFacingAt
@@ -225,7 +228,7 @@ def isFacingAt(player: Player, target: UnityObject) -> bool:
 
 
 # MARK: footPreference
-def footed(player: Player) -> Direction:
+def footed(player: Player):
     """
     The foot preference of the specified player.
 
@@ -267,7 +270,7 @@ def spaceFeet(player: Player, distance: float):
 
 
 # MARK: crouch
-def crouch(player: Player, angle: Angle):
+def crouch(player: Player, angle):
     """
     The player will crouch by bending their knees by a specified angle.
     

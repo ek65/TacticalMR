@@ -42,6 +42,7 @@ behavior expert():
     try:
         do Idle()
     interrupt when not hasBallPosession(self):
+        take SpeakAction("Hi")
         do InterceptBall(football)
     interrupt when condition1():
         do action1()
@@ -82,7 +83,7 @@ opponent = new Player ahead of ego by Uniform(8, 10),
 right_side = new Player at (20, 0, 0)
 left_side = new Player at (-20, 0, 0)
 
-football = new Ball ahead of opponent by 0.5
+football = new Ball ahead of ego by 0.5
 goal = new Goal behind ego by 8, facing away from ego
         
 terminate when (ego.gameObject.stopButton)
