@@ -60,12 +60,3 @@ behavior Pause():
     take StopAction()
 
 
-def idle(player: Player):
-    '''
-    The specified player will stay in their own place and not move.
-
-    Args:
-        player (Player): The player who will stay idle.
-
-    '''
-    do Idle()
