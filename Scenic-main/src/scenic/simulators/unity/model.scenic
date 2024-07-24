@@ -166,14 +166,14 @@ def positionInLine(start: Vector, end: Vector, distance: float) -> Vector:
 
 
 # MARK: closest
-def closest(objType: type, ref: Object, maxDist: float = float('inf')) -> Object:
+def closest(objType: type, ref: Object, max: float = float('inf')) -> Object:
     """
     Finds the closest object of a specified type to the reference object within a simulation.
 
     Args:
     type (type): The type of objects to search for.
     ref (Object): The reference object from which distances are measured.
-    maxDist (float, optional): The maximum distance threshold. Defaults to infinity.
+    max (float, optional): The maximum distance threshold. Defaults to infinity.
                            Objects further than this distance are ignored.
 
     Returns:
@@ -191,8 +191,8 @@ def closest(objType: type, ref: Object, maxDist: float = float('inf')) -> Object
 
         d = distance from Vector(0,0,0) to obj
 
-        if 0 < d < maxDist:
-            maxDist = d
+        if 0 < d < max:
+            max = d
             closer = obj
 
     return closer
