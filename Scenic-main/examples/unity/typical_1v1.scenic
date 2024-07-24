@@ -12,7 +12,7 @@ shootingDistance = Uniform (4, 8)
 
 behavior opponentBehavior():
     try:
-        do InterceptBall(ball)
+        do MoveTo(ball)
     interrupt when self.gameObject.ballPossession:
         do SetPlayerSpeed(5.0)
         do MoveTo(goal.position) for 0.1 seconds

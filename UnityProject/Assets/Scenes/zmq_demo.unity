@@ -730,6 +730,7 @@ MonoBehaviour:
   posText: {fileID: 0}
   TimeIndex: 0
   camera: {fileID: 0}
+  GlobalTimeIndex: 0
   RewindTimeIndex: 0
   maxRewindTimeIndex: 0
 --- !u!4 &82555166
@@ -2502,6 +2503,7 @@ MonoBehaviour:
   moveSpeed: 4
   exitScenario: {fileID: 0}
   countdownText: {fileID: 0}
+  language: 
   movement: {x: 0, y: 0, z: 0}
 --- !u!4 &260912233
 Transform:
@@ -13227,7 +13229,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1297644841
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13243,6 +13245,7 @@ MonoBehaviour:
   moveSpeed: 4
   exitScenario: {fileID: 0}
   countdownText: {fileID: 0}
+  language: 
   movement: {x: 0, y: 0, z: 0}
 --- !u!4 &1297644842
 Transform:
@@ -13963,7 +13966,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 460.36722, y: 0}
+  m_AnchoredPosition: {x: 680.94446, y: 0}
   m_SizeDelta: {x: 0, y: 64}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1359183744
@@ -21686,7 +21689,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 2129545209}
   m_HandleRect: {fileID: 2129545208}
   m_Direction: 2
-  m_Value: 1
+  m_Value: 0
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:

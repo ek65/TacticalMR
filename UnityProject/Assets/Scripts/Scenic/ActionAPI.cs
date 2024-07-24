@@ -136,7 +136,17 @@ public class ActionAPI : MonoBehaviour
         TimelineManager tlManager =
             GameObject.FindGameObjectWithTag("TimelineManager").GetComponent<TimelineManager>();
         tlManager.Pause();
+
     }
+    
+    public void CallUnpause()
+    {
+        // Debug.LogError("called pause");
+        TimelineManager tlManager =
+            GameObject.FindGameObjectWithTag("TimelineManager").GetComponent<TimelineManager>();
+        tlManager.Unpause();;
+    }
+
     #endregion
 
     #region API Methods for Singleton Animations

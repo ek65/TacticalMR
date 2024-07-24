@@ -545,6 +545,14 @@ class PauseAction(Action):
     def applyTo(self, obj, sim):
         obj.gameObject.DoAction(self.actionName)
 
+
+class UnpauseAction(Action):
+    def __init__(self):
+        self.actionName = "CallUnpause"
+
+    def applyTo(self, obj, sim):
+        obj.gameObject.DoAction(self.actionName)
+
 class ExplainAction(Action):
     def __init__(self, input):
         self.actionName = "Explain"

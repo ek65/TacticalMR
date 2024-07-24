@@ -40,9 +40,12 @@ behavior opponentBehavior():
 
 behavior expert():
     try:
-        do Idle()
-    interrupt when not hasBallPosession(self):
-        take SpeakAction("Hi")
+        do Idle() for 1 seconds
+        do Pause() 
+        do Speak("You should do this when precondition") 
+        do Idle() for 5 seconds
+        do Unpause() for 5 seconds
+    interrupt when hasBallPosession(self):
         do InterceptBall(football)
     interrupt when condition1():
         do action1()
@@ -74,7 +77,7 @@ behavior action2():
         do MoveTo(new_position) for 0.05 seconds
         do InterceptBall(opponent) for 0.05 seconds
 
-ego = new Player at (0, 0, 0), with behavior expert()
+ego = new Human at (0, 0, 0), with behavior expert()
 
 opponent = new Player ahead of ego by Uniform(8, 10),
                 facing directly toward ego,

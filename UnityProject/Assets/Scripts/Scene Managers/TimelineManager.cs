@@ -42,6 +42,7 @@ public class TimelineManager : MonoBehaviour
     public TextMeshProUGUI posText;
     public int TimeIndex = 0;
     public Camera camera;
+    public int GlobalTimeIndex;
 
   
     public int RewindTimeIndex = 0;
@@ -58,6 +59,7 @@ public class TimelineManager : MonoBehaviour
 
         if (pause&&!Paused)
         {
+            
             Pause();
         }
         else if(!pause&&Paused)
@@ -173,6 +175,7 @@ public void InitializeTimeline()
         else
         {
             TimeIndex += 1;
+            GlobalTimeIndex += 1;
             RewindTimeIndex += 1;
             RecordData();
         }
