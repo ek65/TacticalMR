@@ -84,21 +84,11 @@ namespace SynthNetworkKit
 
         public void UploadTask(string type, string content)
         {
-            Debug.Log(content);
-
             ServiceTask serviceTask = new ServiceTask(type, content);
-            Debug.Log("ID");
-            Debug.Log(id);
-            
             DocumentReference docRef = db.Collection("services").Document(id).Collection("tasks")
                 .Document(serviceTask.id);
             docRef.SetAsync(serviceTask);
-            
-
-            print("hi");
-            print(service.InterfaceIN);
             service.InterfaceIN.Add(serviceTask.id);
-            print(service.InterfaceIN);
 
             DocumentReference serviceRef = db.Collection("services").Document(id);
             Dictionary<string, object> updates = new Dictionary<string, object>
@@ -109,12 +99,12 @@ namespace SynthNetworkKit
 
             serviceRef.UpdateAsync(updates).ContinueWithOnMainThread(task =>
             {
-                Debug.Log("Updated the Capital field of the new-city-id document in the cities collection.");
+                Debug.Log("Updated.");
             });
         }
 
         public void StoreScene(string data, string id) {
-            Debug.Log("Scene sent to Firebase!");
+            Debug.Log("Scene sent to Firebase with id: " + id);
             // Create a secure file path in the persistent data path
             string filePath = Path.Combine(Application.persistentDataPath, id + ".json");
 

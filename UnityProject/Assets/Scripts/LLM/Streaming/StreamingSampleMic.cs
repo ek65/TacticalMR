@@ -30,7 +30,7 @@ namespace Whisper.Samples
         private async void Start()
         {
             synthConnect = GameObject.FindGameObjectWithTag("connect").GetComponent<SynthConnect>();
-            keyboard = GameObject.FindGameObjectWithTag("player").GetComponent<KeyboardInput>();
+            keyboard = GameObject.FindGameObjectWithTag("keyboard").GetComponent<KeyboardInput>();
             _stream = await whisper.CreateStream(microphoneRecord);
             _stream.OnResultUpdated += OnResult;
             _stream.OnSegmentUpdated += OnSegmentUpdated;
@@ -126,7 +126,7 @@ namespace Whisper.Samples
             Debug.Log("Final");
             Debug.Log(finalTranscription);
             keyboard.OnTranscriptionFinished(finalTranscription);
-            keyboard.language = finalTranscription;
+            keyboard.explanation = finalTranscription;
         }
 
         public void InsertAnnotationKey(int key)

@@ -84,7 +84,7 @@ public class JSONToLLM : MonoBehaviour
     void Start()
     {
         filename = Application.dataPath + "/sanjit.json";
-        keyboard = GameObject.FindGameObjectWithTag("player").GetComponent<KeyboardInput>();
+        keyboard = GameObject.FindGameObjectWithTag("keyboard").GetComponent<KeyboardInput>();
         timelineManager = GameObject.FindGameObjectWithTag("TimelineManager").GetComponent<TimelineManager>();
     }
 
@@ -131,19 +131,19 @@ public class JSONToLLM : MonoBehaviour
         }
 
         GameObject ball = objectsList.ballObject;
-        Ball ballObject = (Ball)myRootSegment.objects.Find(obj => obj is Ball b && b.id == ball.name);
+        Ball ballObject = (Ball)myRootSegment.objects.Find(obj => obj is Ball);
         if (ballObject == null)
         {
-            ballObject = new Ball { id = ball.name };
+            ballObject = new Ball { id = "ball" };
             myRootSegment.objects.Add(ballObject);
         }
         ballObject.position.Add(new Position(ball.transform.position));
 
         GameObject goal = objectsList.goalObject;
-        Goal goalObject = (Goal)myRootSegment.objects.Find(obj => obj is Goal g && g.id == goal.name);
+        Goal goalObject = (Goal)myRootSegment.objects.Find(obj => obj is Goal);
         if (goalObject == null)
         {
-            goalObject = new Goal { id = goal.name };
+            goalObject = new Goal { id = "goal" };
             myRootSegment.objects.Add(goalObject);
         }
         goalObject.position.Add(new Position(goal.transform.position));
@@ -164,7 +164,7 @@ public class JSONToLLM : MonoBehaviour
             Formatting = Formatting.Indented,
             ContractResolver = new CamelCasePropertyNamesContractResolver()
         };
-        jsonString = JsonConvert.SerializeObject(new { scene = new { id = "typical_1v1", language = keyboard.language, step = 0.02, objects = myRootSegment.objects, annotations = keyboard.GetAnnotationsAsJson() } }, settings);
+        jsonString = JsonConvert.SerializeObject(new { scene = new { id = "typical_1v1", language = keyboard.explanation, step = 0.02, objects = myRootSegment.objects, annotations = keyboard.GetAnnotationsAsJson() } }, settings);
     }
 
     public void WriteFile()

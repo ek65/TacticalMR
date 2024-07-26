@@ -25,12 +25,14 @@ public class KeyboardInput : MonoBehaviour
     private bool isAnnotationMode = false;
     private bool isReferenceMode = false;
     private bool isPositionMode = false;
-    public string language;
+    public string explanation;
 
     private GameObject firstObject = null;
     private GameObject secondObject = null;
 
     public Vector3 movement;
+
+    private bool canClick = true; // Add a boolean to track if clicking is allowed
 
     void Start()
     {
@@ -44,25 +46,19 @@ public class KeyboardInput : MonoBehaviour
         Debug.Log("KeyboardInput script initialized");
     }
 
-    // public void editJSON()
-    // {
-    //     jsonToLLM.AppendToObjects();
-    //     Debug.Log("Sent json");
-    // }
-
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.E))
+        if (Input.GetKeyDown(KeyCode.E) && gameObject.CompareTag("keyboard"))
         {
             exitScenario.EndScenario();
         }
-        if (Input.GetKeyDown(KeyCode.M))
+        if (Input.GetKeyDown(KeyCode.M) && gameObject.CompareTag("keyboard"))
         {
             jsonToLLM.WriteFile();
             StartCoroutine(JSONCoroutine());
         }
 
-        if (Input.GetKeyDown(KeyCode.P))
+        if (Input.GetKeyDown(KeyCode.P) && gameObject.CompareTag("keyboard"))
         {
             if (timelineManager.Paused)
             {
@@ -72,22 +68,16 @@ public class KeyboardInput : MonoBehaviour
             {
                 timelineManager.Pause();
                 StartCoroutine(Countdown());
-                chatBehaviour.ToggleRecording(); // Stop recording
-                Debug.Log("Chat behaviour is:" + chatBehaviour.isRecording);
-                if (!chatBehaviour.isRecording)
-                {
-                    StartCoroutine(ToggleRecordingCoroutine());
-                }
             }
         }
 
-        if (Input.GetKeyDown(KeyCode.J))
+        if (Input.GetKeyDown(KeyCode.J) && gameObject.CompareTag("keyboard"))
         {
             isAnnotationMode = !isAnnotationMode;
             Debug.Log("Annotation mode: " + (isAnnotationMode ? "ON" : "OFF"));
         }
 
-        if (Input.GetKeyDown(KeyCode.H))
+        if (Input.GetKeyDown(KeyCode.H) && gameObject.CompareTag("keyboard"))
         {
             isReferenceMode = !isReferenceMode;
             firstObject = null;
@@ -95,30 +85,33 @@ public class KeyboardInput : MonoBehaviour
             Debug.Log("Reference mode: " + (isReferenceMode ? "ON" : "OFF"));
         }
 
-        if (Input.GetKeyDown(KeyCode.L))
+        if (Input.GetKeyDown(KeyCode.L) && gameObject.CompareTag("keyboard"))
         {
             isPositionMode = !isPositionMode;
             Debug.Log("Position mode: " + (isPositionMode ? "ON" : "OFF"));
         }
 
-        if (Input.GetKeyDown(KeyCode.I))
+        if (Input.GetKeyDown(KeyCode.I) && gameObject.CompareTag("keyboard"))
         {
             streamingSampleMic.OnButtonPressed();
         }
 
-        if (isAnnotationMode && Input.GetMouseButtonDown(0))
+        if (canClick)
         {
-            HandleAnnotationMode();
-        }
+            if (isAnnotationMode && Input.GetMouseButtonDown(0))
+            {
+                StartCoroutine(HandleClickWithDelay(HandleAnnotationMode));
+            }
 
-        if (isReferenceMode && Input.GetMouseButtonDown(0))
-        {
-            HandleReferenceMode();
-        }
+            if (isReferenceMode && Input.GetMouseButtonDown(0))
+            {
+                StartCoroutine(HandleClickWithDelay(HandleReferenceMode));
+            }
 
-        if (isPositionMode && Input.GetMouseButtonDown(0))
-        {
-            HandlePositionMode();
+            if (isPositionMode && Input.GetMouseButtonDown(0))
+            {
+                StartCoroutine(HandleClickWithDelay(HandlePositionMode));
+            }
         }
 
         if (Input.GetKeyDown(KeyCode.K))
@@ -135,6 +128,14 @@ public class KeyboardInput : MonoBehaviour
                 }
             }
         }
+    }
+
+    private IEnumerator HandleClickWithDelay(System.Action handleClickAction)
+    {
+        canClick = false;
+        handleClickAction();
+        yield return new WaitForSeconds(0.5f);
+        canClick = true;
     }
 
     private void HandleAnnotationMode()
@@ -219,12 +220,11 @@ public class KeyboardInput : MonoBehaviour
         return $"(Coach is set on the position vector, {vector})";
     }
 
-
     public void OnTranscriptionFinished(string finalTranscription)
     {
         // string processedTranscription = ReplaceAnnotationKeys(finalTranscription);
         Debug.Log("Processed Transcription: " + finalTranscription);
-        synthConnect.SendExplanation(finalTranscription);
+        explanation = finalTranscription;
     }
 
     private string ReplaceAnnotationKeys(string transcription)
@@ -281,7 +281,9 @@ public class KeyboardInput : MonoBehaviour
     IEnumerator JSONCoroutine()
     {
         yield return new WaitForSeconds(2);
-        synthConnect.SendScene(jsonToLLM.jsonString,"123");
+        synthConnect.SendScene();
+        yield return new WaitForSeconds(1);
+        synthConnect.SendSceneAndExplanation();
       
     }
 
@@ -315,7 +317,7 @@ public class KeyboardInput : MonoBehaviour
     private IEnumerator Countdown()
     {
         countdownText.gameObject.SetActive(true);
-        for (int i = 5; i > 0; i--)
+        for (int i = 3; i > 0; i--)
         {
             countdownText.text = i.ToString();
             yield return new WaitForSeconds(1);
@@ -333,10 +335,6 @@ public class KeyboardInput : MonoBehaviour
             return;
         }
 
-        // THIS IS WHERE HUMAN MOVEMENT HAPPENS WITH KEYBOARD
-        // TODO: MAKE THIS BETTER WHERE WE CAN MOVE ROTATION AROUND WITH MOUSE OR ARROW KEYS AND HAVE ACCEL/DECCEL 
-        // CURRENTLY ONLY HAS SET SPEED DEFINED IN moveSpeed AND NO ACCELERATION
-        
         float horizontalInput = Input.GetAxis("Horizontal");
         float verticalInput = Input.GetAxis("Vertical");
 

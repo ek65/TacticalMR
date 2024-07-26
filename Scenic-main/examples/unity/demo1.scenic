@@ -53,11 +53,13 @@ goal = new Goal behind ego by Range(2.9,3), facing away from ego
 
 opponent1 = new Player at ball offset by Range(-1, 1) @ Range(4.6, 4.7),
                     facing toward ego,
-                    with behavior opponent1Behavior()
+                    with behavior opponent1Behavior(),
+                    with name "opponent1"
 
 
 opponent2 = new Player right of ego by Range(4, 6), 
                     facing toward opponent1,
-                    with behavior opponent2Behavior()
+                    with behavior opponent2Behavior(),
+                    with name "opponent2"
 
 terminate when (ego.gameObject.stopButton)

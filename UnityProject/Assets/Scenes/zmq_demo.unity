@@ -777,7 +777,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d56d44a0138a44a9388f84895f262f07, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  id: eddie
+  id: 126
 --- !u!4 &88982470
 Transform:
   m_ObjectHideFlags: 0
@@ -1697,6 +1697,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c0dc80f0ae29b4a44a3e1277e2812c5f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  id: 
 --- !u!1 &175918396
 GameObject:
   m_ObjectHideFlags: 0
@@ -2503,7 +2504,7 @@ MonoBehaviour:
   moveSpeed: 4
   exitScenario: {fileID: 0}
   countdownText: {fileID: 0}
-  language: 
+  explanation: 
   movement: {x: 0, y: 0, z: 0}
 --- !u!4 &260912233
 Transform:
@@ -13225,11 +13226,11 @@ GameObject:
   - component: {fileID: 1297644843}
   m_Layer: 0
   m_Name: keyboard
-  m_TagString: player
+  m_TagString: keyboard
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &1297644841
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13245,7 +13246,7 @@ MonoBehaviour:
   moveSpeed: 4
   exitScenario: {fileID: 0}
   countdownText: {fileID: 0}
-  language: 
+  explanation: 
   movement: {x: 0, y: 0, z: 0}
 --- !u!4 &1297644842
 Transform:
@@ -13966,7 +13967,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 680.94446, y: 0}
+  m_AnchoredPosition: {x: 611.9813, y: 0}
   m_SizeDelta: {x: 0, y: 64}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1359183744
@@ -21863,7 +21864,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   configuration: {fileID: 0}
-  enableDebug: 1
+  enableDebug: 0
   submitButton: {fileID: 521947367}
   inputField: {fileID: 1786694869}
   contentArea: {fileID: 1922995384}
@@ -23386,3 +23387,17 @@ MonoBehaviour:
   timelineManager: {fileID: 0}
   myRootSegment:
     timestep: 0
+--- !u!114 &777379925808647189
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 777379925808647183}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9f8740b4bec2a4be8a4d9c89941263c0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  heldByScenic: 0
+  heldByHuman: 0
