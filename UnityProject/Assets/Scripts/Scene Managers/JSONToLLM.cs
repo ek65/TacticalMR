@@ -60,6 +60,7 @@ public class JSONToLLM : MonoBehaviour
         public string id;
         public string type = "Ball";
         public List<Position> position = new List<Position>();
+        public List<Velocity> velocity = new List<Velocity>();
     }
 
     [System.Serializable]
@@ -68,6 +69,7 @@ public class JSONToLLM : MonoBehaviour
         public string id;
         public string type = "Goal";
         public List<Position> position = new List<Position>();
+        public List<Velocity> velocity = new List<Velocity>();
         // public List<Vector3> rotation = new List<Vector3>();
     }
 
@@ -139,6 +141,8 @@ public class JSONToLLM : MonoBehaviour
             myRootSegment.objects.Add(ballObject);
         }
         ballObject.position.Add(new Position(ball.transform.position));
+        Rigidbody ballRB = ball.GetComponent<Rigidbody>();
+        ballObject.velocity.Add(new Velocity(ballRB.velocity));
 
         GameObject goal = objectsList.goalObject;
         Goal goalObject = (Goal)myRootSegment.objects.Find(obj => obj is Goal);
@@ -147,6 +151,8 @@ public class JSONToLLM : MonoBehaviour
             goalObject = new Goal { id = "goal" };
             myRootSegment.objects.Add(goalObject);
         }
+        Vector3 zeroVector = Vector3.zero;
+        goalObject.velocity.Add(new Velocity(zeroVector));
         goalObject.position.Add(new Position(goal.transform.position));
         // goalObject.rotation.Add(goal.transform.rotation.eulerAngles);
     }
