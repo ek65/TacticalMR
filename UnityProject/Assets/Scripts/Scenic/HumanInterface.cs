@@ -34,6 +34,10 @@ public class HumanInterface : MonoBehaviour
 
     public string explanation;
     
+    public bool ballPossession;
+    public GameObject ball;
+    public Transform ballPosition;
+    
     // Start is called before the first frame update
     void Start()
     {
@@ -46,11 +50,22 @@ public class HumanInterface : MonoBehaviour
         circleObjects = new List<GameObject>();
         arrowObjects = new List<GameObject>();
         SpawnCircle(this.transform.position); // spawn the circle around the coach
+        
+        ballPossession = false;
+        if (ball == null)
+        {
+            ball = GameObject.FindGameObjectWithTag("ball");
+        }
     }
 
     // Update is called once per frame
     void Update()
     {
+        if (ball == null)
+        {
+            ball = GameObject.FindGameObjectWithTag("ball");
+        }
+        
         string currResponse = "";
         // if (chatBehaviour.sentences.Length > 0)
         // {
@@ -104,6 +119,22 @@ public class HumanInterface : MonoBehaviour
             circleSpawned = false;
             arrowSpawned = false;
         }
+    }
+    
+    private void GainPossession(Collision other)
+    {
+        ball.transform.position = ballPosition.position;
+        ball.transform.SetParent(ballPosition);
+        ball.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
+        ballPossession = true;
+        this.GetComponentInParent<ActionAPI>().ReceiveBall(other.transform.position);
+    }
+    
+    public void LosePossession()
+    {
+        ball.transform.SetParent(null);
+        ball.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
+        ballPossession = false;
     }
     
     public static bool ContainsAll(string source, params string[] values)
