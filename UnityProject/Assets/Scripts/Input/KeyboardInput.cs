@@ -21,6 +21,7 @@ public class KeyboardInput : MonoBehaviour
     public Dictionary<int, object> annotation = new Dictionary<int, object>();
     private Dictionary<int, string> annotationDescriptions = new Dictionary<int, string>();
     private Dictionary<GameObject, int> objectToKey = new Dictionary<GameObject, int>();
+    public Dictionary<int, float> annotationTimes = new Dictionary<int, float>();
     private int clickOrder = 0;
     private bool isAnnotationMode = false;
     private bool isReferenceMode = false;
@@ -148,6 +149,7 @@ public class KeyboardInput : MonoBehaviour
             if (objectToKey.TryGetValue(clickedObject, out int existingKey))
             {
                 streamingSampleMic.InsertAnnotationKey(existingKey); // Use existing key
+                annotationTimes.Add(existingKey, jsonToLLM.time);
                 Debug.Log($"Referred {clickedObject.name} with existing key {existingKey}");
             }
             else
@@ -156,6 +158,7 @@ public class KeyboardInput : MonoBehaviour
                 annotationDescriptions.Add(clickOrder, GetDescriptionAnnotation(clickedObject));
                 objectToKey[clickedObject] = clickOrder; // Map object to key
                 streamingSampleMic.InsertAnnotationKey(clickOrder); // Insert annotation key into transcription
+                annotationTimes.Add(clickOrder, jsonToLLM.time);
                 Debug.Log($"Added {clickedObject.name} to annotations with key {clickOrder}");
                 clickOrder++;
             }
@@ -181,6 +184,7 @@ public class KeyboardInput : MonoBehaviour
 
                 Vector3 referenceVector = secondObject.transform.position - firstObject.transform.position;
                 annotation.Add(clickOrder, referenceVector);
+                annotationTimes.Add(clickOrder, jsonToLLM.time);
                 annotationDescriptions.Add(clickOrder, GetDescriptionReference(firstObject, secondObject));
                 streamingSampleMic.InsertAnnotationKey(clickOrder); // Insert reference key into transcription
                 Debug.Log($"Added reference vector {referenceVector} to annotations with key {clickOrder}");
@@ -201,6 +205,7 @@ public class KeyboardInput : MonoBehaviour
             Vector3 clickedPosition = hit.point;
             annotation.Add(clickOrder, clickedPosition);
             annotationDescriptions.Add(clickOrder, $"(Position at {clickedPosition})");
+            annotationTimes.Add(clickOrder, jsonToLLM.time);
             streamingSampleMic.InsertAnnotationKey(clickOrder); // Insert position key into transcription
             Debug.Log($"Added position {clickedPosition} to annotations with key {clickOrder}");
             clickOrder++;

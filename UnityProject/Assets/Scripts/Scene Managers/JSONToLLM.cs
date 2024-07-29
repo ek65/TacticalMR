@@ -5,6 +5,7 @@ using UnityEngine;
 using System.IO;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using Whisper.Samples;
 
 // This script is collects all the necessary input data for ScenicSynth
 public class JSONToLLM : MonoBehaviour
@@ -15,6 +16,10 @@ public class JSONToLLM : MonoBehaviour
     public string jsonString;
     public int segments;
     public TimelineManager timelineManager;
+    public StreamingSampleMic streamingSampleMic;
+    public float time;
+    public Dictionary<float, string> tokenDictionary = new Dictionary<float, string>();
+
 
     [System.Serializable]
     public class Position
@@ -60,6 +65,7 @@ public class JSONToLLM : MonoBehaviour
         public string id;
         public string type = "Ball";
         public List<Position> position = new List<Position>();
+        public List<Velocity> velocity = new List<Velocity>();
     }
 
     [System.Serializable]
@@ -68,6 +74,7 @@ public class JSONToLLM : MonoBehaviour
         public string id;
         public string type = "Goal";
         public List<Position> position = new List<Position>();
+        public List<Velocity> velocity = new List<Velocity>();
         // public List<Vector3> rotation = new List<Vector3>();
     }
 
@@ -86,6 +93,7 @@ public class JSONToLLM : MonoBehaviour
         filename = Application.dataPath + "/sanjit.json";
         keyboard = GameObject.FindGameObjectWithTag("keyboard").GetComponent<KeyboardInput>();
         timelineManager = GameObject.FindGameObjectWithTag("TimelineManager").GetComponent<TimelineManager>();
+        streamingSampleMic = GameObject.FindGameObjectWithTag("stream").GetComponent<StreamingSampleMic>();
     }
 
     void Update()
@@ -138,6 +146,8 @@ public class JSONToLLM : MonoBehaviour
             myRootSegment.objects.Add(ballObject);
         }
         ballObject.position.Add(new Position(ball.transform.position));
+        Rigidbody ballRB = ball.GetComponent<Rigidbody>();
+        ballObject.velocity.Add(new Velocity(ballRB.velocity));
 
         GameObject goal = objectsList.goalObject;
         Goal goalObject = (Goal)myRootSegment.objects.Find(obj => obj is Goal);
@@ -146,6 +156,8 @@ public class JSONToLLM : MonoBehaviour
             goalObject = new Goal { id = "goal" };
             myRootSegment.objects.Add(goalObject);
         }
+        Vector3 zeroVector = Vector3.zero;
+        goalObject.velocity.Add(new Velocity(zeroVector));
         goalObject.position.Add(new Position(goal.transform.position));
         // goalObject.rotation.Add(goal.transform.rotation.eulerAngles);
     }
@@ -164,7 +176,21 @@ public class JSONToLLM : MonoBehaviour
             Formatting = Formatting.Indented,
             ContractResolver = new CamelCasePropertyNamesContractResolver()
         };
-        jsonString = JsonConvert.SerializeObject(new { scene = new { id = "typical_1v1", language = keyboard.explanation, step = 0.02, objects = myRootSegment.objects, annotations = keyboard.GetAnnotationsAsJson() } }, settings);
+        
+
+        jsonString = JsonConvert.SerializeObject(new
+        {
+            scene = new
+            {
+                id = "typical_1v1",
+                language = keyboard.explanation,
+                step = 0.02,
+                objects = myRootSegment.objects,
+                annotations = keyboard.GetAnnotationsAsJson(),
+                tokens = tokenDictionary,
+                clickTimes = keyboard.annotationTimes
+            }
+        }, settings);
     }
 
     public void WriteFile()
@@ -177,6 +203,8 @@ public class JSONToLLM : MonoBehaviour
 
     private void FixedUpdate()
     {
+        time += 0.02f;
+        // Debug.Log(time);
         PopulateSegment();
     }
 }
