@@ -16,10 +16,12 @@ public class ControllerInput : MonoBehaviour
 
     private float controllerDeadzone = 0.1f;
     private float gamepadRotateSmoothing = 500f;
+    private Camera cam;
 
     private void Awake()
     {
         inputSystem = new InputSystem();
+        cam = Camera.main;
     }
 
     private void OnEnable()
@@ -45,7 +47,7 @@ public class ControllerInput : MonoBehaviour
         float horizontalInput = move.ReadValue<Vector2>().x;
         float verticalInput = move.ReadValue<Vector2>().y;
 
-        forceDirection += (transform.forward * verticalInput + transform.right * horizontalInput).normalized;
+        forceDirection += (cam.transform.up * verticalInput + cam.transform.right * horizontalInput).normalized;
         
         rb.AddForce(forceDirection * movementForce, ForceMode.Impulse);
         forceDirection = Vector3.zero;
