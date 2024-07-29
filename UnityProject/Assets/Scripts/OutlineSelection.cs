@@ -8,16 +8,22 @@ public class OutlineSelection : MonoBehaviour, IPointerClickHandler, IPointerEnt
 {
     private Outline outline;
     public bool stayOutlined = false;
+    private KeyboardInput keyboardInput;
     
-    private void Awake()
+    private void Start()
     {
         outline = gameObject.GetComponent<Outline>();
+        keyboardInput = GameObject.FindGameObjectWithTag("keyboard").GetComponent<KeyboardInput>();
     }
 
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        stayOutlined = !stayOutlined;
+        if (keyboardInput.canClick)
+        {
+            stayOutlined = !stayOutlined;
+            keyboardInput.HandleAnnotationClick();
+        }
     }
     
     public void OnPointerEnter(PointerEventData eventData)

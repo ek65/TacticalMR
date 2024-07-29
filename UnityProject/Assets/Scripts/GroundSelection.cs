@@ -10,10 +10,13 @@ public class GroundSelection : MonoBehaviour, IPointerClickHandler, IPointerEnte
 
     private Camera cam;
     private RaycastHit raycastHit;
+    
+    private KeyboardInput keyboardInput;
 
-    private void Awake()
+    private void Start()
     {
         cam = Camera.main;
+        keyboardInput = GameObject.FindGameObjectWithTag("keyboard").GetComponent<KeyboardInput>();
     }
 
     private void Update()
@@ -27,8 +30,12 @@ public class GroundSelection : MonoBehaviour, IPointerClickHandler, IPointerEnte
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        GameObject go = Instantiate(groundHighligher, raycastHit.point, Quaternion.identity);
-        go.GetComponent<Collider>().enabled = true;
+        if (keyboardInput.canClick)
+        {
+            GameObject go = Instantiate(groundHighligher, raycastHit.point, Quaternion.identity);
+            go.GetComponent<Collider>().enabled = true;
+            keyboardInput.HandlePositionClick();
+        }
     }
 
     public void OnPointerEnter(PointerEventData eventData)

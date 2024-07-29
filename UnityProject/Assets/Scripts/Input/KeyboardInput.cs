@@ -33,7 +33,7 @@ public class KeyboardInput : MonoBehaviour
 
     public Vector3 movement;
 
-    private bool canClick = true; // Add a boolean to track if clicking is allowed
+    public bool canClick = true; // Add a boolean to track if clicking is allowed
 
     void Start()
     {
@@ -129,6 +129,16 @@ public class KeyboardInput : MonoBehaviour
                 }
             }
         }
+    }
+    
+    public void HandlePositionClick()
+    {
+        StartCoroutine(HandleClickWithDelay(HandlePositionMode));
+    }
+    
+    public void HandleAnnotationClick()
+    {
+        StartCoroutine(HandleClickWithDelay(HandleAnnotationMode));
     }
 
     private IEnumerator HandleClickWithDelay(System.Action handleClickAction)
@@ -339,14 +349,14 @@ public class KeyboardInput : MonoBehaviour
         // {
         //     return;
         // }
-
-        float horizontalInput = Input.GetAxis("Horizontal");
-        float verticalInput = Input.GetAxis("Vertical");
-
-        Vector3 forwardDirection = transform.forward;
-        movement = (forwardDirection * verticalInput + transform.right * horizontalInput).normalized *
-                           moveSpeed;
-
-        rb.MovePosition(rb.position + movement * Time.fixedDeltaTime);
+        //
+        // float horizontalInput = Input.GetAxis("Horizontal");
+        // float verticalInput = Input.GetAxis("Vertical");
+        //
+        // Vector3 forwardDirection = transform.forward;
+        // movement = (forwardDirection * verticalInput + transform.right * horizontalInput).normalized *
+        //                    moveSpeed;
+        //
+        // rb.MovePosition(rb.position + movement * Time.fixedDeltaTime);
     }
 }
