@@ -21,6 +21,7 @@ TagManager:
   - connect
   - stream
   - keyboard
+  - text
   layers:
   - Default
   - TransparentFX
