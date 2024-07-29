@@ -330,10 +330,10 @@ public class KeyboardInput : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (timelineManager.Paused)
-        {
-            return;
-        }
+        // if (timelineManager.Paused)
+        // {
+        //     return;
+        // }
 
         float horizontalInput = Input.GetAxis("Horizontal");
         float verticalInput = Input.GetAxis("Vertical");

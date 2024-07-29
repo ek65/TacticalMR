@@ -6,29 +6,66 @@ using UnityEngine.InputSystem;
 
 public class ControllerInput : MonoBehaviour
 {
-    public float speed;
-    private Rigidbody rb;
-    private Vector2 moveInputValue;
+    private InputSystem inputSystem;
+    private InputAction move;
+    private InputAction look;
+
+    public Rigidbody rb;
+    public float movementForce = 4f;
+    private Vector3 forceDirection = Vector3.zero;
+
+    private float controllerDeadzone = 0.1f;
+    private float gamepadRotateSmoothing = 500f;
+
+    private void Awake()
+    {
+        inputSystem = new InputSystem();
+    }
+
+    private void OnEnable()
+    {
+        move = inputSystem.PlayerControls.Move;
+        look = inputSystem.PlayerControls.Look;
+        inputSystem.PlayerControls.Enable();
+    }
     
-    // Start is called before the first frame update
-    void Start()
+    private void OnDisable()
     {
-        rb = GetComponent<Rigidbody>();
-    }
-
-    private void OnMove(InputValue value)
-    {
-        moveInputValue = value.Get<Vector2>();
-    }
-
-    private void MoveLogicMethod()
-    {
-        Vector2 result = moveInputValue * speed * Time.fixedDeltaTime;
-        rb.velocity = result;
+        inputSystem.PlayerControls.Disable();
     }
 
     private void FixedUpdate()
     {
-        MoveLogicMethod();
+        Movement();
+        Rotate();
+    }
+    
+    private void Movement()
+    {
+        float horizontalInput = move.ReadValue<Vector2>().x;
+        float verticalInput = move.ReadValue<Vector2>().y;
+
+        forceDirection += (transform.forward * verticalInput + transform.right * horizontalInput).normalized;
+        
+        rb.AddForce(forceDirection * movementForce, ForceMode.Impulse);
+        forceDirection = Vector3.zero;
+    }
+
+    private void Rotate()
+    {
+        float horizontalInput = look.ReadValue<Vector2>().x;
+        float verticalInput = look.ReadValue<Vector2>().y;
+        
+        if (Mathf.Abs(horizontalInput) > controllerDeadzone || Mathf.Abs(verticalInput) > controllerDeadzone)
+        {
+            Vector3 playerDirection = Vector3.right * horizontalInput + Vector3.forward * verticalInput;
+
+            if (playerDirection.sqrMagnitude > 0.0f)
+            {
+                Quaternion newRotation = Quaternion.LookRotation(playerDirection, Vector3.up);
+                transform.rotation = Quaternion.RotateTowards(transform.rotation, newRotation,
+                    gamepadRotateSmoothing * Time.deltaTime);
+            }
+        }
     }
 }

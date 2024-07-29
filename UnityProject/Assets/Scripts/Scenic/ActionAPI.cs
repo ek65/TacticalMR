@@ -59,7 +59,7 @@ public class ActionAPI : MonoBehaviour
             soccerBall = GameObject.FindGameObjectWithTag("ball");
         }
         
-        Debug.LogError(this.GetComponent<Animator>().runtimeAnimatorController.name);
+        // Debug.LogError(this.GetComponent<Animator>().runtimeAnimatorController.name);
     }
 
 

@@ -132,7 +132,6 @@ public class JSONToLLM : MonoBehaviour
 
         GameObject ball = objectsList.ballObject;
         Ball ballObject = (Ball)myRootSegment.objects.Find(obj => obj is Ball);
-        Debug.LogError("im here");
         if (ballObject == null)
         {
             ballObject = new Ball { id = "ball" };

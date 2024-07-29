@@ -43,7 +43,7 @@ public class HumanInterface : MonoBehaviour
     {
         exitScene = GetComponent<ExitScenario>();
         source = GetComponent<AudioSource>();
-        tlManager = GameObject.FindGameObjectWithTag("TimelineManager").GetComponent<TimelineManager>();
+        // tlManager = GameObject.FindGameObjectWithTag("TimelineManager").GetComponent<TimelineManager>();
         // npc = GameObject.FindGameObjectWithTag("Character").GetComponent<ConvaiNPC>();
         chatBehaviour = GameObject.FindGameObjectWithTag("Character").GetComponentInChildren<ChatBehaviour>();
         objectList = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<ObjectsList>();
@@ -71,7 +71,7 @@ public class HumanInterface : MonoBehaviour
         // {
         //     currResponse = chatBehaviour.sentences[chatBehaviour.sentenceIndex];
         // }
-        if (circleObjects[0] != null)
+        if (circleObjects != null && circleObjects[0] != null)
         {
             var temp = new Vector3(this.transform.position.x, 2f, this.transform.position.z);
             circleObjects[0].transform.position = temp;
