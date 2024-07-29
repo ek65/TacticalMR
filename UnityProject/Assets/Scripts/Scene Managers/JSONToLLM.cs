@@ -5,6 +5,7 @@ using UnityEngine;
 using System.IO;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using Whisper.Samples;
 
 // This script is collects all the necessary input data for ScenicSynth
 public class JSONToLLM : MonoBehaviour
@@ -15,6 +16,10 @@ public class JSONToLLM : MonoBehaviour
     public string jsonString;
     public int segments;
     public TimelineManager timelineManager;
+    public StreamingSampleMic streamingSampleMic;
+    public float time;
+    public Dictionary<float, string> tokenDictionary = new Dictionary<float, string>();
+
 
     [System.Serializable]
     public class Position
@@ -88,6 +93,7 @@ public class JSONToLLM : MonoBehaviour
         filename = Application.dataPath + "/sanjit.json";
         keyboard = GameObject.FindGameObjectWithTag("keyboard").GetComponent<KeyboardInput>();
         timelineManager = GameObject.FindGameObjectWithTag("TimelineManager").GetComponent<TimelineManager>();
+        streamingSampleMic = GameObject.FindGameObjectWithTag("stream").GetComponent<StreamingSampleMic>();
     }
 
     void Update()
@@ -171,7 +177,20 @@ public class JSONToLLM : MonoBehaviour
             Formatting = Formatting.Indented,
             ContractResolver = new CamelCasePropertyNamesContractResolver()
         };
-        jsonString = JsonConvert.SerializeObject(new { scene = new { id = "typical_1v1", language = keyboard.explanation, step = 0.02, objects = myRootSegment.objects, annotations = keyboard.GetAnnotationsAsJson() } }, settings);
+        
+
+        jsonString = JsonConvert.SerializeObject(new
+        {
+            scene = new
+            {
+                id = "typical_1v1",
+                language = keyboard.explanation,
+                step = 0.02,
+                objects = myRootSegment.objects,
+                annotations = keyboard.GetAnnotationsAsJson(),
+                tokens = tokenDictionary
+            }
+        }, settings);
     }
 
     public void WriteFile()
@@ -184,6 +203,8 @@ public class JSONToLLM : MonoBehaviour
 
     private void FixedUpdate()
     {
+        time += 0.02f;
+        Debug.Log(time);
         PopulateSegment();
     }
 }

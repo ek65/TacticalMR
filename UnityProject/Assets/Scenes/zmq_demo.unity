@@ -4443,8 +4443,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1658017394}
   m_HandleRect: {fileID: 1658017393}
   m_Direction: 0
-  m_Value: 1
-  m_Size: 1
+  m_Value: 0
+  m_Size: 0.9999997
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -12599,7 +12599,7 @@ MonoBehaviour:
   strategy: 0
   noContext: 1
   singleSegment: 1
-  enableTokens: 0
+  enableTokens: 1
   initialPrompt: 
   stepSec: 1
   keepSec: 1
@@ -12607,7 +12607,7 @@ MonoBehaviour:
   updatePrompt: 1
   dropOldBuffer: 0
   useVad: 1
-  tokensTimestamps: 0
+  tokensTimestamps: 1
   speedUp: 0
   audioCtx: 0
 --- !u!4 &1192298004
@@ -13967,7 +13967,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 611.9813, y: 0}
+  m_AnchoredPosition: {x: 470.44644, y: 0}
   m_SizeDelta: {x: 0, y: 64}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1359183744
@@ -23385,6 +23385,8 @@ MonoBehaviour:
   jsonString: 
   segments: 0
   timelineManager: {fileID: 0}
+  streamingSampleMic: {fileID: 0}
+  time: 0
   myRootSegment:
     timestep: 0
 --- !u!114 &777379925808647189

@@ -27,6 +27,8 @@ public class WhisperChat : MonoBehaviour
         _stream.OnSegmentUpdated += OnSegmentUpdated;
         _stream.OnSegmentFinished += OnSegmentFinished;
         _stream.OnStreamFinished += OnFinished;
+        whisper.enableTokens = true;
+        whisper.tokensTimestamps = true;
 
         microphoneRecord.OnRecordStop += OnRecordStop;
         button.onClick.AddListener(OnButtonPressed);
