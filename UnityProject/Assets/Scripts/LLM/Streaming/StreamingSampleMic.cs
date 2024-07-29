@@ -134,7 +134,7 @@ namespace Whisper.Samples
                         // Calculate the precise time for each token
                         if (token.Timestamp != null)
                         {
-                            float tokenTime = startTime + (float)token.Timestamp.Start.TotalSeconds;
+                            float tokenTime = startTime + (float)token.Timestamp.Start.TotalSeconds - 2.0f;
                             jsonToLLM.tokenDictionary[tokenTime] = token.Text;
                             // Log the time whenever a token gets passed
                             Debug.Log($"Token passed at audio time: {tokenTime:F2} seconds, Token: {token.Text}");
@@ -175,8 +175,8 @@ namespace Whisper.Samples
             if (!string.IsNullOrEmpty(currentSegment))
             {
                 annotationKeys.Add(key.ToString()); // Add key to the annotation list
-                currentSegment += $" [{key}]"; // Update the current segment with the new key
-                text.text = currentSegment;
+                // currentSegment += $" [{key}]"; // Update the current segment with the new key
+                // text.text = currentSegment;
                 Debug.Log($"Updated current segment with key: {currentSegment}");
                 UiUtils.ScrollDown(scroll);
             }

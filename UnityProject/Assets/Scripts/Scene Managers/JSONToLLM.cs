@@ -188,7 +188,8 @@ public class JSONToLLM : MonoBehaviour
                 step = 0.02,
                 objects = myRootSegment.objects,
                 annotations = keyboard.GetAnnotationsAsJson(),
-                tokens = tokenDictionary
+                tokens = tokenDictionary,
+                clickTimes = keyboard.annotationTimes
             }
         }, settings);
     }
@@ -204,7 +205,7 @@ public class JSONToLLM : MonoBehaviour
     private void FixedUpdate()
     {
         time += 0.02f;
-        Debug.Log(time);
+        // Debug.Log(time);
         PopulateSegment();
     }
 }
