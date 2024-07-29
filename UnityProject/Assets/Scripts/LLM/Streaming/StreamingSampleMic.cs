@@ -175,8 +175,8 @@ namespace Whisper.Samples
             if (!string.IsNullOrEmpty(currentSegment))
             {
                 annotationKeys.Add(key.ToString()); // Add key to the annotation list
-                // currentSegment += $" [{key}]"; // Update the current segment with the new key
-                // text.text = currentSegment;
+                currentSegment += $" [{key}]"; // Update the current segment with the new key
+                text.text = currentSegment;
                 Debug.Log($"Updated current segment with key: {currentSegment}");
                 UiUtils.ScrollDown(scroll);
             }
