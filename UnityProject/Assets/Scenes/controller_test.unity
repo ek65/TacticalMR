@@ -234,23 +234,23 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 5357305014472441136, guid: 54b6364f34d7b4fe4a525f86c0b5ec19, type: 3}
       propertyPath: replayIdentity.id
-      value: 44143
+      value: 47945
       objectReference: {fileID: 0}
     - target: {fileID: 5500030923864448597, guid: 54b6364f34d7b4fe4a525f86c0b5ec19, type: 3}
       propertyPath: replayIdentity.id
-      value: 52506
+      value: 6490
       objectReference: {fileID: 0}
     - target: {fileID: 5886457986238108556, guid: 54b6364f34d7b4fe4a525f86c0b5ec19, type: 3}
       propertyPath: prefabType
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5886457986238108556, guid: 54b6364f34d7b4fe4a525f86c0b5ec19, type: 3}
       propertyPath: replayIdentity.id
-      value: 14577
+      value: 30097
       objectReference: {fileID: 0}
     - target: {fileID: 7655554097699065721, guid: 54b6364f34d7b4fe4a525f86c0b5ec19, type: 3}
       propertyPath: replayIdentity.id
-      value: 6631
+      value: 20307
       objectReference: {fileID: 0}
     - target: {fileID: 7842624250203543949, guid: 54b6364f34d7b4fe4a525f86c0b5ec19, type: 3}
       propertyPath: m_LocalPosition.x
@@ -1720,6 +1720,7 @@ MonoBehaviour:
   countdownText: {fileID: 0}
   explanation: 
   movement: {x: 0, y: 0, z: 0}
+  canClick: 1
 --- !u!4 &1079519922
 Transform:
   m_ObjectHideFlags: 0
@@ -1753,47 +1754,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   groundHighligher: {fileID: 787655914}
---- !u!1 &1614666295 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 8665160898893140854, guid: 14845de90ccdf48b8a87c477627f042f, type: 3}
-  m_PrefabInstance: {fileID: 1908857432}
-  m_PrefabAsset: {fileID: 0}
---- !u!54 &1614666304 stripped
-Rigidbody:
-  m_CorrespondingSourceObject: {fileID: 1422487927, guid: 14845de90ccdf48b8a87c477627f042f, type: 3}
-  m_PrefabInstance: {fileID: 1908857432}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &1614666314
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1614666295}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  outlineMode: 0
-  outlineColor: {r: 1, g: 0, b: 1, a: 1}
-  outlineWidth: 7
-  precomputeOutline: 0
-  bakeKeys: []
-  bakeValues: []
---- !u!114 &1614666315
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1614666295}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6e039ec90476343b783a3a5a556e617d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  stayOutlined: 0
 --- !u!1 &1782099612
 GameObject:
   m_ObjectHideFlags: 0
@@ -2037,58 +1997,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 250408199, guid: 14845de90ccdf48b8a87c477627f042f, type: 3}
-      propertyPath: m_DefaultActionMap
-      value: PlayerControls
-      objectReference: {fileID: 0}
-    - target: {fileID: 250408199, guid: 14845de90ccdf48b8a87c477627f042f, type: 3}
-      propertyPath: m_NotificationBehavior
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 250408199, guid: 14845de90ccdf48b8a87c477627f042f, type: 3}
-      propertyPath: m_ActionEvents.Array.size
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 250408199, guid: 14845de90ccdf48b8a87c477627f042f, type: 3}
-      propertyPath: m_ActionEvents.Array.data[0].m_ActionId
-      value: c4d241df-acd4-4ebe-a2ba-ee9996dacee4
-      objectReference: {fileID: 0}
-    - target: {fileID: 250408199, guid: 14845de90ccdf48b8a87c477627f042f, type: 3}
-      propertyPath: m_ActionEvents.Array.data[1].m_ActionId
-      value: 4e2d5b77-8751-4c47-abac-332741239fad
-      objectReference: {fileID: 0}
-    - target: {fileID: 250408199, guid: 14845de90ccdf48b8a87c477627f042f, type: 3}
-      propertyPath: m_ActionEvents.Array.data[0].m_ActionName
-      value: PlayerControls/Move[/XboxOneGampadMacOSWireless/leftStick]
-      objectReference: {fileID: 0}
-    - target: {fileID: 250408199, guid: 14845de90ccdf48b8a87c477627f042f, type: 3}
-      propertyPath: m_ActionEvents.Array.data[1].m_ActionName
-      value: PlayerControls/Look[/XboxOneGampadMacOSWireless/rightStick]
-      objectReference: {fileID: 0}
-    - target: {fileID: 250408200, guid: 14845de90ccdf48b8a87c477627f042f, type: 3}
-      propertyPath: rb
-      value: 
-      objectReference: {fileID: 1614666304}
-    - target: {fileID: 250408200, guid: 14845de90ccdf48b8a87c477627f042f, type: 3}
-      propertyPath: movementForce
-      value: 4
-      objectReference: {fileID: 0}
-    - target: {fileID: 1422487927, guid: 14845de90ccdf48b8a87c477627f042f, type: 3}
-      propertyPath: m_Mass
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 1422487927, guid: 14845de90ccdf48b8a87c477627f042f, type: 3}
-      propertyPath: m_AngularDrag
-      value: 100
-      objectReference: {fileID: 0}
-    - target: {fileID: 2727367104962614143, guid: 14845de90ccdf48b8a87c477627f042f, type: 3}
-      propertyPath: m_TagString
-      value: text
-      objectReference: {fileID: 0}
-    - target: {fileID: 2944350079903054488, guid: 14845de90ccdf48b8a87c477627f042f, type: 3}
-      propertyPath: m_Enabled
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 5357305014472441136, guid: 14845de90ccdf48b8a87c477627f042f, type: 3}
       propertyPath: replayIdentity.id
       value: 39984
@@ -2157,16 +2065,7 @@ PrefabInstance:
       propertyPath: m_Name
       value: player.human
       objectReference: {fileID: 0}
-    - target: {fileID: 8665160898893140854, guid: 14845de90ccdf48b8a87c477627f042f, type: 3}
-      propertyPath: m_Layer
-      value: 12
-      objectReference: {fileID: 0}
-    - target: {fileID: 8665160898893140854, guid: 14845de90ccdf48b8a87c477627f042f, type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
-    m_RemovedComponents:
-    - {fileID: 6259291806004620043, guid: 14845de90ccdf48b8a87c477627f042f, type: 3}
+    m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 14845de90ccdf48b8a87c477627f042f, type: 3}
 --- !u!1 &2009202503
 GameObject:

@@ -110,6 +110,8 @@ GameObject:
   - component: {fileID: 8803845801075002306}
   - component: {fileID: 3426782299930388304}
   - component: {fileID: 2966962636597932537}
+  - component: {fileID: -6418976846775651933}
+  - component: {fileID: 2969080595326644261}
   m_Layer: 0
   m_Name: goal
   m_TagString: goal
@@ -4926,6 +4928,37 @@ ParticleSystemRenderer:
   m_MeshWeighting2: 1
   m_MeshWeighting3: 1
   m_MaskInteraction: 0
+--- !u!114 &-6418976846775651933
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8569473564287769086}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  outlineMode: 0
+  outlineColor: {r: 1, g: 0, b: 1, a: 1}
+  outlineWidth: 7
+  precomputeOutline: 0
+  bakeKeys: []
+  bakeValues: []
+--- !u!114 &2969080595326644261
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8569473564287769086}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6e039ec90476343b783a3a5a556e617d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  stayOutlined: 0
 --- !u!1 &8803845800463826213
 GameObject:
   m_ObjectHideFlags: 0

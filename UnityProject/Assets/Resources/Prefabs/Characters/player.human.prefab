@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 2924768386710636713}
   m_Layer: 0
   m_Name: FloatingText
-  m_TagString: Untagged
+  m_TagString: text
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -2954,7 +2954,6 @@ GameObject:
   - component: {fileID: -4388894118483782122}
   - component: {fileID: 2944350079903054488}
   - component: {fileID: -4495128324805177165}
-  - component: {fileID: 6259291806004620043}
   - component: {fileID: 1422487927}
   - component: {fileID: 1422487928}
   - component: {fileID: 5357305014472441136}
@@ -2964,6 +2963,8 @@ GameObject:
   - component: {fileID: 2568870781181288605}
   - component: {fileID: 250408199}
   - component: {fileID: 250408200}
+  - component: {fileID: 1614666314}
+  - component: {fileID: 1614666315}
   m_Layer: 0
   m_Name: player.human
   m_TagString: player
@@ -3175,7 +3176,7 @@ AudioListener:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8665160898893140854}
-  m_Enabled: 1
+  m_Enabled: 0
 --- !u!114 &-4495128324805177165
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3191,23 +3192,6 @@ MonoBehaviour:
   blackout: {fileID: 0}
   fade: 0
   fadeRate: 0
---- !u!114 &6259291806004620043
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8665160898893140854}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 384686566afb54528b014901628ae937, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  moveSpeed: 4
-  exitScenario: {fileID: -7641071680297636533}
-  countdownText: {fileID: 0}
-  explanation: 
-  movement: {x: 0, y: 0, z: 0}
 --- !u!54 &1422487927
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -3216,7 +3200,7 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8665160898893140854}
   serializedVersion: 2
-  m_Mass: 100
+  m_Mass: 1
   m_Drag: 0
   m_AngularDrag: 100
   m_UseGravity: 1
@@ -3251,7 +3235,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   replayIdentity:
-    id: 44058
+    id: 63609
   replayObject:
     reference: {fileID: 5886457986238108556}
   replayBodyPosition: 6
@@ -3276,7 +3260,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   instantiateIdentity: 1
   replayIdentity:
-    id: 44001
+    id: 51591
   prefabIdentity:
     id: 16648
   observedComponents:
@@ -3300,7 +3284,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   replayIdentity:
-    id: 29078
+    id: 7651
   replayObject:
     reference: {fileID: 5886457986238108556}
   replayPosition: 23
@@ -3324,7 +3308,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   replayIdentity:
-    id: 31499
+    id: 4424
   replayObject:
     reference: {fileID: 5886457986238108556}
   replayRootBonePosition: 23
@@ -3443,10 +3427,18 @@ MonoBehaviour:
   m_ControlsChangedEvent:
     m_PersistentCalls:
       m_Calls: []
-  m_ActionEvents: []
+  m_ActionEvents:
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: c4d241df-acd4-4ebe-a2ba-ee9996dacee4
+    m_ActionName: PlayerControls/Move[/XboxOneGampadMacOSWireless/leftStick]
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 4e2d5b77-8751-4c47-abac-332741239fad
+    m_ActionName: PlayerControls/Look[/XboxOneGampadMacOSWireless/rightStick]
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
-  m_DefaultActionMap: Controller
+  m_DefaultActionMap: PlayerControls
   m_SplitScreenIndex: -1
   m_Camera: {fileID: 0}
 --- !u!114 &250408200
@@ -3461,7 +3453,39 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d172ecfbd99184b849e2ff7857c1ae40, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 4
+  rb: {fileID: 1422487927}
+  movementForce: 4
+--- !u!114 &1614666314
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8665160898893140854}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  outlineMode: 0
+  outlineColor: {r: 1, g: 0, b: 1, a: 1}
+  outlineWidth: 7
+  precomputeOutline: 0
+  bakeKeys: []
+  bakeValues: []
+--- !u!114 &1614666315
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8665160898893140854}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6e039ec90476343b783a3a5a556e617d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  stayOutlined: 0
 --- !u!1 &8665160898920370538
 GameObject:
   m_ObjectHideFlags: 0
