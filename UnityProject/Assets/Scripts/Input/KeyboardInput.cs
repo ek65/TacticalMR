@@ -27,6 +27,7 @@ public class KeyboardInput : MonoBehaviour
     private bool isReferenceMode = false;
     private bool isPositionMode = false;
     public string explanation;
+    private int segmentCount;
 
     private GameObject firstObject = null;
     private GameObject secondObject = null;
@@ -53,11 +54,6 @@ public class KeyboardInput : MonoBehaviour
         {
             exitScenario.EndScenario();
         }
-        if (Input.GetKeyDown(KeyCode.M) && gameObject.CompareTag("keyboard"))
-        {
-            jsonToLLM.WriteFile();
-            StartCoroutine(JSONCoroutine());
-        }
 
         if (Input.GetKeyDown(KeyCode.P) && gameObject.CompareTag("keyboard"))
         {
@@ -68,34 +64,17 @@ public class KeyboardInput : MonoBehaviour
             else
             {
                 timelineManager.Pause();
+                if (segmentCount > 0)
+                {
+                    jsonToLLM.WriteFile();
+                    StartCoroutine(JSONCoroutine());
+                }
+                segmentCount++;
                 StartCoroutine(Countdown());
+                streamingSampleMic.OnButtonPressed();
             }
         }
-
-        if (Input.GetKeyDown(KeyCode.J) && gameObject.CompareTag("keyboard"))
-        {
-            isAnnotationMode = !isAnnotationMode;
-            Debug.Log("Annotation mode: " + (isAnnotationMode ? "ON" : "OFF"));
-        }
-
-        if (Input.GetKeyDown(KeyCode.H) && gameObject.CompareTag("keyboard"))
-        {
-            isReferenceMode = !isReferenceMode;
-            firstObject = null;
-            secondObject = null;
-            Debug.Log("Reference mode: " + (isReferenceMode ? "ON" : "OFF"));
-        }
-
-        if (Input.GetKeyDown(KeyCode.L) && gameObject.CompareTag("keyboard"))
-        {
-            isPositionMode = !isPositionMode;
-            Debug.Log("Position mode: " + (isPositionMode ? "ON" : "OFF"));
-        }
-
-        if (Input.GetKeyDown(KeyCode.I) && gameObject.CompareTag("keyboard"))
-        {
-            streamingSampleMic.OnButtonPressed();
-        }
+        
 
         if (canClick)
         {
