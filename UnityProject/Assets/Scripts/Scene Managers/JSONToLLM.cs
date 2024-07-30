@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
+using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Whisper.Samples;
@@ -167,6 +168,32 @@ public class JSONToLLM : MonoBehaviour
         PopulateSceneObjects();
         myRootSegment.timestep = timelineManager.TimeIndex;
     }
+    public void ConvertTokensToSentence()
+    {
+        var sortedTokens = tokenDictionary.OrderBy(kv => kv.Key);
+        string sentence = string.Join(" ", sortedTokens.Select(kv => kv.Value));
+        keyboard.explanation = sentence;
+        Debug.Log("Constructed Sentence: " + sentence);
+    }
+    public void ProcessTokensAndClickTimes()
+    {
+        var cleanedTokens = tokenDictionary.Where(kv => !kv.Value.Contains("[")).ToDictionary(kv => kv.Key, kv => kv.Value);
+        foreach (var clickTime in keyboard.annotationTimes)
+        {
+            var closestTime = FindClosestTime(cleanedTokens, clickTime.Value);
+            cleanedTokens[closestTime] += $" [{clickTime.Key}]";
+        }
+        tokenDictionary = cleanedTokens;
+        foreach (var token in tokenDictionary)
+        {
+            Debug.Log($"{token.Key}: {token.Value}");
+        }
+    }
+
+    float FindClosestTime(Dictionary<float, string> tokensDict, float clickTime)
+    {
+        return tokensDict.Keys.OrderBy(t => Math.Abs(t - clickTime)).First();
+    }
 
     public void CreateJSONString()
     {
@@ -177,7 +204,8 @@ public class JSONToLLM : MonoBehaviour
             ContractResolver = new CamelCasePropertyNamesContractResolver()
         };
         
-
+        ProcessTokensAndClickTimes();
+        ConvertTokensToSentence();
         jsonString = JsonConvert.SerializeObject(new
         {
             scene = new
@@ -192,6 +220,7 @@ public class JSONToLLM : MonoBehaviour
             }
         }, settings);
     }
+    
 
     public void WriteFile()
     {

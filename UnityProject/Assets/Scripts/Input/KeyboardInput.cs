@@ -27,7 +27,7 @@ public class KeyboardInput : MonoBehaviour
     private bool isReferenceMode = false;
     private bool isPositionMode = false;
     public string explanation;
-    private int segmentCount;
+    public int segmentCount;
 
     private GameObject firstObject = null;
     private GameObject secondObject = null;

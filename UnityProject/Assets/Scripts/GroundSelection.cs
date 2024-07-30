@@ -6,7 +6,7 @@ using UnityEngine.EventSystems;
 
 public class GroundSelection : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler
 {
-    public GameObject groundHighligher;
+    public GameObject groundHighlighter;
 
     private Camera cam;
     private RaycastHit raycastHit;
@@ -24,15 +24,15 @@ public class GroundSelection : MonoBehaviour, IPointerClickHandler, IPointerEnte
         Ray ray = cam.ScreenPointToRay(Input.mousePosition);
         if (Physics.Raycast(ray, out raycastHit))
         {
-            groundHighligher.transform.position = raycastHit.point;
+            groundHighlighter.transform.position = raycastHit.point;
         }
     }
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        if (keyboardInput.canClick)
+        if (keyboardInput.canClick && keyboardInput.segmentCount > 0)
         {
-            GameObject go = Instantiate(groundHighligher, raycastHit.point, Quaternion.identity);
+            GameObject go = Instantiate(groundHighlighter, raycastHit.point, Quaternion.identity);
             go.GetComponent<Collider>().enabled = true;
             keyboardInput.HandlePositionClick();
         }
@@ -40,13 +40,13 @@ public class GroundSelection : MonoBehaviour, IPointerClickHandler, IPointerEnte
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        groundHighligher.SetActive(true);
+        groundHighlighter.SetActive(true);
 
     }
     
     public void OnPointerExit(PointerEventData eventData)
     {
-        groundHighligher.SetActive(false);
+        groundHighlighter.SetActive(false);
     }
     
 }
