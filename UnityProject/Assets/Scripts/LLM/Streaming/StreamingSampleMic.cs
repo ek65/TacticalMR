@@ -134,7 +134,7 @@ namespace Whisper.Samples
                         // Calculate the precise time for each token
                         if (token.Timestamp != null)
                         {
-                            float tokenTime = startTime + (float)token.Timestamp.Start.TotalSeconds - 2.0f;
+                            float tokenTime = startTime + (float)token.Timestamp.Start.TotalSeconds - 7.0f;
                             jsonToLLM.tokenDictionary[tokenTime] = token.Text;
                             // Log the time whenever a token gets passed
                             Debug.Log($"Token passed at audio time: {tokenTime:F2} seconds, Token: {token.Text}");
