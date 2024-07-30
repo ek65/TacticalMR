@@ -17,11 +17,13 @@ public class ControllerInput : MonoBehaviour
     private float controllerDeadzone = 0.1f;
     private float gamepadRotateSmoothing = 500f;
     private Camera cam;
+    private Animator animator;
 
     private void Awake()
     {
         inputSystem = new InputSystem();
         cam = Camera.main;
+        animator = GetComponent<Animator>();
     }
 
     private void OnEnable()
@@ -46,6 +48,9 @@ public class ControllerInput : MonoBehaviour
     {
         float horizontalInput = move.ReadValue<Vector2>().x;
         float verticalInput = move.ReadValue<Vector2>().y;
+        
+        animator.SetFloat("VelX", horizontalInput * 2);
+        animator.SetFloat("VelZ", verticalInput * 2);
 
         forceDirection += (cam.transform.up * verticalInput + cam.transform.right * horizontalInput).normalized;
         
