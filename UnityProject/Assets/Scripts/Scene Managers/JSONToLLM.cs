@@ -177,8 +177,8 @@ public class JSONToLLM : MonoBehaviour
     }
     public void ProcessTokensAndClickTimes()
     {
-        var cleanedTokens = tokenDictionary.Where(kv => !kv.Value.Contains("[")).ToDictionary(kv => kv.Key, kv => kv.Value);
-        foreach (var clickTime in keyboard.annotationTimes)
+        var cleanedTokens = tokenDictionary.Where(kv => !kv.Value.Contains("[") && !kv.Value.Contains("]") && !kv.Value.Contains("BLANK"))
+            .ToDictionary(kv => kv.Key, kv => kv.Value);        foreach (var clickTime in keyboard.annotationTimes)
         {
             var closestTime = FindClosestTime(cleanedTokens, clickTime.Value);
             cleanedTokens[closestTime] += $" [{clickTime.Key}]";
