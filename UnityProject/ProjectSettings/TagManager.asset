@@ -22,6 +22,7 @@ TagManager:
   - stream
   - keyboard
   - text
+  - ground
   layers:
   - Default
   - TransparentFX
