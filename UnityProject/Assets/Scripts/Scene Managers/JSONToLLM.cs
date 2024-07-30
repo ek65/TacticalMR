@@ -133,7 +133,7 @@ public class JSONToLLM : MonoBehaviour
                 myRootSegment.objects.Add(coach);
             }
             coach.position.Add(new Position(humanPlayer.transform.position));
-            Vector3 coachVelocity = humanPlayer.GetComponent<KeyboardInput>().movement;
+            Vector3 coachVelocity = keyboard.movement;
             coach.velocity.Add(new Velocity(coachVelocity));
             // TODO: add ball posession to unity human interface
             coach.ballPossession.Add(humanPlayer.GetComponent<HumanInterface>().ballPossession);

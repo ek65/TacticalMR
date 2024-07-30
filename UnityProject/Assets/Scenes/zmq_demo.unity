@@ -2505,7 +2505,9 @@ MonoBehaviour:
   exitScenario: {fileID: 0}
   countdownText: {fileID: 0}
   explanation: 
+  segmentCount: 0
   movement: {x: 0, y: 0, z: 0}
+  canClick: 1
 --- !u!4 &260912233
 Transform:
   m_ObjectHideFlags: 0
@@ -4444,7 +4446,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 1658017393}
   m_Direction: 0
   m_Value: 0
-  m_Size: 0.9999997
+  m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -13247,7 +13249,9 @@ MonoBehaviour:
   exitScenario: {fileID: 0}
   countdownText: {fileID: 0}
   explanation: 
+  segmentCount: 0
   movement: {x: 0, y: 0, z: 0}
+  canClick: 1
 --- !u!4 &1297644842
 Transform:
   m_ObjectHideFlags: 0
@@ -13967,7 +13971,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 470.44644, y: 0}
+  m_AnchoredPosition: {x: 408.92007, y: 0}
   m_SizeDelta: {x: 0, y: 64}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1359183744
@@ -21690,7 +21694,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 2129545209}
   m_HandleRect: {fileID: 2129545208}
   m_Direction: 2
-  m_Value: 0
+  m_Value: 1
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
