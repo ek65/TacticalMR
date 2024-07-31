@@ -2963,8 +2963,8 @@ GameObject:
   - component: {fileID: 2568870781181288605}
   - component: {fileID: 250408199}
   - component: {fileID: 250408200}
-  - component: {fileID: 1614666314}
-  - component: {fileID: 1614666315}
+  - component: {fileID: 39126243697379015}
+  - component: {fileID: 6939255734782252561}
   m_Layer: 0
   m_Name: player.human
   m_TagString: player
@@ -3176,7 +3176,7 @@ AudioListener:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8665160898893140854}
-  m_Enabled: 0
+  m_Enabled: 1
 --- !u!114 &-4495128324805177165
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3200,7 +3200,7 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8665160898893140854}
   serializedVersion: 2
-  m_Mass: 1
+  m_Mass: 100
   m_Drag: 0
   m_AngularDrag: 100
   m_UseGravity: 1
@@ -3235,7 +3235,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   replayIdentity:
-    id: 63609
+    id: 44058
   replayObject:
     reference: {fileID: 5886457986238108556}
   replayBodyPosition: 6
@@ -3260,7 +3260,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   instantiateIdentity: 1
   replayIdentity:
-    id: 51591
+    id: 44001
   prefabIdentity:
     id: 16648
   observedComponents:
@@ -3284,7 +3284,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   replayIdentity:
-    id: 7651
+    id: 29078
   replayObject:
     reference: {fileID: 5886457986238108556}
   replayPosition: 23
@@ -3308,7 +3308,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   replayIdentity:
-    id: 4424
+    id: 31499
   replayObject:
     reference: {fileID: 5886457986238108556}
   replayRootBonePosition: 23
@@ -3427,15 +3427,7 @@ MonoBehaviour:
   m_ControlsChangedEvent:
     m_PersistentCalls:
       m_Calls: []
-  m_ActionEvents:
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: c4d241df-acd4-4ebe-a2ba-ee9996dacee4
-    m_ActionName: PlayerControls/Move[/XboxOneGampadMacOSWireless/leftStick]
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: 4e2d5b77-8751-4c47-abac-332741239fad
-    m_ActionName: PlayerControls/Look[/XboxOneGampadMacOSWireless/rightStick]
+  m_ActionEvents: []
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: PlayerControls
@@ -3453,9 +3445,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d172ecfbd99184b849e2ff7857c1ae40, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rb: {fileID: 1422487927}
+  rb: {fileID: 0}
   movementForce: 4
---- !u!114 &1614666314
+--- !u!114 &39126243697379015
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -3473,7 +3465,7 @@ MonoBehaviour:
   precomputeOutline: 0
   bakeKeys: []
   bakeValues: []
---- !u!114 &1614666315
+--- !u!114 &6939255734782252561
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

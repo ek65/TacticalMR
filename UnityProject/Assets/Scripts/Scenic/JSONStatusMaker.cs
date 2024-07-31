@@ -138,7 +138,7 @@ public class JSONStatusMaker : MonoBehaviour
             pData.movementData.pause = tlManager.Paused;
 
             // TODO: should change this when we have better movement system for human
-            Vector3 velo = player.GetComponent<KeyboardInput>().movement;
+            Vector3 velo = GameObject.FindGameObjectWithTag("keyboard").GetComponent<KeyboardInput>().movement;
             Vector3ToJsonClass(velo, pData.movementData.velocity);
             pData.movementData.speed = velo.magnitude;
             
