@@ -53,6 +53,7 @@ public class TimelineManager : MonoBehaviour
         Timeseries = new Dictionary<GameObject, RewindableTimeSeries>();
         rewindables = new List<Rewindable>();
         InstantiateScenicObject.Publish += InitializeOnScenicAdd;
+        camera = Camera.main;
     }
     public void NotifyPauseStatus(bool pause)
     {

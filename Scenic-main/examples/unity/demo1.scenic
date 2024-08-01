@@ -16,11 +16,6 @@ behavior opponent1Behavior():
         do Idle() 
     interrupt when ((distance from ego to self) < 4 and self.gameObject.ballPossession and distance from self to pt > 0.1):
         do Idle() for 0.5 seconds
-        ego.gameObject.pause = True
-        test = True
-        do Idle() for 2 seconds
-        ego.gameObject.pause = False
-        do Idle() for 2 seconds
         do GroundPassFast(opponent2.position)
         do Idle() for 1 seconds
         do ApproachGoal(pt)
@@ -39,6 +34,7 @@ behavior opponent2Behavior():
     try:
         do Idle()
     interrupt when (self.gameObject.ballPossession):
+        do Idle() for 1 seconds
         do GroundPassFast(pt.position)
         abort
 
