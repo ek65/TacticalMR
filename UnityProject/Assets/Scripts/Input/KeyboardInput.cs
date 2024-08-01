@@ -66,8 +66,7 @@ public class KeyboardInput : MonoBehaviour
                 timelineManager.Pause();
                 if (segmentCount > 0)
                 {
-                    jsonToLLM.WriteFile();
-                    StartCoroutine(JSONCoroutine());
+                    StartCoroutine(ChainedCoroutines());
                 }
                 segmentCount++;
                 StartCoroutine(Countdown());
@@ -274,11 +273,19 @@ public class KeyboardInput : MonoBehaviour
 
     IEnumerator JSONCoroutine()
     {
-        yield return new WaitForSeconds(2);
+        Debug.Log("Started JSON Coroutine at timestamp : " + Time.time);
+        yield return new WaitForSeconds(3);
         synthConnect.SendScene();
-        yield return new WaitForSeconds(1);
+        yield return new WaitForSeconds(2);
         synthConnect.SendSceneAndExplanation();
       
+    }
+    
+
+    IEnumerator ChainedCoroutines()
+    {
+        yield return FileCoroutine();
+        yield return JSONCoroutine();
     }
 
     IEnumerator ConditionCoroutine()
@@ -303,8 +310,8 @@ public class KeyboardInput : MonoBehaviour
 
     IEnumerator FileCoroutine()
     {
-        Debug.Log("Started Coroutine at timestamp : " + Time.time);
-        yield return new WaitForSeconds(1);
+        Debug.Log("Started File Coroutine at timestamp : " + Time.time);
+        yield return new WaitForSeconds(10);
         jsonToLLM.WriteFile();
     }
 
