@@ -21,25 +21,23 @@ namespace Whisper.Samples
         public Text text;
         public ScrollRect scroll;
         private WhisperStream _stream;
-        private List<WhisperResult> segments = new List<WhisperResult>();
-        private List<string> segmentsStrings = new List<string>();
+        private List<WhisperResult> phrases = new List<WhisperResult>();
+        private List<string> phraseStrings = new List<string>();
         private List<string> annotationKeys = new List<string>();
-        private string currentSegment = "";
+        private string currentPhrase = "";
         private string finalTranscriptionString = "";
-        private bool segmentUpdated = false;
+        private bool phraseUpdated = false;
         private KeyboardInput keyboard;
-        private SynthConnect synthConnect;
         
 
         private async void Start()
         {
-            synthConnect = GameObject.FindGameObjectWithTag("connect").GetComponent<SynthConnect>();
             keyboard = GameObject.FindGameObjectWithTag("keyboard").GetComponent<KeyboardInput>();
             jsonToLLM = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<JSONToLLM>();
             _stream = await whisper.CreateStream(microphoneRecord);
             _stream.OnResultUpdated += OnResult;
-            _stream.OnSegmentUpdated += OnSegmentUpdated;
-            _stream.OnSegmentFinished += OnSegmentFinished;
+            _stream.OnSegmentUpdated += OnPhraseUpdated;
+            _stream.OnSegmentFinished += OnPhraseFinished;
             _stream.OnStreamFinished += OnFinished;
             microphoneRecord.OnRecordStop += OnRecordStop;
             button.onClick.AddListener(OnButtonPressed);
@@ -65,126 +63,81 @@ namespace Whisper.Samples
 
         private void OnResult(string result)
         {
-            // Update the current segment with real-time transcription results
-            if (!segmentUpdated)
+            // Update the current phrase with real-time transcription results
+            if (!phraseUpdated)
             {
-                currentSegment = result;
-                segmentUpdated = true;
+                currentPhrase = result;
+                phraseUpdated = true;
             }
             else
             {
-                currentSegment += result;
+                currentPhrase += result;
             }
 
-            // Append annotation keys to the current segment
-            // foreach (var key in annotationKeys)
-            // {
-            //     currentSegment += $" [{key}]";
-            // }
-            
-
-            text.text = currentSegment;
+            text.text = currentPhrase;
             UiUtils.ScrollDown(scroll);
         }
 
-        private void OnSegmentUpdated(WhisperResult segment)
+        private void OnPhraseUpdated(WhisperResult phrase)
         {
-            print($"Segment updated: {segment.Result}");
-            currentSegment = segment.Result;
-
-            // Assuming jsonToLLM.time represents the current audio time
-            // float startTime = jsonToLLM.time;
-
-            foreach (var seg in segment.Segments)
+            print($"phrase updated: {phrase.Result}");
+            currentPhrase = phrase.Result;
+            foreach (var seg in phrase.Segments)
             {
-                // foreach (var token in seg.Tokens)
-                // {
-                //     // Calculate the precise time for each token
-                //     if (token.Timestamp != null)
-                //     {
-                //         float tokenTime = startTime + (float)token.Timestamp.Start.TotalSeconds;
-                //         jsonToLLM.tokenDictionary[tokenTime] = token.Text;
-                //         // Log the time whenever a token gets passed
-                //         Debug.Log($"Token passed at audio time: {tokenTime:F2} seconds, Token: {token.Text}");
-                //     }
-                // }
-                //
-                // // Append annotation keys to the current segment
-                // foreach (var key in annotationKeys)
-                // {
-                //     currentSegment += $" [{key}]";
-                // }
-
-                text.text = currentSegment;
+                text.text = currentPhrase;
                 UiUtils.ScrollDown(scroll);
             }
         }
 
 
-        private void OnSegmentFinished(WhisperResult segment)
+        private void OnPhraseFinished(WhisperResult phrase)
         {
-            // Finalize the current segment
-            if (segmentUpdated)
+            // Finalize the current phrase
+            if (phraseUpdated)
             {
-                // float startTime = jsonToLLM.time;
-                //
-                // foreach (var seg in segment.Segments)
-                // {
-                //     foreach (var token in seg.Tokens)
-                //     {
-                //         if (token.Timestamp != null)
-                //         {
-                //             float tokenTime = startTime + (float)token.Timestamp.Start.TotalSeconds - 7.0f;
-                //             jsonToLLM.tokenDictionary[tokenTime] = token.Text;
-                //             Debug.Log($"Token passed at audio time: {tokenTime:F2} seconds, Token: {token.Text}");
-                //         }
-                //     }
-                //     
-                //     UiUtils.ScrollDown(scroll);
-                // }
-                segments.Add(segment);
-                currentSegment = segment.Result;
-                segmentsStrings.Add(currentSegment);
-                Debug.Log($"Segment finished: {currentSegment}");
-                segmentUpdated = false;
-                currentSegment = "";
-                annotationKeys.Clear(); // Clear annotation keys for the next segment
+                phrases.Add(phrase);
+                currentPhrase = phrase.Result;
+                phraseStrings.Add(currentPhrase);
+                Debug.Log($"phrase finished: {currentPhrase}");
+                phraseUpdated = false;
+                currentPhrase = "";
+                annotationKeys.Clear(); // Clear annotation keys for the next phrase
             }
         }
 
         private void OnFinished(string finalResult)
         {
-            // Compile only the finalized segments into one final transcription
-            finalTranscriptionString = string.Join(" ", segmentsStrings);
+            // Compile only the finalized phrases into one final transcription
+            finalTranscriptionString = string.Join(" ", phraseStrings);
             text.text = finalTranscriptionString;
             Debug.Log("Final transcription:");
             Debug.Log(finalTranscriptionString);
-    
+
             keyboard.OnTranscriptionFinished(finalTranscriptionString);
-    
+
             Debug.Log("NEW TRANSCRIPTION");
-            foreach (var segment in segments)
+
+            // Initialize the key index for ordered storage
+            int tokenOrder = 0;
+
+            foreach (var phrase in phrases)
             {
-                foreach (var seg in segment.Segments)
+                foreach (var phr in phrase.Segments)
                 {
-                    foreach (var token in seg.Tokens)
+                    foreach (var token in phr.Tokens)
                     {
                         if (token.Timestamp != null)
                         {
-                            // Adjust the time as necessary
-                            float tokenTime = jsonToLLM.time + (float)token.Timestamp.Start.TotalSeconds - 22.0f;
-                    
-                            // Save token to dictionary
-                            if (!token.Text.Contains("[") && !token.Text.Contains("<") && !token.Text.Contains(".") && !token.Text.Contains(",") && !token.Text.Contains("BLANK"))
+                            // adjust the time as necessary
+                            float tokenTime = jsonToLLM.time + (float)token.Timestamp.Start.TotalSeconds - 13.5f;
+                            
+                            if (!token.IsSpecial && !token.Text.Contains("[") && !token.Text.Contains("<") && !token.Text.Contains("]"))
                             {
-                                jsonToLLM.tokenDictionary[tokenTime] = token.Text;
+                                jsonToLLM.tokenDictionary[tokenOrder] = new List<object> { token.Text, tokenTime };
+                                tokenOrder++; // Increment the order index
                             }
-                    
-                            // Add debugging information to confirm correct storage
-                            Debug.Log($"Token saved at time: {tokenTime:F2} seconds, Text: {token.Text}");
-                    
-                            // Cross-validate by printing all tokens and their times after insertion
-                            jsonToLLM.ProcessTokensAndClickTimes();
+                            Debug.Log($"Token saved at order: {tokenOrder}, Time: {tokenTime:F2} seconds, Text: {token.Text}");
+                            jsonToLLM.ProcessTokens();
                         }
                     }
                 }
@@ -193,12 +146,11 @@ namespace Whisper.Samples
 
         public void InsertAnnotationKey(int key)
         {
-            if (!string.IsNullOrEmpty(currentSegment))
+            if (!string.IsNullOrEmpty(currentPhrase))
             {
                 annotationKeys.Add(key.ToString()); // Add key to the annotation list
-                // currentSegment += $" [{key}]"; // Update the current segment with the new key
-                text.text = currentSegment;
-                Debug.Log($"Updated current segment with key: {currentSegment}");
+                // currentphrase += $" [{key}]"; // Update the current phrase with the new key
+                text.text = currentPhrase;
                 UiUtils.ScrollDown(scroll);
             }
         }

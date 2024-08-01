@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
 using System.Linq;
+using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Unity.VisualScripting.Antlr3.Runtime;
@@ -20,7 +21,8 @@ public class JSONToLLM : MonoBehaviour
     public TimelineManager timelineManager;
     public StreamingSampleMic streamingSampleMic;
     public float time;
-    public Dictionary<float, string> tokenDictionary = new Dictionary<float, string>();
+    public Dictionary<int, List<object>> tokenDictionary = new Dictionary<int, List<object>>();
+
     private string sentence;
     private Dictionary<float, string> manualTokenDictionary = new Dictionary<float, string>();
 
@@ -175,50 +177,16 @@ public class JSONToLLM : MonoBehaviour
         PopulateSceneObjects();
         myRootSegment.timestep = timelineManager.TimeIndex;
     }
+    
 
-    public void ConvertTokensToSentence()
-    {
-        sentence = string.Join(" ", tokenDictionary.Select(kv => kv.Value));
-        keyboard.explanation = sentence;
-    }
-
-    public void ProcessTokensAndClickTimes()
+    public void ProcessTokens()
     {
         // Log the tokens for debugging
         foreach (var token in tokenDictionary)
         {
             Debug.Log($"JSONTOLLM KEY saved at time: {token.Key:F2} seconds, VALUE: {token.Value}");
         }
-
-        // Populate the manualTokenDictionary with each key-value pair from the original tokenDictionary
-        foreach (var token in tokenDictionary)
-        {
-            float key = token.Key;
-
-            if (!manualTokenDictionary.ContainsKey(key))
-            {
-                // Add the key-value pair if it doesn't exist yet
-                manualTokenDictionary.Add(key, token.Value);
-            }
-            else
-            {
-                // Handle the duplicate key situation
-                string existingValue = manualTokenDictionary[key];
-
-                // Check if the existing value is a period
-                if (existingValue == "." || existingValue == ",")
-                {
-                    // Append the new value to the existing period
-                    manualTokenDictionary[key] = existingValue + token.Value;
-                    Debug.Log($"Appended '{token.Value}' to existing period at key: {key:F2}");
-                }
-                else
-                {
-                    // Log a warning and skip replacing the existing value
-                    Debug.LogWarning($"Duplicate key encountered: {key:F2}. Keeping the existing value: {existingValue}");
-                }
-            }
-        }
+        
         
         // Convert the manually created dictionary to a JSON string
         var settings = new JsonSerializerSettings
@@ -228,23 +196,71 @@ public class JSONToLLM : MonoBehaviour
             ContractResolver = new CamelCasePropertyNamesContractResolver()
         };
 
-        string manualTokenJsonString = JsonConvert.SerializeObject(manualTokenDictionary, settings);
+        string tokenJsonString = JsonConvert.SerializeObject(tokenDictionary, settings);
         // Log the manually created JSON string for verification
-        Debug.Log("Manually Created Token JSON String: " + manualTokenJsonString);
+        Debug.Log("Manually Created Token JSON String: " + tokenJsonString);
     }
 
-    float FindClosestTime(Dictionary<float, string> tokensDict, float clickTime)
+
+    private string BuildSentenceFromTokens(Dictionary<int, List<object>> dict)
     {
-        return tokensDict.Keys.OrderBy(t => Math.Abs(t - clickTime)).First();
+        foreach (var clickTime in keyboard.annotationTimes)
+        {
+            int annotationKey = clickTime.Key;
+            float clickTimestamp = clickTime.Value;
+
+            // Find the closest time in tokenDictionary (comparing the float timestamp part of List<object>)
+            int closestKey = tokenDictionary
+                .Where(pair => pair.Value.Count > 1)
+                .OrderBy(pair => Mathf.Abs((float)pair.Value[1] - clickTimestamp))
+                .FirstOrDefault().Key;
+
+            // Append the annotation key as a string to the corresponding text in the closest token list
+            if (tokenDictionary.ContainsKey(closestKey))
+            {
+                tokenDictionary[closestKey][0] = $"{tokenDictionary[closestKey][0]} [{annotationKey}]";
+                Debug.Log(
+                    $"Appended annotation key [{annotationKey}] to token at order {closestKey} with time {((float)tokenDictionary[closestKey][1]):F2} seconds");
+            }
+        }
+
+        StringBuilder sentenceBuilder = new StringBuilder();
+        bool lastWasPunctuation = false;
+
+        foreach (var tokenEntry in tokenDictionary)
+        {
+            string text = tokenEntry.Value[0] as string;
+
+            // Skip any placeholders like BLANK_AUDIO if needed
+            if (text == "BL" || text == "ANK" || text == "AUD" || text == "IO" || text == "_")
+            {
+                continue;
+            }
+
+            // Trim any leading/trailing spaces from the token
+            text = text.Trim();
+
+            // Check if the token is punctuation
+            if (text == "," || text == "." || text == "!" || text == "?")
+            {
+                sentenceBuilder.Append(text);
+                lastWasPunctuation = true;
+            }
+            else
+            {
+                if (sentenceBuilder.Length > 0 && !lastWasPunctuation && !text.StartsWith("'"))
+                {
+                    sentenceBuilder.Append(" ");
+                }
+
+                sentenceBuilder.Append(text);
+                lastWasPunctuation = false;
+            }
+        }
+        return sentenceBuilder.ToString();
     }
 
-    IEnumerator ProcessTokenCoroutine()
-    {
-        yield return new WaitForSeconds(1);
-        ProcessTokensAndClickTimes();
-    }
-    
-    
+
 
     public void CreateJSONString()
     {
@@ -255,7 +271,8 @@ public class JSONToLLM : MonoBehaviour
             ContractResolver = new CamelCasePropertyNamesContractResolver()
         };
 
-        // At this point, both coroutines have finished, and the tokenDictionary and sentence should be ready
+
+        keyboard.explanation = BuildSentenceFromTokens(tokenDictionary);
         Debug.Log("Constructed Sentence: " + keyboard.explanation);
         
         // Construct the final JSON string
@@ -268,7 +285,7 @@ public class JSONToLLM : MonoBehaviour
                 step = 0.02,
                 objects = myRootSegment.objects,
                 annotations = keyboard.GetAnnotationsAsJson(),
-                tokens = manualTokenDictionary, 
+                tokens = tokenDictionary, 
                 clickTimes = keyboard.annotationTimes
             }
         }, settings);
