@@ -16,6 +16,10 @@ public class Fade : MonoBehaviour
     {
         fade = false; //turn to false later
         fadeRate = 10.0f;
+        if (blackout == null)
+        {
+            blackout = GameObject.FindGameObjectWithTag("MainCamera").GetComponentInChildren<Image>();
+        }
     }
 
     private void Update()

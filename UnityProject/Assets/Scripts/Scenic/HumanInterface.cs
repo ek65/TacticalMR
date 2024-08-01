@@ -43,7 +43,7 @@ public class HumanInterface : MonoBehaviour
     {
         exitScene = GetComponent<ExitScenario>();
         source = GetComponent<AudioSource>();
-        // tlManager = GameObject.FindGameObjectWithTag("TimelineManager").GetComponent<TimelineManager>();
+        tlManager = GameObject.FindGameObjectWithTag("TimelineManager").GetComponent<TimelineManager>();
         // npc = GameObject.FindGameObjectWithTag("Character").GetComponent<ConvaiNPC>();
         chatBehaviour = GameObject.FindGameObjectWithTag("Character").GetComponentInChildren<ChatBehaviour>();
         objectList = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<ObjectsList>();

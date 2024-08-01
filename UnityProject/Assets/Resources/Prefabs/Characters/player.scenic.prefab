@@ -2963,7 +2963,7 @@ GameObject:
   - component: {fileID: 2568870781181288605}
   - component: {fileID: 7385747901550750330}
   - component: {fileID: 8844196116925067643}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: player.scenic
   m_TagString: player
   m_Icon: {fileID: 0}
@@ -3010,7 +3010,7 @@ Animator:
   m_Controller: {fileID: 9100000, guid: e918d2ad6334e144893385438d3b2b14, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
-  m_ApplyRootMotion: 1
+  m_ApplyRootMotion: 0
   m_LinearVelocityBlending: 0
   m_StabilizeFeet: 0
   m_WarningMessage: 
@@ -3443,7 +3443,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8665160898920370538}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.18, z: 0.6}
+  m_LocalPosition: {x: 0, y: 0.18, z: 0.4}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
