@@ -274,9 +274,9 @@ public class KeyboardInput : MonoBehaviour
     IEnumerator JSONCoroutine()
     {
         Debug.Log("Started JSON Coroutine at timestamp : " + Time.time);
-        yield return new WaitForSeconds(3);
+        yield return new WaitForSeconds(1);
         synthConnect.SendScene();
-        yield return new WaitForSeconds(2);
+        yield return new WaitForSeconds(1);
         synthConnect.SendSceneAndExplanation();
       
     }
@@ -311,7 +311,7 @@ public class KeyboardInput : MonoBehaviour
     IEnumerator FileCoroutine()
     {
         Debug.Log("Started File Coroutine at timestamp : " + Time.time);
-        yield return new WaitForSeconds(10);
+        yield return new WaitForSeconds(3);
         jsonToLLM.WriteFile();
     }
 
