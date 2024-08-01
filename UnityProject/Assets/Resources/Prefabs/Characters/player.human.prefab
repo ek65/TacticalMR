@@ -3445,7 +3445,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d172ecfbd99184b849e2ff7857c1ae40, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rb: {fileID: 0}
+  rb: {fileID: 1422487927}
   movementForce: 4
 --- !u!114 &39126243697379015
 MonoBehaviour:
