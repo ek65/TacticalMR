@@ -75,3 +75,6 @@ crashlytics-build.properties
 
 # Audio recordings
 /[Aa]ssets/[Rr]esources/Recordings/*
+
+# Whisper Models
+/[Aa]ssets/[Ss]treamingAssets/Whisper/*
