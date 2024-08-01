@@ -80,7 +80,7 @@ namespace Whisper.Samples
 
         private void OnPhraseUpdated(WhisperResult phrase)
         {
-            print($"phrase updated: {phrase.Result}");
+            Debug.Log($"phrase updated: {phrase.Result}");
             currentPhrase = phrase.Result;
             foreach (var seg in phrase.Segments)
             {

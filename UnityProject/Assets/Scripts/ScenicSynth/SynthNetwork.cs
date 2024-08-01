@@ -15,7 +15,7 @@ namespace SynthNetworkKit
 {
     public class SynthNetwork : MonoBehaviour
     {
-        [Header("Service")] [SerializeField] private string id;
+        [Header("Service")] [SerializeField] private string id; // service id
         private FirebaseFirestore db;
         private SynthService service;
 
@@ -82,6 +82,7 @@ namespace SynthNetworkKit
 
         }
 
+        // firestore sending
         public void UploadTask(string type, string content)
         {
             ServiceTask serviceTask = new ServiceTask(type, content);
@@ -103,6 +104,8 @@ namespace SynthNetworkKit
             });
         }
 
+        
+        // storing scene in storage
         public void StoreScene(string data, string id) {
             Debug.Log("Scene sent to Firebase with id: " + id);
             // Create a secure file path in the persistent data path

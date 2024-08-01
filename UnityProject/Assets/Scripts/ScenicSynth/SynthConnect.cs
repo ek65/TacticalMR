@@ -10,7 +10,7 @@ public class SynthConnect : MonoBehaviour
     private ChatBehaviour chatBehaviour;
     private SynthNetwork network;
     private JSONToLLM jsonToLLM;
-    public string id;
+    public string id; // name of the json file
     
     // Start is called before the first frame update
     void Start()
@@ -26,14 +26,17 @@ public class SynthConnect : MonoBehaviour
     //     network.UploadTask("language",explanation);
     // }
     
+
     public void SendSceneAndExplanation()
     {
+        // sends to firestore
         Debug.Log($"{id} sent to firebase!");
         network.UploadTask("scene",id);
     }
     
     public void SendScene()
     {
+        // sends to storage
         id = Guid.NewGuid().ToString();
         network.StoreScene(jsonToLLM.jsonString, id);
     }

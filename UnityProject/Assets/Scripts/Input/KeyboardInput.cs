@@ -311,7 +311,7 @@ public class KeyboardInput : MonoBehaviour
     IEnumerator FileCoroutine()
     {
         Debug.Log("Started File Coroutine at timestamp : " + Time.time);
-        yield return new WaitForSeconds(3);
+        yield return new WaitForSeconds(5);
         jsonToLLM.WriteFile();
     }
 

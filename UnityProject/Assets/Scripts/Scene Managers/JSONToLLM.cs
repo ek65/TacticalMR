@@ -198,7 +198,7 @@ public class JSONToLLM : MonoBehaviour
 
         string tokenJsonString = JsonConvert.SerializeObject(tokenDictionary, settings);
         // Log the manually created JSON string for verification
-        Debug.Log("Manually Created Token JSON String: " + tokenJsonString);
+        Debug.Log("Created Token JSON String: " + tokenJsonString);
     }
 
 

@@ -926,7 +926,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 1658017393}
   m_Direction: 0
   m_Value: 1
-  m_Size: 1
+  m_Size: 0.9999999
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -3607,7 +3607,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   logLevel: 2
-  modelPath: Whisper/ggml-base.en.bin
+  modelPath: Whisper/ggml-small.en.bin
   isModelPathInStreamingAssets: 1
   initOnAwake: 1
   language: en
@@ -3616,10 +3616,11 @@ MonoBehaviour:
   noContext: 1
   singleSegment: 1
   enableTokens: 1
-  initialPrompt: 
-  stepSec: 3
-  keepSec: 0.5
-  lengthSec: 10
+  initialPrompt: I am a soccer coach that is going to explain a strategy, specifying 
+    a condition to do an action and what action to take.
+  stepSec: 0.2
+  keepSec: 0
+  lengthSec: 5
   updatePrompt: 1
   dropOldBuffer: 0
   useVad: 1
@@ -4483,7 +4484,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -20.49292, y: -60}
+  m_AnchoredPosition: {x: -20.492859, y: -60}
   m_SizeDelta: {x: -120, y: 97.334}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &1576178246
