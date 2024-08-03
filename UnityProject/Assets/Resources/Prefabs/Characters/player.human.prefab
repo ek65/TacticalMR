@@ -110,7 +110,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 37f7804efd35d45c9a07a7e37a5010a8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  offset: {x: 0, y: 2, z: 1}
+  offset: {x: 0, y: 2.5, z: 0}
 --- !u!1 &5757360291147225856
 GameObject:
   m_ObjectHideFlags: 0
@@ -3072,6 +3072,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9fd25f0d51b674e35bb058c5b8ee2d47, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  indexTrigger: 0
+  controllerRight: 0
+  controllerLeft: 0
+  buttonX: 0
+  buttonY: 0
   endScenario: 0
 --- !u!82 &-4388894118483782122
 AudioSource:

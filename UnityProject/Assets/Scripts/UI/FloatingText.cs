@@ -10,8 +10,9 @@ public class FloatingText : MonoBehaviour
     
     void Update()
     {
-        transform.localRotation = Quaternion.Euler(90,0,0); // lock rotation
-        transform.rotation = Quaternion.Euler(90,0,0); // lock rotation
+        // transform.localRotation = Quaternion.Euler(90,0,0); // lock rotation
+        // transform.rotation = Quaternion.Euler(90,0,0); // lock rotation
+        transform.rotation = Quaternion.LookRotation(transform.position - Camera.main.transform.position);
 
         transform.position = this.transform.parent.position + offset;
     }

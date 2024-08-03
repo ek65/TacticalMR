@@ -23,6 +23,7 @@ TagManager:
   - keyboard
   - text
   - ground
+  - human
   layers:
   - Default
   - TransparentFX

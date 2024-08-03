@@ -21,11 +21,11 @@ public class GroundSelection : MonoBehaviour, IPointerClickHandler, IPointerEnte
 
     private void Update()
     {
-        Ray ray = cam.ScreenPointToRay(Input.mousePosition);
-        if (Physics.Raycast(ray, out raycastHit))
-        {
-            groundHighlighter.transform.position = raycastHit.point;
-        }
+        // Ray ray = cam.ScreenPointToRay(Input.mousePosition);
+        // if (Physics.Raycast(ray, out raycastHit))
+        // {
+        //     groundHighlighter.transform.position = raycastHit.point;
+        // }
     }
 
     public void OnPointerClick(PointerEventData eventData)

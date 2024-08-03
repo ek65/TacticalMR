@@ -50,6 +50,11 @@ public class KeyboardInput : MonoBehaviour
 
     void Update()
     {
+        if (exitScenario == null && GameObject.FindGameObjectWithTag("human") != null)
+        {
+            exitScenario = GameObject.FindGameObjectWithTag("human").GetComponent<ExitScenario>();
+        }
+        
         if (Input.GetKeyDown(KeyCode.E) && gameObject.CompareTag("keyboard"))
         {
             exitScenario.EndScenario();
@@ -117,6 +122,25 @@ public class KeyboardInput : MonoBehaviour
     public void HandleAnnotationClick()
     {
         StartCoroutine(HandleClickWithDelay(HandleAnnotationMode));
+    }
+
+    public void HandlePause()
+    {
+        if (timelineManager.Paused)
+        {
+            timelineManager.Unpause();
+        }
+        else
+        {
+            timelineManager.Pause();
+            if (segmentCount > 0)
+            {
+                StartCoroutine(ChainedCoroutines());
+            }
+            segmentCount++;
+            StartCoroutine(Countdown());
+            streamingSampleMic.OnButtonPressed();
+        }
     }
 
     private IEnumerator HandleClickWithDelay(System.Action handleClickAction)

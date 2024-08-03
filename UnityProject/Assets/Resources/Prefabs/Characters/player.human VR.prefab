@@ -847,7 +847,7 @@ GameObject:
   - component: {fileID: 7548823583122488351}
   m_Layer: 0
   m_Name: player.human VR
-  m_TagString: Untagged
+  m_TagString: human
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -921,6 +921,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9fd25f0d51b674e35bb058c5b8ee2d47, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  indexTrigger: 8192
+  controllerRight: 2
+  controllerLeft: 1
+  buttonX: 1
+  buttonY: 2
   endScenario: 0
 --- !u!82 &1690535038236189044
 AudioSource:
@@ -1048,7 +1053,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 532548465081309300}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 384686566afb54528b014901628ae937, type: 3}
   m_Name: 

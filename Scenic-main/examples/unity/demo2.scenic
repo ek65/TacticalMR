@@ -19,11 +19,6 @@ behavior opponent1Behavior():
         do Idle() 
     interrupt when ((distance from ego to self) < 4 and self.gameObject.ballPossession and distance from self to pt > 0.1):
         do Idle() for 0.5 seconds
-        ego.gameObject.pause = True
-        test = True
-        do Idle() for 2 seconds
-        ego.gameObject.pause = False
-        do Idle() for 2 seconds
         do GroundPassFast(opponent2.position)
         do Idle() for 1 seconds
         do ApproachGoal(pt)
@@ -42,17 +37,20 @@ behavior opponent2Behavior():
     try:
         do Idle()
     interrupt when (self.gameObject.ballPossession):
+        do Idle() for 1 seconds
         do GroundPassFast(pt.position)
         abort
 
 behavior coachBehavior():
     try:
         do Idle()
+    # interrupt when (distance from opponent1.position to ball < 0.5):
+    #     do LookAt(goal.position)
     interrupt when self.gameObject.pause == False and self.explained == False and (distance from opponent1.position to ball < 0.5):
         do Pause()
     interrupt when self.gameObject.pause == True and self.explained == False:
         if (self.explained == False):
-            # do Speak("Say \"" + pressExplanation + "\"")
+            do Speak("Say \"" + pressExplanation + "\"")
             self.explained = True
     interrupt when self.gameObject.pause == False and self.explained == True:
         do Idle()
@@ -68,31 +66,16 @@ ball = new Ball at ego offset by Range(-4, 4) @ Range(4, 4.5)
 pt = new Point in penalty_box
 goal = new Goal behind ego by Range(2.9,3), facing away from ego
 
-opponent1 = new OffensePlayer at ball offset by Range(-1, 1) @ Range(4.6, 4.7),
+
+opponent1 = new Player at ball offset by Range(-1, 1) @ Range(4.6, 4.7),
                     facing toward ego,
-                    with behavior opponent1Behavior()
-opponent1.name = "Opponent A"
+                    with behavior opponent1Behavior(),
+                    with name "opponent1"
 
 
-opponent2 = new OffensePlayer right of ego by Range(4, 6), 
+opponent2 = new Player right of ego by Range(4, 6), 
                     facing toward opponent1,
-                    with behavior opponent2Behavior()
-opponent2.name = "Opponent B"
+                    with behavior opponent2Behavior(),
+                    with name "opponent2"
 
 terminate when (ego.gameObject.stopButton)
-
-
-
-
-try:
-    do Idle()
-interrupt when CONDITION1():
-    do ACTION1():
-interrupt when CONDITION2():
-    do ACTION2():
-interrupt when CONDITION3():
-    do ACTION3():
-interrupt when CONDITION4():
-    do ACTION4():
- interrupt when CONDITION5():
-    do ACTION5():

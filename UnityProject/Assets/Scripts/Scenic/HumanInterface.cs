@@ -49,7 +49,7 @@ public class HumanInterface : MonoBehaviour
         objectList = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<ObjectsList>();
         circleObjects = new List<GameObject>();
         arrowObjects = new List<GameObject>();
-        SpawnCircle(this.transform.position); // spawn the circle around the coach
+        // SpawnCircle(this.transform.position); // spawn the circle around the coach
         
         ballPossession = false;
         if (ball == null)
@@ -71,15 +71,15 @@ public class HumanInterface : MonoBehaviour
         // {
         //     currResponse = chatBehaviour.sentences[chatBehaviour.sentenceIndex];
         // }
-        if (circleObjects != null && circleObjects[0] != null)
+        if (circleObjects.Count > 0 && circleObjects[0] != null)
         {
             var temp = new Vector3(this.transform.position.x, 2f, this.transform.position.z);
             circleObjects[0].transform.position = temp;
         }
-        if (currResponse != null || currResponse != "")
-        {
-            Debug.LogError("current response: " + currResponse);
-        }
+        // if (currResponse != null || currResponse != "")
+        // {
+        //     Debug.LogError("current response: " + currResponse);
+        // }
         if (!circleSpawned && ContainsAll(currResponse, "closest", "opponent"))
         {
             circleSpawned = true;

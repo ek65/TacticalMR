@@ -167,6 +167,12 @@ public class ActionAPI : MonoBehaviour
         StartCoroutine(LookTowards(receiveFrom, "Receive"));
     }
 
+    public void LookAt(Vector3 lookAtPosition)
+    {
+        stopMovement = true;
+        StartCoroutine(LookTowards(lookAtPosition, null));
+    }
+    
     public void TackleBall(Vector3 tackleFrom)
     {
         SetAnimController("Movement");

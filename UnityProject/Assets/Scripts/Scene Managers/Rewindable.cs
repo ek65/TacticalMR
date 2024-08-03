@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Pathfinding;
 using UnityEngine;
 
 public class Rewindable : MonoBehaviour
@@ -97,9 +98,11 @@ public class Rewindable : MonoBehaviour
     private void FreezeAnimation()
     {
         GetComponent<Animator>().enabled = false;
+        GetComponent<RichAI>().enabled = false;
     }
     private void UnfreezeAnimation()
     {
         GetComponent<Animator>().enabled = true;
+        GetComponent<RichAI>().enabled = true;
     }
 }
