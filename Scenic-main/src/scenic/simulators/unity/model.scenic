@@ -212,7 +212,7 @@ def hasBallPosession(player: Player) -> bool:
     Returns:
     bool: True if the player has the ball posession, False otherwise.
     """
-    return player.ballPossession
+    return player.gameObject.ballPossession
 
 
 # MARK: isFacingAt

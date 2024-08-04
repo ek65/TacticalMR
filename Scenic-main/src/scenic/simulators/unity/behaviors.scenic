@@ -2,8 +2,6 @@ from scenic.simulators.unity.actions import *
 from enum import Enum
 model scenic.simulators.unity.model
 
-
-
 # Language: scenic (python)
 # This file defines all shared scenic behaviors. In order to use any behavior defined
 # here, add "from scenic.simulators.vr.behaviors import *" to the top of the scenic file
@@ -14,7 +12,8 @@ behavior Idle():
         take IdleAction()
 
 behavior ShootBall(vec : Vector, string : str):
-    take ShootAction(vec, string, "Shoot Ball")
+    while (hasBallPosession(self)):
+        take ShootAction(vec, string, "Shoot Ball")
     take StopAction()
 
 behavior InterceptBall(ball):
@@ -24,7 +23,8 @@ behavior InterceptBall(ball):
     take StopAction()
 
 behavior GroundPassFast(vec : Vector):
-    take GroundPassFastAction(vec, "Pass Ball")
+    while (hasBallPosession(self)):
+        take GroundPassFastAction(vec, "Pass Ball")
     take StopAction()
 
 behavior LookAt(vec : Vector):
@@ -71,16 +71,12 @@ behavior Unpause():
     take UnpauseAction()
     take StopAction()
 
-
-# MARK: MovingStyle
-class MovingStyle(Enum):
-    WALK = 'walk'
-    RUN = 'run'
-    SPRINT = 'sprint'
-
+behavior WaitFor(timesteps):
+    for i in range(timesteps):
+        take StopAction()
 
 # MARK: moveTo
-behavior moveTo(targetPosition: Vector, style: MovingStyle):
+behavior moveTo(player: Player, target: Coordinate, style: MovingStyle, speed: Speed):
     """
     A player will move to the specified target with a specified velocity and style.
 
@@ -89,12 +85,10 @@ behavior moveTo(targetPosition: Vector, style: MovingStyle):
         style (MovingStyle): A moving style out of the options 'walk', 'run' and 'sprint'.
         velocity (float): The velocity to move to the target.
     """
-    if style == MovingStyle.WALK:
-        take MoveToWithSpeed(targetPosition, 1)
-    elif style == MovingStyle.RUN:
-        take MoveToWithSpeed(targetPosition, 3)
-    else:
-        take MoveToWithSpeed(targetPosition, 5)
+    target_position = target.predict()
+    target_speed = speed.predict()
+    print("destination: ", target_position)
+    take MoveToWithSpeed(target_position, target_speed)
 
 
 # MARK: faceTowards

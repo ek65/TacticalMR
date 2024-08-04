@@ -2,6 +2,7 @@ from scenic.core.simulators import Action
 from scenic.core.vectors import Vector
 from scenic.core.object_types import OrientedPoint, Point
 from scenic.simulators.unity.client import *
+from enum import Enum
 
 # Language: Python 3
 # This file holds all base actions defined for scenic
@@ -583,3 +584,66 @@ class ExplainAction(Action):
     def applyTo(self, obj, sim):
         obj.gameObject.DoAction(self.actionName, self.input)
 
+# MARK: MovingStyle
+class MovingStyle(Enum):
+    WALK = 'walk'
+    RUN = 'run'
+    SPRINT = 'sprint'
+
+class CoordinateInit(Enum):
+    RELATIVE = 'relative'
+
+class Coordinate():
+    def __init__(self, init: CoordinateInit, ref):
+        self.init = init
+        self.ref = ref
+        self.weights = {}
+
+    def weighted(self, weights):
+        self.weights = weights
+        return self
+
+    def predict(self):
+        weighted = {}
+        for obj in self.ref:
+            # print("type(obj): ", str(type(obj)))
+            # print("obj.position: ", obj.position)
+
+            w, m, wi = 0, 0, 0
+            for w_obj, weight in self.weights.items():
+                if isinstance(obj, type(w_obj)):
+                    wi += 1
+                    if "Player" in str(type(w_obj)) and obj.gameObject.ballPossession == w_obj.gameObject.ballPossession:
+                        wi += 1
+                                
+                if wi > m:
+                    m = wi
+                    w = weight
+
+            weighted[obj] = w
+
+        destination = Vector(sum([w * obj.position.x for obj, w in weighted.items()])/ len(weighted.keys()),
+                    sum([w * obj.position.y for obj, w in weighted.items()])// len(weighted.keys()))
+        
+        # print("destination: ", destination)
+
+        return destination
+
+
+class SpeedInit(Enum):
+    MAGNITUDE = 'magnitude'
+    RELATIVE = 'relative'
+    PROPORTIONAL = 'proportional'
+
+class Speed():
+    def __init__(self, init: SpeedInit, ref = None):
+        self.init = init
+        self.ref = ref
+        self.weight = 0.0
+
+    def weighted(self, weight: float):
+        self.weight = weight # TODO: the weight should be a dictionary with respect to a referenced object like Coordinate
+        return self
+
+    def predict(self):
+        return float(5) # TODO: actually compute
