@@ -34,8 +34,6 @@ class UnityObject:
     width : 0.0
     length : 0.0
     height : 0.0
-    viewAngle: 90 deg
-    visibleDistance: 10
 
 class Angle:
     angle : 0
@@ -95,7 +93,6 @@ class Human(UnityObject):
     team : "blue"
     path : None
     name : "Coach"
-    viewAngle: 90 deg
 
 class AIAgent(UnityObject):
     gameObjectType : "aiAgent"
@@ -214,7 +211,7 @@ def hasBallPosession(player: Player) -> bool:
     Returns:
     bool: True if the player has the ball posession, False otherwise.
     """
-    return player.gameObject.ballPossession
+    return player.ballPossession
 
 
 # MARK: isFacingAt
