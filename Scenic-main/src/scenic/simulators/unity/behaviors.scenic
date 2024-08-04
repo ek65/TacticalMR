@@ -12,7 +12,8 @@ behavior Idle():
         take IdleAction()
 
 behavior ShootBall(vec : Vector, string : str):
-    take ShootAction(vec, string, "Shoot Ball")
+    while (hasBallPosession(self)):
+        take ShootAction(vec, string, "Shoot Ball")
     take StopAction()
 
 behavior InterceptBall(ball):
@@ -22,7 +23,8 @@ behavior InterceptBall(ball):
     take StopAction()
 
 behavior GroundPassFast(vec : Vector):
-    take GroundPassFastAction(vec, "Pass Ball")
+    while (hasBallPosession(self)):
+        take GroundPassFastAction(vec, "Pass Ball")
     take StopAction()
 
 behavior ApproachGoal(v):
@@ -59,7 +61,9 @@ behavior Unpause():
     take UnpauseAction()
     take StopAction()
 
-
+behavior WaitFor(timesteps):
+    for i in range(timesteps):
+        take StopAction()
 
 # MARK: moveTo
 behavior moveTo(player: Player, target: Coordinate, style: MovingStyle, speed: Speed):
@@ -71,11 +75,10 @@ behavior moveTo(player: Player, target: Coordinate, style: MovingStyle, speed: S
         style (MovingStyle): A moving style out of the options 'walk', 'run' and 'sprint'.
         velocity (float): The velocity to move to the target.
     """
-    
     target_position = target.predict()
     target_speed = speed.predict()
-    while (distance from self to target_position > 0.5):
-        take MoveToWithSpeed(target_position, target_speed)
+    print("destination: ", target_position)
+    take MoveToWithSpeed(target_position, target_speed)
 
 
 # MARK: faceTowards

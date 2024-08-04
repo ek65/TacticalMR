@@ -587,6 +587,9 @@ class Coordinate():
     def predict(self):
         weighted = {}
         for obj in self.ref:
+            # print("type(obj): ", str(type(obj)))
+            # print("obj.position: ", obj.position)
+
             w, m, wi = 0, 0, 0
             for w_obj, weight in self.weights.items():
                 if isinstance(obj, type(w_obj)):
@@ -599,9 +602,13 @@ class Coordinate():
                     w = weight
 
             weighted[obj] = w
+
+        destination = Vector(sum([w * obj.position.x for obj, w in weighted.items()])/ len(weighted.keys()),
+                    sum([w * obj.position.y for obj, w in weighted.items()])// len(weighted.keys()))
         
-        return Vector(sum([w * obj.position.x for obj, w in weighted.items()]),
-                    sum([w * obj.position.y for obj, w in weighted.items()]))
+        # print("destination: ", destination)
+
+        return destination
 
 
 class SpeedInit(Enum):
