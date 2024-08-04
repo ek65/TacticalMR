@@ -1,12 +1,14 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Oculus.Interaction;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
 public class GroundSelection : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler
 {
     public GameObject groundHighlighter;
+    public GameObject newGroundHighlighter;
 
     private Camera cam;
     private RaycastHit raycastHit;
@@ -21,18 +23,36 @@ public class GroundSelection : MonoBehaviour, IPointerClickHandler, IPointerEnte
 
     private void Update()
     {
+        if (cam == null)
+        {
+            cam = Camera.main;
+        }
         // Ray ray = cam.ScreenPointToRay(Input.mousePosition);
         // if (Physics.Raycast(ray, out raycastHit))
         // {
         //     groundHighlighter.transform.position = raycastHit.point;
         // }
+        
+        // android raycast
+        if (GameObject.FindGameObjectWithTag("human") != null)
+        {
+            Ray ray = GameObject.FindGameObjectWithTag("RightRay").GetComponent<RayInteractor>().Ray;
+            if (Physics.Raycast(ray, out raycastHit))
+            {
+                if (raycastHit.transform.gameObject.CompareTag("Ground"))
+                {
+                    groundHighlighter.transform.position = raycastHit.point;
+                }
+            }
+        }
+        
     }
 
     public void OnPointerClick(PointerEventData eventData)
     {
         if (keyboardInput.canClick && keyboardInput.segmentCount > 0)
         {
-            GameObject go = Instantiate(groundHighlighter, raycastHit.point, Quaternion.identity);
+            GameObject go = Instantiate(newGroundHighlighter, raycastHit.point, Quaternion.identity);
             go.GetComponent<Collider>().enabled = true;
             keyboardInput.HandlePositionClick();
         }
@@ -48,5 +68,30 @@ public class GroundSelection : MonoBehaviour, IPointerClickHandler, IPointerEnte
     {
         groundHighlighter.SetActive(false);
     }
+    
+#if UNITY_ANDROID
+    public void OnRayClick()
+    {
+        if (keyboardInput.canClick)
+        {
+            GameObject go = Instantiate(newGroundHighlighter, raycastHit.point, Quaternion.identity);
+            // go.GetComponent<Collider>().enabled = true;
+            // keyboardInput.HandlePositionClick();
+        }
+        // Debug.Log("Ray Clicked");
+        // GameObject go = Instantiate(newGroundHighlighter, raycastHit.point, Quaternion.identity);
+    }
+    
+    public void OnRayEnter()
+    {
+        groundHighlighter.SetActive(true);
+
+    }
+    
+    public void OnRayExit()
+    {
+        groundHighlighter.SetActive(false);
+    }
+#endif
     
 }

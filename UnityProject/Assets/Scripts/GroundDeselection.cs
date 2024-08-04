@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -10,5 +11,12 @@ public class GroundDeselection : MonoBehaviour, IPointerClickHandler
         // if (eventData.button == PointerEventData.InputButton.Right)
         Destroy(this.gameObject);
     }
-    
+
+    public void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.CompareTag("human") && !this.gameObject.CompareTag("Ground"))
+        {
+            Destroy(this.gameObject);
+        }
+    }
 }

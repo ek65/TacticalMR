@@ -24,6 +24,8 @@ TagManager:
   - text
   - ground
   - human
+  - LeftRay
+  - RightRay
   layers:
   - Default
   - TransparentFX

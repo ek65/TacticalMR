@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Oculus.Interaction;
 using UnityEngine;
 using UltimateReplay;
 using UltimateReplay.Storage;
@@ -46,6 +47,11 @@ public class ExitScenario : MonoBehaviour
             keyboardInput.HandlePause();
         }
         
+        if (OVRInput.GetDown(buttonX, controllerLeft))
+        {
+            ToggleRayInteractor();
+        }
+        
         // TODO: enable this for recording & playback, put this in another class and call from Keyboard Input
         // if(OVRInput.GetDown(buttonX, controllerLeft) && !recordingActive)
         // {
@@ -84,6 +90,22 @@ public class ExitScenario : MonoBehaviour
         //     ReplayPlaybackOperation playbackOp = ReplayManager.BeginPlayback(storage);
         // }
 
+    }
+
+    public void ToggleRayInteractor()
+    {
+        if (GameObject.FindGameObjectWithTag("human") != null)
+        {
+            RayInteractor rayInteractor = GameObject.FindGameObjectWithTag("RightRay").GetComponent<RayInteractor>();
+            if (rayInteractor.enabled)
+            {
+                rayInteractor.enabled = false;
+            }
+            else
+            {
+                rayInteractor.enabled = true;
+            }
+        }
     }
     
     // Sets the endScenario flag to true. Scenic reads this and will terminate, and generate a new simulation

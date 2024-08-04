@@ -39,4 +39,28 @@ public class OutlineSelection : MonoBehaviour, IPointerClickHandler, IPointerEnt
         }
     }
     
+#if UNITY_ANDROID
+    public void OnRayClick()
+    {
+        if (keyboardInput.canClick)
+        {
+            // CLICKED
+            // keyboardInput.HandleAnnotationClick();
+        }
+    }
+    
+    public void OnRayEnter()
+    {
+        outline.enabled = true;
+    }
+    
+    public void OnRayExit()
+    {
+        if (stayOutlined == false)
+        {
+            outline.enabled = false;
+        }
+    }
+#endif
+    
 }
