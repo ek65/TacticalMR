@@ -34,6 +34,8 @@ class UnityObject:
     width : 0.0
     length : 0.0
     height : 0.0
+    viewAngle: 90 deg
+    visibleDistance: 10
 
 class Angle:
     angle : 0
