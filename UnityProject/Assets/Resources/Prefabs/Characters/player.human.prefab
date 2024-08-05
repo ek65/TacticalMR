@@ -3064,6 +3064,9 @@ MonoBehaviour:
   ballPossession: 0
   ball: {fileID: 0}
   ballPosition: {fileID: 8665160898920370539}
+  behavior: Idle
+  currAction: No Action
+  floatingText: {fileID: 2924768386710636713}
   ally: 0
   shirt: {fileID: 8665160898560163737}
 --- !u!114 &-7641071680297636533

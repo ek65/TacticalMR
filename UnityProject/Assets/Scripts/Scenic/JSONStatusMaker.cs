@@ -143,6 +143,9 @@ public class JSONStatusMaker : MonoBehaviour
             Vector3 velo = GameObject.FindGameObjectWithTag("keyboard").GetComponent<KeyboardInput>().movement;
             Vector3ToJsonClass(velo, pData.movementData.velocity);
             pData.movementData.speed = velo.magnitude;
+            HumanInterface hI = player.GetComponent<HumanInterface>();
+            pData.movementData.ballPossession = hI.ballPossession;
+            pData.movementData.behavior = hI.behavior;
             
             // rotation stuff for VR camera, not needed for now
             // GameObject camera = GameObject.FindGameObjectWithTag("MainCamera");
@@ -153,6 +156,7 @@ public class JSONStatusMaker : MonoBehaviour
         {
             PlayerInterface pI = player.GetComponent<PlayerInterface>();
             pData.movementData.ballPossession = pI.ballPossession;
+            pData.movementData.behavior = pI.behavior;
             Vector3 velo = pI.currVelocity;
             Vector3ToJsonClass(velo, pData.movementData.velocity);
             pData.movementData.speed = velo.magnitude;
@@ -253,6 +257,7 @@ public class JSONStatusMaker : MonoBehaviour
             ballPossession = false;
             heldByHuman = false;
             heldByScenic = false;
+            behavior = "";
         }
         public Vector3Json transform { get; set; }
         public float speed { get; set; }
@@ -264,6 +269,7 @@ public class JSONStatusMaker : MonoBehaviour
         public bool ballPossession { get; set; }
         public bool heldByHuman { get; set; }
         public bool heldByScenic { get; set; }
+        public string behavior { get; set; }
         
     }
     public class ControllerInputData
