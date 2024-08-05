@@ -5,6 +5,7 @@ using UnityEngine;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Unity.VisualScripting.Antlr3.Runtime;
@@ -226,13 +227,16 @@ public class JSONToLLM : MonoBehaviour
 
         StringBuilder sentenceBuilder = new StringBuilder();
         bool lastWasPunctuation = false;
-
+        
+        
         foreach (var tokenEntry in tokenDictionary)
         {
-            string text = tokenEntry.Value[0] as string;
-
+            string text = tokenEntry.Value[0] as string;        
+            
             // Skip any placeholders like BLANK_AUDIO if needed
-            if (text == "BL" || text == "ANK" || text == "AUD" || text == "IO" || text == "_")
+            List<string> unwantedTokens = new List<string> { "BL", "ANK", "AUD", "IO", "_", "urn", "@", "sc", "hem", "as.com", "uk" };
+
+            if (unwantedTokens.Any(unwanted => text.Contains(unwanted)))
             {
                 continue;
             }
@@ -257,20 +261,31 @@ public class JSONToLLM : MonoBehaviour
                 lastWasPunctuation = false;
             }
         }
+        
         return sentenceBuilder.ToString();
     }
 
-
+    public void ResetSegmentData()
+    {
+        myRootSegment = new RootSegment();
+        tokenDictionary.Clear();  // Clear token dictionary
+        keyboard.explanation = "";
+        Debug.Log("EXPLANATION AFTER RESET:");
+        Debug.Log(keyboard.explanation);
+        Debug.Log("AFTER RESET TOKENS");
+        ProcessTokens();
+        Debug.Log("Segment data has been reset.");
+    }
 
     public void CreateJSONString()
     {
         var settings = new JsonSerializerSettings
         {
             ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
-            Formatting = Formatting.Indented,
+            Formatting = Formatting.Indented
+            ,
             ContractResolver = new CamelCasePropertyNamesContractResolver()
         };
-
 
         keyboard.explanation = BuildSentenceFromTokens(tokenDictionary);
         Debug.Log("Constructed Sentence: " + keyboard.explanation);

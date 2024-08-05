@@ -42,6 +42,7 @@ namespace Whisper.Samples
             microphoneRecord.OnRecordStop += OnRecordStop;
             button.onClick.AddListener(OnButtonPressed);
         }
+        
 
         public void OnButtonPressed()
         {
@@ -54,6 +55,18 @@ namespace Whisper.Samples
                 microphoneRecord.StopRecord();
 
             buttonText.text = microphoneRecord.IsRecording ? "Stop" : "Record";
+        }
+        
+        public void ResetTranscriptionData()
+        {
+            phrases.Clear();
+            phraseStrings.Clear();
+            currentPhrase = "";
+            finalTranscriptionString = "";
+            annotationKeys.Clear();
+            keyboard.explanation = "";  // Clear the explanation in KeyboardInput
+            jsonToLLM.ResetSegmentData();  // Clear tokens in JSONToLLM
+            Debug.Log("Transcription data has been reset.");
         }
 
         private void OnRecordStop(AudioChunk recordedAudio)
@@ -129,7 +142,7 @@ namespace Whisper.Samples
                         if (token.Timestamp != null)
                         {
                             // adjust the time as necessary
-                            float tokenTime = jsonToLLM.time + (float)token.Timestamp.Start.TotalSeconds - 13.5f;
+                            float tokenTime = jsonToLLM.time + (float)token.Timestamp.Start.TotalSeconds - 18f;
                             
                             if (!token.IsSpecial && !token.Text.Contains("[") && !token.Text.Contains("<") && !token.Text.Contains("]"))
                             {

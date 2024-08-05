@@ -68,9 +68,13 @@ public class KeyboardInput : MonoBehaviour
                 {
                     StartCoroutine(ChainedCoroutines());
                 }
-                segmentCount++;
-                StartCoroutine(Countdown());
                 streamingSampleMic.OnButtonPressed();
+                if (segmentCount > 0)
+                {
+                    StartCoroutine(ProcessAudioAndReactivateMic());
+                    Debug.Log("Started new segment recording");
+                }
+                segmentCount++;
             }
         }
         
@@ -109,6 +113,17 @@ public class KeyboardInput : MonoBehaviour
         }
     }
     
+    
+    private void ResetJsonData()
+    {
+        annotation.Clear();
+        annotationDescriptions.Clear();
+        objectToKey.Clear();
+        annotationTimes.Clear();
+        clickOrder = 0;
+        streamingSampleMic.ResetTranscriptionData();
+        jsonToLLM.ResetSegmentData(); 
+    }
     public void HandlePositionClick()
     {
         StartCoroutine(HandleClickWithDelay(HandlePositionMode));
@@ -125,6 +140,12 @@ public class KeyboardInput : MonoBehaviour
         handleClickAction();
         yield return new WaitForSeconds(0.5f);
         canClick = true;
+    }
+    private IEnumerator ProcessAudioAndReactivateMic()
+    {
+        yield return Countdown(); 
+        streamingSampleMic.OnButtonPressed(); // Reactivate the mic
+        Debug.Log("Microphone reactivated.");
     }
 
     // private void HandleAnnotationMode()
@@ -305,15 +326,14 @@ public class KeyboardInput : MonoBehaviour
         yield return FileCoroutine();
         yield return JSONCoroutine();
     }
+    
 
-    IEnumerator ConditionCoroutine()
+    IEnumerator ResetCoroutine()
     {
         Debug.Log("Started Coroutine at timestamp : " + Time.time);
-        yield return new WaitForSeconds(2);
-        chatBehaviour.SubmitCombinedInput("condition");
-        yield return new WaitForSeconds(2);
-        StartCoroutine(ActionCoroutine());
-        Debug.Log("Finished Coroutine at timestamp : " + Time.time);
+        yield return new WaitForSeconds(1);
+        ResetJsonData();  
+        yield return new WaitForSeconds(1);
     }
 
     IEnumerator ActionCoroutine()
@@ -329,21 +349,21 @@ public class KeyboardInput : MonoBehaviour
     IEnumerator FileCoroutine()
     {
         Debug.Log("Started File Coroutine at timestamp : " + Time.time);
-        yield return new WaitForSeconds(5);
+        yield return new WaitForSeconds(8);
         jsonToLLM.WriteFile();
+        ResetJsonData();
     }
 
     private IEnumerator Countdown()
     {
         countdownText.gameObject.SetActive(true);
-        for (int i = 3; i > 0; i--)
+        for (int i = 5; i > 0; i--)
         {
             countdownText.text = i.ToString();
             yield return new WaitForSeconds(1);
         }
 
-        countdownText.text = "GO";
-        yield return new WaitForSeconds(1);
+        countdownText.text = "SPEAK";
         countdownText.gameObject.SetActive(false);
     }
 
