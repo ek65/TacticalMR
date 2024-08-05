@@ -33,6 +33,7 @@ behavior opponent2Behavior(pt):
     try:
         do Idle()
     interrupt when (self.gameObject.ballPossession):
+        print("opponent2 interrupt")
         do Idle() for 0.5 seconds
         do GroundPassFast(pt.position)
         do Idle() for 0.5 seconds
@@ -53,9 +54,9 @@ behavior coachBehavior():
     print(distance from opponent2 to ball)
     do moveToLookAtBall(self, Coordinate(CoordinateInit.RELATIVE, ref = [opponent1, goal]).weighted({opponent1: 1, goal: 1}), [opponent1, goal], Speed(SpeedInit.MAGNITUDE)) until distance from opponent2 to ball < 1.5
     print(distance from opponent2 to ball)
+    
     do Idle() until closeToBall(opponent2, 5)
-
-    do Idle() until closeToBall(opponent2)
+    # do Idle() until closeToBall(opponent2)
     do Pause()
     do Speak("Say \"" + "Note that, after passing,the opponent runs towards the goal. Make sure you move back to guard your space behind while closing the shot angle like this." + "\"")
     do Idle() for 7 seconds
@@ -68,7 +69,7 @@ behavior coachBehavior():
     # do moveToLookAtBall(self, Coordinate(CoordinateInit.RELATIVE, ref = [opponent1, opponent2, goal]).weighted({opponent1: 0.05, opponent2: 0.9, goal: 1}), [opponent1, opponent2, goal], Speed(SpeedInit.MAGNITUDE)) until (hasBallPosession(opponent2) and distance from opponent1 to goal < 5)
 
     # do Idle() until hasBallPosession(opponent2) and opponent2.gameObject.behavior == "Pass Ball"
-    
+    do Idle() until closeToBall(opponent1,3)
     do Pause()
     do Speak("Say \"" + "Again, guard the space behind you while closing the shot angle." + "\"")
     do Idle() for 7 seconds
