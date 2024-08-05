@@ -16,14 +16,14 @@ behavior opponent1Behavior(pt):
         do InterceptBall(ball)
         do Idle() 
 
-    interrupt when (not first_possession and self.gameObject.ballPossession):
+    interrupt when (not first_possession and self.gameObject.ballPossession and ego.gameObject.pause == False):
         do Idle() for 1 seconds
         do GroundPassFast(opponent2.position)
         do Idle() for 0.5 seconds
         first_possession = True
         do ApproachGoal(pt)
 
-    interrupt when (first_possession and self.gameObject.ballPossession):
+    interrupt when (first_possession and self.gameObject.ballPossession and ego.gameObject.pause == False):
         option = Uniform(1, 2, 3)
         # The finishing shot will be skewed left, center, or right
         if (option == 1):
@@ -49,15 +49,21 @@ behavior coachBehavior():
     opponent2_first_ball_possession = False
     self_possession = False
 
-    do Idle() until hasBallPosession(opponent1)
+    do Idle() until closeToBall(opponent1)
     print("1st")
+    # do Pause()
+    # do Speak("Say \"" + "Once the opponent takes the ball, position yourself ahead of the player to defend the goal." + "\"")
+    # do Idle() for 7 seconds
+    # do Unpause()
     do moveTo(self, Coordinate(CoordinateInit.RELATIVE, ref = [opponent1, opponent2, goal]).weighted({opponent1: 0.5, opponent2: 0.5, goal: 1}), [opponent1, opponent2, goal], Speed(SpeedInit.MAGNITUDE)) until not hasBallPosession(opponent1)
-    dist = distance from goal to opponent1
+    do LookAt(opponent1)
     print("2nd")
     do moveTo(self, Coordinate(CoordinateInit.RELATIVE, ref = [opponent2, goal]).weighted({opponent2: 0.9, goal: 1}), [opponent2, goal], Speed(SpeedInit.MAGNITUDE)) until (hasBallPosession(opponent2) and distance from opponent1 to goal < 5)
     print("3rd")
+    do LookAt(opponent2)
     do moveTo(self, Coordinate(CoordinateInit.RELATIVE, ref = [opponent1, opponent2, goal]).weighted({opponent1: 0.3, opponent2: 0.5, goal: 1}), [opponent1, opponent2, goal], Speed(SpeedInit.MAGNITUDE)) until ball.position.z < goal.position.z
     print("4th")
+    do LookAt(opponent1)
     do Idle()
 
     # try:
@@ -82,7 +88,11 @@ behavior coachBehavior():
     #     do WaitFor(30)
     #     do Idle()
 
-ego = new DefensePlayer at (5, Range(0,0.1), 0), 
+def closeToBall(player: Player) -> bool:
+    if (distance from player to ball < 1.5):
+        return True
+
+ego = new Human at (5, Range(0,0.1), 0), 
         with behavior coachBehavior()
 
 goal = new Goal behind ego by Range(2.9,3), facing away from ego
