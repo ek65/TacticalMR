@@ -51,15 +51,15 @@ behavior coachBehavior():
     do Idle() for 14 seconds
     do Unpause()
     # do Idle() until hasBallPosession(opponent1)
-    print(distance from opponent2 to ball)
+    # print(distance from opponent2 to ball)
     do moveToLookAtBall(self, Coordinate(CoordinateInit.RELATIVE, ref = [opponent1, goal]).weighted({opponent1: 1, goal: 1}), [opponent1, goal], Speed(SpeedInit.MAGNITUDE)) until distance from opponent2 to ball < 1.5
-    print(distance from opponent2 to ball)
+    # print(distance from opponent2 to ball)
     
-    do Idle() until closeToBall(opponent2, 5)
+    do Idle() until closeToBall(opponent2, 3.5) and opponent1.gameObject.ballPossession == False
     # do Idle() until closeToBall(opponent2)
     do Pause()
-    do Speak("Say \"" + "Note that, after passing,the opponent runs towards the goal. Make sure you move back to guard your space behind while closing the shot angle like this." + "\"")
-    do Idle() for 7 seconds
+    do Speak("Say \"" + "Note that, after passing, the opponent runs towards the goal. Make sure you move back to guard your space behind while closing the shot angle like this." + "\"")
+    do Idle() for 10 seconds
     do Unpause()
     # do Pause()
     # do Speak("Say \"" + "When the opponent passes the ball to its teammate, again position yourself in between the player and the goal to close the shot angle." + "\"")
@@ -69,7 +69,7 @@ behavior coachBehavior():
     # do moveToLookAtBall(self, Coordinate(CoordinateInit.RELATIVE, ref = [opponent1, opponent2, goal]).weighted({opponent1: 0.05, opponent2: 0.9, goal: 1}), [opponent1, opponent2, goal], Speed(SpeedInit.MAGNITUDE)) until (hasBallPosession(opponent2) and distance from opponent1 to goal < 5)
 
     # do Idle() until hasBallPosession(opponent2) and opponent2.gameObject.behavior == "Pass Ball"
-    do Idle() until closeToBall(opponent1,3)
+    do Idle() until closeToBall(opponent1, 3) and opponent2.gameObject.ballPossession == False
     do Pause()
     do Speak("Say \"" + "Again, guard the space behind you while closing the shot angle." + "\"")
     do Idle() for 7 seconds
@@ -115,8 +115,8 @@ opponent1 = new Player offset by (Range(-4,0), Range(6,10)),
                 with behavior opponent1Behavior(pt),
                 with name "opponent1"
 
-pt1 = new Point offset by (Range(3,5), Range(0,2))
-pt2 = new Point offset by (Range(-5,-3), Range(0,2))
+pt1 = new Point offset by (Range(3,5), Range(1,3))
+pt2 = new Point offset by (Range(-5,-3), Range(1,3))
 op2_pos = Uniform(pt1, pt2)
 
 opponent2 = new Player at op2_pos, 

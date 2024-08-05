@@ -10,6 +10,8 @@ public class Rewindable : MonoBehaviour
     [SerializeField] public bool Pausible = true;
     private Vector3 savedVelocity;
     private Vector3 savedPosition;
+    private Vector3 savedAngularVelocity;
+    private RigidbodyConstraints savedConstraints;
     private bool isKinematic;
     private bool Paused = false;
  
@@ -18,7 +20,7 @@ public class Rewindable : MonoBehaviour
         transform.position = snippet.position;
         transform.rotation = snippet.rotation;
     }
-    public void LateUpdate()
+    public void Update()
     {
         if (Paused)
         {
@@ -76,6 +78,9 @@ public class Rewindable : MonoBehaviour
         r.velocity = Vector3.zero;
         isKinematic = r.isKinematic;
         r.isKinematic = true;
+        savedAngularVelocity = r.angularVelocity;
+        savedConstraints = r.constraints;
+
         savedPosition = transform.position;
         
         r.constraints = RigidbodyConstraints.FreezePosition;
@@ -86,12 +91,12 @@ public class Rewindable : MonoBehaviour
     {
         Rigidbody r = GetComponent<Rigidbody>();
         
-        r.constraints = RigidbodyConstraints.FreezePosition;
-        r.constraints = RigidbodyConstraints.FreezeRotation;
+        r.constraints = savedConstraints;
         
         r.velocity = savedVelocity;
         r.isKinematic = isKinematic;
-        
+        r.angularVelocity = savedAngularVelocity;
+
 
     }
     //TODO: need to be changed if u switch to Motion Matching systm

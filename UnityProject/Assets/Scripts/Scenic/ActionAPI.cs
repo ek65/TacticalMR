@@ -554,7 +554,9 @@ public class ActionAPI : MonoBehaviour
             // yield return StartCoroutine(MovementLerp2(Destiny));
             yield return null;
         }
-        
+        aiNav.updateRotation = true;
+        yield return null;
+
         // selfPlayer.GetComponent<NavMeshAgent>().enabled = false; // Deactivate Agent 
         // selfPlayer.GetComponentInChildren<NavMeshObstacle>().enabled = true;
     }

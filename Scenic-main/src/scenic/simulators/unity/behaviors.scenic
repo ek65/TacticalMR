@@ -94,7 +94,8 @@ behavior moveTo(player: Player, target: Coordinate, ref: list, speed: Speed):
 
 behavior getTo(destination):
     while (distance from self to destination > 0.01):
-        take MoveToAction(destination)
+        # take MoveToAction(destination)
+        take MoveToLookAtBallWithSpeed(destination, 2.0)
 
 
 behavior moveToLookAtBall(player: Player, target: Coordinate, ref: list, speed: Speed):
