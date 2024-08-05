@@ -127,6 +127,32 @@ public class KeyboardInput : MonoBehaviour
         canClick = true;
     }
 
+    // private void HandleAnnotationMode()
+    // {
+    //     Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+    //     if (Physics.Raycast(ray, out RaycastHit hit))
+    //     {
+    //         GameObject clickedObject = hit.collider.gameObject;
+    //
+    //         if (objectToKey.TryGetValue(clickedObject, out int existingKey))
+    //         {
+    //             streamingSampleMic.InsertAnnotationKey(existingKey); // Use existing key
+    //             annotationTimes.Add(existingKey, jsonToLLM.time);
+    //             Debug.Log($"Referred {clickedObject.name} with existing key {existingKey}");
+    //         }
+    //         else
+    //         {
+    //             annotation.Add(clickOrder, clickedObject);
+    //             annotationDescriptions.Add(clickOrder, GetDescriptionAnnotation(clickedObject));
+    //             objectToKey[clickedObject] = clickOrder; // Map object to key
+    //             streamingSampleMic.InsertAnnotationKey(clickOrder); // Insert annotation key into transcription
+    //             annotationTimes.Add(clickOrder, jsonToLLM.time);
+    //             Debug.Log($"Added {clickedObject.name} to annotations with key {clickOrder}");
+    //             clickOrder++;
+    //         }
+    //     }
+    // }
+    
     private void HandleAnnotationMode()
     {
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -134,22 +160,14 @@ public class KeyboardInput : MonoBehaviour
         {
             GameObject clickedObject = hit.collider.gameObject;
 
-            if (objectToKey.TryGetValue(clickedObject, out int existingKey))
-            {
-                streamingSampleMic.InsertAnnotationKey(existingKey); // Use existing key
-                annotationTimes.Add(existingKey, jsonToLLM.time);
-                Debug.Log($"Referred {clickedObject.name} with existing key {existingKey}");
-            }
-            else
-            {
-                annotation.Add(clickOrder, clickedObject);
-                annotationDescriptions.Add(clickOrder, GetDescriptionAnnotation(clickedObject));
-                objectToKey[clickedObject] = clickOrder; // Map object to key
-                streamingSampleMic.InsertAnnotationKey(clickOrder); // Insert annotation key into transcription
-                annotationTimes.Add(clickOrder, jsonToLLM.time);
-                Debug.Log($"Added {clickedObject.name} to annotations with key {clickOrder}");
-                clickOrder++;
-            }
+            // Remove check for existing key and always add as new annotation
+            annotation.Add(clickOrder, clickedObject);
+            annotationDescriptions.Add(clickOrder, GetDescriptionAnnotation(clickedObject));
+            objectToKey[clickedObject] = clickOrder; // Map object to key
+            streamingSampleMic.InsertAnnotationKey(clickOrder); // Insert annotation key into transcription
+            annotationTimes.Add(clickOrder, jsonToLLM.time);
+            Debug.Log($"Added {clickedObject.name} to annotations with key {clickOrder}");
+            clickOrder++;
         }
     }
 
