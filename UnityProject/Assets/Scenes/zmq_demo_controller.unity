@@ -3968,11 +3968,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5886457986238108556, guid: 14845de90ccdf48b8a87c477627f042f, type: 3}
       propertyPath: prefabType
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5886457986238108556, guid: 14845de90ccdf48b8a87c477627f042f, type: 3}
       propertyPath: replayIdentity.id
-      value: 36660
+      value: 21581
       objectReference: {fileID: 0}
     - target: {fileID: 7655554097699065721, guid: 14845de90ccdf48b8a87c477627f042f, type: 3}
       propertyPath: replayIdentity.id
