@@ -46,7 +46,6 @@ public class PlayerInterface : MonoBehaviour
         if (ally)
         {
             shirt.material.SetColor("_Color", Color.blue);
-            GetComponent<Rewindable>().Pausible = false;
         }
         if (self)
         {

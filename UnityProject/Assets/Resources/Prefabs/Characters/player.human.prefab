@@ -3416,7 +3416,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   RewindTransform: 1
-  Pausible: 0
+  Pausible: 1
 --- !u!114 &250408199
 MonoBehaviour:
   m_ObjectHideFlags: 0
