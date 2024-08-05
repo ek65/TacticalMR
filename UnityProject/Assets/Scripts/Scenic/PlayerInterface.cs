@@ -141,7 +141,12 @@ public class PlayerInterface : MonoBehaviour
             return;
         }
         
-        Debug.LogError(data.behavior);
+        // Debug.LogError(data.behavior);
+        if (this.gameObject.name == "Unknown")
+        {
+            Debug.LogError("CURRENT ACTION: " + data.actionFunc);
+        }
+        
 
         if (data.behavior == " " || data.behavior == "" || data.behavior == "Idle")
         {

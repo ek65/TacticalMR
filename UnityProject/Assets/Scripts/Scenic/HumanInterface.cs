@@ -37,6 +37,7 @@ public class HumanInterface : MonoBehaviour
     public bool ballPossession;
     public GameObject ball;
     public Transform ballPosition;
+    private bool canPossessBall = true;
     
     public bool ally;
     public Renderer shirt;
@@ -129,8 +130,19 @@ public class HumanInterface : MonoBehaviour
         }
     }
     
+    private void OnCollisionEnter(Collision other)
+    {
+        if (other.collider.CompareTag("ball") && canPossessBall)
+        {
+            GainPossession(other);
+        }
+    }
+    
     private void GainPossession(Collision other)
     {
+        int layerIgnoreBallCollision = LayerMask.NameToLayer("PlayerBall");
+        other.gameObject.layer = layerIgnoreBallCollision;
+        
         ball.transform.position = ballPosition.position;
         ball.transform.SetParent(ballPosition);
         ball.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
@@ -140,9 +152,18 @@ public class HumanInterface : MonoBehaviour
     
     public void LosePossession()
     {
+        StartCoroutine(PossessionDebounce());
         ball.transform.SetParent(null);
         ball.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
         ballPossession = false;
+    }
+    
+    private IEnumerator PossessionDebounce()
+    {
+        canPossessBall = false;
+        yield return new WaitForSeconds(1f);
+        canPossessBall = true;
+        ball.gameObject.layer = LayerMask.NameToLayer("Default");
     }
     
     public static bool ContainsAll(string source, params string[] values)

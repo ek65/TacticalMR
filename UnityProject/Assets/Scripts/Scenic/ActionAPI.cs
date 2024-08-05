@@ -84,7 +84,6 @@ public class ActionAPI : MonoBehaviour
         // TODO: replace this anim controller with movement, need to merge humanoid AI movement with the movement controller
         //SetAnimController("Humanoid");
         SetAnimController("Movement");
-        Debug.LogError("IN MOVLOOKATBALL");
         StartCoroutine(MoveToPosHelper(destinationPosition, true));
         //StartCoroutine(MovementLerp(destinationPosition, lookAt));
     }
@@ -115,6 +114,10 @@ public class ActionAPI : MonoBehaviour
     {
         // ConvaiNPC charObj = GameObject.FindGameObjectWithTag("Character").GetComponentInChildren<ConvaiNPC>();
         // charObj.HandleInputSubmission(text);
+        if (this.gameObject.name == "Unknown")
+        {
+            Debug.LogError("Speak: " + text);
+        }
         ChatBehaviour chatBehaviour = GameObject.FindGameObjectWithTag("Character").GetComponentInChildren<ChatBehaviour>();
         if (chatBehaviour != null)
         {
@@ -448,7 +451,6 @@ public class ActionAPI : MonoBehaviour
         AIDestinationSetter dest = selfPlayer.GetComponent<AIDestinationSetter>();
         RichAI aiNav = selfPlayer.GetComponent<RichAI>();
 
-        Debug.LogError("IN LOOKAT IS: " + lookAt);
         // Set Destination 
         // dest.target.position = destinationPosition;
         // StartCoroutine(Move(agent, character, destinationPosition));
@@ -458,7 +460,6 @@ public class ActionAPI : MonoBehaviour
         }
         else if (lookAt)
         {
-            Debug.LogError("IN LOOKAT");
             StartCoroutine(Move3(dest, aiNav, destinationPosition));
         }
 
@@ -523,18 +524,32 @@ public class ActionAPI : MonoBehaviour
     
     IEnumerator Move3(AIDestinationSetter destSetter, RichAI aiNav, Vector3 Destiny)
     {
-        Debug.LogError("IN MOVE3");
         aiNav.updateRotation = false;
-        transform.LookAt(this.GetComponent<PlayerInterface>().ball.transform);
+        if (this.gameObject.CompareTag("NPChuman"))
+        {
+            Transform ball = this.GetComponent<HumanInterface>().ball.transform;
+            Vector3 targetPos = new Vector3(ball.transform.position.x, this.transform.position.y,
+                ball.transform.position.z);
+            transform.LookAt(targetPos);
+        }
+        else
+        {
+            Transform ball = this.GetComponent<PlayerInterface>().ball.transform;
+            Vector3 targetPos = new Vector3(this.transform.position.x, ball.transform.position.y,
+                this.transform.position.z);
+            transform.LookAt(targetPos);
+        }
         GameObject selfPlayer = this.gameObject;
         destSetter.target.position = Destiny;
         while (destSetter.target.position != this.gameObject.transform.position)
         {
-            // normalize speed then *2 for anim values
-            float velz = aiNav.velocity.magnitude / playerRunningSpeed * 2;
+            // should normalize speed then *2 for anim values
             
-            // Debug.LogError(velz);
-            selfPlayer.GetComponent<Animator>().SetFloat("VelZ", velz);
+            float horizontalInput = aiNav.velocity.x;
+            float verticalInput = aiNav.velocity.z;
+            
+            selfPlayer.GetComponent<Animator>().SetFloat("VelZ", verticalInput);
+            selfPlayer.GetComponent<Animator>().SetFloat("VelX", horizontalInput);
 
             // yield return StartCoroutine(MovementLerp2(Destiny));
             yield return null;

@@ -21,7 +21,7 @@ public class OutlineSelection : MonoBehaviour, IPointerClickHandler, IPointerEnt
     {
         if (keyboardInput.canClick)
         {
-            stayOutlined = !stayOutlined;
+            // stayOutlined = !stayOutlined;
             keyboardInput.HandleAnnotationClick();
         }
     }
