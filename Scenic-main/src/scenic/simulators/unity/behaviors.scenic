@@ -66,7 +66,7 @@ behavior WaitFor(timesteps):
         take StopAction()
 
 # MARK: moveTo
-behavior moveTo(player: Player, target: Coordinate, style: MovingStyle, speed: Speed):
+behavior moveTo(player: Player, target: Coordinate, ref: list, speed: Speed):
     """
     A player will move to the specified target with a specified velocity and style.
 
@@ -75,10 +75,12 @@ behavior moveTo(player: Player, target: Coordinate, style: MovingStyle, speed: S
         style (MovingStyle): A moving style out of the options 'walk', 'run' and 'sprint'.
         velocity (float): The velocity to move to the target.
     """
-    target_position = target.predict()
+    target_position = target.predict(ref)
     target_speed = speed.predict()
-    print("destination: ", target_position)
-    take MoveToWithSpeed(target_position, target_speed)
+
+    while (distance from self to target_position > 0.05):
+        target_position = target.predict(ref)
+        take MoveToWithSpeed(target_position, target_speed)
 
 
 # MARK: faceTowards
