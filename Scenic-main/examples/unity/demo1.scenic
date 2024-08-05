@@ -24,14 +24,7 @@ behavior opponent1Behavior(pt):
         do ApproachGoal(pt)
 
     interrupt when (first_possession and self.gameObject.ballPossession and ego.gameObject.pause == False):
-        option = Uniform(1, 2, 3)
-        # The finishing shot will be skewed left, center, or right
-        if (option == 1):
-            do ShootBall(goal.position, "left-middle")
-        elif (option == 2):
-            do ShootBall(goal.position, "center-middle")
-        elif (option == 3):
-            do ShootBall(goal.position, "right-middle")
+        do ShootBall(goal.position, "center-middle")
         abort
     
 behavior opponent2Behavior(pt):
@@ -51,19 +44,18 @@ behavior coachBehavior():
 
     do Idle() until closeToBall(opponent1)
     print("1st")
-    do Pause()
-    do Speak("Say \"" + "Once the opponent takes the ball, position yourself ahead of the player to defend the goal." + "\"")
-    do Idle() for 7 seconds
-    do Unpause()
-    do moveToLookAtBall(self, Coordinate(CoordinateInit.RELATIVE, ref = [opponent1, opponent2, goal]).weighted({opponent1: 0.5, opponent2: 0.5, goal: 1}), [opponent1, opponent2, goal], Speed(SpeedInit.MAGNITUDE)) until not hasBallPosession(opponent1)
-
+    # do Pause()
+    # do Speak("Say \"" + "Once the opponent takes the ball, position yourself ahead of the player to defend the goal." + "\"")
+    # do Idle() for 7 seconds
+    # do Unpause()
+    do Idle() until hasBallPosession(opponent1)
+    do moveToLookAtBall(self, Coordinate(CoordinateInit.RELATIVE, ref = [opponent1, goal]).weighted({opponent1: 1, goal: 1}), [opponent1, goal], Speed(SpeedInit.MAGNITUDE)) until not hasBallPosession(opponent1)
     print("2nd")
     do moveToLookAtBall(self, Coordinate(CoordinateInit.RELATIVE, ref = [opponent2, goal]).weighted({opponent2: 0.9, goal: 1}), [opponent2, goal], Speed(SpeedInit.MAGNITUDE)) until (hasBallPosession(opponent2) and distance from opponent1 to goal < 5)
     print("3rd")
-
-    do moveToLookAtBall(self, Coordinate(CoordinateInit.RELATIVE, ref = [opponent1, opponent2, goal]).weighted({opponent1: 0.3, opponent2: 0.5, goal: 1}), [opponent1, opponent2, goal], Speed(SpeedInit.MAGNITUDE)) until ball.position.z < goal.position.z
-    print("4th")
-
+    dest = new Point ahead of goal by Range(-1,-1.5)
+    do getTo(dest)
+    do LookAt(opponent1)
     do Idle()
 
     # try:
@@ -96,7 +88,7 @@ ego = new Human at (5, Range(0,0.1), 0),
         with behavior coachBehavior()
 
 goal = new Goal behind ego by Range(2.9,3), facing away from ego
-pt = new Point offset by (Range(-3,0), Range(-1,0))
+pt = new Point offset by (Range(-3,3), Range(-1,0))
 
 opponent1 = new Player offset by (Range(-4,0), Range(6,10)),
                 facing toward ego,
@@ -104,7 +96,7 @@ opponent1 = new Player offset by (Range(-4,0), Range(6,10)),
                 with name "opponent1"
 
 pt1 = new Point offset by (Range(3,5), Range(0,2))
-pt2 = new Point left of ego by (Range(-5,-3), Range(0,2))
+pt2 = new Point offset by (Range(-5,-3), Range(0,2))
 op2_pos = Uniform(pt1, pt2)
 
 opponent2 = new Player at op2_pos, 
