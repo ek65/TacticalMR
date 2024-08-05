@@ -2965,13 +2965,9 @@ GameObject:
   - component: {fileID: 250408200}
   - component: {fileID: 1614666314}
   - component: {fileID: 1614666315}
-  - component: {fileID: 4174554594486415199}
-  - component: {fileID: 5617416017562615796}
-  - component: {fileID: 7997107720138317640}
-  - component: {fileID: -4780579434234233153}
   m_Layer: 0
-  m_Name: player.human
-  m_TagString: NPChuman
+  m_Name: player.human 1
+  m_TagString: player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -3036,9 +3032,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 35bcac9dd1874c44d9e8101253d74932, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerRunningSpeed: 5
+  playerRunningSpeed: 1
   timeDuration: 5
-  goalWidth: 0
+  goalWidth: 7.44
   soccerBall: {fileID: 0}
   test: {x: 0, y: 0, z: 0}
   stopMovement: 0
@@ -3063,7 +3059,7 @@ MonoBehaviour:
   explanation: 
   ballPossession: 0
   ball: {fileID: 0}
-  ballPosition: {fileID: 8665160898920370539}
+  ballPosition: {fileID: 0}
   ally: 0
   shirt: {fileID: 8665160898560163737}
 --- !u!114 &-7641071680297636533
@@ -3211,7 +3207,7 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8665160898893140854}
   serializedVersion: 2
-  m_Mass: 100
+  m_Mass: 1
   m_Drag: 0
   m_AngularDrag: 100
   m_UseGravity: 1
@@ -3246,7 +3242,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   replayIdentity:
-    id: 60947
+    id: 63609
   replayObject:
     reference: {fileID: 5886457986238108556}
   replayBodyPosition: 6
@@ -3271,7 +3267,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   instantiateIdentity: 1
   replayIdentity:
-    id: 21843
+    id: 51591
   prefabIdentity:
     id: 16648
   observedComponents:
@@ -3295,7 +3291,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   replayIdentity:
-    id: 28417
+    id: 7651
   replayObject:
     reference: {fileID: 5886457986238108556}
   replayPosition: 23
@@ -3319,7 +3315,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   replayIdentity:
-    id: 52615
+    id: 4424
   replayObject:
     reference: {fileID: 5886457986238108556}
   replayRootBonePosition: 23
@@ -3497,117 +3493,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   stayOutlined: 0
---- !u!114 &4174554594486415199
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8665160898893140854}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 560112f876f5746c780eca0d404e7139, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  version: 2
-  radiusBackingField: 0.5
-  heightBackingField: 2
-  centerBackingField: 1
-  locked: 0
-  lockWhenNotMoving: 1
-  agentTimeHorizon: 5
-  obstacleTimeHorizon: 2
-  maxNeighbours: 10
-  layer: 1
-  collidesWith: -1
-  wallAvoidForce: 1
-  wallAvoidFalloff: 1
-  priority: 0.5
-  debug: 0
---- !u!114 &5617416017562615796
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8665160898893140854}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 373b52eb9bf8c40f785bb6947a1aee66, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  version: 1
-  drawGizmos: 0
-  detailedGizmos: 0
-  startEndModifier:
-    addPoints: 0
-    exactStartPoint: 3
-    exactEndPoint: 3
-    useRaycasting: 0
-    mask:
-      serializedVersion: 2
-      m_Bits: 4294967295
-    useGraphRaycasting: 0
-  traversableTags: -1
-  tagPenalties: 0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-  graphMask:
-    value: -1
---- !u!114 &7997107720138317640
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8665160898893140854}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ce11ea984e202491d9271f53021d8b89, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  version: 5
-  radius: 0.1
-  height: 2
-  canMove: 1
-  maxSpeed: 7
-  gravity: {x: NaN, y: NaN, z: NaN}
-  groundMask:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  centerOffsetCompatibility: NaN
-  repathRateCompatibility: NaN
-  canSearchCompability: 0
-  orientation: 0
-  enableRotation: 1
-  autoRepath:
-    mode: 2
-    period: 0.5
-    sensitivity: 10
-    maximumPeriod: 2
-    visualizeSensitivity: 0
-  targetCompatibility: {fileID: 0}
-  acceleration: 4
-  rotationSpeed: 360
-  slowdownTime: 0.5
-  endReachedDistance: 0.1
-  wallForce: 3
-  wallDist: 1
-  funnelSimplification: 0
-  slowWhenNotFacingTarget: 1
-  animCompatibility: {fileID: 0}
---- !u!114 &-4780579434234233153
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8665160898893140854}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c9679e68a0f1144e79c664d9a11ca121, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  version: 1
-  target: {fileID: 7842624250203543949}
 --- !u!1 &8665160898920370538
 GameObject:
   m_ObjectHideFlags: 0

@@ -44,10 +44,10 @@ behavior coachBehavior():
 
     do Idle() until closeToBall(opponent1)
     print("1st")
-    # do Pause()
-    # do Speak("Say \"" + "Once the opponent takes the ball, position yourself ahead of the player to defend the goal." + "\"")
-    # do Idle() for 7 seconds
-    # do Unpause()
+    do Pause()
+    do Speak("Say \"" + "Once the opponent takes the ball, position yourself ahead of the player to defend the goal." + "\"")
+    do Idle() for 7 seconds
+    do Unpause()
     do Idle() until hasBallPosession(opponent1)
     do moveToLookAtBall(self, Coordinate(CoordinateInit.RELATIVE, ref = [opponent1, goal]).weighted({opponent1: 1, goal: 1}), [opponent1, goal], Speed(SpeedInit.MAGNITUDE)) until not hasBallPosession(opponent1)
     do moveToLookAtBall(self, Coordinate(CoordinateInit.RELATIVE, ref = [opponent2, goal]).weighted({opponent2: 0.9, goal: 1}), [opponent2, goal], Speed(SpeedInit.MAGNITUDE)) until (hasBallPosession(opponent2) and distance from opponent1 to goal < 5)
@@ -81,7 +81,7 @@ def closeToBall(player: Player) -> bool:
     if (distance from player to ball < 1.5):
         return True
 
-ego = new DefensePlayer at (5, Range(0,0.1), 0), 
+ego = new Human at (5, Range(0,0.1), 0), 
         with behavior coachBehavior()
 
 goal = new Goal behind ego by Range(2.9,3), facing away from ego
