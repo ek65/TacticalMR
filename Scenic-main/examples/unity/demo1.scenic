@@ -51,19 +51,19 @@ behavior coachBehavior():
 
     do Idle() until closeToBall(opponent1)
     print("1st")
-    # do Pause()
-    # do Speak("Say \"" + "Once the opponent takes the ball, position yourself ahead of the player to defend the goal." + "\"")
-    # do Idle() for 7 seconds
-    # do Unpause()
-    do moveTo(self, Coordinate(CoordinateInit.RELATIVE, ref = [opponent1, opponent2, goal]).weighted({opponent1: 0.5, opponent2: 0.5, goal: 1}), [opponent1, opponent2, goal], Speed(SpeedInit.MAGNITUDE)) until not hasBallPosession(opponent1)
-    do LookAt(opponent1)
+    do Pause()
+    do Speak("Say \"" + "Once the opponent takes the ball, position yourself ahead of the player to defend the goal." + "\"")
+    do Idle() for 7 seconds
+    do Unpause()
+    do moveToLookAtBall(self, Coordinate(CoordinateInit.RELATIVE, ref = [opponent1, opponent2, goal]).weighted({opponent1: 0.5, opponent2: 0.5, goal: 1}), [opponent1, opponent2, goal], Speed(SpeedInit.MAGNITUDE)) until not hasBallPosession(opponent1)
+
     print("2nd")
-    do moveTo(self, Coordinate(CoordinateInit.RELATIVE, ref = [opponent2, goal]).weighted({opponent2: 0.9, goal: 1}), [opponent2, goal], Speed(SpeedInit.MAGNITUDE)) until (hasBallPosession(opponent2) and distance from opponent1 to goal < 5)
+    do moveToLookAtBall(self, Coordinate(CoordinateInit.RELATIVE, ref = [opponent2, goal]).weighted({opponent2: 0.9, goal: 1}), [opponent2, goal], Speed(SpeedInit.MAGNITUDE)) until (hasBallPosession(opponent2) and distance from opponent1 to goal < 5)
     print("3rd")
-    do LookAt(opponent2)
-    do moveTo(self, Coordinate(CoordinateInit.RELATIVE, ref = [opponent1, opponent2, goal]).weighted({opponent1: 0.3, opponent2: 0.5, goal: 1}), [opponent1, opponent2, goal], Speed(SpeedInit.MAGNITUDE)) until ball.position.z < goal.position.z
+
+    do moveToLookAtBall(self, Coordinate(CoordinateInit.RELATIVE, ref = [opponent1, opponent2, goal]).weighted({opponent1: 0.3, opponent2: 0.5, goal: 1}), [opponent1, opponent2, goal], Speed(SpeedInit.MAGNITUDE)) until ball.position.z < goal.position.z
     print("4th")
-    do LookAt(opponent1)
+
     do Idle()
 
     # try:

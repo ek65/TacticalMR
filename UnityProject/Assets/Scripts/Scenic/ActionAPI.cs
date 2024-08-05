@@ -70,12 +70,22 @@ public class ActionAPI : MonoBehaviour
         this.gameObject.GetComponent<Animator>().SetFloat("VelX", 0);
     }
     
-    public void MoveToPos(Vector3 destinationPosition, float speed = 2f, bool lookAt = true)
+    public void MoveToPos(Vector3 destinationPosition, float speed = 2f, bool lookAt = false)
     {
         // TODO: replace this anim controller with movement, need to merge humanoid AI movement with the movement controller
         //SetAnimController("Humanoid");
         SetAnimController("Movement");
         StartCoroutine(MoveToPosHelper(destinationPosition, lookAt));
+        //StartCoroutine(MovementLerp(destinationPosition, lookAt));
+    }
+    
+    public void MoveToPosLookAtBall(Vector3 destinationPosition, float speed = 2f, bool lookAt = true)
+    {
+        // TODO: replace this anim controller with movement, need to merge humanoid AI movement with the movement controller
+        //SetAnimController("Humanoid");
+        SetAnimController("Movement");
+        Debug.LogError("IN MOVLOOKATBALL");
+        StartCoroutine(MoveToPosHelper(destinationPosition, true));
         //StartCoroutine(MovementLerp(destinationPosition, lookAt));
     }
 
@@ -425,7 +435,7 @@ public class ActionAPI : MonoBehaviour
     #endregion
 
     #region Helper Coroutines
-    IEnumerator MoveToPosHelper(Vector3 destinationPosition, bool lookAt = true)
+    IEnumerator MoveToPosHelper(Vector3 destinationPosition, bool lookAt)
     {
         // Debug.Log("here");
 
@@ -438,10 +448,19 @@ public class ActionAPI : MonoBehaviour
         AIDestinationSetter dest = selfPlayer.GetComponent<AIDestinationSetter>();
         RichAI aiNav = selfPlayer.GetComponent<RichAI>();
 
+        Debug.LogError("IN LOOKAT IS: " + lookAt);
         // Set Destination 
         // dest.target.position = destinationPosition;
         // StartCoroutine(Move(agent, character, destinationPosition));
-        StartCoroutine(Move2(dest, aiNav, destinationPosition));
+        if (!lookAt)
+        {
+            StartCoroutine(Move2(dest, aiNav, destinationPosition));
+        }
+        else if (lookAt)
+        {
+            Debug.LogError("IN LOOKAT");
+            StartCoroutine(Move3(dest, aiNav, destinationPosition));
+        }
 
         // Debug.Log("Here 3");
         
@@ -483,7 +502,30 @@ public class ActionAPI : MonoBehaviour
     
     //TODO: This assumes that we are having the player look towards the position they're running, add more functionality to run towards position without looking
     IEnumerator Move2(AIDestinationSetter destSetter, RichAI aiNav, Vector3 Destiny)
-    { 
+    {
+        GameObject selfPlayer = this.gameObject;
+        destSetter.target.position = Destiny;
+        while (destSetter.target.position != this.gameObject.transform.position)
+        {
+            // normalize speed then *2 for anim values
+            float velz = aiNav.velocity.magnitude / playerRunningSpeed * 2;
+            
+            // Debug.LogError(velz);
+            selfPlayer.GetComponent<Animator>().SetFloat("VelZ", velz);
+
+            // yield return StartCoroutine(MovementLerp2(Destiny));
+            yield return null;
+        }
+        
+        // selfPlayer.GetComponent<NavMeshAgent>().enabled = false; // Deactivate Agent 
+        // selfPlayer.GetComponentInChildren<NavMeshObstacle>().enabled = true;
+    }
+    
+    IEnumerator Move3(AIDestinationSetter destSetter, RichAI aiNav, Vector3 Destiny)
+    {
+        Debug.LogError("IN MOVE3");
+        aiNav.updateRotation = false;
+        transform.LookAt(this.GetComponent<PlayerInterface>().ball.transform);
         GameObject selfPlayer = this.gameObject;
         destSetter.target.position = Destiny;
         while (destSetter.target.position != this.gameObject.transform.position)

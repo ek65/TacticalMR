@@ -73,6 +73,29 @@ class MoveToWithSpeed(Action):
     def applyTo(self, obj, sim):
         obj.gameObject.DoAction(self.actionName, self.position, self.speed)
 
+class MoveToLookAtBallWithSpeed(Action):
+    def __init__(self, obj, speed):
+        self.actionName = "MoveToPosLookAtBall"
+
+        if not isinstance(speed, float):
+            raise RuntimeError("height must be a float")
+        self.speed = speed
+
+        if isinstance(obj, tuple) or type(obj) is tuple:
+            self.position = obj
+        elif isinstance(obj, OrientedPoint):
+            self.position = obj.position
+        elif isinstance(obj, Point):
+            self.position = (obj.position.x, obj.position.y, obj.position.z)
+        elif isinstance(obj, Vector):
+            self.position = (obj.x, obj.y, obj.z)
+        else:
+            self.clientID = obj.gameObject.clientID
+
+    def applyTo(self, obj, sim):
+        obj.gameObject.SetBehavior("Move While Looking at Ball")
+        obj.gameObject.DoAction(self.actionName, self.position, self.speed)
+
 class MoveToAction(Action):
     def __init__(self, obj, behavior = None):
         self.actionName = "MoveToPos"
