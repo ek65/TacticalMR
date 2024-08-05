@@ -43,14 +43,17 @@ behavior coachBehavior():
     opponent2_first_ball_possession = False
     self_possession = False
 
-    do Idle() until closeToBall(opponent1)
+    do Idle() until closeToBall(opponent1, 1.5)
     # do Idle() until hasBallPosession(opponent1)
     do Pause()
     do Speak("Say \"" + "Once the opponent takes the ball, don't rush out. position yourself in between the player and the goal post." + "\"")
     do Idle() for 7 seconds
     do Unpause()
-    do Idle() until hasBallPosession(opponent1)
-    do moveToLookAtBall(self, Coordinate(CoordinateInit.RELATIVE, ref = [opponent1, goal]).weighted({opponent1: 1, goal: 1}), [opponent1, goal], Speed(SpeedInit.MAGNITUDE)) until opponent1.gameObject.behavior == "Pass Ball"
+    # do Idle() until hasBallPosession(opponent1)
+    print(distance from opponent2 to ball)
+    do moveToLookAtBall(self, Coordinate(CoordinateInit.RELATIVE, ref = [opponent1, goal]).weighted({opponent1: 1, goal: 1}), [opponent1, goal], Speed(SpeedInit.MAGNITUDE)) until distance from opponent2 to ball < 1.5
+    print(distance from opponent2 to ball)
+    do Idle() until closeToBall(opponent2, 5)
 
     # do Idle() until opponent2.gameObject.behavior == "Pass Ball"
     do Pause()
@@ -94,8 +97,8 @@ behavior coachBehavior():
     #     do WaitFor(30)
     #     do Idle()
 
-def closeToBall(player: Player) -> bool:
-    if (distance from player to ball < 3):
+def closeToBall(player: Player, distance: float) -> bool:
+    if (distance from player to ball < distance):
         return True
 
 ego = new Human at (5, Range(0,0.1), 0), 
