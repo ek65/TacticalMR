@@ -12,8 +12,7 @@ behavior Idle():
         take IdleAction()
 
 behavior ShootBall(vec : Vector, string : str):
-    while (hasBallPosession(self)):
-        take ShootAction(vec, string, "Shoot Ball")
+    take ShootAction(vec, string, "Shoot Ball")
     take StopAction()
 
 behavior InterceptBall(ball):
@@ -23,8 +22,8 @@ behavior InterceptBall(ball):
     take StopAction()
 
 behavior GroundPassFast(vec : Vector):
-    while (hasBallPosession(self)):
-        take GroundPassFastAction(vec, "Pass Ball")
+    take GroundPassFastAction(vec, "Pass Ball")
+    do Idle() for 0.6 seconds
     take StopAction()
 
 behavior LookAt(vec : Vector):

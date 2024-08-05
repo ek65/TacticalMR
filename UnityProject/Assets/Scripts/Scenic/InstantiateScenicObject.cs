@@ -73,6 +73,7 @@ public class InstantiateScenicObject
                 //scenicPlayer.GetComponent<NetworkObject>().Spawn();
                 addedGameObject.name = "Coach";
                 objectList.humanPlayers.Add(addedGameObject);
+                addedGameObject.GetComponentInChildren<HumanInterface>().ally = true;
                 //objectList.orangePlayers.Add(scenicPlayer.GetComponent<NetworkObject>().NetworkInstanceId);
                 Debug.Log("Added Human Player");
             }

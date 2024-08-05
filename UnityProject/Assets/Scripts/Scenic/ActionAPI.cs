@@ -191,17 +191,23 @@ public class ActionAPI : MonoBehaviour
 
     public void GroundPassFast(Vector3 destinationPosition)
     {
+        
+        // Debug.LogError("in gpf");
+        stopMovement = true;
         if (this.GetComponent<Animator>().enabled == false)
         {
             return;
         }
-        // Debug.LogError("in gpf");
-        stopMovement = true;
+        if (this.GetComponent<PlayerInterface>().ballPossession == false && this.GetComponent<PlayerInterface>().canKickBall == false)
+        {
+            return;
+        }
         SetAnimController("Dribbling");
         // Debug.LogError(this.GetComponent<Animator>().runtimeAnimatorController.name);
         // Debug.LogError(this.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0));
         // Debug.LogError("in gpf2");
         StartCoroutine(LookTowards(destinationPosition, "GroundPassFast"));
+        StartCoroutine(this.GetComponent<PlayerInterface>().KickDebounce());
         
         SetMoveBallValues(destinationPosition, 0, strongPassForce);
     }
@@ -247,11 +253,19 @@ public class ActionAPI : MonoBehaviour
     public void Shoot(Vector3 destinationPosition, string destinationZone)
     {
         stopMovement = true;
+        if (this.GetComponent<Animator>().enabled == false)
+        {
+            return;
+        }
+        if (this.GetComponent<PlayerInterface>().ballPossession == false && this.GetComponent<PlayerInterface>().canKickBall == false)
+        {
+            return;
+        }
         SetAnimController("Dribbling");
         
         StartCoroutine(LookTowards(destinationPosition, "Shoot"));
+        StartCoroutine(this.GetComponent<PlayerInterface>().KickDebounce());
 
-        
         string ballProjectileHeight = "low";
         float horizontalOffset = (goalWidth / 6.0f);
 

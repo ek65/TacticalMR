@@ -38,6 +38,9 @@ public class HumanInterface : MonoBehaviour
     public GameObject ball;
     public Transform ballPosition;
     
+    public bool ally;
+    public Renderer shirt;
+    
     // Start is called before the first frame update
     void Start()
     {
@@ -51,6 +54,11 @@ public class HumanInterface : MonoBehaviour
         arrowObjects = new List<GameObject>();
         // SpawnCircle(this.transform.position); // spawn the circle around the coach
         
+        if (ally)
+        {
+            shirt.material.SetColor("_Color", Color.blue);
+        }
+
         ballPossession = false;
         if (ball == null)
         {

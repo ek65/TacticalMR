@@ -3060,6 +3060,8 @@ MonoBehaviour:
   ballPossession: 0
   ball: {fileID: 0}
   ballPosition: {fileID: 0}
+  ally: 0
+  shirt: {fileID: 8665160898560163737}
 --- !u!114 &-7641071680297636533
 MonoBehaviour:
   m_ObjectHideFlags: 0

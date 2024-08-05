@@ -938,7 +938,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 1658017393}
   m_Direction: 0
   m_Value: 1
-  m_Size: 1
+  m_Size: 0.9999999
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -3964,15 +3964,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5500030923864448597, guid: 14845de90ccdf48b8a87c477627f042f, type: 3}
       propertyPath: replayIdentity.id
-      value: 60192
+      value: 35793
       objectReference: {fileID: 0}
     - target: {fileID: 5886457986238108556, guid: 14845de90ccdf48b8a87c477627f042f, type: 3}
       propertyPath: prefabType
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5886457986238108556, guid: 14845de90ccdf48b8a87c477627f042f, type: 3}
       propertyPath: replayIdentity.id
-      value: 37100
+      value: 36660
       objectReference: {fileID: 0}
     - target: {fileID: 7655554097699065721, guid: 14845de90ccdf48b8a87c477627f042f, type: 3}
       propertyPath: replayIdentity.id
