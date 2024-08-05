@@ -17,7 +17,6 @@ behavior opponent1Behavior(pt):
         do Idle() 
 
     interrupt when (not first_possession and self.gameObject.ballPossession):
-        print("1st interrupt")
         do Idle() for 1 seconds
         do GroundPassFast(opponent2.position)
         do Idle() for 0.5 seconds
@@ -25,7 +24,6 @@ behavior opponent1Behavior(pt):
         do ApproachGoal(pt)
 
     interrupt when (first_possession and self.gameObject.ballPossession):
-        print("2nd interrupt")
         option = Uniform(1, 2, 3)
         # The finishing shot will be skewed left, center, or right
         if (option == 1):
@@ -49,25 +47,40 @@ behavior opponent2Behavior(pt):
 behavior coachBehavior():
     opponent1_first_ball_possession = False
     opponent2_first_ball_possession = False
+    self_possession = False
 
-    try:
-        do Idle()
-    interrupt when (not opponent1_first_ball_possession and hasBallPosession(opponent1)):
-        # do Pause()
-        # do Speak("once the opponent takes the ball, position yourself ahead of the player to defend the goal.")
-        # do Unpause()
-        do moveTo(self, Coordinate(CoordinateInit.RELATIVE, ref = [opponent1, goal]).weighted({opponent1: 1, goal: 1}), MovingStyle.RUN, Speed(SpeedInit.MAGNITUDE))
-        opponent1_first_ball_possession = True
-    interrupt when (opponent1_first_ball_possession and not hasBallPosession(opponent1)):
-        print("2nd")
-        do moveTo(self, Coordinate(CoordinateInit.RELATIVE, ref = [opponent1, opponent2, goal]).weighted({opponent1: 0.5, opponent2: 1, goal: 1}), MovingStyle.RUN, Speed(SpeedInit.MAGNITUDE))
-    interrupt when ((opponent2_first_ball_possession or hasBallPosession(opponent2)) and opponent1.speed > 1):
-        print("3rd")
-        opponent2_first_ball_possession = True
-        do moveTo(self, Coordinate(CoordinateInit.RELATIVE, ref = [opponent1, opponent2, goal]).weighted({opponent1: 0.5, opponent2: 0.5, goal: 1}), MovingStyle.RUN, Speed(SpeedInit.MAGNITUDE))
-    interrupt when (hasBallPosession(self)):
-        do WaitFor(30)
-        do Idle()
+    do Idle() until hasBallPosession(opponent1)
+    print("1st")
+    do moveTo(self, Coordinate(CoordinateInit.RELATIVE, ref = [opponent1, opponent2, goal]).weighted({opponent1: 0.5, opponent2: 0.5, goal: 1}), [opponent1, opponent2, goal], Speed(SpeedInit.MAGNITUDE)) until not hasBallPosession(opponent1)
+    dist = distance from goal to opponent1
+    print("2nd")
+    do moveTo(self, Coordinate(CoordinateInit.RELATIVE, ref = [opponent2, goal]).weighted({opponent2: 0.9, goal: 1}), [opponent2, goal], Speed(SpeedInit.MAGNITUDE)) until (hasBallPosession(opponent2) and distance from opponent1 to goal < 5)
+    print("3rd")
+    do moveTo(self, Coordinate(CoordinateInit.RELATIVE, ref = [opponent1, opponent2, goal]).weighted({opponent1: 0.3, opponent2: 0.5, goal: 1}), [opponent1, opponent2, goal], Speed(SpeedInit.MAGNITUDE)) until ball.position.z < goal.position.z
+    print("4th")
+    do Idle()
+
+    # try:
+    #     do Idle()
+    # interrupt when (hasBallPosession(opponent1)):
+    #     # do Pause()
+    #     # do Speak("once the opponent takes the ball, position yourself ahead of the player to defend the goal.")
+    #     # do Unpause()
+    #     print("1st")
+    #     do moveTo(self, Coordinate(CoordinateInit.RELATIVE, ref = [opponent1, opponent2, goal]).weighted({opponent1: 1, opponent2: 1, goal: 1}), MovingStyle.RUN, Speed(SpeedInit.MAGNITUDE))
+    #     opponent1_first_ball_possession = True
+    # interrupt when (opponent1_first_ball_possession and not hasBallPosession(opponent1)):
+    #     print("2nd")
+    #     do moveTo(self, Coordinate(CoordinateInit.RELATIVE, ref = [opponent1, opponent2, goal]).weighted({opponent1: 0.2, opponent2: 0.9, goal: 1}), MovingStyle.RUN, Speed(SpeedInit.MAGNITUDE))
+    # interrupt when ((opponent2_first_ball_possession or hasBallPosession(opponent2)) and opponent1.speed > 1):
+    #     print("3rd")
+    #     opponent2_first_ball_possession = True
+    #     do moveTo(self, Coordinate(CoordinateInit.RELATIVE, ref = [opponent1, opponent2, goal]).weighted({opponent1: 0.9, opponent2: 0.2, goal: 1}), MovingStyle.RUN, Speed(SpeedInit.MAGNITUDE))
+    # interrupt when (hasBallPosession(self) or self_possession):
+    #     self_possession = True
+    #     print("final")
+    #     do WaitFor(30)
+    #     do Idle()
 
 ego = new DefensePlayer at (5, Range(0,0.1), 0), 
         with behavior coachBehavior()
@@ -80,7 +93,11 @@ opponent1 = new Player offset by (Range(-4,0), Range(6,10)),
                 with behavior opponent1Behavior(pt),
                 with name "opponent1"
 
-opponent2 = new Player right of ego by Range(3,5), 
+pt1 = new Point offset by (Range(3,5), Range(0,2))
+pt2 = new Point left of ego by (Range(-5,-3), Range(0,2))
+op2_pos = Uniform(pt1, pt2)
+
+opponent2 = new Player at op2_pos, 
                     facing toward opponent1,
                     with behavior opponent2Behavior(pt),
                     with name "opponent2"

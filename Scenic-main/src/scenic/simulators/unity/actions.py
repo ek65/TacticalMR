@@ -594,7 +594,7 @@ class CoordinateInit(Enum):
     RELATIVE = 'relative'
 
 class Coordinate():
-    def __init__(self, init: CoordinateInit, ref):
+    def __init__(self, init: CoordinateInit, ref: list):
         self.init = init
         self.ref = ref
         self.weights = {}
@@ -603,9 +603,9 @@ class Coordinate():
         self.weights = weights
         return self
 
-    def predict(self):
+    def predict(self, ref: list):
         weighted = {}
-        for obj in self.ref:
+        for obj in ref:
             # print("type(obj): ", str(type(obj)))
             # print("obj.position: ", obj.position)
 
