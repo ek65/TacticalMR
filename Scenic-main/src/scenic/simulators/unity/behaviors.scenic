@@ -31,6 +31,10 @@ behavior LookAt(vec : Vector):
     take LookAtAction(vec, "Look At")
     take StopAction()
 
+behavior LookAt(vec : Vector):
+    take LookAtAction(vec, "Look At")
+    take StopAction()
+
 behavior MoveTo(v, status=""):
     dist = 1000
     while not (dist < 0.5):
