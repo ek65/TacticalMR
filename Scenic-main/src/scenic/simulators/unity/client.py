@@ -295,7 +295,7 @@ class UnityMessageServer:
             if self.ball is not None:
                 obj.gameObject = self.ball
             else:
-                print("in here")
+                # print("in here")
                 values = dict(
                     position=(0,0,0),
                     velocity=(0,0,0),
@@ -474,7 +474,7 @@ class gameObject:
         # self.heldByHuman = data.movement_data.heldByHuman
         # self.heldByScenic = data.movement_data.heldByScenic
         self.behavior = data.movement_data.behavior
-        print(self.behavior)
+        # print(self.behavior)
             
 
     

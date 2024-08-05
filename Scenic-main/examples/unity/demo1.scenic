@@ -50,9 +50,9 @@ behavior coachBehavior():
     do Idle() for 7 seconds
     do Unpause()
     do Idle() until hasBallPosession(opponent1)
-    do moveToLookAtBall(self, Coordinate(CoordinateInit.RELATIVE, ref = [opponent1, goal]).weighted({opponent1: 1, goal: 1}), [opponent1, goal], Speed(SpeedInit.MAGNITUDE)) until hasBallPosession(opponent2)
+    do moveToLookAtBall(self, Coordinate(CoordinateInit.RELATIVE, ref = [opponent1, goal]).weighted({opponent1: 1, goal: 1}), [opponent1, goal], Speed(SpeedInit.MAGNITUDE)) until opponent1.gameObject.behavior == "Pass Ball"
 
-
+    # do Idle() until opponent2.gameObject.behavior == "Pass Ball"
     do Pause()
     do Speak("Say \"" + "When the opponent passes the ball to its teammate, again position yourself in between the player and the goal to close the shot angle." + "\"")
     do Idle() for 7 seconds
@@ -61,13 +61,13 @@ behavior coachBehavior():
     # do Speak("Say \"" + "When the opponent passes the ball to its teammate, again position yourself in between the player and the goal to close the shot angle." + "\"")
     # do Idle() for 7 seconds
     # do Unpause()
-    do moveToLookAtBall(self, Coordinate(CoordinateInit.RELATIVE, ref = [opponent2, goal]).weighted({opponent2: 0.5, goal: 1}), [opponent2, goal], Speed(SpeedInit.MAGNITUDE)) until (hasBallPosession(opponent2) and distance from opponent1 to goal < 5)
+    do moveToLookAtBall(self, Coordinate(CoordinateInit.RELATIVE, ref = [opponent2, goal]).weighted({opponent2: 0.5, goal: 1}), [opponent2, goal], Speed(SpeedInit.MAGNITUDE)) until hasBallPosession(opponent2) and opponent2.gameObject.behavior == "Pass Ball"
     # do moveToLookAtBall(self, Coordinate(CoordinateInit.RELATIVE, ref = [opponent1, opponent2, goal]).weighted({opponent1: 0.05, opponent2: 0.9, goal: 1}), [opponent1, opponent2, goal], Speed(SpeedInit.MAGNITUDE)) until (hasBallPosession(opponent2) and distance from opponent1 to goal < 5)
 
-    # do Pause()
-    # do Speak("Say \"" + "" + "\"")
-    # do Idle() for 7 seconds
-    # do Unpause()
+    do Pause()
+    do Speak("Say \"" + "Again, position yourself between the ball and the goal to close the angle of shot." + "\"")
+    do Idle() for 7 seconds
+    do Unpause()
     dest = new Point ahead of goal by Range(-1,-1.5)
     do getTo(dest)
     do Idle()
@@ -95,10 +95,10 @@ behavior coachBehavior():
     #     do Idle()
 
 def closeToBall(player: Player) -> bool:
-    if (distance from player to ball < 1.5):
+    if (distance from player to ball < 3):
         return True
 
-ego = new DefensePlayer at (5, Range(0,0.1), 0), 
+ego = new Human at (5, Range(0,0.1), 0), 
         with behavior coachBehavior()
 
 goal = new Goal behind ego by Range(2.9,3), facing away from ego
