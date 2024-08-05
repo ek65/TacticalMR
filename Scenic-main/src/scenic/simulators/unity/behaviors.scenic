@@ -88,9 +88,13 @@ behavior moveTo(player: Player, target: Coordinate, ref: list, speed: Speed):
     target_position = target.predict(ref)
     target_speed = speed.predict()
 
-    while (distance from self to target_position > 0.05):
+    while (distance from self to target_position > 0.01):
         target_position = target.predict(ref)
         take MoveToWithSpeed(target_position, target_speed)
+
+behavior getTo(destination):
+    while (distance from self to destination > 0.01):
+        take MoveToAction(destination)
 
 
 # MARK: faceTowards
