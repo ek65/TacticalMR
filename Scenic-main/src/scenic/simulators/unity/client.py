@@ -473,6 +473,8 @@ class gameObject:
         self.ballPossession = data.movement_data.ballPossession
         # self.heldByHuman = data.movement_data.heldByHuman
         # self.heldByScenic = data.movement_data.heldByScenic
+        self.behavior = data.movement_data.behavior
+        print(self.behavior)
             
 
     
@@ -623,6 +625,7 @@ class MovementData:
     ballPossession: bool
     heldByHuman: bool
     heldByScenic: bool
+    behavior: str
     @staticmethod
     def from_dict(obj: Any) -> 'MovementData':
         assert isinstance(obj, dict)
@@ -636,7 +639,8 @@ class MovementData:
         ballPossession = from_bool(obj.get("ballPossession"))
         heldByHuman = from_bool(obj.get("heldByHuman"))
         heldByScenic = from_bool(obj.get("heldByScenic"))
-        return MovementData(transform, speed, velocity, angular_velocity, rotation, stopButton, pause, ballPossession, heldByHuman, heldByScenic)
+        behavior = obj.get("behavior")
+        return MovementData(transform, speed, velocity, angular_velocity, rotation, stopButton, pause, ballPossession, heldByHuman, heldByScenic, behavior)
 
     def to_dict(self) -> dict:
         result: dict = {}
@@ -650,6 +654,7 @@ class MovementData:
         result["ballPossession"] = from_bool(self.ballPossession)
         result["heldByHuman"] = from_bool(self.heldByHuman)
         result["heldByScenic"] = from_bool(self.heldByScenic)
+        result["behavior"] = self.behavior
         return result
 
 # CURRENTLY UNUSED

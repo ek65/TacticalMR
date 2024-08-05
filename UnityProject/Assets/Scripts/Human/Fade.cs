@@ -32,6 +32,10 @@ public class Fade : MonoBehaviour
 
     void LateUpdate()
     {
+        if (!gameObject.CompareTag("human"))
+        {
+            return;
+        }
         Color currentColor = blackout.color;
         if (fade)
         {

@@ -38,6 +38,11 @@ public class HumanInterface : MonoBehaviour
     public GameObject ball;
     public Transform ballPosition;
     private bool canPossessBall = true;
+    public string behavior = "Idle";
+    public string currAction = "No Action"; // just for debugging to see what actions function is being called
+
+    
+    public FloatingText floatingText;
     
     public bool ally;
     public Renderer shirt;
@@ -226,10 +231,32 @@ public class HumanInterface : MonoBehaviour
         {
             return;
         }
+        
+        if (data.behavior == " " || data.behavior == "" || data.behavior == "Idle")
+        {
+            behavior = "Idle";
+            floatingText.SetText("Idle");
+        }
+        else if (data.behavior != "" || data.behavior != null)
+        {
+            behavior = data.behavior;
+            floatingText.SetText(data.behavior);
+        }
+        else
+        {
+            behavior = "Idle";
+            floatingText.SetText("Idle");
+        }
+
+        if (behavior == "Idle")
+        {
+            currAction = "No Action";
+        }
 
         
         if (data.actionFunc != null)
         {
+            currAction = data.actionFunc;
             if (data.actionFunc == "Speak")
             {
                 explanation = data.actionArgs[0].ToString();
