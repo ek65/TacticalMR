@@ -100,7 +100,7 @@ public class PlayerInterface : MonoBehaviour
     private void GainPossession(Collision other)
     {
         int layerIgnoreBallCollision = LayerMask.NameToLayer("PlayerBall");
-        other.gameObject.layer = layerIgnoreBallCollision;
+        this.gameObject.layer = layerIgnoreBallCollision;
         
         ball.transform.position = ballPosition.position;
         ball.transform.SetParent(ballPosition);
@@ -122,7 +122,7 @@ public class PlayerInterface : MonoBehaviour
         canPossessBall = false;
         yield return new WaitForSeconds(1f);
         canPossessBall = true;
-        ball.gameObject.layer = LayerMask.NameToLayer("Default");
+        this.gameObject.layer = LayerMask.NameToLayer("Default");
     }
     
     public IEnumerator KickDebounce()

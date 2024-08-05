@@ -2969,7 +2969,7 @@ GameObject:
   - component: {fileID: 5617416017562615796}
   - component: {fileID: 7997107720138317640}
   - component: {fileID: -4780579434234233153}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: player.human
   m_TagString: NPChuman
   m_Icon: {fileID: 0}

@@ -2967,7 +2967,7 @@ GameObject:
   - component: {fileID: 2247349048034004288}
   - component: {fileID: -992256610573881265}
   - component: {fileID: -7229297900890908662}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: player.scenic
   m_TagString: player
   m_Icon: {fileID: 0}
