@@ -27,16 +27,23 @@ public class GroundSelection : MonoBehaviour, IPointerClickHandler, IPointerEnte
         {
             cam = Camera.main;
         }
-        // Ray ray = cam.ScreenPointToRay(Input.mousePosition);
-        // if (Physics.Raycast(ray, out raycastHit))
-        // {
-        //     groundHighlighter.transform.position = raycastHit.point;
-        // }
-        
+        Ray ray = cam.ScreenPointToRay(Input.mousePosition);
+#if UNITY_EDITOR
+        groundHighlighter.GetComponent<Collider>().enabled = false;
+        if (Physics.Raycast(ray, out raycastHit))
+        {
+            if (raycastHit.transform.gameObject.CompareTag("Ground"))
+            {
+                groundHighlighter.transform.position = raycastHit.point;
+            }
+            
+        }
+#endif
+#if UNITY_ANDROID
         // android raycast
         if (GameObject.FindGameObjectWithTag("human") != null)
         {
-            Ray ray = GameObject.FindGameObjectWithTag("RightRay").GetComponent<RayInteractor>().Ray;
+            ray = GameObject.FindGameObjectWithTag("RightRay").GetComponent<RayInteractor>().Ray;
             if (Physics.Raycast(ray, out raycastHit))
             {
                 if (raycastHit.transform.gameObject.CompareTag("Ground"))
@@ -45,6 +52,7 @@ public class GroundSelection : MonoBehaviour, IPointerClickHandler, IPointerEnte
                 }
             }
         }
+#endif
         
     }
 

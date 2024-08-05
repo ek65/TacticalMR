@@ -14,7 +14,7 @@ public class GroundDeselection : MonoBehaviour, IPointerClickHandler
 
     public void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.CompareTag("human") && !this.gameObject.CompareTag("Ground"))
+        if (other.gameObject.CompareTag("human") && !this.gameObject.CompareTag("GroundHover"))
         {
             Destroy(this.gameObject);
         }

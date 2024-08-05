@@ -22,10 +22,10 @@ TagManager:
   - stream
   - keyboard
   - text
-  - ground
   - human
   - LeftRay
   - RightRay
+  - GroundHover
   layers:
   - Default
   - TransparentFX
