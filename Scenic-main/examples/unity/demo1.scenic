@@ -24,15 +24,7 @@ behavior opponent1Behavior(pt):
         do ApproachGoal(pt)
 
     interrupt when (first_possession and self.gameObject.ballPossession):
-        option = Uniform(1, 2, 3)
-        # The finishing shot will be skewed left, center, or right
-        if (option == 1):
-            do ShootBall(goal.position, "left-middle")
-        elif (option == 2):
-            do ShootBall(goal.position, "center-middle")
-        elif (option == 3):
-            do ShootBall(goal.position, "right-middle")
-        abort
+        do ShootBall(goal.position, "center-middle")
     
 behavior opponent2Behavior(pt):
     try:
