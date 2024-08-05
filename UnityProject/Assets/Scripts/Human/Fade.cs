@@ -53,6 +53,14 @@ public class Fade : MonoBehaviour
         p.SetTransform(pos);
     }
     
+    public void StartFadeAndMove2(GameObject go, Vector3 pos)
+    {
+        fade = true;
+        StartCoroutine(UpdateFade());
+        HumanInterface p = GetComponent<HumanInterface>();
+        p.SetTransform2(go, pos);
+    }
+    
     IEnumerator UpdateFade()
     {
         yield return new WaitForSeconds(0.1f);

@@ -196,6 +196,7 @@ GameObject:
   m_Component:
   - component: {fileID: 974052999}
   - component: {fileID: 974053000}
+  - component: {fileID: 927479169}
   m_Layer: 0
   m_Name: Collider
   m_TagString: human
@@ -228,10 +229,22 @@ CapsuleCollider:
   m_Material: {fileID: 0}
   m_IsTrigger: 0
   m_Enabled: 1
-  m_Radius: 0.5
-  m_Height: 10
+  m_Radius: 0.25
+  m_Height: 2
   m_Direction: 1
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Center: {x: 0, y: 1, z: 0}
+--- !u!114 &927479169
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 974052998}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9b63f022d621b4e58950900892f0b34c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1117990737
 GameObject:
   m_ObjectHideFlags: 0
@@ -571,7 +584,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   replayIdentity:
-    id: 58502
+    id: 10783
   replayObject:
     reference: {fileID: 911549411963451548}
   replayBodyPosition: 6
@@ -596,7 +609,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   instantiateIdentity: 1
   replayIdentity:
-    id: 18756
+    id: 1922
   prefabIdentity:
     id: 16648
   observedComponents:
@@ -620,7 +633,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   replayIdentity:
-    id: 58990
+    id: 57424
   replayObject:
     reference: {fileID: 911549411963451548}
   replayPosition: 23
@@ -644,7 +657,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   replayIdentity:
-    id: 4442
+    id: 13401
   replayObject:
     reference: {fileID: 911549411963451548}
   replayRootBonePosition: 23
@@ -1028,6 +1041,8 @@ MonoBehaviour:
   ballPossession: 0
   ball: {fileID: 0}
   ballPosition: {fileID: 0}
+  ally: 0
+  shirt: {fileID: 0}
 --- !u!114 &5512008216080906706
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4734,7 +4749,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   replayIdentity:
-    id: 65317
+    id: 60753
   replayObject:
     reference: {fileID: 2105754399}
   replayRootBonePosition: 23
@@ -4828,7 +4843,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   replayIdentity:
-    id: 64360
+    id: 33827
   replayObject:
     reference: {fileID: 2105754399}
   replayPosition: 23
@@ -4853,7 +4868,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   instantiateIdentity: 1
   replayIdentity:
-    id: 17767
+    id: 27533
   prefabIdentity:
     id: 65519
   observedComponents:
@@ -4877,7 +4892,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   replayIdentity:
-    id: 17218
+    id: 43974
   replayObject:
     reference: {fileID: 2105754399}
   replayBodyPosition: 6

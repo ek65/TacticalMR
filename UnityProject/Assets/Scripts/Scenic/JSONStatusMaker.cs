@@ -126,7 +126,15 @@ public class JSONStatusMaker : MonoBehaviour
         
         if (isHuman)
         {
-            pData.movementData.stopButton = player.GetComponent<ExitScenario>().endScenario;
+            if (GameObject.FindGameObjectWithTag("human") != null)
+            {
+                pData.movementData.stopButton = GameObject.FindGameObjectWithTag("human").GetComponent<ExitScenario>().endScenario;
+            }
+            else
+            {
+                pData.movementData.stopButton = player.GetComponent<ExitScenario>().endScenario;
+            }
+            
             // dont need to set endScenario back to false here because it is set to false in InstantiateScenicObject on the next simulation
             if (pData.movementData.stopButton == true)
             {

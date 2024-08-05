@@ -185,6 +185,13 @@ public class HumanInterface : MonoBehaviour
 
     }
     
+    public void SetTransform2(GameObject go, Vector3 pos)
+    {
+        source.PlayOneShot(source.clip);
+        go.transform.position = pos;
+
+    }
+    
     public void SpawnCircle(Vector3 pos)
     {
         pos = new Vector3(pos.x, 2f, pos.z);

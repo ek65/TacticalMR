@@ -4,6 +4,8 @@ using Oculus.Interaction;
 using UnityEngine;
 using UltimateReplay;
 using UltimateReplay.Storage;
+using Unity.VisualScripting;
+using Utilities.Extensions;
 
 public class ExitScenario : MonoBehaviour
 {
@@ -50,6 +52,7 @@ public class ExitScenario : MonoBehaviour
         if (OVRInput.GetDown(buttonX, controllerLeft))
         {
             ToggleRayInteractor();
+            // HideBody();
         }
         
         // TODO: enable this for recording & playback, put this in another class and call from Keyboard Input
@@ -105,6 +108,16 @@ public class ExitScenario : MonoBehaviour
             {
                 rayInteractor.enabled = true;
             }
+        }
+    }
+    
+    public void HideBody()
+    {
+        if (GameObject.FindGameObjectWithTag("human") != null)
+        {
+            GameObject go = GameObject.FindGameObjectWithTag("human").transform
+                .FindChildRecursive("ArmatureSkinningUpdateRetargetUser").gameObject;
+            go.SetActive(!go.activeSelf);
         }
     }
     

@@ -81,11 +81,23 @@ public class InstantiateScenicObject
             {
                 try
                 {
-                    addedGameObject = objectList.humanPlayers[0];
-                    Fade f = objectList.humanPlayers[0].GetComponent<Fade>();
-                    ExitScenario e = objectList.humanPlayers[0].GetComponent<ExitScenario>();
-                    e.endScenario = false;
-                    f.StartFadeAndMove(pos);
+                    // for the case of observer vr
+                    if (GameObject.FindGameObjectWithTag("human") != null)
+                    {
+                        addedGameObject = GameObject.FindGameObjectWithTag("human");
+                        Fade f = addedGameObject.GetComponent<Fade>();
+                        ExitScenario e = addedGameObject.GetComponent<ExitScenario>();
+                        e.endScenario = false;
+                        f.StartFadeAndMove2(objectList.humanPlayers[0], pos);
+                    }
+                    else
+                    {
+                        addedGameObject = objectList.humanPlayers[0];
+                        Fade f = objectList.humanPlayers[0].GetComponent<Fade>();
+                        ExitScenario e = objectList.humanPlayers[0].GetComponent<ExitScenario>();
+                        e.endScenario = false;
+                        f.StartFadeAndMove(pos);
+                    }
                 }
                 catch
                 {
