@@ -92,7 +92,7 @@ def closeToBall(player: Player) -> bool:
     if (distance from player to ball < 1.5):
         return True
 
-ego = new Human at (5, Range(0,0.1), 0), 
+ego = new DefensePlayer at (5, Range(0,0.1), 0), 
         with behavior coachBehavior()
 
 goal = new Goal behind ego by Range(2.9,3), facing away from ego
