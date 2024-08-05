@@ -3241,7 +3241,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2105754399, guid: 66fd9cdc3c13c48a98f418054f74c298, type: 3}
       propertyPath: replayIdentity.id
-      value: 39619
+      value: 3224
       objectReference: {fileID: 0}
     - target: {fileID: 2105754400, guid: 66fd9cdc3c13c48a98f418054f74c298, type: 3}
       propertyPath: replayIdentity.id
