@@ -44,10 +44,10 @@ behavior coachBehavior():
 
     do Idle() until closeToBall(opponent1)
     print("1st")
-    # do Pause()
-    # do Speak("Say \"" + "Once the opponent takes the ball, position yourself ahead of the player to defend the goal." + "\"")
-    # do Idle() for 7 seconds
-    # do Unpause()
+    do Pause()
+    do Speak("Say \"" + "Once the opponent takes the ball, position yourself ahead of the player to defend the goal." + "\"")
+    do Idle() for 7 seconds
+    do Unpause()
     do Idle() until hasBallPosession(opponent1)
     do moveToLookAtBall(self, Coordinate(CoordinateInit.RELATIVE, ref = [opponent1, goal]).weighted({opponent1: 1, goal: 1}), [opponent1, goal], Speed(SpeedInit.MAGNITUDE)) until not hasBallPosession(opponent1)
     print("2nd")
