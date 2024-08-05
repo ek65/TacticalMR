@@ -49,12 +49,10 @@ behavior coachBehavior():
     # do Idle() for 7 seconds
     # do Unpause()
     do Idle() until hasBallPosession(opponent1)
-    do moveTo(self, Coordinate(CoordinateInit.RELATIVE, ref = [opponent1, goal]).weighted({opponent1: 0.5, goal: 1}), [opponent1, goal], Speed(SpeedInit.MAGNITUDE)) until not hasBallPosession(opponent1)
-    do LookAt(opponent1)
+    do moveToLookAtBall(self, Coordinate(CoordinateInit.RELATIVE, ref = [opponent1, goal]).weighted({opponent1: 1, goal: 1}), [opponent1, goal], Speed(SpeedInit.MAGNITUDE)) until not hasBallPosession(opponent1)
     print("2nd")
     do moveToLookAtBall(self, Coordinate(CoordinateInit.RELATIVE, ref = [opponent2, goal]).weighted({opponent2: 0.9, goal: 1}), [opponent2, goal], Speed(SpeedInit.MAGNITUDE)) until (hasBallPosession(opponent2) and distance from opponent1 to goal < 5)
     print("3rd")
-    do LookAt(opponent2)
     dest = new Point ahead of goal by Range(-1,-1.5)
     do getTo(dest)
     do LookAt(opponent1)

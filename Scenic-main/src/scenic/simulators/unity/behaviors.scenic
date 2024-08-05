@@ -97,6 +97,20 @@ behavior getTo(destination):
         take MoveToAction(destination)
 
 
+behavior moveToLookAtBall(player: Player, target: Coordinate, ref: list, speed: Speed):
+    """
+    A player will move to the specified target with a specified velocity and style.
+    Args:
+        targetPosition (Vector): A position of the end point of the trajectory.
+        style (MovingStyle): A moving style out of the options ‘walk’, ‘run’ and ‘sprint’.
+        velocity (float): The velocity to move to the target.
+    """
+    target_position = target.predict(ref)
+    target_speed = speed.predict()
+    while (distance from self to target_position > 0.05):
+        target_position = target.predict(ref)
+        take MoveToLookAtBallWithSpeed(target_position, target_speed)
+
 # MARK: faceTowards
 # TODO: Need to Create an Action to called "FaceTowards"
 # def faceTowards(player: Player, target: Object, offset: Angle = 0):
