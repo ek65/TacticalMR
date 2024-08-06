@@ -12,7 +12,6 @@ behavior Idle():
         take IdleAction()
 
 behavior ShootBall(vec : Vector, string : str):
-    take StopAction()
     take ShootAction(vec, string, "Shoot Ball")
     take StopAction()
 
