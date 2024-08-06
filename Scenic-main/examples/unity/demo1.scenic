@@ -45,7 +45,6 @@ behavior coachBehavior():
     self_possession = False
 
     do Idle() until closeToBall(opponent1, 1.5)
-    # do Idle() until hasBallPosession(opponent1)
     do Pause()
     do Speak("Say \"" + "During defense, it's important to defend the space behind you while closing the angle of shot. So, don't rush out. position yourself in between the player and the goal post." + "\"")
     do Idle() for 14 seconds
