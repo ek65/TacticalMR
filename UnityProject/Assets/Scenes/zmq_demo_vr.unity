@@ -3241,7 +3241,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2105754399, guid: 66fd9cdc3c13c48a98f418054f74c298, type: 3}
       propertyPath: replayIdentity.id
-      value: 37774
+      value: 48021
       objectReference: {fileID: 0}
     - target: {fileID: 2105754400, guid: 66fd9cdc3c13c48a98f418054f74c298, type: 3}
       propertyPath: replayIdentity.id
@@ -3251,17 +3251,21 @@ PrefabInstance:
       propertyPath: m_Name
       value: player.human VR
       objectReference: {fileID: 0}
+    - target: {fileID: 532548465081309300, guid: 66fd9cdc3c13c48a98f418054f74c298, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 911549411963451548, guid: 66fd9cdc3c13c48a98f418054f74c298, type: 3}
       propertyPath: prefabType
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 911549411963451548, guid: 66fd9cdc3c13c48a98f418054f74c298, type: 3}
       propertyPath: replayIdentity.id
-      value: 12105
+      value: 6116
       objectReference: {fileID: 0}
     - target: {fileID: 1793092091362674251, guid: 66fd9cdc3c13c48a98f418054f74c298, type: 3}
       propertyPath: replayIdentity.id
-      value: 6560
+      value: 6417
       objectReference: {fileID: 0}
     - target: {fileID: 4312110868037277311, guid: 66fd9cdc3c13c48a98f418054f74c298, type: 3}
       propertyPath: m_RootOrder
@@ -3309,11 +3313,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8449957603336736593, guid: 66fd9cdc3c13c48a98f418054f74c298, type: 3}
       propertyPath: replayIdentity.id
-      value: 1051
+      value: 5817
       objectReference: {fileID: 0}
     - target: {fileID: 9002673567477380144, guid: 66fd9cdc3c13c48a98f418054f74c298, type: 3}
       propertyPath: replayIdentity.id
-      value: 2393
+      value: 12836
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 66fd9cdc3c13c48a98f418054f74c298, type: 3}

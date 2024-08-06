@@ -137,7 +137,7 @@ public class HumanInterface : MonoBehaviour
     
     private void OnCollisionEnter(Collision other)
     {
-        if (other.collider.CompareTag("ball") && canPossessBall)
+        if (other.collider.CompareTag("ball") && canPossessBall && CompareTag("NPChuman"))
         {
             GainPossession(other);
         }

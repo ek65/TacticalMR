@@ -69,7 +69,7 @@ public class InstantiateScenicObject
         {
             if (objectList.humanPlayers.Count == 0)
             {
-                addedGameObject = MonoBehaviour.Instantiate(objectList.modelList["player.human"], pos, rot);
+                addedGameObject = MonoBehaviour.Instantiate(objectList.modelList["player.human VR"], pos, rot);
                 //scenicPlayer.GetComponent<NetworkObject>().Spawn();
                 addedGameObject.name = "Coach";
                 objectList.humanPlayers.Add(addedGameObject);

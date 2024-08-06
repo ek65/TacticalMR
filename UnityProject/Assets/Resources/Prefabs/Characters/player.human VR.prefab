@@ -1040,9 +1040,12 @@ MonoBehaviour:
   explanation: 
   ballPossession: 0
   ball: {fileID: 0}
-  ballPosition: {fileID: 0}
+  ballPosition: {fileID: 8914956859016980923}
+  behavior: Idle
+  currAction: No Action
+  floatingText: {fileID: 8735055989635520171}
   ally: 0
-  shirt: {fileID: 0}
+  shirt: {fileID: 8381939002267663804}
 --- !u!114 &5512008216080906706
 MonoBehaviour:
   m_ObjectHideFlags: 0
