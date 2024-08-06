@@ -39,39 +39,7 @@ behavior opponent2Behavior(pt):
         do Idle() for 0.5 seconds
         abort
 
-behavior coachBehavior():
-    opponent1_first_ball_possession = False
-    opponent2_first_ball_possession = False
-    self_possession = False
 
-    do Idle() until closeToBall(opponent1, 1.5)
-    do Pause()
-    do Speak("Say \"" + "This time, I will demonstrate start to finish without a pause. Remember to guard your space behind while closing the angle of shot!" + "\"")
-    do Idle() for 10 seconds
-    do Unpause()
-
-    do moveToLookAtBall(self, Coordinate(CoordinateInit.RELATIVE, ref = [opponent1, goal]).weighted({opponent1: 1, goal: 1}), [opponent1, goal], Speed(SpeedInit.MAGNITUDE)) until distance from opponent2 to ball < 1.5
-    # print(distance from opponent2 to ball)
-    
-    # do Idle() until closeToBall(opponent2, 3.5) and opponent1.gameObject.ballPossession == False
-    # do Idle() until closeToBall(opponent2)
-    # do Pause()
-    # do Speak("Say \"" + "When the opponent passes the ball to its teammate, again position yourself in between the player and the goal to close the shot angle." + "\"")
-    # do Idle() for 7 seconds
-    # do Unpause()
-    do moveToLookAtBall(self, Coordinate(CoordinateInit.RELATIVE, ref = [opponent2, goal]).weighted({opponent2: 0.5, goal: 1}), [opponent2, goal], Speed(SpeedInit.MAGNITUDE)) until hasBallPosession(opponent2) and opponent2.gameObject.behavior == "Pass Ball"
-    # do moveToLookAtBall(self, Coordinate(CoordinateInit.RELATIVE, ref = [opponent1, opponent2, goal]).weighted({opponent1: 0.05, opponent2: 0.9, goal: 1}), [opponent1, opponent2, goal], Speed(SpeedInit.MAGNITUDE)) until (hasBallPosession(opponent2) and distance from opponent1 to goal < 5)
-
-    # do Idle() until hasBallPosession(opponent2) and opponent2.gameObject.behavior == "Pass Ball"
-    # do Idle() until closeToBall(opponent1, 3) and opponent2.gameObject.ballPossession == False
-    dest = new Point ahead of goal by Range(-1,-1.5)
-    do getTo(dest)
-    do Idle()
-
-
-def closeToBall(player: Player, distance: float) -> bool:
-    if (distance from player to ball < distance):
-        return True
 
 ego = new Human at (5, Range(0,0.1), 0)
 
