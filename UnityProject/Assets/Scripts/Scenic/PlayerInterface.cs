@@ -28,6 +28,7 @@ public class PlayerInterface : MonoBehaviour
     public Vector3 currVelocity => this.GetComponent<RichAI>().velocity;
 
     private bool canPossessBall = true;
+    public bool canKickBall = true;
     
     private int localTick;  // NOTE: This is not the true tick and is what we will use to internally record a timestep.
 
@@ -98,7 +99,7 @@ public class PlayerInterface : MonoBehaviour
     private void GainPossession(Collision other)
     {
         int layerIgnoreBallCollision = LayerMask.NameToLayer("PlayerBall");
-        other.gameObject.layer = layerIgnoreBallCollision;
+        this.gameObject.layer = layerIgnoreBallCollision;
         
         ball.transform.position = ballPosition.position;
         ball.transform.SetParent(ballPosition);
@@ -109,18 +110,25 @@ public class PlayerInterface : MonoBehaviour
     
     public void LosePossession()
     {
-        StartCoroutine(possessionDebounce());
+        StartCoroutine(PossessionDebounce());
         ball.transform.SetParent(null);
         ball.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
         ballPossession = false;
     }
     
-    private IEnumerator possessionDebounce()
+    private IEnumerator PossessionDebounce()
     {
         canPossessBall = false;
         yield return new WaitForSeconds(1f);
         canPossessBall = true;
-        ball.gameObject.layer = LayerMask.NameToLayer("Default");
+        this.gameObject.layer = LayerMask.NameToLayer("Default");
+    }
+    
+    public IEnumerator KickDebounce()
+    {
+        canKickBall = false;
+        yield return new WaitForSeconds(2.5f);
+        canKickBall = true;
     }
 
     public void ApplyMovement(ScenicMovementData data)
@@ -132,7 +140,12 @@ public class PlayerInterface : MonoBehaviour
             return;
         }
         
-        Debug.LogError(data.behavior);
+        // Debug.LogError(data.behavior);
+        if (this.gameObject.name == "Unknown")
+        {
+            Debug.LogError("CURRENT ACTION: " + data.actionFunc);
+        }
+        
 
         if (data.behavior == " " || data.behavior == "" || data.behavior == "Idle")
         {

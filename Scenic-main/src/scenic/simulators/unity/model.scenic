@@ -6,7 +6,8 @@ from scenic.simulators.unity.simulator import UnitySimulator
 from scenic.simulators.unity.client import gameObject
 from scenic.core.vectors import Orientation
 param unity_map = None
-param address = 'localhost'
+param address = '10.57.155.29'
+# param address = 'localhost'
 param port = 5555
 param timeout = 10
 param timestep = .1
@@ -211,7 +212,7 @@ def hasBallPosession(player: Player) -> bool:
     Returns:
     bool: True if the player has the ball posession, False otherwise.
     """
-    return player.ballPossession
+    return player.gameObject.ballPossession
 
 
 # MARK: isFacingAt

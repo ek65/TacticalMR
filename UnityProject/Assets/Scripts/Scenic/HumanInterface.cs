@@ -37,6 +37,15 @@ public class HumanInterface : MonoBehaviour
     public bool ballPossession;
     public GameObject ball;
     public Transform ballPosition;
+    private bool canPossessBall = true;
+    public string behavior = "Idle";
+    public string currAction = "No Action"; // just for debugging to see what actions function is being called
+
+    
+    public FloatingText floatingText;
+    
+    public bool ally;
+    public Renderer shirt;
     
     // Start is called before the first frame update
     void Start()
@@ -49,8 +58,13 @@ public class HumanInterface : MonoBehaviour
         objectList = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<ObjectsList>();
         circleObjects = new List<GameObject>();
         arrowObjects = new List<GameObject>();
-        SpawnCircle(this.transform.position); // spawn the circle around the coach
+        // SpawnCircle(this.transform.position); // spawn the circle around the coach
         
+        if (ally)
+        {
+            shirt.material.SetColor("_Color", Color.blue);
+        }
+
         ballPossession = false;
         if (ball == null)
         {
@@ -71,15 +85,15 @@ public class HumanInterface : MonoBehaviour
         // {
         //     currResponse = chatBehaviour.sentences[chatBehaviour.sentenceIndex];
         // }
-        if (circleObjects != null && circleObjects[0] != null)
+        if (circleObjects.Count > 0 && circleObjects[0] != null)
         {
             var temp = new Vector3(this.transform.position.x, 2f, this.transform.position.z);
             circleObjects[0].transform.position = temp;
         }
-        if (currResponse != null || currResponse != "")
-        {
-            Debug.LogError("current response: " + currResponse);
-        }
+        // if (currResponse != null || currResponse != "")
+        // {
+        //     Debug.LogError("current response: " + currResponse);
+        // }
         if (!circleSpawned && ContainsAll(currResponse, "closest", "opponent"))
         {
             circleSpawned = true;
@@ -121,8 +135,19 @@ public class HumanInterface : MonoBehaviour
         }
     }
     
+    private void OnCollisionEnter(Collision other)
+    {
+        if (other.collider.CompareTag("ball") && canPossessBall && CompareTag("NPChuman"))
+        {
+            GainPossession(other);
+        }
+    }
+    
     private void GainPossession(Collision other)
     {
+        int layerIgnoreBallCollision = LayerMask.NameToLayer("PlayerBall");
+        this.gameObject.layer = layerIgnoreBallCollision;
+        
         ball.transform.position = ballPosition.position;
         ball.transform.SetParent(ballPosition);
         ball.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
@@ -132,9 +157,18 @@ public class HumanInterface : MonoBehaviour
     
     public void LosePossession()
     {
+        StartCoroutine(PossessionDebounce());
         ball.transform.SetParent(null);
         ball.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
         ballPossession = false;
+    }
+    
+    private IEnumerator PossessionDebounce()
+    {
+        canPossessBall = false;
+        yield return new WaitForSeconds(1f);
+        canPossessBall = true;
+        this.gameObject.layer = LayerMask.NameToLayer("Default");
     }
     
     public static bool ContainsAll(string source, params string[] values)
@@ -153,6 +187,13 @@ public class HumanInterface : MonoBehaviour
         source.PlayOneShot(source.clip);
         this.transform.position = pos;
         Debug.LogWarning("Local: I am transforming to: " + pos.ToString());
+
+    }
+    
+    public void SetTransform2(GameObject go, Vector3 pos)
+    {
+        source.PlayOneShot(source.clip);
+        go.transform.position = pos;
 
     }
     
@@ -190,10 +231,32 @@ public class HumanInterface : MonoBehaviour
         {
             return;
         }
+        
+        if (data.behavior == " " || data.behavior == "" || data.behavior == "Idle")
+        {
+            behavior = "Idle";
+            floatingText.SetText("Idle");
+        }
+        else if (data.behavior != "" || data.behavior != null)
+        {
+            behavior = data.behavior;
+            floatingText.SetText(data.behavior);
+        }
+        else
+        {
+            behavior = "Idle";
+            floatingText.SetText("Idle");
+        }
+
+        if (behavior == "Idle")
+        {
+            currAction = "No Action";
+        }
 
         
         if (data.actionFunc != null)
         {
+            currAction = data.actionFunc;
             if (data.actionFunc == "Speak")
             {
                 explanation = data.actionArgs[0].ToString();

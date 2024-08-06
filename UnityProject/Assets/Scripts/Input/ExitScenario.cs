@@ -1,18 +1,23 @@
 using System.Collections;
 using System.Collections.Generic;
+using Oculus.Interaction;
 using UnityEngine;
 using UltimateReplay;
 using UltimateReplay.Storage;
+using Unity.VisualScripting;
+using Utilities.Extensions;
 
 public class ExitScenario : MonoBehaviour
 {
     // public OVRInput.Button button;
-    // public OVRInput.Button trigger;
-    // public OVRInput.Controller controllerRight;
-    // public OVRInput.Controller controllerLeft;
-    // public OVRInput.Button buttonX;
-    // public OVRInput.Button buttonY;
+    public OVRInput.Button indexTrigger;
+    public OVRInput.Controller controllerRight;
+    public OVRInput.Controller controllerLeft;
+    public OVRInput.Button buttonX;
+    public OVRInput.Button buttonY;
     // public bool recordingActive = false;
+    
+    private KeyboardInput keyboardInput;
 
     public bool endScenario;
 
@@ -26,16 +31,29 @@ public class ExitScenario : MonoBehaviour
     void Start()
     {
         endScenario = false;
+        keyboardInput = GameObject.FindGameObjectWithTag("keyboard").GetComponent<KeyboardInput>();
         // storage = new ReplayMemoryStorage("MyReplay");
     }
 
     // Update is called once per frame
     void Update()
     {
-        // else
-        // {
-        //     endScenario = false;
-        // }
+        if (OVRInput.GetDown(buttonX, controllerRight))
+        {
+            EndScenario();
+        }
+        
+        if (OVRInput.GetDown(buttonY, controllerRight))
+        {
+            Debug.LogError("I HIT THE PAUSE BUTTON");
+            keyboardInput.HandlePause();
+        }
+        
+        if (OVRInput.GetDown(buttonX, controllerLeft))
+        {
+            ToggleRayInteractor();
+            // HideBody();
+        }
         
         // TODO: enable this for recording & playback, put this in another class and call from Keyboard Input
         // if(OVRInput.GetDown(buttonX, controllerLeft) && !recordingActive)
@@ -75,6 +93,32 @@ public class ExitScenario : MonoBehaviour
         //     ReplayPlaybackOperation playbackOp = ReplayManager.BeginPlayback(storage);
         // }
 
+    }
+
+    public void ToggleRayInteractor()
+    {
+        if (GameObject.FindGameObjectWithTag("human") != null)
+        {
+            RayInteractor rayInteractor = GameObject.FindGameObjectWithTag("RightRay").GetComponent<RayInteractor>();
+            if (rayInteractor.enabled)
+            {
+                rayInteractor.enabled = false;
+            }
+            else
+            {
+                rayInteractor.enabled = true;
+            }
+        }
+    }
+    
+    public void HideBody()
+    {
+        if (GameObject.FindGameObjectWithTag("human") != null)
+        {
+            GameObject go = GameObject.FindGameObjectWithTag("human").transform
+                .FindChildRecursive("ArmatureSkinningUpdateRetargetUser").gameObject;
+            go.SetActive(!go.activeSelf);
+        }
     }
     
     // Sets the endScenario flag to true. Scenic reads this and will terminate, and generate a new simulation

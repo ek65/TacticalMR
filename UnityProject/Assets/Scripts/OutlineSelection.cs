@@ -21,7 +21,7 @@ public class OutlineSelection : MonoBehaviour, IPointerClickHandler, IPointerEnt
     {
         if (keyboardInput.canClick)
         {
-            stayOutlined = !stayOutlined;
+            // stayOutlined = !stayOutlined;
             keyboardInput.HandleAnnotationClick();
         }
     }
@@ -38,5 +38,29 @@ public class OutlineSelection : MonoBehaviour, IPointerClickHandler, IPointerEnt
             outline.enabled = false;
         }
     }
+    
+#if UNITY_ANDROID
+    public void OnRayClick()
+    {
+        if (keyboardInput.canClick)
+        {
+            // CLICKED
+            // keyboardInput.HandleAnnotationClick();
+        }
+    }
+    
+    public void OnRayEnter()
+    {
+        outline.enabled = true;
+    }
+    
+    public void OnRayExit()
+    {
+        if (stayOutlined == false)
+        {
+            outline.enabled = false;
+        }
+    }
+#endif
     
 }

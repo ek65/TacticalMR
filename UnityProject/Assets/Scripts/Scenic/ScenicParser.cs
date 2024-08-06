@@ -35,7 +35,6 @@ public class ScenicParser
         // float speed = data.Speed;
         // Quaternion rot = ListToQuaternion(data.Rotation);
         string modelType = data.Model.ModelType;
-        bool stopButton = data.Stopbutton;
         bool pause = data.Pause;
         string behavior = data.Behavior;
         if (data.ActionDict.Count > 0)
@@ -127,12 +126,12 @@ public class ScenicParser
                         floatIndex++;
                     }
                 }
-                return new ScenicMovementData(pos, modelType, behavior, actionFunc, actionArgs, stopButton,pause);
+                return new ScenicMovementData(pos, modelType, behavior, actionFunc, actionArgs, pause);
             }
-            return new ScenicMovementData(pos, modelType, behavior, stopButton,pause);
+            return new ScenicMovementData(pos, modelType, behavior, pause);
         }
 
-        return new ScenicMovementData(pos, modelType, behavior, stopButton,pause);
+        return new ScenicMovementData(pos, modelType, behavior, pause);
     }
     public void HandleControl(ScenicJson data)
     {

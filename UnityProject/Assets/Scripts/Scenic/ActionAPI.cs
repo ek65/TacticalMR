@@ -70,12 +70,21 @@ public class ActionAPI : MonoBehaviour
         this.gameObject.GetComponent<Animator>().SetFloat("VelX", 0);
     }
     
-    public void MoveToPos(Vector3 destinationPosition, float speed = 2f, bool lookAt = true)
+    public void MoveToPos(Vector3 destinationPosition, float speed = 2f, bool lookAt = false)
     {
         // TODO: replace this anim controller with movement, need to merge humanoid AI movement with the movement controller
         //SetAnimController("Humanoid");
         SetAnimController("Movement");
         StartCoroutine(MoveToPosHelper(destinationPosition, lookAt));
+        //StartCoroutine(MovementLerp(destinationPosition, lookAt));
+    }
+    
+    public void MoveToPosLookAtBall(Vector3 destinationPosition, float speed = 2f, bool lookAt = true)
+    {
+        // TODO: replace this anim controller with movement, need to merge humanoid AI movement with the movement controller
+        //SetAnimController("Humanoid");
+        SetAnimController("Movement");
+        StartCoroutine(MoveToPosHelper(destinationPosition, true));
         //StartCoroutine(MovementLerp(destinationPosition, lookAt));
     }
 
@@ -105,6 +114,10 @@ public class ActionAPI : MonoBehaviour
     {
         // ConvaiNPC charObj = GameObject.FindGameObjectWithTag("Character").GetComponentInChildren<ConvaiNPC>();
         // charObj.HandleInputSubmission(text);
+        if (this.gameObject.name == "Unknown")
+        {
+            Debug.LogError("Speak: " + text);
+        }
         ChatBehaviour chatBehaviour = GameObject.FindGameObjectWithTag("Character").GetComponentInChildren<ChatBehaviour>();
         if (chatBehaviour != null)
         {
@@ -191,17 +204,23 @@ public class ActionAPI : MonoBehaviour
 
     public void GroundPassFast(Vector3 destinationPosition)
     {
+        
+        // Debug.LogError("in gpf");
+        stopMovement = true;
         if (this.GetComponent<Animator>().enabled == false)
         {
             return;
         }
-        // Debug.LogError("in gpf");
-        stopMovement = true;
+        if (this.GetComponent<PlayerInterface>().ballPossession == false && this.GetComponent<PlayerInterface>().canKickBall == false)
+        {
+            return;
+        }
         SetAnimController("Dribbling");
         // Debug.LogError(this.GetComponent<Animator>().runtimeAnimatorController.name);
         // Debug.LogError(this.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0));
         // Debug.LogError("in gpf2");
         StartCoroutine(LookTowards(destinationPosition, "GroundPassFast"));
+        StartCoroutine(this.GetComponent<PlayerInterface>().KickDebounce());
         
         SetMoveBallValues(destinationPosition, 0, strongPassForce);
     }
@@ -247,11 +266,19 @@ public class ActionAPI : MonoBehaviour
     public void Shoot(Vector3 destinationPosition, string destinationZone)
     {
         stopMovement = true;
+        if (this.GetComponent<Animator>().enabled == false)
+        {
+            return;
+        }
+        if (this.GetComponent<PlayerInterface>().ballPossession == false && this.GetComponent<PlayerInterface>().canKickBall == false)
+        {
+            return;
+        }
         SetAnimController("Dribbling");
         
         StartCoroutine(LookTowards(destinationPosition, "Shoot"));
+        StartCoroutine(this.GetComponent<PlayerInterface>().KickDebounce());
 
-        
         string ballProjectileHeight = "low";
         float horizontalOffset = (goalWidth / 6.0f);
 
@@ -411,7 +438,7 @@ public class ActionAPI : MonoBehaviour
     #endregion
 
     #region Helper Coroutines
-    IEnumerator MoveToPosHelper(Vector3 destinationPosition, bool lookAt = true)
+    IEnumerator MoveToPosHelper(Vector3 destinationPosition, bool lookAt)
     {
         // Debug.Log("here");
 
@@ -427,7 +454,14 @@ public class ActionAPI : MonoBehaviour
         // Set Destination 
         // dest.target.position = destinationPosition;
         // StartCoroutine(Move(agent, character, destinationPosition));
-        StartCoroutine(Move2(dest, aiNav, destinationPosition));
+        if (!lookAt)
+        {
+            StartCoroutine(Move2(dest, aiNav, destinationPosition));
+        }
+        else if (lookAt)
+        {
+            StartCoroutine(Move3(dest, aiNav, destinationPosition));
+        }
 
         // Debug.Log("Here 3");
         
@@ -469,7 +503,7 @@ public class ActionAPI : MonoBehaviour
     
     //TODO: This assumes that we are having the player look towards the position they're running, add more functionality to run towards position without looking
     IEnumerator Move2(AIDestinationSetter destSetter, RichAI aiNav, Vector3 Destiny)
-    { 
+    {
         GameObject selfPlayer = this.gameObject;
         destSetter.target.position = Destiny;
         while (destSetter.target.position != this.gameObject.transform.position)
@@ -484,6 +518,45 @@ public class ActionAPI : MonoBehaviour
             yield return null;
         }
         
+        // selfPlayer.GetComponent<NavMeshAgent>().enabled = false; // Deactivate Agent 
+        // selfPlayer.GetComponentInChildren<NavMeshObstacle>().enabled = true;
+    }
+    
+    IEnumerator Move3(AIDestinationSetter destSetter, RichAI aiNav, Vector3 Destiny)
+    {
+        aiNav.updateRotation = false;
+        if (this.gameObject.CompareTag("NPChuman"))
+        {
+            Transform ball = this.GetComponent<HumanInterface>().ball.transform;
+            Vector3 targetPos = new Vector3(ball.transform.position.x, this.transform.position.y,
+                ball.transform.position.z);
+            transform.LookAt(targetPos);
+        }
+        else
+        {
+            Transform ball = this.GetComponent<PlayerInterface>().ball.transform;
+            Vector3 targetPos = new Vector3(this.transform.position.x, ball.transform.position.y,
+                this.transform.position.z);
+            transform.LookAt(targetPos);
+        }
+        GameObject selfPlayer = this.gameObject;
+        destSetter.target.position = Destiny;
+        while (destSetter.target.position != this.gameObject.transform.position)
+        {
+            // should normalize speed then *2 for anim values
+            
+            float horizontalInput = aiNav.velocity.x;
+            float verticalInput = aiNav.velocity.z;
+            
+            selfPlayer.GetComponent<Animator>().SetFloat("VelZ", verticalInput);
+            selfPlayer.GetComponent<Animator>().SetFloat("VelX", horizontalInput);
+
+            // yield return StartCoroutine(MovementLerp2(Destiny));
+            yield return null;
+        }
+        aiNav.updateRotation = true;
+        yield return null;
+
         // selfPlayer.GetComponent<NavMeshAgent>().enabled = false; // Deactivate Agent 
         // selfPlayer.GetComponentInChildren<NavMeshObstacle>().enabled = true;
     }

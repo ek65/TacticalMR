@@ -32,6 +32,10 @@ public class Fade : MonoBehaviour
 
     void LateUpdate()
     {
+        if (!gameObject.CompareTag("human"))
+        {
+            return;
+        }
         Color currentColor = blackout.color;
         if (fade)
         {
@@ -51,6 +55,14 @@ public class Fade : MonoBehaviour
         StartCoroutine(UpdateFade());
         HumanInterface p = GetComponent<HumanInterface>();
         p.SetTransform(pos);
+    }
+    
+    public void StartFadeAndMove2(GameObject go, Vector3 pos)
+    {
+        fade = true;
+        StartCoroutine(UpdateFade());
+        HumanInterface p = GetComponent<HumanInterface>();
+        p.SetTransform2(go, pos);
     }
     
     IEnumerator UpdateFade()

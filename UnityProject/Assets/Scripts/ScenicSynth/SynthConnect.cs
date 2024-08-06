@@ -38,6 +38,7 @@ public class SynthConnect : MonoBehaviour
     {
         // sends to storage
         id = Guid.NewGuid().ToString();
+        // id = "demo1"
         network.StoreScene(jsonToLLM.jsonString, id);
     }
 

@@ -120,3 +120,7 @@ ScenicSynth 3.app/Contents/Resources/CodeEditLanguages_CodeEditLanguages.bundle/
 ScenicSynth 3.app/Contents/Resources/CodeEditLanguages_CodeEditLanguages.bundle/Contents/Resources/Resources/tree-sitter-html/injections.scm
 ScenicSynth 3.app/Contents/Resources/CodeEditLanguages_CodeEditLanguages.bundle/Contents/Resources/Resources/tree-sitter-html/highlights.scm
 ScenicSynth 3.app/Contents/Resources/CodeEditLanguages_CodeEditLanguages.bundle/Contents/Resources/Resources/tree-sitter-haskell/locals.scm
+
+UnityProject/Assets/sanjit.json
+
+*.json

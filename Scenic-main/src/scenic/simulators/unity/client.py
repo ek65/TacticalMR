@@ -162,6 +162,8 @@ class UnityMessageServer:
             obj.gameObject = game_object
             #We will only have one human for now, call it 'ego' in the dict
             obj.gameObject.model = Model(1,1, (255,255,0,1), "Human")
+            if obj.team == "blue":
+                game_object.ChangeColor((0,0,255,1))
             self.sendData.addToQueue(obj.gameObject)
             self.sendData.control, self.sendData.addObject = True, True
             self.HumanPlayers[tag] = game_object
@@ -293,7 +295,7 @@ class UnityMessageServer:
             if self.ball is not None:
                 obj.gameObject = self.ball
             else:
-                print("in here")
+                # print("in here")
                 values = dict(
                     position=(0,0,0),
                     velocity=(0,0,0),
@@ -471,6 +473,8 @@ class gameObject:
         self.ballPossession = data.movement_data.ballPossession
         # self.heldByHuman = data.movement_data.heldByHuman
         # self.heldByScenic = data.movement_data.heldByScenic
+        self.behavior = data.movement_data.behavior
+        # print(self.behavior)
             
 
     
@@ -621,6 +625,7 @@ class MovementData:
     ballPossession: bool
     heldByHuman: bool
     heldByScenic: bool
+    behavior: str
     @staticmethod
     def from_dict(obj: Any) -> 'MovementData':
         assert isinstance(obj, dict)
@@ -634,7 +639,8 @@ class MovementData:
         ballPossession = from_bool(obj.get("ballPossession"))
         heldByHuman = from_bool(obj.get("heldByHuman"))
         heldByScenic = from_bool(obj.get("heldByScenic"))
-        return MovementData(transform, speed, velocity, angular_velocity, rotation, stopButton, pause, ballPossession, heldByHuman, heldByScenic)
+        behavior = obj.get("behavior")
+        return MovementData(transform, speed, velocity, angular_velocity, rotation, stopButton, pause, ballPossession, heldByHuman, heldByScenic, behavior)
 
     def to_dict(self) -> dict:
         result: dict = {}
@@ -648,6 +654,7 @@ class MovementData:
         result["ballPossession"] = from_bool(self.ballPossession)
         result["heldByHuman"] = from_bool(self.heldByHuman)
         result["heldByScenic"] = from_bool(self.heldByScenic)
+        result["behavior"] = self.behavior
         return result
 
 # CURRENTLY UNUSED
