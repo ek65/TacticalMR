@@ -18,23 +18,31 @@ public class ControllerInput : MonoBehaviour
     private float gamepadRotateSmoothing = 500f;
     private Camera cam;
     private Animator animator;
+    private KeyboardInput keyboardInput;
+    private ExitScenario exitScenario;
 
     private void Awake()
     {
         inputSystem = new InputSystem();
         cam = Camera.main;
         animator = GetComponent<Animator>();
+        keyboardInput = GameObject.FindGameObjectWithTag("keyboard").GetComponent<KeyboardInput>();
+        exitScenario = this.GetComponent<ExitScenario>();
     }
 
     private void OnEnable()
     {
         move = inputSystem.PlayerControls.Move;
         look = inputSystem.PlayerControls.Look;
+        inputSystem.PlayerControls.Pause.performed += ControllerPause;
+        inputSystem.PlayerControls.Restart.performed += ControllerRestart;
         inputSystem.PlayerControls.Enable();
     }
     
     private void OnDisable()
     {
+        inputSystem.PlayerControls.Pause.performed -= ControllerPause;
+        inputSystem.PlayerControls.Restart.performed -= ControllerRestart;
         inputSystem.PlayerControls.Disable();
     }
 
@@ -42,6 +50,16 @@ public class ControllerInput : MonoBehaviour
     {
         Movement();
         Rotate();
+    }
+
+    private void ControllerPause(InputAction.CallbackContext ctx)
+    {
+        keyboardInput.HandlePause();
+    }
+
+    private void ControllerRestart(InputAction.CallbackContext ctx)
+    {
+        exitScenario.EndScenario();
     }
     
     private void Movement()
