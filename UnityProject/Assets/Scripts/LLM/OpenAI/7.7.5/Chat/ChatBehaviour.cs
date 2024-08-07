@@ -97,6 +97,11 @@ namespace OpenAI.Samples.Chat
 
     private static bool isChatPending;
 
+    // checks if speech was finished
+    public bool HasSpeechFinished()
+    {
+        return IsSpeechFinished;
+    }
     public void SetInputTextAndSubmit(string text)
     {
         userInput = text;
