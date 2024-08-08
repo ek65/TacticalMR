@@ -484,22 +484,6 @@ public class ActionAPI : MonoBehaviour
         }
     }
     
-    IEnumerator Move(NavMeshAgent agent, AINavigation character, Vector3 Destiny)
-    {
-        while (agent.SetDestination(Destiny))
-        {
-            if (agent.remainingDistance > agent.stoppingDistance)
-                character.Move(agent.desiredVelocity, false, false);
-            else
-                character.Move(Vector3.zero, false, false);
-            yield return null;
-        }
-
-        GameObject selfPlayer = this.gameObject;
-
-        // selfPlayer.GetComponent<NavMeshAgent>().enabled = false; // Deactivate Agent 
-        // selfPlayer.GetComponentInChildren<NavMeshObstacle>().enabled = true;
-    }
     
     //TODO: This assumes that we are having the player look towards the position they're running, add more functionality to run towards position without looking
     IEnumerator Move2(AIDestinationSetter destSetter, RichAI aiNav, Vector3 Destiny)

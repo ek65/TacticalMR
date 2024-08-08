@@ -1,7 +1,6 @@
 {
   "dependencies": {
     "com.github-glitchenzo.nugetforunity": "https://github.com/GlitchEnzo/NuGetForUnity.git?path=/src/NuGetForUnity",
-    "com.huggingface.api": "https://github.com/huggingface/unity-api.git",
     "com.meta.movement": "https://github.com/oculus-samples/Unity-Movement.git",
     "com.meta.xr.sdk.all": "60.0.0",
     "com.openai.unity": "7.7.5",

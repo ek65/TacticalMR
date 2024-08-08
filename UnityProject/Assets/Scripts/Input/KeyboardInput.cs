@@ -29,15 +29,13 @@ public class KeyboardInput : MonoBehaviour
     public string explanation;
     public int segmentCount;
 
-    private GameObject firstObject = null;
-    private GameObject secondObject = null;
-
     public Vector3 movement;
 
     public bool canClick = true; // Add a boolean to track if clicking is allowed
 
     void Start()
     {
+        // Initialize the necessary components and references at the start of the scene
         rb = GetComponent<Rigidbody>();
         timelineManager = GameObject.FindGameObjectWithTag("TimelineManager").GetComponent<TimelineManager>();
         jsonToLLM = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<JSONToLLM>();
@@ -48,18 +46,22 @@ public class KeyboardInput : MonoBehaviour
         Debug.Log("KeyboardInput script initialized");
     }
 
+    // Handles user input and triggers different actions based on key presses
     void Update()
     {
+        // Check and assign the ExitScenario component if not already assigned
         if (exitScenario == null && GameObject.FindGameObjectWithTag("human") != null)
         {
             exitScenario = GameObject.FindGameObjectWithTag("human").GetComponent<ExitScenario>();
         }
         
+        // End the scenario when the 'E' key is pressed
         if (Input.GetKeyDown(KeyCode.E) && gameObject.CompareTag("keyboard"))
         {
             exitScenario.EndScenario();
         }
-
+        
+        // Pause the scenario and start recording speech when the 'P' key is pressed
         if (Input.GetKeyDown(KeyCode.P) && gameObject.CompareTag("keyboard"))
         {
             if (timelineManager.Paused)
@@ -83,7 +85,7 @@ public class KeyboardInput : MonoBehaviour
             }
         }
         
-
+        // Enable annotation or position marking with mouse clicks
         if (canClick)
         {
             if (isAnnotationMode && Input.GetMouseButtonDown(0))
@@ -91,17 +93,13 @@ public class KeyboardInput : MonoBehaviour
                 StartCoroutine(HandleClickWithDelay(HandleAnnotationMode));
             }
 
-            if (isReferenceMode && Input.GetMouseButtonDown(0))
-            {
-                StartCoroutine(HandleClickWithDelay(HandleReferenceMode));
-            }
-
             if (isPositionMode && Input.GetMouseButtonDown(0))
             {
                 StartCoroutine(HandleClickWithDelay(HandlePositionMode));
             }
         }
-
+    
+        // Debugging: Print current object mappings when 'K' key is pressed
         if (Input.GetKeyDown(KeyCode.K))
         {
             foreach (var annotation in annotation)
@@ -118,7 +116,7 @@ public class KeyboardInput : MonoBehaviour
         }
     }
     
-    
+    // Resets JSON data of the current segment to prepare for the next segment
     private void ResetJsonData()
     {
         annotation.Clear();
@@ -129,16 +127,20 @@ public class KeyboardInput : MonoBehaviour
         streamingSampleMic.ResetTranscriptionData();
         jsonToLLM.ResetSegmentData(); 
     }
+
+    // Handles the position click functionality and marks position-based annotations
     public void HandlePositionClick()
     {
         StartCoroutine(HandleClickWithDelay(HandlePositionMode));
     }
     
+    // Handles the annotation click functionality and marks object-based annotations
     public void HandleAnnotationClick()
     {
         StartCoroutine(HandleClickWithDelay(HandleAnnotationMode));
     }
 
+    // Handles the pause functionality and starts recording for a new segment
     public void HandlePause()
     {
         if (timelineManager.Paused)
@@ -158,6 +160,7 @@ public class KeyboardInput : MonoBehaviour
         }
     }
 
+    // Handles a mouse click with a delay to prevent rapid clicks
     private IEnumerator HandleClickWithDelay(System.Action handleClickAction)
     {
         canClick = false;
@@ -165,39 +168,16 @@ public class KeyboardInput : MonoBehaviour
         yield return new WaitForSeconds(0.5f);
         canClick = true;
     }
+
+    // Processes audio and reactivates the microphone after a countdown
     private IEnumerator ProcessAudioAndReactivateMic()
     {
         yield return Countdown(); 
         streamingSampleMic.OnButtonPressed(); // Reactivate the mic
         Debug.Log("Microphone reactivated.");
     }
-
-    // private void HandleAnnotationMode()
-    // {
-    //     Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-    //     if (Physics.Raycast(ray, out RaycastHit hit))
-    //     {
-    //         GameObject clickedObject = hit.collider.gameObject;
-    //
-    //         if (objectToKey.TryGetValue(clickedObject, out int existingKey))
-    //         {
-    //             streamingSampleMic.InsertAnnotationKey(existingKey); // Use existing key
-    //             annotationTimes.Add(existingKey, jsonToLLM.time);
-    //             Debug.Log($"Referred {clickedObject.name} with existing key {existingKey}");
-    //         }
-    //         else
-    //         {
-    //             annotation.Add(clickOrder, clickedObject);
-    //             annotationDescriptions.Add(clickOrder, GetDescriptionAnnotation(clickedObject));
-    //             objectToKey[clickedObject] = clickOrder; // Map object to key
-    //             streamingSampleMic.InsertAnnotationKey(clickOrder); // Insert annotation key into transcription
-    //             annotationTimes.Add(clickOrder, jsonToLLM.time);
-    //             Debug.Log($"Added {clickedObject.name} to annotations with key {clickOrder}");
-    //             clickOrder++;
-    //         }
-    //     }
-    // }
     
+    // Handles annotation mode functionality and stores clicked objects as annotations
     private void HandleAnnotationMode()
     {
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -205,49 +185,17 @@ public class KeyboardInput : MonoBehaviour
         {
             GameObject clickedObject = hit.collider.gameObject;
 
-            // Remove check for existing key and always add as new annotation
+            // Always add new annotation without checking for existing keys
             annotation.Add(clickOrder, clickedObject);
             annotationDescriptions.Add(clickOrder, GetDescriptionAnnotation(clickedObject));
             objectToKey[clickedObject] = clickOrder; // Map object to key
-            streamingSampleMic.InsertAnnotationKey(clickOrder); // Insert annotation key into transcription
             annotationTimes.Add(clickOrder, jsonToLLM.time);
             Debug.Log($"Added {clickedObject.name} to annotations with key {clickOrder}");
             clickOrder++;
         }
     }
 
-    private void HandleReferenceMode()
-    {
-        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        if (Physics.Raycast(ray, out RaycastHit hit))
-        {
-            GameObject clickedObject = hit.collider.gameObject;
-
-            if (firstObject == null)
-            {
-                firstObject = clickedObject;
-                Debug.Log($"First object selected: {firstObject.name}");
-            }
-            else if (secondObject == null)
-            {
-                secondObject = clickedObject;
-                Debug.Log($"Second object selected: {secondObject.name}");
-
-                Vector3 referenceVector = secondObject.transform.position - firstObject.transform.position;
-                annotation.Add(clickOrder, referenceVector);
-                annotationTimes.Add(clickOrder, jsonToLLM.time);
-                annotationDescriptions.Add(clickOrder, GetDescriptionReference(firstObject, secondObject));
-                streamingSampleMic.InsertAnnotationKey(clickOrder); // Insert reference key into transcription
-                Debug.Log($"Added reference vector {referenceVector} to annotations with key {clickOrder}");
-                clickOrder++;
-
-                // Reset objects for next reference
-                firstObject = null;
-                secondObject = null;
-            }
-        }
-    }
-
+    // Handles position mode functionality and stores clicked positions as annotations
     private void HandlePositionMode()
     {
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -257,43 +205,31 @@ public class KeyboardInput : MonoBehaviour
             annotation.Add(clickOrder, clickedPosition);
             annotationDescriptions.Add(clickOrder, $"(Position at {clickedPosition})");
             annotationTimes.Add(clickOrder, jsonToLLM.time);
-            streamingSampleMic.InsertAnnotationKey(clickOrder); // Insert position key into transcription
             Debug.Log($"Added position {clickedPosition} to annotations with key {clickOrder}");
             clickOrder++;
         }
     }
 
+    // Generates a description for an annotation based on the object clicked
     private string GetDescriptionAnnotation(GameObject gameObject)
     {
         return $"(Coach is pointing at {gameObject.name})";
     }
-    private string GetDescriptionReference(GameObject object1, GameObject object2)
-    {
-        return $"(Coach is referring from {object1.name} to {object2.name})";
-    }
+
+    // Generates a description for an annotation based on the position clicked
     private string GetDescriptionPosition(Vector3 vector)
     {
         return $"(Coach is set on the position vector, {vector})";
     }
 
+    // Handles the final transcription process and stores the explanation
     public void OnTranscriptionFinished(string finalTranscription)
     {
-        // string processedTranscription = ReplaceAnnotationKeys(finalTranscription);
         Debug.Log("Processed Transcription: " + finalTranscription);
         explanation = finalTranscription;
     }
 
-    private string ReplaceAnnotationKeys(string transcription)
-    {
-        foreach (var entry in annotationDescriptions)
-        {
-            string key = $"[{entry.Key}]";
-            string description = entry.Value;
-            transcription = transcription.Replace(key, description);
-        }
-        return transcription;
-    }
-    
+    // Converts annotations to a JSON-like structure for further processing
     public List<Dictionary<string, object>> GetAnnotationsAsJson()
     {
         List<Dictionary<string, object>> annotationsList = new List<Dictionary<string, object>>();
@@ -326,14 +262,7 @@ public class KeyboardInput : MonoBehaviour
         return annotationsList;
     }
 
-    IEnumerator ToggleRecordingCoroutine()
-    {
-        Debug.Log("Started Coroutine at timestamp : " + Time.time);
-        yield return new WaitForSeconds(1);
-        chatBehaviour.ToggleRecording(); // Start recording
-        Debug.Log("Finished Coroutine at timestamp : " + Time.time);
-    }
-
+    // Handles sending JSON data to the synthesis component
     IEnumerator JSONCoroutine()
     {
         Debug.Log("Started JSON Coroutine at timestamp : " + Time.time);
@@ -341,35 +270,16 @@ public class KeyboardInput : MonoBehaviour
         synthConnect.SendScene();
         yield return new WaitForSeconds(1);
         synthConnect.SendSceneAndExplanation();
-      
     }
     
-
+    // Chains the execution of multiple coroutines sequentially
     IEnumerator ChainedCoroutines()
     {
         yield return FileCoroutine();
         yield return JSONCoroutine();
     }
     
-
-    IEnumerator ResetCoroutine()
-    {
-        Debug.Log("Started Coroutine at timestamp : " + Time.time);
-        yield return new WaitForSeconds(1);
-        ResetJsonData();  
-        yield return new WaitForSeconds(1);
-    }
-
-    IEnumerator ActionCoroutine()
-    {
-        Debug.Log("Started Coroutine at timestamp : " + Time.time);
-        yield return new WaitForSeconds(2);
-        chatBehaviour.SubmitCombinedInput("action");
-        yield return new WaitForSeconds(2);
-        StartCoroutine(FileCoroutine());
-        Debug.Log("Finished Coroutine at timestamp : " + Time.time);
-    }
-
+    // Writes the segment data to a file and resets JSON data
     IEnumerator FileCoroutine()
     {
         Debug.Log("Started File Coroutine at timestamp : " + Time.time);
@@ -377,7 +287,8 @@ public class KeyboardInput : MonoBehaviour
         jsonToLLM.WriteFile();
         ResetJsonData();
     }
-
+    
+    // Displays a countdown before allowing speech input
     private IEnumerator Countdown()
     {
         countdownText.gameObject.SetActive(true);
@@ -386,7 +297,6 @@ public class KeyboardInput : MonoBehaviour
             countdownText.text = i.ToString();
             yield return new WaitForSeconds(1);
         }
-
         countdownText.text = "SPEAK";
         countdownText.gameObject.SetActive(false);
     }

@@ -1,10 +1,9 @@
 using System;
-using System.Collections;
+
 using System.Collections.Generic;
 using UnityEngine;
 
 using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 
 using Firebase.Firestore;
 using Firebase.Extensions;
@@ -15,14 +14,14 @@ namespace SynthNetworkKit
 {
     public class SynthNetwork : MonoBehaviour
     {
-        [Header("Service")] [SerializeField] private string id; // service id
+        [Header("Service")] [SerializeField] private string id; // Service ID for identifying the document in Firestore
         private FirebaseFirestore db;
         private SynthService service;
 
         private FirebaseStorage storage;
         private StorageReference storageRef;
 
-        // Start is called before the first frame update
+        // Initialize Firebase Firestore and Storage, set up document listener
         void Start()
         {
             Debug.Log("Starting SynthNetwork.");
@@ -30,18 +29,7 @@ namespace SynthNetworkKit
 
             storage = FirebaseStorage.DefaultInstance;
             storageRef = storage.GetReferenceFromUrl("gs://scenicsynth.appspot.com");
-
-            // DocumentReference docRef2 = db.Collection("cities").Document("LA");
-            // Dictionary<string, object> city = new Dictionary<string, object>
-            // {
-            //         { "Name", "Los Angeles" },
-            //         { "State", "CA" },
-            //         { "Country", "USA" }
-            // };
-            // docRef2.SetAsync(city).ContinueWithOnMainThread(task => {
-            //         Debug.Log("Added data to the LA document in the cities collection.");
-            // });
-
+            
             var docRef = db.Collection("services").Document(id);
             print(docRef);
             Debug.Log("Listening to document: " + id);
@@ -75,14 +63,13 @@ namespace SynthNetworkKit
             });
         }
 
-
-        // Update is called once per frame
+        // Placeholder for update logic, currently not implemented
         void Update()
         {
 
         }
 
-        // firestore sending
+        // Uploads a task to Firestore and updates the service document
         public void UploadTask(string type, string content)
         {
             ServiceTask serviceTask = new ServiceTask(type, content);
@@ -104,10 +91,10 @@ namespace SynthNetworkKit
             });
         }
 
-        
-        // storing scene in storage
+        // Stores the scene data in Firebase Storage
         public void StoreScene(string data, string id) {
             Debug.Log("Scene sent to Firebase with id: " + id);
+            
             // Create a secure file path in the persistent data path
             string filePath = Path.Combine(Application.persistentDataPath, id + ".json");
 
@@ -128,82 +115,88 @@ namespace SynthNetworkKit
         }
     }
 
-
+    // Represents a task in the service, with an ID, type, and content
     [FirestoreData]
-public class ServiceTask {
+    public class ServiceTask {
 
-    [FirestoreProperty]
-    public string id { get; set; }
-    [FirestoreProperty]
-    public string type { get; set; }
-    [FirestoreProperty]
-    public string content { get; set; }
-    
-    public ServiceTask(string type, string content)
-    {
-        id = Guid.NewGuid().ToString();
-        this.type = type;
-        this.content = content;
+        [FirestoreProperty]
+        public string id { get; set; }
+        [FirestoreProperty]
+        public string type { get; set; }
+        [FirestoreProperty]
+        public string content { get; set; }
+        
+        // Constructor for creating a new service task
+        public ServiceTask(string type, string content)
+        {
+            id = Guid.NewGuid().ToString();
+            this.type = type;
+            this.content = content;
+        }
+        
+        // Default constructor for Firestore deserialization
+        public ServiceTask()
+        {
+        }
     }
-    
-    public ServiceTask()
+
+    // Represents a service in the system with various interfaces and devices
+    public class SynthService
     {
+        [JsonProperty("id")]
+        public string Id { get; set; }
+
+        [JsonProperty("interfaceIN")]
+        public List<string> InterfaceIN { get; set; }
+
+        [JsonProperty("interfaceOUT")]
+        public List<string> InterfaceOUT { get; set; }
+
+        [JsonProperty("deviceIN")]
+        public List<string> DeviceIN { get; set; }
+
+        [JsonProperty("deviceOUT")]
+        public List<string> DeviceOUT { get; set; }
+
+        [JsonProperty("lastUpdated")]
+        public Timestamp LastUpdated { get; set; }
+
+        // Constructor initializes the service with empty lists and a new ID
+        public SynthService()
+        {
+            Id = Guid.NewGuid().ToString();
+            InterfaceIN = new List<string>();
+            InterfaceOUT = new List<string>();
+            DeviceIN = new List<string>();
+            DeviceOUT = new List<string>();
+            LastUpdated = Timestamp.GetCurrentTimestamp();
+        }
     }
+
+    // A test class for serializing and deserializing SynthService objects
+    public class TestService
+    {
+        public static void Main()
+        {
+            // Example JSON string
+            string jsonString = "{\"id\":\"some-unique-id\",\"interfaceIN\":[\"input1\",\"input2\"],\"interfaceOUT\":[\"output1\"],\"deviceIN\":[\"device1\"],\"deviceOUT\":[\"device2\"],\"lastUpdated\":\"2024-06-12T10:00:00Z\"}";
+
+            // Deserialize JSON to SynthService object
+            SynthService service = JsonConvert.DeserializeObject<SynthService>(jsonString);
+
+            // Print out the SynthService object properties
+            Console.WriteLine($"ID: {service.Id}");
+            Console.WriteLine("InterfaceIN: " + string.Join(", ", service.InterfaceIN));
+            Console.WriteLine("InterfaceOUT: " + string.Join(", ", service.InterfaceOUT));
+            Console.WriteLine("DeviceIN: " + string.Join(", ", service.DeviceIN));
+            Console.WriteLine("DeviceOUT: " + string.Join(", ", service.DeviceOUT));
+            Console.WriteLine($"LastUpdated: {service.LastUpdated}");
+
+            // Serialize SynthService object back to JSON
+            string serializedJson = JsonConvert.SerializeObject(service, Formatting.Indented);
+            Console.WriteLine("Serialized JSON: " + serializedJson);
+        }
+    }
+
 }
 
-public class SynthService
-{
-    [JsonProperty("id")]
-    public string Id { get; set; }
-
-    [JsonProperty("interfaceIN")]
-    public List<string> InterfaceIN { get; set; }
-
-    [JsonProperty("interfaceOUT")]
-    public List<string> InterfaceOUT { get; set; }
-
-    [JsonProperty("deviceIN")]
-    public List<string> DeviceIN { get; set; }
-
-    [JsonProperty("deviceOUT")]
-    public List<string> DeviceOUT { get; set; }
-
-    [JsonProperty("lastUpdated")]
-    public Timestamp LastUpdated { get; set; }
-
-    public SynthService()
-    {
-        Id = Guid.NewGuid().ToString();
-        InterfaceIN = new List<string>();
-        InterfaceOUT = new List<string>();
-        DeviceIN = new List<string>();
-        DeviceOUT = new List<string>();
-        LastUpdated = Timestamp.GetCurrentTimestamp();
-    }
-}
-
-public class TestService
-{
-    public static void Main()
-    {
-        // Example JSON string
-        string jsonString = "{\"id\":\"some-unique-id\",\"interfaceIN\":[\"input1\",\"input2\"],\"interfaceOUT\":[\"output1\"],\"deviceIN\":[\"device1\"],\"deviceOUT\":[\"device2\"],\"lastUpdated\":\"2024-06-12T10:00:00Z\"}";
-
-        // Deserialize JSON to Service object
-        SynthService service = JsonConvert.DeserializeObject<SynthService>(jsonString);
-
-        // Print out the Service object properties
-        Console.WriteLine($"ID: {service.Id}");
-        Console.WriteLine("InterfaceIN: " + string.Join(", ", service.InterfaceIN));
-        Console.WriteLine("InterfaceOUT: " + string.Join(", ", service.InterfaceOUT));
-        Console.WriteLine("DeviceIN: " + string.Join(", ", service.DeviceIN));
-        Console.WriteLine("DeviceOUT: " + string.Join(", ", service.DeviceOUT));
-        Console.WriteLine($"LastUpdated: {service.LastUpdated}");
-
-        // Serialize Service object back to JSON
-        string serializedJson = JsonConvert.SerializeObject(service, Formatting.Indented);
-        Console.WriteLine("Serialized JSON: " + serializedJson);
-    }
-}
-
-    }

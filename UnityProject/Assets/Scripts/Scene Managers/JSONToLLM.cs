@@ -12,7 +12,7 @@ using Newtonsoft.Json.Serialization;
 using Unity.VisualScripting.Antlr3.Runtime;
 using Whisper.Samples;
 
-// This script is collects all the necessary input data for ScenicSynth
+// This script collects all the necessary input data for ScenicSynth
 public class JSONToLLM : MonoBehaviour
 {
     public KeyboardInput keyboard;
@@ -28,6 +28,7 @@ public class JSONToLLM : MonoBehaviour
     private string sentence;
     private Dictionary<float, string> manualTokenDictionary = new Dictionary<float, string>();
 
+    // Class representing the position of an object
     [System.Serializable]
     public class Position
     {
@@ -41,6 +42,7 @@ public class JSONToLLM : MonoBehaviour
         }
     }
 
+    // Class representing the velocity of an object
     [System.Serializable]
     public class Velocity
     {
@@ -55,6 +57,7 @@ public class JSONToLLM : MonoBehaviour
         }
     }
 
+    // Class representing a player in the scene
     [System.Serializable]
     public class Player
     {
@@ -66,6 +69,7 @@ public class JSONToLLM : MonoBehaviour
         public string behavior;
     }
 
+    // Class representing a ball in the scene
     [System.Serializable]
     public class Ball
     {
@@ -75,17 +79,17 @@ public class JSONToLLM : MonoBehaviour
         public List<Velocity> velocity = new List<Velocity>();
     }
 
+    // Class representing a goal in the scene
     [System.Serializable]
     public class Goal
     {
         public string id;
         public string type = "Goal";
         public List<Position> position = new List<Position>();
-
         public List<Velocity> velocity = new List<Velocity>();
-        // public List<Vector3> rotation = new List<Vector3>();
     }
 
+    // Class representing a segment of the scene, containing objects and their states
     [System.Serializable]
     public class RootSegment
     {
@@ -96,6 +100,7 @@ public class JSONToLLM : MonoBehaviour
     public RootSegment myRootSegment = new RootSegment();
     private List<RootSegment> segmentsList = new List<RootSegment>();
 
+    // Initialize necessary components and set the file path for the JSON output
     void Start()
     {
         filename = Application.dataPath + "/sanjit.json";
@@ -106,11 +111,14 @@ public class JSONToLLM : MonoBehaviour
 
     void Update()
     {
+        // Placeholder for update logic, currently not implemented
     }
 
+    // Populate the scene objects (players, ball, and goal) with their current states
     public void PopulateSceneObjects()
     {
-        foreach (GameObject currPlayer in objectsList.scenicPlayers) // find all the objects in the scenic scene
+        // Process each player in the scene
+        foreach (GameObject currPlayer in objectsList.scenicPlayers)
         {
             Player player = (Player)myRootSegment.objects.Find(obj => obj is Player p && p.id == currPlayer.name);
             if (player == null)
@@ -128,6 +136,7 @@ public class JSONToLLM : MonoBehaviour
             player.ballPossession.Add(currPlayer.GetComponent<PlayerInterface>().ballPossession);
         }
 
+        // Process the human players (coach)
         foreach (GameObject humanPlayer in objectsList.humanPlayers)
         {
             Player coach = (Player)myRootSegment.objects.Find(obj => obj is Player p && p.id == humanPlayer.name);
@@ -144,10 +153,10 @@ public class JSONToLLM : MonoBehaviour
             coach.position.Add(new Position(humanPlayer.transform.position));
             Vector3 coachVelocity = keyboard.movement;
             coach.velocity.Add(new Velocity(coachVelocity));
-            // TODO: add ball posession to unity human interface
             coach.ballPossession.Add(humanPlayer.GetComponent<HumanInterface>().ballPossession);
         }
 
+        // Process the ball in the scene
         GameObject ball = objectsList.ballObject;
         Ball ballObject = (Ball)myRootSegment.objects.Find(obj => obj is Ball);
         if (ballObject == null)
@@ -160,6 +169,7 @@ public class JSONToLLM : MonoBehaviour
         Rigidbody ballRB = ball.GetComponent<Rigidbody>();
         ballObject.velocity.Add(new Velocity(ballRB.velocity));
 
+        // Process the goal in the scene
         GameObject goal = objectsList.goalObject;
         Goal goalObject = (Goal)myRootSegment.objects.Find(obj => obj is Goal);
         if (goalObject == null)
@@ -171,26 +181,23 @@ public class JSONToLLM : MonoBehaviour
         Vector3 zeroVector = Vector3.zero;
         goalObject.velocity.Add(new Velocity(zeroVector));
         goalObject.position.Add(new Position(goal.transform.position));
-        // goalObject.rotation.Add(goal.transform.rotation.eulerAngles);
     }
 
+    // Populate the current segment with scene objects and their states
     public void PopulateSegment()
     {
         PopulateSceneObjects();
         myRootSegment.timestep = timelineManager.TimeIndex;
     }
-    
 
+    // Process tokens collected during the scene and log them
     public void ProcessTokens()
     {
-        // Log the tokens for debugging
         foreach (var token in tokenDictionary)
         {
             Debug.Log($"JSONTOLLM KEY saved at time: {token.Key:F2} seconds, VALUE: {token.Value}");
         }
         
-        
-        // Convert the manually created dictionary to a JSON string
         var settings = new JsonSerializerSettings
         {
             ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
@@ -199,16 +206,17 @@ public class JSONToLLM : MonoBehaviour
         };
 
         string tokenJsonString = JsonConvert.SerializeObject(tokenDictionary, settings);
-        // Log the manually created JSON string for verification
         Debug.Log("Created Token JSON String: " + tokenJsonString);
     }
 
-
+    // Clean up the sentence by removing unwanted patterns
     private string CleanSentence(string sentence)
     {
         string pattern = @"\b[tT] ?h?e?d? ?r\.com\b|\/ ?s ?port\b";
         return Regex.Replace(sentence, pattern, string.Empty, RegexOptions.IgnoreCase).Trim();
     }
+
+    // Build a sentence from the tokens, attaching annotations where applicable
     private string BuildSentenceFromTokens(Dictionary<int, List<object>> dict)
     {
         foreach (var clickTime in keyboard.annotationTimes)
@@ -216,13 +224,11 @@ public class JSONToLLM : MonoBehaviour
             int annotationKey = clickTime.Key;
             float clickTimestamp = clickTime.Value;
 
-            // Find the closest time in tokenDictionary (comparing the float timestamp part of List<object>)
             int closestKey = tokenDictionary
                 .Where(pair => pair.Value.Count > 1)
                 .OrderBy(pair => Mathf.Abs((float)pair.Value[1] - clickTimestamp))
                 .FirstOrDefault().Key;
 
-            // Append the annotation key as a string to the corresponding text in the closest token list
             if (tokenDictionary.ContainsKey(closestKey))
             {
                 tokenDictionary[closestKey][0] = $"{tokenDictionary[closestKey][0]} [{annotationKey}]";
@@ -233,13 +239,11 @@ public class JSONToLLM : MonoBehaviour
 
         StringBuilder sentenceBuilder = new StringBuilder();
         bool lastWasPunctuation = false;
-        
-        
+
         foreach (var tokenEntry in tokenDictionary)
         {
             string text = tokenEntry.Value[0] as string;        
-            
-            // Skip any placeholders like BLANK_AUDIO if needed
+
             List<string> unwantedTokens = new List<string> { "BL", "ANK", "AUD", "IO", "_", "urn", "@", "sc", "hem", "as.com", "uk" };
 
             if (unwantedTokens.Any(unwanted => text.Contains(unwanted)))
@@ -247,10 +251,8 @@ public class JSONToLLM : MonoBehaviour
                 continue;
             }
 
-            // Trim any leading/trailing spaces from the token
             text = text.Trim();
 
-            // Check if the token is punctuation
             if (text == "," || text == "." || text == "!" || text == "?")
             {
                 sentenceBuilder.Append(text);
@@ -271,10 +273,11 @@ public class JSONToLLM : MonoBehaviour
         return CleanSentence(sentence);
     }
 
+    // Reset the data for the current segment, clearing stored tokens and annotations
     public void ResetSegmentData()
     {
         myRootSegment = new RootSegment();
-        tokenDictionary.Clear();  // Clear token dictionary
+        tokenDictionary.Clear();
         keyboard.explanation = "";
         Debug.Log("EXPLANATION AFTER RESET:");
         Debug.Log(keyboard.explanation);
@@ -283,20 +286,19 @@ public class JSONToLLM : MonoBehaviour
         Debug.Log("Segment data has been reset.");
     }
 
+    // Create the final JSON string representing the scene and its annotations
     public void CreateJSONString()
     {
         var settings = new JsonSerializerSettings
         {
             ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
-            Formatting = Formatting.Indented
-            ,
+            Formatting = Formatting.Indented,
             ContractResolver = new CamelCasePropertyNamesContractResolver()
         };
 
         keyboard.explanation = BuildSentenceFromTokens(tokenDictionary);
         Debug.Log("Constructed Sentence: " + keyboard.explanation);
         
-        // Construct the final JSON string
         jsonString = JsonConvert.SerializeObject(new
         {
             scene = new
@@ -311,23 +313,21 @@ public class JSONToLLM : MonoBehaviour
             }
         }, settings);
 
-        // Write the JSON string to the file
         File.WriteAllText(filename, jsonString);
         Debug.Log($"Segment written to {filename}");
     }
-    
-    
 
-public void WriteFile()
+    // Write the JSON data to a file
+    public void WriteFile()
     {
         CreateJSONString();
     }
-    
 
+    // Update the scene data on a fixed time interval
     private void FixedUpdate()
     {
         time += 0.02f;
-        // Debug.Log(time);
         PopulateSegment();
     }
 }
+
