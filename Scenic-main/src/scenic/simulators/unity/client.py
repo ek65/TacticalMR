@@ -31,6 +31,7 @@ class UnityMessageServer:
         self.ScenicPlayers = []
         self.objects = []
         self.socket_address = ""
+        self.paused = False
         self.start()
     def start(self):
         self.context = zmq.Context()
@@ -74,12 +75,16 @@ class UnityMessageServer:
     def step(self):
         #send this data, then sleep then receive .
         if self.isClient:
-            # print("Sending @ " + self.socket_address
-            #     +  " at timestepNumber " + str(self.timestepNumber))
+            if self.paused:
+                return
+            print("Sending @ " + self.socket_address
+                +  " at timestepNumber " + str(self.timestepNumber))
             # time.sleep(self.timestep)
             out_data = self.json_constructor()
+            # print(out_data)
             self.socket.send_json(out_data)
             self.timestepNumber += 1
+
             received = False
             inData = None
             while not received:
@@ -117,18 +122,18 @@ class UnityMessageServer:
             if p:
                 p.destroyObj()
 
-        self.HumanPlayers["ego"].destroyObj()
-        self.ball.destroyObj()
-        self.step()
-        self.objects = []
-        self.ScenicPlayers = []
-        self.HumanPlayers = dict()
-        self.ball = None
-        self.sendData.clearObjects()
-        self.step()
-        self.sendData.clearControl()
-        self.resetData()
-        self.step()
+        # self.HumanPlayers["ego"].destroyObj()
+        # self.ball.destroyObj()
+        # self.step()
+        # self.objects = []
+        # self.ScenicPlayers = []
+        # self.HumanPlayers = dict()
+        # self.ball = None
+        # self.sendData.clearObjects()
+        # self.step()
+        # self.sendData.clearControl()
+        # self.resetData()
+        # self.step()
     def resetData(self):
         self.timestepNumber = 0
         self.sendData = SendData()
@@ -213,6 +218,7 @@ class UnityMessageServer:
             if "ego" in self.HumanPlayers and len(human_players) > 0:
                 # print(human_players[0].movement_data)
                 self.HumanPlayers["ego"].ConvertFromJson(human_players[0])
+                self.paused = data.tick_data.human_players[0].movement_data.pause
                 # humanLeftController = data.tick_data.human_players[0].leftController
                 # humanRightController = data.tick_data.human_players[0].rightController
                 # self.humanSavedControllerData[0] = humanLeftController

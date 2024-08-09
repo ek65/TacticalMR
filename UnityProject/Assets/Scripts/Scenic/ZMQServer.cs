@@ -23,7 +23,7 @@ public class ZMQServer : MonoBehaviour
 
     private JSONStatusMaker sender;
 
-
+    private TimelineManager tlManager;
 
     void Start()
     {
@@ -44,12 +44,24 @@ public class ZMQServer : MonoBehaviour
 
         sender = this.gameObject.GetComponent<JSONStatusMaker>();
 
+        tlManager = GameObject.FindGameObjectWithTag("TimelineManager").GetComponent<TimelineManager>();
+
     }
     void Update()
     {
         // sends to scenic
-        string newSendData = sender.getUnityData();
-        zmqRequester.SetSendData(newSendData);
+        if (tlManager.Paused)
+        {
+            // zmqRequester.SetReady(false);
+            zmqRequester.SetSendData(null);
+        }
+        else
+        {
+            string newSendData = sender.getUnityData();
+            zmqRequester.SetSendData(newSendData);
+        }
+        
+        // zmqRequester.SetReady(true);
 
         // gets json from scenic
         string newData = zmqRequester.GetData();
@@ -88,9 +100,19 @@ public class ZMQServer : MonoBehaviour
 
     private void OnDestroy()
     {
+        zmqRequester.server.Close();
+        zmqRequester.server.Dispose();
         zmqRequester.Stop();
         //Following command crashes my editor for some reason
-        //NetMQConfig.Cleanup(false); 
+        // NetMQConfig.Cleanup(false); 
+    }
+
+    private void OnApplicationQuit()
+    {
+        zmqRequester.server.Close();
+        zmqRequester.server.Dispose();
+        zmqRequester.Stop();
+        // NetMQConfig.Cleanup(); 
     }
 
     private List<ScenicMovementData> ParseMovementData(ScenicParser.ScenicJson data)
