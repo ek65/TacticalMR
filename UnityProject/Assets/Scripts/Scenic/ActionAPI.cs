@@ -114,11 +114,28 @@ public class ActionAPI : MonoBehaviour
     {
         // ConvaiNPC charObj = GameObject.FindGameObjectWithTag("Character").GetComponentInChildren<ConvaiNPC>();
         // charObj.HandleInputSubmission(text);
-        if (this.gameObject.name == "Unknown")
-        {
-            Debug.LogError("Speak: " + text);
-        }
+        // if (this.gameObject.name == "Unknown")
+        // {
+        //     Debug.LogError("Speak: " + text);
+        // }
+        CallPause();
+        
         ChatBehaviour chatBehaviour = GameObject.FindGameObjectWithTag("Character").GetComponentInChildren<ChatBehaviour>();
+        // if (chatBehaviour != null)
+        // {
+        //     // Call the new method to set the text and submit
+        //     chatBehaviour.SetInputTextAndSubmit(text);
+        // }
+        // else
+        // {
+        //     Debug.LogError("ChatBehaviour instance not found in the scene.");
+        // }
+        
+        StartCoroutine(WaitForChat(text, chatBehaviour));
+    }
+    
+    IEnumerator WaitForChat(string text, ChatBehaviour chatBehaviour)
+    {
         if (chatBehaviour != null)
         {
             // Call the new method to set the text and submit
@@ -128,6 +145,12 @@ public class ActionAPI : MonoBehaviour
         {
             Debug.LogError("ChatBehaviour instance not found in the scene.");
         }
+        
+        while (!chatBehaviour.HasSpeechFinished())
+        {
+            yield return null;
+        }
+        CallUnpause();
     }
     
     public void Explain(string text)

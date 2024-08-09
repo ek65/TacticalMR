@@ -53,6 +53,9 @@ public class KeyboardInput : MonoBehaviour
         if (exitScenario == null && GameObject.FindGameObjectWithTag("human") != null)
         {
             exitScenario = GameObject.FindGameObjectWithTag("human").GetComponent<ExitScenario>();
+        } else if (exitScenario == null && GameObject.FindGameObjectWithTag("NPChuman") != null)
+        {
+            exitScenario = GameObject.FindGameObjectWithTag("NPChuman").GetComponent<ExitScenario>();
         }
         
         // End the scenario when the 'E' key is pressed

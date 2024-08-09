@@ -77,8 +77,8 @@ class UnityMessageServer:
         if self.isClient:
             if self.paused:
                 return
-            print("Sending @ " + self.socket_address
-                +  " at timestepNumber " + str(self.timestepNumber))
+            # print("Sending @ " + self.socket_address
+            #     +  " at timestepNumber " + str(self.timestepNumber))
             # time.sleep(self.timestep)
             out_data = self.json_constructor()
             # print(out_data)
@@ -122,18 +122,18 @@ class UnityMessageServer:
             if p:
                 p.destroyObj()
 
-        # self.HumanPlayers["ego"].destroyObj()
-        # self.ball.destroyObj()
-        # self.step()
-        # self.objects = []
-        # self.ScenicPlayers = []
-        # self.HumanPlayers = dict()
-        # self.ball = None
-        # self.sendData.clearObjects()
-        # self.step()
-        # self.sendData.clearControl()
-        # self.resetData()
-        # self.step()
+        self.HumanPlayers["ego"].destroyObj()
+        self.ball.destroyObj()
+        self.step()
+        self.objects = []
+        self.ScenicPlayers = []
+        self.HumanPlayers = dict()
+        self.ball = None
+        self.sendData.clearObjects()
+        self.step()
+        self.sendData.clearControl()
+        self.resetData()
+        self.step()
     def resetData(self):
         self.timestepNumber = 0
         self.sendData = SendData()
