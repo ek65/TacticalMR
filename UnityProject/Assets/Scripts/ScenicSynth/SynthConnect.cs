@@ -1,48 +1,35 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using OpenAI.Samples.Chat;
 using SynthNetworkKit;
 using UnityEngine;
-// 
+
 public class SynthConnect : MonoBehaviour
 {
-    private ChatBehaviour chatBehaviour;
     private SynthNetwork network;
     private JSONToLLM jsonToLLM;
-    public string id; // name of the json file
+    public string id; // name of the JSON file
     
-    // Start is called before the first frame update
+    // Initialize the necessary components and references at the start of the scene
     void Start()
     {
-        chatBehaviour = GameObject.FindGameObjectWithTag("Character").GetComponent<ChatBehaviour>();
         network = GameObject.FindGameObjectWithTag("synth").GetComponent<SynthNetwork>();
         jsonToLLM = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<JSONToLLM>();
     }
-
-    // public void SendExplanation(string explanation)
-    // {
-    //     Debug.Log($"{explanation} sent to firebase!");
-    //     network.UploadTask("language",explanation);
-    // }
     
-
+    // Sends the scene data and its explanation to Firebase Firestore, telling Firestore where to look for the scene in storage
     public void SendSceneAndExplanation()
     {
-        // sends to firestore
         Debug.Log($"{id} sent to firebase!");
-        network.UploadTask("scene",id);
+        network.UploadTask("scene", id);
     }
     
+    // Stores the scene data in Firebase Storage with a unique ID
     public void SendScene()
     {
-        // sends to storage
-        id = Guid.NewGuid().ToString();
-        // id = "demo1"
+        id = Guid.NewGuid().ToString(); // Generate a new unique ID for the scene
+        // id = "demo1"  // (Commented out: Use a static ID if needed)
         network.StoreScene(jsonToLLM.jsonString, id);
     }
-
-    // Update is called once per frame
+    
     void Update()
     {
         

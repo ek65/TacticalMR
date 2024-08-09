@@ -21,6 +21,7 @@ using Utilities.WebRequestRest;
 namespace OpenAI.Samples.Chat
 {
     public class ChatBehaviour : MonoBehaviour
+    
 {
     public CancellationToken destroyCancellationToken;
     [SerializeField] private OpenAIConfiguration configuration;
@@ -54,6 +55,7 @@ namespace OpenAI.Samples.Chat
     public string jsonText; // json text to be appended to userInput
     public string combinedInput; // userinput + jsonText to send to LLM
     public bool isRecording = false;
+    public bool IsSpeechFinished { get; private set; } = false;
 
     public string synthesizeInput =
         "\"You're a helpful coding assistant.\\n" +
@@ -70,7 +72,10 @@ namespace OpenAI.Samples.Chat
 
     void Update()
     {
-
+        if (IsSpeechFinished)
+        {
+            Debug.Log("Speech finished!");
+        }
     }
 
     private void Awake()
@@ -92,6 +97,11 @@ namespace OpenAI.Samples.Chat
 
     private static bool isChatPending;
 
+    // checks if speech was finished
+    public bool HasSpeechFinished()
+    {
+        return IsSpeechFinished;
+    }
     public void SetInputTextAndSubmit(string text)
     {
         userInput = text;
@@ -369,8 +379,8 @@ public async void SubmitChatNoSpeech(string field)
 
     IEnumerator PlayAudioSequentially()
     {
-        yield return null;
-
+        IsSpeechFinished = false; // Reset the flag when starting playback
+    
         for (int i = 0; i < clips.Length; i++)
         {
             sentenceIndex = i;
@@ -382,6 +392,8 @@ public async void SubmitChatNoSpeech(string field)
                 yield return null;
             }
         }
+    
+        IsSpeechFinished = true; // Set the flag to true when all clips have been played
     }
 
     private TextMeshProUGUI AddNewTextMessageContent(Role role)
