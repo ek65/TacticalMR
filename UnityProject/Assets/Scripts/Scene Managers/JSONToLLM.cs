@@ -288,34 +288,37 @@ public class JSONToLLM : MonoBehaviour
 
     // Create the final JSON string representing the scene and its annotations
     public void CreateJSONString()
+{
+    // Build the sentence before creating JSON
+    keyboard.explanation = BuildSentenceFromTokens(tokenDictionary);
+    Debug.Log("Constructed Sentence: " + keyboard.explanation);
+    
+    // Proceed to serialize the scene data into JSON
+    var settings = new JsonSerializerSettings
     {
-        var settings = new JsonSerializerSettings
-        {
-            ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
-            Formatting = Formatting.Indented,
-            ContractResolver = new CamelCasePropertyNamesContractResolver()
-        };
+        ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+        Formatting = Formatting.Indented,
+        ContractResolver = new CamelCasePropertyNamesContractResolver()
+    };
 
-        keyboard.explanation = BuildSentenceFromTokens(tokenDictionary);
-        Debug.Log("Constructed Sentence: " + keyboard.explanation);
-        
-        jsonString = JsonConvert.SerializeObject(new
+    jsonString = JsonConvert.SerializeObject(new
+    {
+        scene = new
         {
-            scene = new
-            {
-                id = "typical_1v1",
-                language = keyboard.explanation,
-                step = 0.02,
-                objects = myRootSegment.objects,
-                annotations = keyboard.GetAnnotationsAsJson(),
-                tokens = tokenDictionary, 
-                clickTimes = keyboard.annotationTimes
-            }
-        }, settings);
+            id = "typical_1v1",
+            language = keyboard.explanation,
+            step = 0.02,
+            objects = myRootSegment.objects,
+            annotations = keyboard.GetAnnotationsAsJson(),
+            tokens = tokenDictionary, 
+            clickTimes = keyboard.annotationTimes
+        }
+    }, settings);
 
-        File.WriteAllText(filename, jsonString);
-        Debug.Log($"Segment written to {filename}");
-    }
+    File.WriteAllText(filename, jsonString);
+    Debug.Log($"Segment written to {filename}");
+}
+
 
     // Write the JSON data to a file
     public void WriteFile()
