@@ -88,7 +88,12 @@ public class Rewindable : MonoBehaviour
         }
         if (GetComponent<RichAI>() != null)
         {
-            GetComponent<RichAI>().enabled = false;
+            GetComponent<RichAI>().canMove = false;
+            if (GetComponent<PlayerInterface>() != null && GetComponent<PlayerInterface>().ballPossession)
+            {
+                AIDestinationSetter dest = GetComponent<AIDestinationSetter>();
+                dest.target.localPosition = Vector3.zero;
+            }
         }
     }
     private void UnfreezeAnimation()
@@ -100,7 +105,7 @@ public class Rewindable : MonoBehaviour
 
         if (GetComponent<RichAI>() != null)
         {
-            GetComponent<RichAI>().enabled = true;
+            GetComponent<RichAI>().canMove = true;
         }
     }
 }

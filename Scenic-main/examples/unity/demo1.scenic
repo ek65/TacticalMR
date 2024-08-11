@@ -44,9 +44,9 @@ behavior coachBehavior():
     opponent2_first_ball_possession = False
     self_possession = False
 
-    do Idle() until closeToBall(opponent1, 1.5)
+    # do Idle() until closeToBall(opponent1, 1.5)
 
-    # do Idle() until hasBallPosession(opponent1)
+    do Idle() until hasBallPosession(opponent1)
 
     do Pause()
     
