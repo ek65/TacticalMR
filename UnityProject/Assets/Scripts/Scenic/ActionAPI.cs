@@ -533,7 +533,7 @@ public class ActionAPI : MonoBehaviour
     IEnumerator Move3(AIDestinationSetter destSetter, RichAI aiNav, Vector3 Destiny)
     {
         aiNav.updateRotation = false;
-        if (this.gameObject.CompareTag("NPChuman"))
+        if (this.gameObject.CompareTag("human"))
         {
             Transform ball = this.GetComponent<HumanInterface>().ball.transform;
             Vector3 targetPos = new Vector3(ball.transform.position.x, this.transform.position.y,

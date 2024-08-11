@@ -26,7 +26,6 @@ TagManager:
   - LeftRay
   - RightRay
   - GroundHover
-  - NPChuman
   layers:
   - Default
   - TransparentFX
