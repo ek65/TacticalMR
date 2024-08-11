@@ -55,7 +55,7 @@ namespace OpenAI.Samples.Chat
     public string jsonText; // json text to be appended to userInput
     public string combinedInput; // userinput + jsonText to send to LLM
     public bool isRecording = false;
-    public bool IsSpeechFinished { get; private set; } = false;
+    public bool IsSpeechFinished = false;
 
     public string synthesizeInput =
         "\"You're a helpful coding assistant.\\n" +

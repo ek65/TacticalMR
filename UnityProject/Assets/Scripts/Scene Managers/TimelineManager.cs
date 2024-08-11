@@ -129,6 +129,7 @@ public void InitializeTimeline()
         }
         // reset timeseries
         Timeseries = new Dictionary<GameObject, RewindableTimeSeries>();
+        InitializeTimeline();
         // reset time index on unpause
         TimeIndex = 0;
         RewindTimeIndex = 0;

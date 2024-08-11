@@ -43,16 +43,16 @@ public class ZMQRequester : RunAbleThread
                 //int outNum = 0;
                 bool gotMessage = false;
                 //understand what is going on here and try to terminate socket yet still keep the same thread running 
-                Debug.LogError("IN SERVER");
+                // Debug.LogError("IN SERVER");
                 while (true)
                 {
                     // Debug.LogError(outData == null);
-                    Debug.LogError("IN TRUE");
+                    // Debug.LogError("IN TRUE");
                     data = null;
                     if (outData != null){
                         while (Running)
                         {
-                            Debug.LogError("I am receiving");
+                            // Debug.LogError("I am receiving");
                             gotMessage = server.TryReceiveFrameString(timeout, out message);
                             if (gotMessage)
                             {
@@ -67,7 +67,7 @@ public class ZMQRequester : RunAbleThread
                         } 
                         else
                         {
-                            Debug.LogError("Received scenic data is NULL");
+                            // Debug.LogError("Received scenic data is NULL");
                         }
                         outMessage = outData;
                         // Debug.LogError("OUT MSG: " + outMessage);
@@ -78,7 +78,7 @@ public class ZMQRequester : RunAbleThread
                             {
                                 if (readyToCommunicate)
                                 {
-                                    Debug.Log("Ready to communicate");
+                                    // Debug.Log("Ready to communicate");
                                     server.TrySendFrame(outMessage);
                                     Thread.Sleep(100);
                                     humanReady = true;
@@ -88,7 +88,7 @@ public class ZMQRequester : RunAbleThread
                         }
                         else
                         {
-                            Debug.LogError("Already ready to communicate");
+                            // Debug.LogError("Already ready to communicate");
                             server.TrySendFrame(timeout, outMessage);
                             Thread.Sleep(100);
                             // outNum++;
@@ -97,7 +97,7 @@ public class ZMQRequester : RunAbleThread
                     }
                     else
                     {
-                        Debug.LogError("Outdata is null. Zmq cannot load");
+                        // Debug.LogError("Outdata is null. Zmq cannot load");
                     }
                 }
             }

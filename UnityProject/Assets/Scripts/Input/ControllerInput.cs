@@ -20,6 +20,7 @@ public class ControllerInput : MonoBehaviour
     private Animator animator;
     private KeyboardInput keyboardInput;
     private ExitScenario exitScenario;
+    private TimelineManager tlManager;
 
     private void Awake()
     {
@@ -28,6 +29,7 @@ public class ControllerInput : MonoBehaviour
         animator = GetComponent<Animator>();
         keyboardInput = GameObject.FindGameObjectWithTag("keyboard").GetComponent<KeyboardInput>();
         exitScenario = this.GetComponent<ExitScenario>();
+        tlManager = GameObject.FindGameObjectWithTag("TimelineManager").GetComponent<TimelineManager>();
     }
 
     private void OnEnable()
@@ -48,6 +50,10 @@ public class ControllerInput : MonoBehaviour
 
     private void FixedUpdate()
     {
+        if (tlManager.Paused)
+        {
+            return;
+        }
         Movement();
         Rotate();
     }

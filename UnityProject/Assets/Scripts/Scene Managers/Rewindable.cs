@@ -30,48 +30,24 @@ public class Rewindable : MonoBehaviour
     //reason for abstraction: generic solution that works both for character and soccer ball
     public void Freeze()
     {
-        try
-        {
-            FreezePhysics();
-        }
-        catch(Exception e)
-        {
-            Debug.Log("Cant freeze physics lol");
-        }
-        try
-        {
-            FreezeAnimation();
-        }
-        catch (Exception e)
-        {
-            Debug.Log("Cant freeze animation lol");
-        }
-        Paused = true;
-
+        FreezePhysics();
+        FreezeAnimation();
         
+        Paused = true;
     }
     public void Unfreeze()
     {
-        try
-        {
-            UnfreezePhysics();
-        }
-        catch (Exception e)
-        {
-            Debug.Log("Cant unfreeze physics lol");
-        }
-        try
-        {
-            UnfreezeAnimation();
-        }
-        catch (Exception e)
-        {
-            Debug.Log("Cant unfreeze animation lol");
-        }
+        UnfreezePhysics();
+        UnfreezeAnimation();
+        
         Paused = false;
     }
     private void FreezePhysics()
     {
+        if (GetComponent<Rigidbody>() == null)
+        {
+            return;
+        }
         Rigidbody r = GetComponent<Rigidbody>();
 
         savedVelocity = r.velocity;
@@ -89,6 +65,10 @@ public class Rewindable : MonoBehaviour
     }
     private void UnfreezePhysics()
     {
+        if (GetComponent<Rigidbody>() == null)
+        {
+            return;
+        }
         Rigidbody r = GetComponent<Rigidbody>();
         
         r.constraints = savedConstraints;
@@ -102,12 +82,25 @@ public class Rewindable : MonoBehaviour
     //TODO: need to be changed if u switch to Motion Matching systm
     private void FreezeAnimation()
     {
-        GetComponent<Animator>().enabled = false;
-        GetComponent<RichAI>().enabled = false;
+        if (GetComponent<Animator>() != null)
+        {
+            GetComponent<Animator>().enabled = false;
+        }
+        if (GetComponent<RichAI>() != null)
+        {
+            GetComponent<RichAI>().enabled = false;
+        }
     }
     private void UnfreezeAnimation()
     {
-        GetComponent<Animator>().enabled = true;
-        GetComponent<RichAI>().enabled = true;
+        if (GetComponent<Animator>() != null)
+        {
+            GetComponent<Animator>().enabled = true;
+        }
+
+        if (GetComponent<RichAI>() != null)
+        {
+            GetComponent<RichAI>().enabled = true;
+        }
     }
 }

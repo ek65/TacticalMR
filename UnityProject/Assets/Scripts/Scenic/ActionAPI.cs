@@ -150,6 +150,7 @@ public class ActionAPI : MonoBehaviour
         {
             yield return null;
         }
+        chatBehaviour.IsSpeechFinished = false;
         CallUnpause();
     }
     
@@ -168,7 +169,7 @@ public class ActionAPI : MonoBehaviour
 
     public void CallPause()
     {
-        // Debug.LogError("called pause");
+        Debug.LogError("called pause");
         TimelineManager tlManager =
             GameObject.FindGameObjectWithTag("TimelineManager").GetComponent<TimelineManager>();
         tlManager.Pause();
@@ -177,7 +178,7 @@ public class ActionAPI : MonoBehaviour
     
     public void CallUnpause()
     {
-        // Debug.LogError("called pause");
+        Debug.LogError("called unpause");
         TimelineManager tlManager =
             GameObject.FindGameObjectWithTag("TimelineManager").GetComponent<TimelineManager>();
         tlManager.Unpause();;

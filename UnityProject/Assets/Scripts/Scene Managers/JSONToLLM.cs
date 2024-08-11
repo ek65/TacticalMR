@@ -117,6 +117,10 @@ public class JSONToLLM : MonoBehaviour
     // Populate the scene objects (players, ball, and goal) with their current states
     public void PopulateSceneObjects()
     {
+        if (objectsList.ballObject == null)
+        {
+            return;
+        }
         // Process each player in the scene
         foreach (GameObject currPlayer in objectsList.scenicPlayers)
         {
