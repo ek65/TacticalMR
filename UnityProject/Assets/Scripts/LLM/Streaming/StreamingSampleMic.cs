@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.RegularExpressions;
 using UnityEngine;
 using UnityEngine.UI;
 using Whisper.Utils;
@@ -15,8 +16,7 @@ namespace Whisper.Samples
         public WhisperManager whisper;
         public MicrophoneRecord microphoneRecord;
         private JSONToLLM jsonToLLM;
-        [Header("UI")]
-        public Button button;
+        [Header("UI")] public Button button;
         public Text buttonText;
         public Text text;
         public ScrollRect scroll;
@@ -28,7 +28,7 @@ namespace Whisper.Samples
         private string finalTranscriptionString = "";
         private bool phraseUpdated = false;
         private KeyboardInput keyboard;
-        
+
 
         // Initialize the necessary components, set up event listeners, and start the transcription stream
         private async void Start()
@@ -43,7 +43,7 @@ namespace Whisper.Samples
             microphoneRecord.OnRecordStop += OnRecordStop;
             button.onClick.AddListener(OnButtonPressed);
         }
-        
+
 
         // Start or stop recording based on the current state of the microphone
         public void OnButtonPressed()
@@ -58,7 +58,7 @@ namespace Whisper.Samples
 
             buttonText.text = microphoneRecord.IsRecording ? "Stop" : "Record";
         }
-        
+
         // Reset the transcription data and clear all relevant lists and variables
         public void ResetTranscriptionData()
         {
@@ -67,8 +67,8 @@ namespace Whisper.Samples
             currentPhrase = "";
             finalTranscriptionString = "";
             annotationKeys.Clear();
-            keyboard.explanation = "";  // Clear the explanation in KeyboardInput
-            jsonToLLM.ResetSegmentData();  // Clear tokens in JSONToLLM
+            keyboard.explanation = ""; // Clear the explanation in KeyboardInput
+            jsonToLLM.ResetSegmentData(); // Clear tokens in JSONToLLM
             Debug.Log("Transcription data has been reset.");
         }
 
@@ -99,7 +99,10 @@ namespace Whisper.Samples
         private void OnPhraseUpdated(WhisperResult phrase)
         {
             Debug.Log($"phrase updated: {phrase.Result}");
-            currentPhrase = phrase.Result;
+
+            // Remove links from the phrase before updating the current phrase
+            currentPhrase = RemoveLinks(phrase.Result);
+
             foreach (var seg in phrase.Segments)
             {
                 text.text = currentPhrase;
@@ -107,13 +110,25 @@ namespace Whisper.Samples
             }
         }
 
+        private string RemoveLinks(string text)
+        {
+            // Regular expression to identify URLs, emails, unwanted patterns, and specific unwanted words/phrases
+            string unwantedPattern = @"(http[s]?://|ftp://|www\.|\.html|\b\S+\.com\b|\b\S+\.html\b|\b\S+\.org\b|\burn\b|\b\S*/sport\S*|\b\S*@\S+\b|urn@\S+)";
+
+            // Remove any unwanted patterns found in the text
+            return Regex.Replace(text, unwantedPattern, string.Empty, RegexOptions.IgnoreCase).Trim();
+        }
+
+
         // Finalize the current phrase when transcription is complete and clear annotation keys
         private void OnPhraseFinished(WhisperResult phrase)
         {
             if (phraseUpdated)
             {
+                // Remove links from the phrase before adding it
+                currentPhrase = RemoveLinks(phrase.Result);
+
                 phrases.Add(phrase);
-                currentPhrase = phrase.Result;
                 phraseStrings.Add(currentPhrase);
                 Debug.Log($"phrase finished: {currentPhrase}");
                 phraseUpdated = false;
@@ -121,6 +136,7 @@ namespace Whisper.Samples
                 annotationKeys.Clear(); // Clear annotation keys for the next phrase
             }
         }
+
 
         // Compile the finalized transcription phrases into one string and process the tokens
         private void OnFinished(string finalResult)
@@ -130,6 +146,7 @@ namespace Whisper.Samples
             Debug.Log("Final transcription:");
             Debug.Log(finalTranscriptionString);
 
+            // Pass the cleaned transcription to the keyboard
             keyboard.OnTranscriptionFinished(finalTranscriptionString);
 
             Debug.Log("NEW TRANSCRIPTION");
@@ -145,15 +162,21 @@ namespace Whisper.Samples
                     {
                         if (token.Timestamp != null)
                         {
+                            
                             // Adjust the time as necessary
                             float tokenTime = jsonToLLM.time + (float)token.Timestamp.Start.TotalSeconds - 18f;
-                            
-                            if (!token.IsSpecial && !token.Text.Contains("[") && !token.Text.Contains("<") && !token.Text.Contains("]"))
+
+                            // Remove unwanted text patterns and very short tokens
+                            string cleanTokenText = RemoveLinks(token.Text);
+        
+                            // Only include tokens that are not empty after cleaning, have meaningful length, and aren't special tokens
+                            if (!string.IsNullOrEmpty(cleanTokenText) && !token.IsSpecial)
                             {
-                                jsonToLLM.tokenDictionary[tokenOrder] = new List<object> { token.Text, tokenTime };
+                                jsonToLLM.tokenDictionary[tokenOrder] = new List<object> { cleanTokenText, tokenTime };
                                 tokenOrder++; // Increment the order index
+                                Debug.Log($"Token saved at order: {tokenOrder}, Time: {tokenTime:F2} seconds, Text: {cleanTokenText}");
                             }
-                            Debug.Log($"Token saved at order: {tokenOrder}, Time: {tokenTime:F2} seconds, Text: {token.Text}");
+                            
                             jsonToLLM.ProcessTokens();
                         }
                     }
