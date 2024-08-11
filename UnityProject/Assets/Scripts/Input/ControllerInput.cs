@@ -38,6 +38,7 @@ public class ControllerInput : MonoBehaviour
         look = inputSystem.PlayerControls.Look;
         inputSystem.PlayerControls.Pause.performed += ControllerPause;
         inputSystem.PlayerControls.Restart.performed += ControllerRestart;
+        inputSystem.PlayerControls.Segment.performed += ControllerSegment;
         inputSystem.PlayerControls.Enable();
     }
     
@@ -45,6 +46,7 @@ public class ControllerInput : MonoBehaviour
     {
         inputSystem.PlayerControls.Pause.performed -= ControllerPause;
         inputSystem.PlayerControls.Restart.performed -= ControllerRestart;
+        inputSystem.PlayerControls.Segment.performed -= ControllerSegment;
         inputSystem.PlayerControls.Disable();
     }
 
@@ -66,6 +68,11 @@ public class ControllerInput : MonoBehaviour
     private void ControllerRestart(InputAction.CallbackContext ctx)
     {
         exitScenario.EndScenario();
+    }
+    
+    private void ControllerSegment(InputAction.CallbackContext ctx)
+    {
+        keyboardInput.HandleSegment();
     }
     
     private void Movement()

@@ -62,6 +62,15 @@ public partial class @InputSystem: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Segment"",
+                    ""type"": ""Button"",
+                    ""id"": ""66c2bdc4-ebd0-49fc-b938-88d2666e83a0"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -108,6 +117,17 @@ public partial class @InputSystem: IInputActionCollection2, IDisposable
                     ""action"": ""Restart"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""61e11207-93a7-4199-a120-8cfa83067caf"",
+                    ""path"": ""<Gamepad>/buttonWest"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Segment"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -120,6 +140,7 @@ public partial class @InputSystem: IInputActionCollection2, IDisposable
         m_PlayerControls_Look = m_PlayerControls.FindAction("Look", throwIfNotFound: true);
         m_PlayerControls_Pause = m_PlayerControls.FindAction("Pause", throwIfNotFound: true);
         m_PlayerControls_Restart = m_PlayerControls.FindAction("Restart", throwIfNotFound: true);
+        m_PlayerControls_Segment = m_PlayerControls.FindAction("Segment", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -185,6 +206,7 @@ public partial class @InputSystem: IInputActionCollection2, IDisposable
     private readonly InputAction m_PlayerControls_Look;
     private readonly InputAction m_PlayerControls_Pause;
     private readonly InputAction m_PlayerControls_Restart;
+    private readonly InputAction m_PlayerControls_Segment;
     public struct PlayerControlsActions
     {
         private @InputSystem m_Wrapper;
@@ -193,6 +215,7 @@ public partial class @InputSystem: IInputActionCollection2, IDisposable
         public InputAction @Look => m_Wrapper.m_PlayerControls_Look;
         public InputAction @Pause => m_Wrapper.m_PlayerControls_Pause;
         public InputAction @Restart => m_Wrapper.m_PlayerControls_Restart;
+        public InputAction @Segment => m_Wrapper.m_PlayerControls_Segment;
         public InputActionMap Get() { return m_Wrapper.m_PlayerControls; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -214,6 +237,9 @@ public partial class @InputSystem: IInputActionCollection2, IDisposable
             @Restart.started += instance.OnRestart;
             @Restart.performed += instance.OnRestart;
             @Restart.canceled += instance.OnRestart;
+            @Segment.started += instance.OnSegment;
+            @Segment.performed += instance.OnSegment;
+            @Segment.canceled += instance.OnSegment;
         }
 
         private void UnregisterCallbacks(IPlayerControlsActions instance)
@@ -230,6 +256,9 @@ public partial class @InputSystem: IInputActionCollection2, IDisposable
             @Restart.started -= instance.OnRestart;
             @Restart.performed -= instance.OnRestart;
             @Restart.canceled -= instance.OnRestart;
+            @Segment.started -= instance.OnSegment;
+            @Segment.performed -= instance.OnSegment;
+            @Segment.canceled -= instance.OnSegment;
         }
 
         public void RemoveCallbacks(IPlayerControlsActions instance)
@@ -253,5 +282,6 @@ public partial class @InputSystem: IInputActionCollection2, IDisposable
         void OnLook(InputAction.CallbackContext context);
         void OnPause(InputAction.CallbackContext context);
         void OnRestart(InputAction.CallbackContext context);
+        void OnSegment(InputAction.CallbackContext context);
     }
 }

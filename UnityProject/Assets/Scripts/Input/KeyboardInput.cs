@@ -27,7 +27,6 @@ public class KeyboardInput : MonoBehaviour
     private bool isReferenceMode = false;
     private bool isPositionMode = false;
     public string explanation;
-    public int segmentCount;
 
     public Vector3 movement;
 
@@ -64,25 +63,7 @@ public class KeyboardInput : MonoBehaviour
         // Pause the scenario and start recording speech when the 'P' key is pressed
         if (Input.GetKeyDown(KeyCode.P) && gameObject.CompareTag("keyboard"))
         {
-            if (timelineManager.Paused)
-            {
-                timelineManager.Unpause();
-            }
-            else
-            {
-                timelineManager.Pause();
-                if (segmentCount > 0)
-                {
-                    StartCoroutine(ChainedCoroutines());
-                }
-                streamingSampleMic.OnButtonPressed();
-                if (segmentCount > 0)
-                {
-                    StartCoroutine(ProcessAudioAndReactivateMic());
-                    Debug.Log("Started new segment recording");
-                }
-                segmentCount++;
-            }
+            HandlePause();
         }
         
         // Enable annotation or position marking with mouse clicks
@@ -140,7 +121,7 @@ public class KeyboardInput : MonoBehaviour
         StartCoroutine(HandleClickWithDelay(HandleAnnotationMode));
     }
 
-    // Handles the pause functionality and starts recording for a new segment
+    // HandlePause() should only pause or unpause, segment handling now done in HandleSegment()
     public void HandlePause()
     {
         if (timelineManager.Paused)
@@ -150,14 +131,51 @@ public class KeyboardInput : MonoBehaviour
         else
         {
             timelineManager.Pause();
-            if (segmentCount > 0)
+        }
+    }
+
+    // When unpaused, HandleSegment() should pause the scenario and start/stop recording a segment and set isRecordingSegment to true/false
+    // When paused, and isRecordingSegment is true, HandleSegment() should end recording the segment and set isRecordingSegment to false (SHOULD NOT UNPAUSE)
+    // When paused, and isRecordingSegment is false, HandleSegment() should start recording the segment and set isRecordingSegment to true (SHOULD NOT UNPAUSE)
+    public void HandleSegment()
+    {
+        // Start new segment
+        if (timelineManager.Paused == false)
+        {
+            timelineManager.Pause();
+            if (timelineManager.isRecordingSegment == false)
             {
+                timelineManager.isRecordingSegment = true;
+                streamingSampleMic.OnButtonPressed();
+                if (timelineManager.segmentCount > 0)
+                {
+                    StartCoroutine(ProcessAudioAndReactivateMic());
+                    Debug.Log("Started new segment recording");
+                }
+                timelineManager.segmentCount++;
+            } else if (timelineManager.isRecordingSegment == true)
+            {
+                timelineManager.isRecordingSegment = false;
                 StartCoroutine(ChainedCoroutines());
             }
-            segmentCount++;
-            StartCoroutine(Countdown());
-            streamingSampleMic.OnButtonPressed();
+        } else if (timelineManager.Paused == true)
+        {
+            if (timelineManager.isRecordingSegment == true)
+            {
+                timelineManager.isRecordingSegment = false;
+                StartCoroutine(ChainedCoroutines());
+            } else if (timelineManager.isRecordingSegment == false)
+            {
+                timelineManager.isRecordingSegment = true;
+                streamingSampleMic.OnButtonPressed();
+                if (timelineManager.segmentCount > 0)
+                {
+                    StartCoroutine(ProcessAudioAndReactivateMic());
+                    Debug.Log("Started new segment recording");
+                }
+            }
         }
+        timelineManager.segmentCount++;
     }
 
     // Handles a mouse click with a delay to prevent rapid clicks

@@ -47,6 +47,10 @@ public class TimelineManager : MonoBehaviour
   
     public int RewindTimeIndex = 0;
     public int maxRewindTimeIndex = 0;
+    
+    public int segmentCount;
+    public bool isRecordingSegment = false;
+    
     // Start is called before the first frame update
     void Start()
     {

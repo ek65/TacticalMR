@@ -169,7 +169,6 @@ public class ActionAPI : MonoBehaviour
 
     public void CallPause()
     {
-        Debug.LogError("called pause");
         TimelineManager tlManager =
             GameObject.FindGameObjectWithTag("TimelineManager").GetComponent<TimelineManager>();
         tlManager.Pause();
@@ -178,7 +177,6 @@ public class ActionAPI : MonoBehaviour
     
     public void CallUnpause()
     {
-        Debug.LogError("called unpause");
         TimelineManager tlManager =
             GameObject.FindGameObjectWithTag("TimelineManager").GetComponent<TimelineManager>();
         tlManager.Unpause();;

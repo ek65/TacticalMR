@@ -14,6 +14,7 @@ public class GroundSelection : MonoBehaviour, IPointerClickHandler, IPointerEnte
     private RaycastHit raycastHit;
     
     private KeyboardInput keyboardInput;
+    private TimelineManager tlManager;
 
     private void Start()
     {
@@ -58,7 +59,7 @@ public class GroundSelection : MonoBehaviour, IPointerClickHandler, IPointerEnte
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        if (keyboardInput.canClick && keyboardInput.segmentCount > 0)
+        if (keyboardInput.canClick && tlManager.isRecordingSegment)
         {
             GameObject go = Instantiate(newGroundHighlighter, raycastHit.point, Quaternion.identity);
             go.GetComponent<Collider>().enabled = true;
