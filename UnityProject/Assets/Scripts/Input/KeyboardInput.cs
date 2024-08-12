@@ -60,6 +60,11 @@ public class KeyboardInput : MonoBehaviour
             exitScenario.EndScenario();
         }
         
+        if (Input.GetKeyDown(KeyCode.B) && gameObject.CompareTag("keyboard"))
+        {
+            HandleSegment();
+        }
+        
         // Pause the scenario and start recording speech when the 'P' key is pressed
         if (Input.GetKeyDown(KeyCode.P) && gameObject.CompareTag("keyboard"))
         {
@@ -139,43 +144,56 @@ public class KeyboardInput : MonoBehaviour
     // When paused, and isRecordingSegment is false, HandleSegment() should start recording the segment and set isRecordingSegment to true (SHOULD NOT UNPAUSE)
     public void HandleSegment()
     {
-        // Start new segment
-        if (timelineManager.Paused == false)
+        if (!timelineManager.Paused)
         {
             timelineManager.Pause();
-            if (timelineManager.isRecordingSegment == false)
+            if (timelineManager.isRecordingSegment)
             {
-                timelineManager.isRecordingSegment = true;
-                streamingSampleMic.OnButtonPressed();
-                if (timelineManager.segmentCount > 0)
-                {
-                    StartCoroutine(ProcessAudioAndReactivateMic());
-                    Debug.Log("Started new segment recording");
-                }
-                timelineManager.segmentCount++;
-            } else if (timelineManager.isRecordingSegment == true)
-            {
-                timelineManager.isRecordingSegment = false;
-                StartCoroutine(ChainedCoroutines());
+                StopSegment(); // Stop the segment if already recording
             }
-        } else if (timelineManager.Paused == true)
-        {
-            if (timelineManager.isRecordingSegment == true)
+            else
             {
-                timelineManager.isRecordingSegment = false;
-                StartCoroutine(ChainedCoroutines());
-            } else if (timelineManager.isRecordingSegment == false)
-            {
-                timelineManager.isRecordingSegment = true;
-                streamingSampleMic.OnButtonPressed();
-                if (timelineManager.segmentCount > 0)
-                {
-                    StartCoroutine(ProcessAudioAndReactivateMic());
-                    Debug.Log("Started new segment recording");
-                }
+                StartSegment(); // Start a new segment if not recording
             }
         }
+        else
+        {
+            if (timelineManager.isRecordingSegment)
+            {
+                StopSegment(); // Stop the segment if already recording
+            }
+            else
+            {
+                StartSegment(); // Start a new segment if not recording
+            }
+        }
+    }
+
+
+    private void StartSegment()
+    {
+        timelineManager.isRecordingSegment = true;
+
+        if (timelineManager.segmentCount <= 0)
+        {
+            Debug.Log("Started first segment recording");
+            streamingSampleMic.OnButtonPressed();
+        }
+        else
+        {
+            streamingSampleMic.OnButtonPressed();
+            Debug.Log("Started new segment recording");
+        }
+
         timelineManager.segmentCount++;
+    }
+
+    private void StopSegment()
+    {
+        timelineManager.isRecordingSegment = false;
+        Debug.Log("Stopped segment recording");
+        streamingSampleMic.OnButtonPressed();
+        StartCoroutine(ChainedCoroutines());
     }
 
     // Handles a mouse click with a delay to prevent rapid clicks
@@ -301,7 +319,7 @@ public class KeyboardInput : MonoBehaviour
     IEnumerator FileCoroutine()
     {
         Debug.Log("Started File Coroutine at timestamp : " + Time.time);
-        yield return new WaitForSeconds(10);
+        yield return Countdown();
         jsonToLLM.WriteFile();
         ResetJsonData();
     }
@@ -310,13 +328,16 @@ public class KeyboardInput : MonoBehaviour
     private IEnumerator Countdown()
     {
         countdownText.gameObject.SetActive(true);
-        for (int i = 5; i > 0; i--)
+        for (int i = 15; i > 0; i--)
         {
             countdownText.text = i.ToString();
             yield return new WaitForSeconds(1);
         }
-        countdownText.text = "SPEAK";
+        countdownText.color = Color.blue; // Set the color to green when the countdown is complete
+        countdownText.text = "NEXT SEGMENT READY";
+        yield return new WaitForSeconds(1);
         countdownText.gameObject.SetActive(false);
+        countdownText.color = Color.white;
     }
 
     void FixedUpdate()
