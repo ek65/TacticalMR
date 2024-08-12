@@ -265,6 +265,8 @@ MonoBehaviour:
   GlobalTimeIndex: 0
   RewindTimeIndex: 0
   maxRewindTimeIndex: 0
+  segmentCount: 0
+  isRecordingSegment: 0
 --- !u!4 &82555166
 Transform:
   m_ObjectHideFlags: 0
@@ -3677,7 +3679,6 @@ MonoBehaviour:
   exitScenario: {fileID: 0}
   countdownText: {fileID: 0}
   explanation: 
-  segmentCount: 0
   movement: {x: 0, y: 0, z: 0}
   canClick: 1
 --- !u!4 &1297644842

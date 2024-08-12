@@ -36,9 +36,9 @@ public class ControllerInput : MonoBehaviour
     {
         move = inputSystem.PlayerControls.Move;
         look = inputSystem.PlayerControls.Look;
-        inputSystem.PlayerControls.Pause.performed += ControllerPause;
-        inputSystem.PlayerControls.Restart.performed += ControllerRestart;
-        inputSystem.PlayerControls.Segment.performed += ControllerSegment;
+        inputSystem.PlayerControls.Pause.performed += ControllerPause; // A Button
+        inputSystem.PlayerControls.Restart.performed += ControllerRestart; // Y Button
+        inputSystem.PlayerControls.Segment.performed += ControllerSegment; // X Button
         inputSystem.PlayerControls.Enable();
     }
     
