@@ -8,6 +8,7 @@ using Whisper.Samples;
 public class KeyboardInput : MonoBehaviour
 {
     [SerializeField] public float moveSpeed = 4f;
+    
     public ExitScenario exitScenario;
     private Rigidbody rb;
     private ChatBehaviour chatBehaviour;
@@ -209,7 +210,7 @@ public class KeyboardInput : MonoBehaviour
     private IEnumerator ProcessAudioAndReactivateMic()
     {
         yield return Countdown(); 
-        streamingSampleMic.OnButtonPressed(); // Reactivate the mic
+        streamingSampleMic.OnButtonPressed(); // Reactivate the micxq
         Debug.Log("Microphone reactivated.");
     }
     
@@ -342,17 +343,41 @@ public class KeyboardInput : MonoBehaviour
 
     void FixedUpdate()
     {
+        // if (rb == null)
+        // {
+        //     // Try to find the GameObject named "Coach" and get its Rigidbody component
+        //     GameObject coachObject = GameObject.Find("Coach");
+        //     if (coachObject != null)
+        //     {
+        //         rb = coachObject.GetComponent<Rigidbody>();
+        //         if (rb != null)
+        //         {
+        //             Debug.Log("Rigidbody found and assigned to Coach.");
+        //         }
+        //         else
+        //         {
+        //             Debug.LogWarning("Rigidbody component not found on Coach.");
+        //             return;
+        //         }
+        //     }
+        //     else
+        //     {
+        //         // If the GameObject "Coach" is not found, return early to avoid errors
+        //         Debug.LogWarning("GameObject 'Coach' not found.");
+        //         return;
+        //     }
+        // }
+
+        // Ensure movement only occurs if not paused and Rigidbody is available
         // if (timelineManager.Paused)
         // {
         //     return;
         // }
-        //
         // float horizontalInput = Input.GetAxis("Horizontal");
         // float verticalInput = Input.GetAxis("Vertical");
         //
         // Vector3 forwardDirection = transform.forward;
-        // movement = (forwardDirection * verticalInput + transform.right * horizontalInput).normalized *
-        //                    moveSpeed;
+        // movement = (forwardDirection * verticalInput + transform.right * horizontalInput).normalized * moveSpeed;
         //
         // rb.MovePosition(rb.position + movement * Time.fixedDeltaTime);
     }
