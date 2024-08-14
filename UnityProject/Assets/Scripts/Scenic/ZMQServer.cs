@@ -153,7 +153,7 @@ public class ZMQServer : MonoBehaviour
             // {
             //     aiAgentIndex = currMovementDataIndex;
             // }
-            else if(s.model.modelType == "Human")
+            else if(s.model.modelType == "Human" || s.model.modelType == "Coach")
             {
                 //broadcast the pause boolean which may be set by scenic AI agent at any given moment. TimelineManager would handle it
                 // tlManager.NotifyPauseStatus(s.pause);

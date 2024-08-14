@@ -3690,6 +3690,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   moveSpeed: 4
   exitScenario: {fileID: 0}
+  rb: {fileID: 0}
   countdownText: {fileID: 0}
   explanation: 
   movement: {x: 0, y: 0, z: 0}

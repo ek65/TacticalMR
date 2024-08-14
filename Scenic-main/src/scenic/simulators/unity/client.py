@@ -166,7 +166,10 @@ class UnityMessageServer:
             game_object = gameObject(position, rotation)
             obj.gameObject = game_object
             #We will only have one human for now, call it 'ego' in the dict
-            obj.gameObject.model = Model(1,1, (255,255,0,1), "Human")
+            if (obj.systemControlled):
+                obj.gameObject.model = Model(1,1, (255,255,0,1), "Coach")
+            else:
+                obj.gameObject.model = Model(1,1, (255,255,0,1), "Human")
             if obj.team == "blue":
                 game_object.ChangeColor((0,0,255,1))
             self.sendData.addToQueue(obj.gameObject)

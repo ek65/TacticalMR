@@ -65,11 +65,17 @@ public class InstantiateScenicObject
             //objectList.orangePlayers.Add(scenicPlayer.GetComponent<NetworkObject>().NetworkInstanceId);
             Debug.Log("Added Scenic Player");
         }
-        else if (modelType == "Human")
+        else if (modelType == "Human" || modelType == "Coach")
         {
             if (objectList.humanPlayers.Count == 0)
             {
-                addedGameObject = MonoBehaviour.Instantiate(objectList.modelList["player.human"], pos, rot);
+                if (modelType == "Human")
+                {
+                    addedGameObject = MonoBehaviour.Instantiate(objectList.modelList["player.human"], pos, rot);
+                } else if (modelType == "Coach")
+                {
+                    addedGameObject = MonoBehaviour.Instantiate(objectList.modelList["player.coach"], pos, rot);
+                }
                 //scenicPlayer.GetComponent<NetworkObject>().Spawn();
                 addedGameObject.name = "Coach";
                 objectList.humanPlayers.Add(addedGameObject);

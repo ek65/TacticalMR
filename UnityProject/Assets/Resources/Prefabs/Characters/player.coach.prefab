@@ -2970,7 +2970,7 @@ GameObject:
   - component: {fileID: 7997107720138317640}
   - component: {fileID: -4780579434234233153}
   m_Layer: 0
-  m_Name: player.human
+  m_Name: player.coach
   m_TagString: human
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3562,7 +3562,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8665160898893140854}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ce11ea984e202491d9271f53021d8b89, type: 3}
   m_Name: 

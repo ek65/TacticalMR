@@ -102,7 +102,7 @@ namespace SynthNetworkKit
             File.WriteAllText(filePath, data);
 
             // Define the Firebase Storage reference path
-            StorageReference fileRef = storageRef.Child("validation/" + id + ".json");
+            StorageReference fileRef = storageRef.Child("scenes/" + id + ".json");
 
             // Upload the file to Firebase Storage
             fileRef.PutFileAsync(filePath).ContinueWithOnMainThread(task => {

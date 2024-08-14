@@ -10,7 +10,7 @@ public class KeyboardInput : MonoBehaviour
     [SerializeField] public float moveSpeed = 4f;
     
     public ExitScenario exitScenario;
-    private Rigidbody rb;
+    public Rigidbody rb;
     private ChatBehaviour chatBehaviour;
     private StreamingSampleMic streamingSampleMic;
 
@@ -36,7 +36,7 @@ public class KeyboardInput : MonoBehaviour
     void Start()
     {
         // Initialize the necessary components and references at the start of the scene
-        rb = GetComponent<Rigidbody>();
+        // rb = GetComponent<Rigidbody>();
         timelineManager = GameObject.FindGameObjectWithTag("TimelineManager").GetComponent<TimelineManager>();
         jsonToLLM = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<JSONToLLM>();
         countdownText = GameObject.FindGameObjectWithTag("countdown").GetComponent<TextMeshProUGUI>();
@@ -346,9 +346,16 @@ public class KeyboardInput : MonoBehaviour
         if (rb == null)
         {
             GameObject coachObject = GameObject.FindGameObjectWithTag("human");
-            rb = coachObject.GetComponent<Rigidbody>();
+            if (coachObject != null)
+            {
+                rb = coachObject.GetComponent<Rigidbody>();
+            }
         }
 
+        if (rb == null)
+        {
+            return;
+        }
         // Ensure movement only occurs if not paused and Rigidbody is available
         if (timelineManager.Paused)
         {
