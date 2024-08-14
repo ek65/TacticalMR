@@ -59,12 +59,12 @@ public class GroundSelection : MonoBehaviour, IPointerClickHandler, IPointerEnte
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        if (keyboardInput.canClick && tlManager.isRecordingSegment)
-        {
+        // if (keyboardInput.canClick && tlManager.isRecordingSegment)
+        // {
             GameObject go = Instantiate(newGroundHighlighter, raycastHit.point, Quaternion.identity);
             go.GetComponent<Collider>().enabled = true;
             keyboardInput.HandlePositionClick();
-        }
+        // }
     }
 
     public void OnPointerEnter(PointerEventData eventData)

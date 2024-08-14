@@ -7,6 +7,7 @@ public class SynthConnect : MonoBehaviour
     private SynthNetwork network;
     private JSONToLLM jsonToLLM;
     public string id; // name of the JSON file
+    public int segmentNum = 1;
     
     // Initialize the necessary components and references at the start of the scene
     void Start()
@@ -25,8 +26,9 @@ public class SynthConnect : MonoBehaviour
     // Stores the scene data in Firebase Storage with a unique ID
     public void SendScene()
     {
-        id = Guid.NewGuid().ToString(); // Generate a new unique ID for the scene
-        // id = "demo1"  // (Commented out: Use a static ID if needed)
+        // id = Guid.NewGuid().ToString(); // Generate a new unique ID for the scene
+        id = $"transcript1-segment{segmentNum}";  // (Commented out: Use a static ID if needed)
+        segmentNum += 1;
         network.StoreScene(jsonToLLM.jsonString, id);
     }
     

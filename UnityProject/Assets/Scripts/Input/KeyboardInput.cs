@@ -8,6 +8,7 @@ using Whisper.Samples;
 public class KeyboardInput : MonoBehaviour
 {
     [SerializeField] public float moveSpeed = 4f;
+    
     public ExitScenario exitScenario;
     private Rigidbody rb;
     private ChatBehaviour chatBehaviour;
@@ -58,6 +59,11 @@ public class KeyboardInput : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.E) && gameObject.CompareTag("keyboard"))
         {
             exitScenario.EndScenario();
+        }
+        
+        if (Input.GetKeyDown(KeyCode.B) && gameObject.CompareTag("keyboard"))
+        {
+            HandleSegment();
         }
         
         // Pause the scenario and start recording speech when the 'P' key is pressed
@@ -139,43 +145,56 @@ public class KeyboardInput : MonoBehaviour
     // When paused, and isRecordingSegment is false, HandleSegment() should start recording the segment and set isRecordingSegment to true (SHOULD NOT UNPAUSE)
     public void HandleSegment()
     {
-        // Start new segment
-        if (timelineManager.Paused == false)
+        if (!timelineManager.Paused)
         {
             timelineManager.Pause();
-            if (timelineManager.isRecordingSegment == false)
+            if (timelineManager.isRecordingSegment)
             {
-                timelineManager.isRecordingSegment = true;
-                streamingSampleMic.OnButtonPressed();
-                if (timelineManager.segmentCount > 0)
-                {
-                    StartCoroutine(ProcessAudioAndReactivateMic());
-                    Debug.Log("Started new segment recording");
-                }
-                timelineManager.segmentCount++;
-            } else if (timelineManager.isRecordingSegment == true)
-            {
-                timelineManager.isRecordingSegment = false;
-                StartCoroutine(ChainedCoroutines());
+                StopSegment(); // Stop the segment if already recording
             }
-        } else if (timelineManager.Paused == true)
-        {
-            if (timelineManager.isRecordingSegment == true)
+            else
             {
-                timelineManager.isRecordingSegment = false;
-                StartCoroutine(ChainedCoroutines());
-            } else if (timelineManager.isRecordingSegment == false)
-            {
-                timelineManager.isRecordingSegment = true;
-                streamingSampleMic.OnButtonPressed();
-                if (timelineManager.segmentCount > 0)
-                {
-                    StartCoroutine(ProcessAudioAndReactivateMic());
-                    Debug.Log("Started new segment recording");
-                }
+                StartSegment(); // Start a new segment if not recording
             }
         }
+        else
+        {
+            if (timelineManager.isRecordingSegment)
+            {
+                StopSegment(); // Stop the segment if already recording
+            }
+            else
+            {
+                StartSegment(); // Start a new segment if not recording
+            }
+        }
+    }
+
+
+    private void StartSegment()
+    {
+        timelineManager.isRecordingSegment = true;
+
+        if (timelineManager.segmentCount <= 0)
+        {
+            Debug.Log("Started first segment recording");
+            streamingSampleMic.OnButtonPressed();
+        }
+        else
+        {
+            streamingSampleMic.OnButtonPressed();
+            Debug.Log("Started new segment recording");
+        }
+
         timelineManager.segmentCount++;
+    }
+
+    private void StopSegment()
+    {
+        timelineManager.isRecordingSegment = false;
+        Debug.Log("Stopped segment recording");
+        streamingSampleMic.OnButtonPressed();
+        StartCoroutine(ChainedCoroutines());
     }
 
     // Handles a mouse click with a delay to prevent rapid clicks
@@ -191,7 +210,7 @@ public class KeyboardInput : MonoBehaviour
     private IEnumerator ProcessAudioAndReactivateMic()
     {
         yield return Countdown(); 
-        streamingSampleMic.OnButtonPressed(); // Reactivate the mic
+        streamingSampleMic.OnButtonPressed(); // Reactivate the micxq
         Debug.Log("Microphone reactivated.");
     }
     
@@ -301,7 +320,7 @@ public class KeyboardInput : MonoBehaviour
     IEnumerator FileCoroutine()
     {
         Debug.Log("Started File Coroutine at timestamp : " + Time.time);
-        yield return new WaitForSeconds(10);
+        yield return Countdown();
         jsonToLLM.WriteFile();
         ResetJsonData();
     }
@@ -310,28 +329,55 @@ public class KeyboardInput : MonoBehaviour
     private IEnumerator Countdown()
     {
         countdownText.gameObject.SetActive(true);
-        for (int i = 5; i > 0; i--)
+        for (int i = 15; i > 0; i--)
         {
             countdownText.text = i.ToString();
             yield return new WaitForSeconds(1);
         }
-        countdownText.text = "SPEAK";
+        countdownText.color = Color.blue; // Set the color to green when the countdown is complete
+        countdownText.text = "NEXT SEGMENT READY";
+        yield return new WaitForSeconds(1);
         countdownText.gameObject.SetActive(false);
+        countdownText.color = Color.white;
     }
 
     void FixedUpdate()
     {
+        // if (rb == null)
+        // {
+        //     // Try to find the GameObject named "Coach" and get its Rigidbody component
+        //     GameObject coachObject = GameObject.Find("Coach");
+        //     if (coachObject != null)
+        //     {
+        //         rb = coachObject.GetComponent<Rigidbody>();
+        //         if (rb != null)
+        //         {
+        //             Debug.Log("Rigidbody found and assigned to Coach.");
+        //         }
+        //         else
+        //         {
+        //             Debug.LogWarning("Rigidbody component not found on Coach.");
+        //             return;
+        //         }
+        //     }
+        //     else
+        //     {
+        //         // If the GameObject "Coach" is not found, return early to avoid errors
+        //         Debug.LogWarning("GameObject 'Coach' not found.");
+        //         return;
+        //     }
+        // }
+
+        // Ensure movement only occurs if not paused and Rigidbody is available
         // if (timelineManager.Paused)
         // {
         //     return;
         // }
-        //
         // float horizontalInput = Input.GetAxis("Horizontal");
         // float verticalInput = Input.GetAxis("Vertical");
         //
         // Vector3 forwardDirection = transform.forward;
-        // movement = (forwardDirection * verticalInput + transform.right * horizontalInput).normalized *
-        //                    moveSpeed;
+        // movement = (forwardDirection * verticalInput + transform.right * horizontalInput).normalized * moveSpeed;
         //
         // rb.MovePosition(rb.position + movement * Time.fixedDeltaTime);
     }
