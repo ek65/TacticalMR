@@ -41,7 +41,7 @@ public class GroundSelection : MonoBehaviour, IPointerClickHandler, IPointerEnte
         }
 #endif
 #if UNITY_ANDROID
-        // android raycast
+        /*// android raycast
         if (GameObject.FindGameObjectWithTag("human") != null)
         {
             ray = GameObject.FindGameObjectWithTag("RightRay").GetComponent<RayInteractor>().Ray;
@@ -52,19 +52,19 @@ public class GroundSelection : MonoBehaviour, IPointerClickHandler, IPointerEnte
                     groundHighlighter.transform.position = raycastHit.point;
                 }
             }
-        }
+        }*/
 #endif
         
     }
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        // if (keyboardInput.canClick && tlManager.isRecordingSegment)
-        // {
+        if (keyboardInput.canClick)
+        {
             GameObject go = Instantiate(newGroundHighlighter, raycastHit.point, Quaternion.identity);
             go.GetComponent<Collider>().enabled = true;
             keyboardInput.HandlePositionClick();
-        // }
+        }
     }
 
     public void OnPointerEnter(PointerEventData eventData)
