@@ -15,6 +15,7 @@ public class KeyboardInput : MonoBehaviour
     private StreamingSampleMic streamingSampleMic;
 
     private TimelineManager timelineManager;
+    private RecorderManager recorderManager;
     private JSONToLLM jsonToLLM;
     public TextMeshProUGUI countdownText;
     private SynthConnect synthConnect;
@@ -38,6 +39,7 @@ public class KeyboardInput : MonoBehaviour
         // Initialize the necessary components and references at the start of the scene
         // rb = GetComponent<Rigidbody>();
         timelineManager = GameObject.FindGameObjectWithTag("TimelineManager").GetComponent<TimelineManager>();
+        recorderManager = GameObject.FindGameObjectWithTag("RecorderManager").GetComponent<RecorderManager>();
         jsonToLLM = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<JSONToLLM>();
         countdownText = GameObject.FindGameObjectWithTag("countdown").GetComponent<TextMeshProUGUI>();
         chatBehaviour = GameObject.FindGameObjectWithTag("Character").GetComponent<ChatBehaviour>();
@@ -174,6 +176,8 @@ public class KeyboardInput : MonoBehaviour
     private void StartSegment()
     {
         timelineManager.isRecordingSegment = true;
+        
+        recorderManager.StartRecording();
 
         if (timelineManager.segmentCount <= 0)
         {
@@ -192,6 +196,9 @@ public class KeyboardInput : MonoBehaviour
     private void StopSegment()
     {
         timelineManager.isRecordingSegment = false;
+        
+        recorderManager.StopRecording();
+        
         Debug.Log("Stopped segment recording");
         streamingSampleMic.OnButtonPressed();
         StartCoroutine(ChainedCoroutines());

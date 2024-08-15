@@ -5202,11 +5202,11 @@ GameObject:
   - component: {fileID: 1818258849}
   m_Layer: 0
   m_Name: RecorderManager
-  m_TagString: Untagged
+  m_TagString: RecorderManager
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1818258848
 Transform:
   m_ObjectHideFlags: 0
@@ -5234,7 +5234,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5fe17b121467d452a8a4d3724e4fafc5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_RecordAudio: 1
+  m_RecordAudio: 0
 --- !u!1 &1820837602
 GameObject:
   m_ObjectHideFlags: 0

@@ -26,6 +26,7 @@ TagManager:
   - LeftRay
   - RightRay
   - GroundHover
+  - RecorderManager
   layers:
   - Default
   - TransparentFX

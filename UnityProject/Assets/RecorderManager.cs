@@ -13,6 +13,7 @@ public class RecorderManager : MonoBehaviour
     RecorderController m_RecorderController;
     public bool m_RecordAudio = true;
     internal MovieRecorderSettings m_Settings = null;
+    private int recordingNum;
 
     public FileInfo OutputFile
     {
@@ -28,7 +29,7 @@ public class RecorderManager : MonoBehaviour
         Initialize();
     }
 
-    internal void Initialize()
+    public void Initialize()
     {
         var controllerSettings = ScriptableObject.CreateInstance<RecorderControllerSettings>();
         m_RecorderController = new RecorderController(controllerSettings);
@@ -53,23 +54,35 @@ public class RecorderManager : MonoBehaviour
         m_Settings.AudioInputSettings.PreserveAudio = m_RecordAudio;
 
         // Simple file name (no wildcards) so that FileInfo constructor works in OutputFile getter.
-        m_Settings.OutputFile = mediaOutputFolder.FullName + "/" + "video";
+        m_Settings.OutputFile = mediaOutputFolder.FullName + "/";
 
         // Setup Recording
         controllerSettings.AddRecorderSettings(m_Settings);
         controllerSettings.SetRecordModeToManual();
         controllerSettings.FrameRate = 60.0f;
+    }
 
+    public void StartRecording()
+    {
+        m_Settings.OutputFile += "video" + recordingNum.ToString();
+        
         RecorderOptions.VerboseMode = false;
         m_RecorderController.PrepareRecording();
         m_RecorderController.StartRecording();
 
         Debug.Log($"Started recording for file {OutputFile.FullName}");
-    }
 
-    void OnDisable()
+        recordingNum++;
+    }
+    
+    public void StopRecording()
     {
         m_RecorderController.StopRecording();
+    }
+    
+    void OnDisable()
+    {
+        StopRecording();
     }
     
 }
