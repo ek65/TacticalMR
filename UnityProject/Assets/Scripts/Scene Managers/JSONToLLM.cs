@@ -340,6 +340,7 @@ public class JSONToLLM : MonoBehaviour
     {
         if (isLogging)
         {
+            Debug.Log("JSON UPDATING");
             time += 0.02f;
             PopulateSegment();
         }

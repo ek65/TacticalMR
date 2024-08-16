@@ -176,7 +176,7 @@ public class KeyboardInput : MonoBehaviour
     private void StartSegment()
     {
         timelineManager.isRecordingSegment = true;
-        
+        jsonToLLM.isLogging = true;
         recorderManager.StartRecording();
 
         if (timelineManager.segmentCount <= 0)
@@ -196,7 +196,7 @@ public class KeyboardInput : MonoBehaviour
     private void StopSegment()
     {
         timelineManager.isRecordingSegment = false;
-        
+        jsonToLLM.isLogging = false;
         recorderManager.StopRecording();
         
         Debug.Log("Stopped segment recording");
