@@ -145,8 +145,7 @@ namespace Whisper.Samples
         {
             finalTranscriptionString = string.Join(" ", phraseStrings);
             text.text = finalTranscriptionString;
-            Debug.Log("Final transcription:");
-            Debug.Log(finalTranscriptionString);
+            Debug.Log($"Final transcription: {finalTranscriptionString}");
 
             // Pass the cleaned transcription to the keyboard
             keyboard.OnTranscriptionFinished(finalTranscriptionString);
