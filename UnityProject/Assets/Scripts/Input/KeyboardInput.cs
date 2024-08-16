@@ -212,14 +212,7 @@ public class KeyboardInput : MonoBehaviour
         yield return new WaitForSeconds(0.5f);
         canClick = true;
     }
-
-    // Processes audio and reactivates the microphone after a countdown
-    private IEnumerator ProcessAudioAndReactivateMic()
-    {
-        yield return Countdown(); 
-        streamingSampleMic.OnButtonPressed(); // Reactivate the micxq
-        Debug.Log("Microphone reactivated.");
-    }
+    
     
     // Handles annotation mode functionality and stores clicked objects as annotations
     private void HandleAnnotationMode()
@@ -327,21 +320,26 @@ public class KeyboardInput : MonoBehaviour
     IEnumerator FileCoroutine()
     {
         Debug.Log("Started File Coroutine at timestamp : " + Time.time);
-        yield return Countdown();
+        yield return ProcessingTranscript();
         jsonToLLM.WriteFile();
         ResetJsonData();
     }
     
-    // Displays a countdown before allowing speech input
-    private IEnumerator Countdown()
+    
+    private IEnumerator ProcessingTranscript()
     {
         countdownText.gameObject.SetActive(true);
-        for (int i = 15; i > 0; i--)
+        string baseText = "TRANSCRIPTION PROCESSING";
+        int dotCount = 0;
+
+        while (!jsonToLLM.isTranscriptionComplete) // Wait until transcription is done
         {
-            countdownText.text = i.ToString();
-            yield return new WaitForSeconds(1);
+            dotCount = (dotCount + 1) % 4; // Cycle through 0 to 3 dots
+            countdownText.text = baseText + new string('.', dotCount);
+            yield return new WaitForSeconds(0.5f); // Adjust the speed of the dots if needed
         }
-        countdownText.color = Color.blue; // Set the color to green when the countdown is complete
+
+        countdownText.color = Color.blue; // Set the color to blue when the transcription is complete
         countdownText.text = "NEXT SEGMENT READY";
         yield return new WaitForSeconds(1);
         countdownText.gameObject.SetActive(false);

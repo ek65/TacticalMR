@@ -199,6 +199,7 @@ public class JSONToLLM : MonoBehaviour
     // Process tokens collected during the scene and log them
     public void ProcessTokens()
     {
+        isTranscriptionComplete = false;
         foreach (var token in tokenDictionary)
         {
             Debug.Log($"JSONTOLLM KEY saved at time: {token.Key:F2} seconds, VALUE: {token.Value}");
@@ -252,7 +253,7 @@ public class JSONToLLM : MonoBehaviour
             string text = tokenEntry.Value[0] as string;
 
             List<string> unwantedTokens = new List<string>
-                { "BL", "ANK", "AUD", "IO", "_", "urn", "@", "sc", "hem", "as.com", "uk" };
+                { "BL", "ANK", "AUD", "IO", "_", "@", ".com" };
 
             if (unwantedTokens.Any(unwanted => text.Contains(unwanted)))
             {

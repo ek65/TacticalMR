@@ -42,6 +42,19 @@ behavior opponent1Behavior(pt):
         opponent.prevPosition = opponent.position
 
 
+behavior teammateBehavior():
+    try:
+        do SetPlayerSpeed(1.0)
+        do MoveTo(ball.position) for 3 seconds
+        do SetPlayerSpeed(1.5)
+        do Idle() 
+
+    interrupt when hasBallPosession(opponent):
+        coachPosition = ego.position
+        do MoveTo(coachPosition) for 3 seconds
+        do Idle()
+    
+
 ego = new Human at (5, Range(0,0.1), 0)
 
 goal = new Goal behind ego by Range(2.9,3), facing away from ego
@@ -52,12 +65,18 @@ opponent = new Player offset by (Range(-4,0), Range(6,10)),
                 with behavior opponent1Behavior(pt),
                 with name "opponent"
 
+teammate = new Player ahead of ego by 1,
+            facing toward opponent,
+            with behavior teammateBehavior(),
+            with name "teammate",
+            with team "blue"
+
 pt1 = new Point offset by (Range(3,5), Range(1,3))
 pt2 = new Point offset by (Range(-5,-3), Range(1,3))
 op2_pos = Uniform(pt1, pt2)
 
 
-ball = new Ball ahead of opponent by Normal(2,1)
+ball = new Ball ahead of opponent by 1
 
 require (distance from op2_pos to pt) > 5
 terminate when (ego.gameObject.stopButton)
