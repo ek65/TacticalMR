@@ -24,9 +24,10 @@ public class JSONToLLM : MonoBehaviour
     public StreamingSampleMic streamingSampleMic;
     public float time;
     public Dictionary<int, List<object>> tokenDictionary = new Dictionary<int, List<object>>();
-
+    public bool isTranscriptionComplete = false;
     private string sentence;
     private Dictionary<float, string> manualTokenDictionary = new Dictionary<float, string>();
+    public bool isLogging = false;
 
     // Class representing the position of an object
     [System.Serializable]
@@ -121,6 +122,7 @@ public class JSONToLLM : MonoBehaviour
         {
             return;
         }
+
         // Process each player in the scene
         foreach (GameObject currPlayer in objectsList.scenicPlayers)
         {
@@ -201,7 +203,7 @@ public class JSONToLLM : MonoBehaviour
         {
             Debug.Log($"JSONTOLLM KEY saved at time: {token.Key:F2} seconds, VALUE: {token.Value}");
         }
-        
+
         var settings = new JsonSerializerSettings
         {
             ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
@@ -211,6 +213,7 @@ public class JSONToLLM : MonoBehaviour
 
         string tokenJsonString = JsonConvert.SerializeObject(tokenDictionary, settings);
         Debug.Log("Created Token JSON String: " + tokenJsonString);
+        isTranscriptionComplete = true;
     }
 
     // Clean up the sentence by removing unwanted patterns
@@ -246,9 +249,10 @@ public class JSONToLLM : MonoBehaviour
 
         foreach (var tokenEntry in tokenDictionary)
         {
-            string text = tokenEntry.Value[0] as string;        
+            string text = tokenEntry.Value[0] as string;
 
-            List<string> unwantedTokens = new List<string> { "BL", "ANK", "AUD", "IO", "_", "urn", "@", "sc", "hem", "as.com", "uk" };
+            List<string> unwantedTokens = new List<string>
+                { "BL", "ANK", "AUD", "IO", "_", "urn", "@", "sc", "hem", "as.com", "uk" };
 
             if (unwantedTokens.Any(unwanted => text.Contains(unwanted)))
             {
@@ -273,7 +277,8 @@ public class JSONToLLM : MonoBehaviour
                 lastWasPunctuation = false;
             }
         }
-        sentence =  sentenceBuilder.ToString();
+
+        sentence = sentenceBuilder.ToString();
         return CleanSentence(sentence);
     }
 
@@ -292,36 +297,36 @@ public class JSONToLLM : MonoBehaviour
 
     // Create the final JSON string representing the scene and its annotations
     public void CreateJSONString()
-{
-    // Build the sentence before creating JSON
-    keyboard.explanation = BuildSentenceFromTokens(tokenDictionary);
-    Debug.Log("Constructed Sentence: " + keyboard.explanation);
-    
-    // Proceed to serialize the scene data into JSON
-    var settings = new JsonSerializerSettings
     {
-        ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
-        Formatting = Formatting.Indented,
-        ContractResolver = new CamelCasePropertyNamesContractResolver()
-    };
+        // Build the sentence before creating JSON
+        keyboard.explanation = BuildSentenceFromTokens(tokenDictionary);
+        Debug.Log("Constructed Sentence: " + keyboard.explanation);
 
-    jsonString = JsonConvert.SerializeObject(new
-    {
-        scene = new
+        // Proceed to serialize the scene data into JSON
+        var settings = new JsonSerializerSettings
         {
-            id = "typical_1v1",
-            language = keyboard.explanation,
-            step = 0.02,
-            objects = myRootSegment.objects,
-            annotations = keyboard.GetAnnotationsAsJson(),
-            tokens = tokenDictionary, 
-            clickTimes = keyboard.annotationTimes
-        }
-    }, settings);
+            ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+            Formatting = Formatting.Indented,
+            ContractResolver = new CamelCasePropertyNamesContractResolver()
+        };
 
-    File.WriteAllText(filename, jsonString);
-    Debug.Log($"Segment written to {filename}");
-}
+        jsonString = JsonConvert.SerializeObject(new
+        {
+            scene = new
+            {
+                id = "typical_1v1",
+                language = keyboard.explanation,
+                step = 0.02,
+                objects = myRootSegment.objects,
+                annotations = keyboard.GetAnnotationsAsJson(),
+                tokens = tokenDictionary,
+                clickTimes = keyboard.annotationTimes
+            }
+        }, settings);
+
+        File.WriteAllText(filename, jsonString);
+        Debug.Log($"Segment written to {filename}");
+    }
 
 
     // Write the JSON data to a file
@@ -333,8 +338,10 @@ public class JSONToLLM : MonoBehaviour
     // Update the scene data on a fixed time interval
     private void FixedUpdate()
     {
-        time += 0.02f;
-        PopulateSegment();
+        if (isLogging)
+        {
+            time += 0.02f;
+            PopulateSegment();
+        }
     }
 }
-

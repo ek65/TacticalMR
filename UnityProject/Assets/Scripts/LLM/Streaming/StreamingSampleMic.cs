@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
+using NUnit.Framework.Constraints;
 using UnityEngine;
 using UnityEngine.UI;
 using Whisper.Utils;
@@ -28,6 +29,7 @@ namespace Whisper.Samples
         private string finalTranscriptionString = "";
         private bool phraseUpdated = false;
         private KeyboardInput keyboard;
+        public bool transDone = false;
 
 
         // Initialize the necessary components, set up event listeners, and start the transcription stream
@@ -148,6 +150,7 @@ namespace Whisper.Samples
 
             // Pass the cleaned transcription to the keyboard
             keyboard.OnTranscriptionFinished(finalTranscriptionString);
+            transDone = true;
 
             Debug.Log("NEW TRANSCRIPTION");
 
@@ -182,6 +185,8 @@ namespace Whisper.Samples
                     }
                 }
             }
+
+            transDone = false;
         }
     }
 }

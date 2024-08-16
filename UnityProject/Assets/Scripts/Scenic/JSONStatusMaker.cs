@@ -12,7 +12,6 @@ public class JSONStatusMaker : MonoBehaviour
     private bool snapTurnedLastTimestep;
     private int lastTick;
     private ZMQServer server;
-
     void Start()
     {
         //we want to start this from the server?

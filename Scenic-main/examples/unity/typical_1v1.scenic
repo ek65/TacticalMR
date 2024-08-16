@@ -28,19 +28,10 @@ behavior opponentBehavior():
                 do Idle()
 
 # Coach Behavior
-behavior coachBehavior():
-    try:
-        do MoveTo(ball.position)
-    interrupt when distance from self to opponent < pressingDistance:
-        do Idle() for 0.5 seconds
-        do MoveTo(goal.position) for 1.5 seconds
-        do InterceptBall(ball)
-
-
 
 # Define Ego
 
-ego = new Human at (0, 0, 0) , with behavior coachBehavior();
+ego = new Human at (0, 0, 0) 
 
 
 opponent = new Player ahead of ego by Uniform(5, 6),

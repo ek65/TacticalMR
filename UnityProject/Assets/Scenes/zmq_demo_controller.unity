@@ -38,6 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
+  m_IndirectSpecularColor: {r: 0, g: 0, b: 0, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -564,6 +565,7 @@ MonoBehaviour:
   buttonText: {fileID: 1432786277}
   text: {fileID: 775949360}
   scroll: {fileID: 756420436}
+  transDone: 0
 --- !u!4 &318410349
 Transform:
   m_ObjectHideFlags: 0
@@ -941,7 +943,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 1658017393}
   m_Direction: 0
   m_Value: 1
-  m_Size: 0.9999999
+  m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -3623,7 +3625,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   logLevel: 2
-  modelPath: Whisper/ggml-small.en.bin
+  modelPath: Whisper/ggml-medium.en.bin
   isModelPathInStreamingAssets: 1
   initOnAwake: 1
   language: en
@@ -3633,11 +3635,11 @@ MonoBehaviour:
   singleSegment: 1
   enableTokens: 1
   initialPrompt: I am a soccer coach that is going to explain a strategy, specifying 
-    a condition to do an action and what action to take.  This is not an advertisement
-    or  a youtube channel so do not output random links or "subscribe" messages.
+    a condition to do an action and what action to take.  Do not output random links
+    or "subscribe" messages.
   stepSec: 0.2
   keepSec: 0
-  lengthSec: 5
+  lengthSec: 40
   updatePrompt: 1
   dropOldBuffer: 0
   useVad: 1
@@ -3839,8 +3841,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 408.92007, y: 0}
-  m_SizeDelta: {x: 64, y: 64}
+  m_AnchoredPosition: {x: 465.35184, y: 0}
+  m_SizeDelta: {x: 0, y: 64}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1359183744
 MonoBehaviour:
@@ -6856,6 +6858,7 @@ MonoBehaviour:
   timelineManager: {fileID: 0}
   streamingSampleMic: {fileID: 0}
   time: 0
+  isTranscriptionComplete: 0
   myRootSegment:
     timestep: 0
 --- !u!114 &777379925808647189
