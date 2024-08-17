@@ -34,8 +34,6 @@ public class RecorderManager : MonoBehaviour
         var controllerSettings = ScriptableObject.CreateInstance<RecorderControllerSettings>();
         m_RecorderController = new RecorderController(controllerSettings);
 
-        var mediaOutputFolder = new DirectoryInfo(Path.Combine(Application.dataPath, "..", "SampleRecordings"));
-
         // Video
         m_Settings = ScriptableObject.CreateInstance<MovieRecorderSettings>();
         m_Settings.name = "My Video Recorder";
@@ -53,9 +51,6 @@ public class RecorderManager : MonoBehaviour
 
         m_Settings.AudioInputSettings.PreserveAudio = m_RecordAudio;
 
-        // Simple file name (no wildcards) so that FileInfo constructor works in OutputFile getter.
-        m_Settings.OutputFile = mediaOutputFolder.FullName + "/";
-
         // Setup Recording
         controllerSettings.AddRecorderSettings(m_Settings);
         controllerSettings.SetRecordModeToManual();
@@ -64,7 +59,10 @@ public class RecorderManager : MonoBehaviour
 
     public void StartRecording()
     {
-        m_Settings.OutputFile += "video" + recordingNum.ToString();
+        var mediaOutputFolder = new DirectoryInfo(Path.Combine(Application.dataPath, "..", "SampleRecordings"));
+        
+        // Simple file name (no wildcards) so that FileInfo constructor works in OutputFile getter.
+        m_Settings.OutputFile = mediaOutputFolder.FullName + "/" + "video" + recordingNum.ToString();
         
         RecorderOptions.VerboseMode = false;
         m_RecorderController.PrepareRecording();
