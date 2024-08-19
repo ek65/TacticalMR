@@ -42,6 +42,20 @@ public class JSONToLLM : MonoBehaviour
             y = vector.z;
         }
     }
+    
+    // Class representing the orientation of an object
+    [System.Serializable]
+    public class Orientation
+    {
+        public float angle; // Angle with respect to the origin
+
+        public Orientation(Transform transform)
+        {
+            // Calculate the angle with respect to the origin of the x, y axis
+            Vector3 direction = transform.position.normalized; // Get the direction vector
+            angle = Mathf.Atan2(direction.z, direction.x) * Mathf.Rad2Deg;
+        }
+    }
 
     // Class representing the velocity of an object
     [System.Serializable]
@@ -68,6 +82,7 @@ public class JSONToLLM : MonoBehaviour
         public List<Velocity> velocity = new List<Velocity>();
         public List<bool> ballPossession = new List<bool>();
         public string behavior;
+        public List<Orientation> orientation = new List<Orientation>();
     }
 
     // Class representing a ball in the scene
@@ -78,6 +93,7 @@ public class JSONToLLM : MonoBehaviour
         public string type = "Ball";
         public List<Position> position = new List<Position>();
         public List<Velocity> velocity = new List<Velocity>();
+        public List<Orientation> orientation = new List<Orientation>();
     }
 
     // Class representing a goal in the scene
@@ -88,6 +104,7 @@ public class JSONToLLM : MonoBehaviour
         public string type = "Goal";
         public List<Position> position = new List<Position>();
         public List<Velocity> velocity = new List<Velocity>();
+        public List<Orientation> orientation = new List<Orientation>();
     }
 
     // Class representing a segment of the scene, containing objects and their states
@@ -139,6 +156,7 @@ public class JSONToLLM : MonoBehaviour
 
             player.position.Add(new Position(currPlayer.transform.position));
             player.velocity.Add(new Velocity(currPlayer.GetComponent<PlayerInterface>().currVelocity));
+            player.orientation.Add(new Orientation(currPlayer.transform));
             player.ballPossession.Add(currPlayer.GetComponent<PlayerInterface>().ballPossession);
         }
 
@@ -159,6 +177,7 @@ public class JSONToLLM : MonoBehaviour
             coach.position.Add(new Position(humanPlayer.transform.position));
             Vector3 coachVelocity = keyboard.movement;
             coach.velocity.Add(new Velocity(coachVelocity));
+            coach.orientation.Add(new Orientation(humanPlayer.transform));
             coach.ballPossession.Add(humanPlayer.GetComponent<HumanInterface>().ballPossession);
         }
 
@@ -172,6 +191,7 @@ public class JSONToLLM : MonoBehaviour
         }
 
         ballObject.position.Add(new Position(ball.transform.position));
+        ballObject.orientation.Add(new Orientation(ball.transform));
         Rigidbody ballRB = ball.GetComponent<Rigidbody>();
         ballObject.velocity.Add(new Velocity(ballRB.velocity));
 
@@ -187,6 +207,7 @@ public class JSONToLLM : MonoBehaviour
         Vector3 zeroVector = Vector3.zero;
         goalObject.velocity.Add(new Velocity(zeroVector));
         goalObject.position.Add(new Position(goal.transform.position));
+        goalObject.orientation.Add(new Orientation(goal.transform));
     }
 
     // Populate the current segment with scene objects and their states
