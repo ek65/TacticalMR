@@ -166,7 +166,7 @@ namespace Whisper.Samples
                         {
                             
                             // Adjust the time as necessary
-                            float tokenTime = jsonToLLM.time + (float)((token.Timestamp.Start.TotalSeconds) - 32.5f);
+                            float tokenTime = jsonToLLM.time + (float)((token.Timestamp.Start.TotalSeconds));
 
                             // Remove unwanted text patterns and very short tokens
                             string cleanTokenText = RemoveLinks(token.Text);

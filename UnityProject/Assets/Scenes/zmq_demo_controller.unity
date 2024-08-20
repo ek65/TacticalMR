@@ -530,22 +530,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3bc03a4c19604ea394e364f8fc632928, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxLengthSec: 60
+  maxLengthSec: 100
   loop: 1
   frequency: 16000
-  chunksLengthSec: 0.1
-  echo: 0
+  chunksLengthSec: 0.5
+  echo: 1
   useVad: 0
-  vadUpdateRateSec: 0.05
+  vadUpdateRateSec: 0.1
   vadContextSec: 30
-  vadLastSec: 0.5
+  vadLastSec: 1.25
   vadThd: 1
   vadFreqThd: 100
-  vadIndicatorImage: {fileID: 298047096}
+  vadIndicatorImage: {fileID: 0}
   vadStop: 0
   dropVadPart: 1
   vadStopTime: 3
-  microphoneDropdown: {fileID: 1576178246}
+  microphoneDropdown: {fileID: 0}
   microphoneDefaultLabel: Default microphone
 --- !u!114 &318410348
 MonoBehaviour:
@@ -943,7 +943,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 1658017393}
   m_Direction: 0
   m_Value: 1
-  m_Size: 0.9999998
+  m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -3632,14 +3632,14 @@ MonoBehaviour:
   translateToEnglish: 0
   strategy: 0
   noContext: 1
-  singleSegment: 1
+  singleSegment: 0
   enableTokens: 1
   initialPrompt: I am a soccer coach that is going to explain a strategy, specifying 
     a condition to do an action and what action to take.  Do not output random links
     or "subscribe" messages.
   stepSec: 0.2
   keepSec: 0
-  lengthSec: 25
+  lengthSec: 300
   updatePrompt: 1
   dropOldBuffer: 1
   useVad: 0
@@ -3841,7 +3841,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 211.80766, y: 0}
+  m_AnchoredPosition: {x: 601.0744, y: 0}
   m_SizeDelta: {x: 0, y: 64}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1359183744

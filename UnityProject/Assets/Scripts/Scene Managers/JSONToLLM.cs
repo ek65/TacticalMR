@@ -28,6 +28,7 @@ public class JSONToLLM : MonoBehaviour
     private string sentence;
     private Dictionary<float, string> manualTokenDictionary = new Dictionary<float, string>();
     public bool isLogging = false;
+    private bool isAdjusted = false;
 
     // Class representing the position of an object
     [System.Serializable]
@@ -346,14 +347,42 @@ public class JSONToLLM : MonoBehaviour
         }, settings);
 
         File.WriteAllText(filename, jsonString);
+        isAdjusted = false;
         Debug.Log($"Segment written to {filename}");
+    }
+    
+    public void AdjustTokenTimes()
+    {
+        int tokenCount = tokenDictionary.Count;
+        
+        float baseline = 0f;
+
+        baseline = -67f * (tokenCount / 241f);
+        
+        Dictionary<int, List<object>> adjustedTokenDictionary = new Dictionary<int, List<object>>();
+
+        foreach (var entry in tokenDictionary)
+        {
+            int key = entry.Key;
+            List<object> value = entry.Value;
+            float adjustedTime = (float)value[1] + baseline;
+            adjustedTokenDictionary[key] = new List<object> { value[0], adjustedTime };
+        }
+        
+        tokenDictionary = adjustedTokenDictionary;
+        isAdjusted = true;
+        Debug.Log("Token times adjusted with dynamic baseline: " + baseline);
     }
 
 
     // Write the JSON data to a file
     public void WriteFile()
     {
-        CreateJSONString();
+        AdjustTokenTimes();
+        if (isAdjusted)
+        {
+            CreateJSONString();
+        }
     }
 
     // Update the scene data on a fixed time interval
