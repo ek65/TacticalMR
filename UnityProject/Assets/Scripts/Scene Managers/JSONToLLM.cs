@@ -52,8 +52,7 @@ public class JSONToLLM : MonoBehaviour
         public Orientation(Transform transform)
         {
             // Calculate the angle with respect to the origin of the x, y axis
-            Vector3 direction = transform.position.normalized; // Get the direction vector
-            angle = Mathf.Atan2(direction.z, direction.x) * Mathf.Rad2Deg;
+            angle = transform.rotation.eulerAngles.y;
         }
     }
 
