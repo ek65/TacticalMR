@@ -944,7 +944,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 1658017393}
   m_Direction: 0
   m_Value: 1
-  m_Size: 1
+  m_Size: 0.9999999
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -3555,7 +3555,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.14533333}
   m_AnchorMax: {x: 0.70032245, y: 1}
-  m_AnchoredPosition: {x: -482.7379, y: -22}
+  m_AnchoredPosition: {x: -482.7379, y: -21.999023}
   m_SizeDelta: {x: -752.9071, y: -477.0649}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &1161327818
@@ -3638,7 +3638,7 @@ MonoBehaviour:
   initialPrompt: I am a soccer coach that is going to explain a strategy, specifying 
     a condition to do an action and what action to take.  Do not output random links
     or "subscribe" messages.
-  stepSec: 2
+  stepSec: 3
   keepSec: 0.2
   lengthSec: 400
   updatePrompt: 1
@@ -3842,7 +3842,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 634.506, y: 0}
+  m_AnchoredPosition: {x: 502.02087, y: 0}
   m_SizeDelta: {x: 0, y: 64}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1359183744
@@ -4487,7 +4487,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -20.492859, y: -60}
+  m_AnchoredPosition: {x: -20.49292, y: -60}
   m_SizeDelta: {x: -120, y: 97.334}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &1576178246

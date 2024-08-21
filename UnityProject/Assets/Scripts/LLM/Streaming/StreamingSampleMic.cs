@@ -143,14 +143,8 @@ namespace Whisper.Samples
                 {
                     if (token.Timestamp != null)
                     {
-                            
-                        // Adjust the time as necessary
                         float tokenTime = jsonToLLM.time + (float)((token.Timestamp.Start.TotalSeconds));
-
-                        // Remove unwanted text patterns and very short tokens
                         string cleanTokenText = RemoveLinks(token.Text);
-        
-                        // Only include tokens that are not empty after cleaning, have meaningful length, and aren't special tokens
                         if (!string.IsNullOrEmpty(cleanTokenText) && !token.IsSpecial)
                         {
                             jsonToLLM.tokenDictionary[tokenOrder] = new List<object> { cleanTokenText, tokenTime };

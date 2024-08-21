@@ -308,7 +308,7 @@ public class JSONToLLM : MonoBehaviour
     public void RemoveSpecificSequences()
     {
         
-        // Define the sequences to be removed
+        //  sequences to be removed from token dictionary
         List<List<string>> sequencesToRemove = new List<List<string>>
         {
             new List<string> { "[", "BL", "ANK", "_", "AUD", "IO", "]" },
@@ -318,8 +318,6 @@ public class JSONToLLM : MonoBehaviour
         foreach (var sequence in sequencesToRemove)
         {
             var keysToRemove = new List<int>();
-
-            // Iterate through the token dictionary to find each sequence
             foreach (var entry in tokenDictionary)
             {
                 int startIndex = entry.Key;
@@ -344,7 +342,7 @@ public class JSONToLLM : MonoBehaviour
                         keysToRemove.Add(startIndex + i);
                     }
 
-                    break; // Assuming the sequence appears only once, exit after finding it
+                    break; 
                 }
             }
 
@@ -406,43 +404,44 @@ public class JSONToLLM : MonoBehaviour
         Debug.Log($"Segment written to {filename}");
     }
 
+    
+    // adjust token times based on whether or not the first token was NOT said within the 0-1 seconds.
     public void AdjustTokenTimes()
     {
-        int tokenCount = tokenDictionary.Count;
-
-        float baseline = 0f;
-        // if (tokenCount <= 30)
-        // {
-            baseline = -10f * (tokenCount / 27f);
-            //  (tokenCount / 25f);
-        // }
-        // if (tokenCount > 30)
-        // {
-        //     baseline = 0;
-        //     //  (tokenCount / 25f);
-        // }
-        
-
-        // if (tokenCount > 30 && tokenCount < 100)
-        // {
-        //     baseline = -10f;
-        //     // * (tokenCount / 32f);
-        // }
-    // baseline = -67f * (tokenCount / 241f);
-        
-        Dictionary<int, List<object>> adjustedTokenDictionary = new Dictionary<int, List<object>>();
-
-        foreach (var entry in tokenDictionary)
+        if (tokenDictionary.Count == 0)
         {
-            int key = entry.Key;
-            List<object> value = entry.Value;
-            float adjustedTime = (float)value[1] + baseline;
-            adjustedTokenDictionary[key] = new List<object> { value[0], adjustedTime };
+            Debug.LogWarning("Token dictionary is empty. No adjustments made.");
+            return;
         }
         
-        tokenDictionary = adjustedTokenDictionary;
+        int firstKey = tokenDictionary.Keys.First();
+        float firstTimestamp = (float)tokenDictionary[firstKey][1];
+        
+        if (firstTimestamp < 0 || firstTimestamp > 1)
+        {
+            float targetTimestamp = 0.1f;
+            
+            float adjustment = targetTimestamp - firstTimestamp;
+            
+            Dictionary<int, List<object>> adjustedTokenDictionary = new Dictionary<int, List<object>>();
+
+            foreach (var entry in tokenDictionary)
+            {
+                int key = entry.Key;
+                List<object> value = entry.Value;
+                float adjustedTime = (float)value[1] + adjustment;
+                adjustedTokenDictionary[key] = new List<object> { value[0], adjustedTime };
+            }
+
+            tokenDictionary = adjustedTokenDictionary;
+            Debug.Log($"Token times adjusted to align the first token between 0-1 second with adjustment of {adjustment:F2} seconds.");
+        }
+        else
+        {
+            Debug.Log("First token already within the 0-1 second range. No adjustment needed.");
+        }
+
         isAdjusted = true;
-        Debug.Log("Token times adjusted with dynamic baseline: " + baseline);
     }
     
 
