@@ -30,6 +30,7 @@ namespace Whisper.Samples
         private bool phraseUpdated = false;
         private KeyboardInput keyboard;
         public bool transDone = false;
+        public int tokenOrder = 0;
 
 
         // Initialize the necessary components, set up event listeners, and start the transcription stream
@@ -125,8 +126,7 @@ namespace Whisper.Samples
         // Finalize the current phrase when transcription is complete and clear annotation keys
         private void OnPhraseFinished(WhisperResult phrase)
         {
-            if (phraseUpdated)
-            {
+           
                 // Remove links from the phrase before adding it
                 currentPhrase = RemoveLinks(phrase.Result);
 
@@ -136,7 +136,33 @@ namespace Whisper.Samples
                 phraseUpdated = false;
                 currentPhrase = "";
                 annotationKeys.Clear(); // Clear annotation keys for the next phrase
+            
+            foreach (var phr in phrase.Segments)
+            {
+                foreach (var token in phr.Tokens)
+                {
+                    if (token.Timestamp != null)
+                    {
+                            
+                        // Adjust the time as necessary
+                        float tokenTime = jsonToLLM.time + (float)((token.Timestamp.Start.TotalSeconds));
+
+                        // Remove unwanted text patterns and very short tokens
+                        string cleanTokenText = RemoveLinks(token.Text);
+        
+                        // Only include tokens that are not empty after cleaning, have meaningful length, and aren't special tokens
+                        if (!string.IsNullOrEmpty(cleanTokenText) && !token.IsSpecial)
+                        {
+                            jsonToLLM.tokenDictionary[tokenOrder] = new List<object> { cleanTokenText, tokenTime };
+                            tokenOrder++; // Increment the order index
+                            Debug.Log($"Token saved at order: {tokenOrder}, Time: {tokenTime:F2} seconds, Text: {cleanTokenText}");
+                        }
+                            
+                        jsonToLLM.ProcessTokens();
+                    }
+                }
             }
+            
         }
 
 
@@ -154,38 +180,38 @@ namespace Whisper.Samples
             Debug.Log("NEW TRANSCRIPTION");
 
             // Initialize the key index for ordered storage
-            int tokenOrder = 0;
-
-            foreach (var phrase in phrases)
-            {
-                foreach (var phr in phrase.Segments)
-                {
-                    foreach (var token in phr.Tokens)
-                    {
-                        if (token.Timestamp != null)
-                        {
-                            
-                            // Adjust the time as necessary
-                            float tokenTime = jsonToLLM.time + (float)((token.Timestamp.Start.TotalSeconds));
-
-                            // Remove unwanted text patterns and very short tokens
-                            string cleanTokenText = RemoveLinks(token.Text);
-        
-                            // Only include tokens that are not empty after cleaning, have meaningful length, and aren't special tokens
-                            if (!string.IsNullOrEmpty(cleanTokenText) && !token.IsSpecial)
-                            {
-                                jsonToLLM.tokenDictionary[tokenOrder] = new List<object> { cleanTokenText, tokenTime };
-                                tokenOrder++; // Increment the order index
-                                Debug.Log($"Token saved at order: {tokenOrder}, Time: {tokenTime:F2} seconds, Text: {cleanTokenText}");
-                            }
-                            
-                            jsonToLLM.ProcessTokens();
-                        }
-                    }
-                }
-            }
-
-            transDone = false;
+            // int tokenOrder = 0;
+            //
+            // foreach (var phrase in phrases)
+            // {
+            //     foreach (var phr in phrase.Segments)
+            //     {
+            //         foreach (var token in phr.Tokens)
+            //         {
+            //             if (token.Timestamp != null)
+            //             {
+            //                 
+            //                 // Adjust the time as necessary
+            //                 float tokenTime = jsonToLLM.time + (float)((token.Timestamp.Start.TotalSeconds));
+            //
+            //                 // Remove unwanted text patterns and very short tokens
+            //                 string cleanTokenText = RemoveLinks(token.Text);
+            //
+            //                 // Only include tokens that are not empty after cleaning, have meaningful length, and aren't special tokens
+            //                 if (!string.IsNullOrEmpty(cleanTokenText) && !token.IsSpecial)
+            //                 {
+            //                     jsonToLLM.tokenDictionary[tokenOrder] = new List<object> { cleanTokenText, tokenTime };
+            //                     tokenOrder++; // Increment the order index
+            //                     Debug.Log($"Token saved at order: {tokenOrder}, Time: {tokenTime:F2} seconds, Text: {cleanTokenText}");
+            //                 }
+            //                 
+            //                 jsonToLLM.ProcessTokens();
+            //             }
+            //         }
+            //     }
+            // }
+            //
+            // transDone = false;
         }
     }
 }

@@ -43,7 +43,7 @@ public class JSONToLLM : MonoBehaviour
             y = vector.z;
         }
     }
-    
+
     // Class representing the orientation of an object
     [System.Serializable]
     public class Orientation
@@ -220,6 +220,7 @@ public class JSONToLLM : MonoBehaviour
     // Process tokens collected during the scene and log them
     public void ProcessTokens()
     {
+        RemoveSpecificSequences();
         isTranscriptionComplete = false;
         foreach (var token in tokenDictionary)
         {
@@ -304,7 +305,61 @@ public class JSONToLLM : MonoBehaviour
         return CleanSentence(sentence);
     }
 
-    // Reset the data for the current segment, clearing stored tokens and annotations
+    public void RemoveSpecificSequences()
+    {
+        
+        // Define the sequences to be removed
+        List<List<string>> sequencesToRemove = new List<List<string>>
+        {
+            new List<string> { "[", "BL", "ANK", "_", "AUD", "IO", "]" },
+            new List<string> { "Thank", "you", "." }
+        };
+
+        foreach (var sequence in sequencesToRemove)
+        {
+            var keysToRemove = new List<int>();
+
+            // Iterate through the token dictionary to find each sequence
+            foreach (var entry in tokenDictionary)
+            {
+                int startIndex = entry.Key;
+                bool isMatch = true;
+
+                for (int i = 0; i < sequence.Count; i++)
+                {
+                    int currentIndex = startIndex + i;
+
+                    if (!tokenDictionary.ContainsKey(currentIndex) ||
+                        tokenDictionary[currentIndex][0].ToString() != sequence[i])
+                    {
+                        isMatch = false;
+                        break;
+                    }
+                }
+
+                if (isMatch)
+                {
+                    for (int i = 0; i < sequence.Count; i++)
+                    {
+                        keysToRemove.Add(startIndex + i);
+                    }
+
+                    break; // Assuming the sequence appears only once, exit after finding it
+                }
+            }
+
+            // Remove the keys associated with the sequence
+            foreach (int key in keysToRemove)
+            {
+                tokenDictionary.Remove(key);
+            }
+        }
+
+        Debug.Log("Specified sequences removed from token dictionary.");
+    }
+
+
+// Reset the data for the current segment, clearing stored tokens and annotations
     public void ResetSegmentData()
     {
         myRootSegment = new RootSegment();
@@ -350,14 +405,30 @@ public class JSONToLLM : MonoBehaviour
         isAdjusted = false;
         Debug.Log($"Segment written to {filename}");
     }
-    
+
     public void AdjustTokenTimes()
     {
         int tokenCount = tokenDictionary.Count;
-        
-        float baseline = 0f;
 
-        baseline = -67f * (tokenCount / 241f);
+        float baseline = 0f;
+        // if (tokenCount <= 30)
+        // {
+            baseline = -10f * (tokenCount / 27f);
+            //  (tokenCount / 25f);
+        // }
+        // if (tokenCount > 30)
+        // {
+        //     baseline = 0;
+        //     //  (tokenCount / 25f);
+        // }
+        
+
+        // if (tokenCount > 30 && tokenCount < 100)
+        // {
+        //     baseline = -10f;
+        //     // * (tokenCount / 32f);
+        // }
+    // baseline = -67f * (tokenCount / 241f);
         
         Dictionary<int, List<object>> adjustedTokenDictionary = new Dictionary<int, List<object>>();
 
@@ -373,7 +444,7 @@ public class JSONToLLM : MonoBehaviour
         isAdjusted = true;
         Debug.Log("Token times adjusted with dynamic baseline: " + baseline);
     }
-
+    
 
     // Write the JSON data to a file
     public void WriteFile()

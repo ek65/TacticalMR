@@ -7,7 +7,7 @@ public class SynthConnect : MonoBehaviour
     private SynthNetwork network;
     private JSONToLLM jsonToLLM;
     public string id; // name of the JSON file
-    public int segmentNum = 2;
+    public int segmentNum = 1;
     
     // Initialize the necessary components and references at the start of the scene
     void Start()
@@ -27,7 +27,7 @@ public class SynthConnect : MonoBehaviour
     public void SendScene()
     {
         // id = Guid.NewGuid().ToString(); // Generate a new unique ID for the scene
-        id = $"transcript2-segment{segmentNum}";  // (Commented out: Use a static ID if needed)
+        id = $"transcript4-segment{segmentNum}";  // (Commented out: Use a static ID if needed)
         segmentNum += 1;
         network.StoreScene(jsonToLLM.jsonString, id);
     }
