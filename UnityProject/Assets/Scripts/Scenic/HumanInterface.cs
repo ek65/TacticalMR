@@ -11,7 +11,6 @@ using OpenAI.Samples.Chat;
 
 public class HumanInterface : MonoBehaviour
 {
-    public Vector3 pointDebug;
     private int localTick;  // NOTE: This is not the true tick and is what we will use to internally record a timestep.
 
     private ExitScenario exitScene;
@@ -45,6 +44,7 @@ public class HumanInterface : MonoBehaviour
     public bool canKickBall = true;
     BallOwnership ballOwnership;
     public bool inAnimation = false;
+    public GameObject closestPlayerInDirection;
     
     public string behavior = "Idle";
     public string currAction = "No Action"; // just for debugging to see what actions function is being called
@@ -151,18 +151,7 @@ public class HumanInterface : MonoBehaviour
             arrowSpawned = false;
         }
         
-        List<Vector3> posList = new List<Vector3>();
-        foreach (GameObject player in objectList.scenicPlayers)
-        {
-            if (player == this.gameObject)
-            {
-                continue;
-            }
-            posList.Add(player.transform.position);
-        }
-        
-        Vector3 pos = GetClosestToLinePoint(posList);
-        pointDebug = pos;
+        closestPlayerInDirection = GetClosestToLinePoint(objectList.scenicPlayers); // change to defense players later for teammate passing
     }
     
     private void OnCollisionEnter(Collision other)
@@ -214,21 +203,10 @@ public class HumanInterface : MonoBehaviour
         {
             return;
         }
-        List<Vector3> posList = new List<Vector3>();
-        foreach (GameObject player in objectList.scenicPlayers)
-        {
-            if (player == this.gameObject)
-            {
-                continue;
-            }
-            posList.Add(player.transform.position);
-        }
         
-        Vector3 pos = GetClosestToLinePoint(posList);
-        pointDebug = pos;
-        Debug.LogError(pointDebug);
+        closestPlayerInDirection = GetClosestToLinePoint(objectList.scenicPlayers); // change to defense players later for teammate passing
         
-        actionAPI.GroundPassFast(pos);
+        actionAPI.GroundPassFast(closestPlayerInDirection.transform.position);
         StartCoroutine(ResetToMovementController());
     }
 
@@ -244,9 +222,9 @@ public class HumanInterface : MonoBehaviour
         return Vector3.Cross(ray.direction, point - ray.origin).sqrMagnitude;
     }
 
-    private Vector3 GetClosestToLinePoint(List<Vector3> points) {
+    private GameObject GetClosestToLinePoint(List<GameObject> points) {
         Ray ray = new Ray(transform.position, GetComponent<ControllerInput>().playerDirection.normalized);
-        Vector3 closestPoint = points.OrderBy(point => DistancePointToLineSqr(ray, point)).FirstOrDefault();
+        GameObject closestPoint = points.OrderBy(point => DistancePointToLineSqr(ray, point.transform.position)).FirstOrDefault();
 
         return closestPoint;
     }
