@@ -3064,6 +3064,7 @@ MonoBehaviour:
   ballPossession: 0
   ball: {fileID: 0}
   ballPosition: {fileID: 8665160898920370539}
+  canKickBall: 1
   behavior: Idle
   currAction: No Action
   floatingText: {fileID: 2924768386710636713}
@@ -3215,7 +3216,7 @@ Rigidbody:
   m_GameObject: {fileID: 8665160898893140854}
   serializedVersion: 2
   m_Mass: 1
-  m_Drag: 0
+  m_Drag: 100
   m_AngularDrag: 100
   m_UseGravity: 1
   m_IsKinematic: 0

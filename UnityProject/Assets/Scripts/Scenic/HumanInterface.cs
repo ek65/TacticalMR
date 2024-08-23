@@ -11,6 +11,7 @@ using OpenAI.Samples.Chat;
 
 public class HumanInterface : MonoBehaviour
 {
+    public Vector3 pointDebug;
     private int localTick;  // NOTE: This is not the true tick and is what we will use to internally record a timestep.
 
     private ExitScenario exitScene;
@@ -34,10 +35,17 @@ public class HumanInterface : MonoBehaviour
 
     public string explanation;
     
+    public float distToBall;
+    public Vector3 ballOnTheGround;
+    
     public bool ballPossession;
     public GameObject ball;
     public Transform ballPosition;
     private bool canPossessBall = true;
+    public bool canKickBall = true;
+    BallOwnership ballOwnership;
+    public bool inAnimation = false;
+    
     public string behavior = "Idle";
     public string currAction = "No Action"; // just for debugging to see what actions function is being called
 
@@ -59,6 +67,7 @@ public class HumanInterface : MonoBehaviour
         circleObjects = new List<GameObject>();
         arrowObjects = new List<GameObject>();
         // SpawnCircle(this.transform.position); // spawn the circle around the coach
+        ballOwnership = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<BallOwnership>();
         
         if (ally)
         {
@@ -78,6 +87,14 @@ public class HumanInterface : MonoBehaviour
         if (ball == null)
         {
             ball = GameObject.FindGameObjectWithTag("ball");
+        }
+
+        if (ball != null)
+        {
+            ballOnTheGround.x = ball.transform.position.x;
+            ballOnTheGround.y = ball.transform.position.y;
+            ballOnTheGround.z = ball.transform.position.z;
+            distToBall = Vector3.Distance(transform.position, ballOnTheGround);
         }
         
         string currResponse = "";
@@ -133,17 +150,40 @@ public class HumanInterface : MonoBehaviour
             circleSpawned = false;
             arrowSpawned = false;
         }
+        
+        List<Vector3> posList = new List<Vector3>();
+        foreach (GameObject player in objectList.scenicPlayers)
+        {
+            if (player == this.gameObject)
+            {
+                continue;
+            }
+            posList.Add(player.transform.position);
+        }
+        
+        Vector3 pos = GetClosestToLinePoint(posList);
+        pointDebug = pos;
     }
     
     private void OnCollisionEnter(Collision other)
     {
-        if (other.collider.CompareTag("ball") && canPossessBall && CompareTag("human"))
+        if (other.collider.CompareTag("ball") && canPossessBall && ballOwnership.heldByScenic == false)
         {
-            GainPossession(other);
+            GainPossession(other.gameObject);
         }
     }
     
-    private void GainPossession(Collision other)
+    public void ForciblyGainPossession()
+    {
+        if (ballOwnership.heldByScenic && canPossessBall && distToBall < 1f)
+        {
+            Debug.LogError("forcibly get ball");
+            ballOwnership.ballOwner.GetComponent<PlayerInterface>().LosePossession();
+            GainPossession(ball);
+        }
+    }
+    
+    private void GainPossession(GameObject other)
     {
         int layerIgnoreBallCollision = LayerMask.NameToLayer("PlayerBall");
         this.gameObject.layer = layerIgnoreBallCollision;
@@ -152,6 +192,9 @@ public class HumanInterface : MonoBehaviour
         ball.transform.SetParent(ballPosition);
         ball.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
         ballPossession = true;
+        ballOwnership.SetScenicOwnership(false);
+        ballOwnership.SetHumanOwnership(true);
+        ballOwnership.SetBallOwner(this.gameObject);
         this.GetComponentInParent<ActionAPI>().ReceiveBall(other.transform.position);
     }
     
@@ -161,6 +204,51 @@ public class HumanInterface : MonoBehaviour
         ball.transform.SetParent(null);
         ball.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
         ballPossession = false;
+        ballOwnership.SetHumanOwnership(false);
+        ballOwnership.SetBallOwner(null);
+    }
+
+    public void PassToPlayer()
+    {
+        if (!ballPossession || !canKickBall)
+        {
+            return;
+        }
+        List<Vector3> posList = new List<Vector3>();
+        foreach (GameObject player in objectList.scenicPlayers)
+        {
+            if (player == this.gameObject)
+            {
+                continue;
+            }
+            posList.Add(player.transform.position);
+        }
+        
+        Vector3 pos = GetClosestToLinePoint(posList);
+        pointDebug = pos;
+        Debug.LogError(pointDebug);
+        
+        actionAPI.GroundPassFast(pos);
+        StartCoroutine(ResetToMovementController());
+    }
+
+    private IEnumerator ResetToMovementController()
+    {
+        inAnimation = true;
+        yield return new WaitForSeconds(1.0f);
+        actionAPI.SetAnimController("Movement");
+        inAnimation = false;
+    }
+
+    public float DistancePointToLineSqr(Ray ray, Vector3 point) {
+        return Vector3.Cross(ray.direction, point - ray.origin).sqrMagnitude;
+    }
+
+    private Vector3 GetClosestToLinePoint(List<Vector3> points) {
+        Ray ray = new Ray(transform.position, GetComponent<ControllerInput>().playerDirection.normalized);
+        Vector3 closestPoint = points.OrderBy(point => DistancePointToLineSqr(ray, point)).FirstOrDefault();
+
+        return closestPoint;
     }
     
     private IEnumerator PossessionDebounce()
@@ -169,6 +257,13 @@ public class HumanInterface : MonoBehaviour
         yield return new WaitForSeconds(1f);
         canPossessBall = true;
         this.gameObject.layer = LayerMask.NameToLayer("Default");
+    }
+    
+    public IEnumerator KickDebounce()
+    {
+        canKickBall = false;
+        yield return new WaitForSeconds(2.5f);
+        canKickBall = true;
     }
     
     public static bool ContainsAll(string source, params string[] values)

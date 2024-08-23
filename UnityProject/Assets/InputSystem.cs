@@ -71,6 +71,24 @@ public partial class @InputSystem: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Intercept"",
+                    ""type"": ""Button"",
+                    ""id"": ""5f2e1c57-4cdc-47b6-ab89-da7ce52a7283"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Pass"",
+                    ""type"": ""Button"",
+                    ""id"": ""0cd7ce57-25ed-4279-8f75-d755ab0d8f02"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -128,6 +146,28 @@ public partial class @InputSystem: IInputActionCollection2, IDisposable
                     ""action"": ""Segment"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""0fc58a0f-1be7-45c8-ba21-0d49b1ea09f6"",
+                    ""path"": ""<Gamepad>/leftTrigger"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Intercept"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""4c7b5862-eb56-43b1-96fd-bbdb9411fa4d"",
+                    ""path"": ""<Gamepad>/rightTrigger"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Pass"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -141,6 +181,8 @@ public partial class @InputSystem: IInputActionCollection2, IDisposable
         m_PlayerControls_Pause = m_PlayerControls.FindAction("Pause", throwIfNotFound: true);
         m_PlayerControls_Restart = m_PlayerControls.FindAction("Restart", throwIfNotFound: true);
         m_PlayerControls_Segment = m_PlayerControls.FindAction("Segment", throwIfNotFound: true);
+        m_PlayerControls_Intercept = m_PlayerControls.FindAction("Intercept", throwIfNotFound: true);
+        m_PlayerControls_Pass = m_PlayerControls.FindAction("Pass", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -207,6 +249,8 @@ public partial class @InputSystem: IInputActionCollection2, IDisposable
     private readonly InputAction m_PlayerControls_Pause;
     private readonly InputAction m_PlayerControls_Restart;
     private readonly InputAction m_PlayerControls_Segment;
+    private readonly InputAction m_PlayerControls_Intercept;
+    private readonly InputAction m_PlayerControls_Pass;
     public struct PlayerControlsActions
     {
         private @InputSystem m_Wrapper;
@@ -216,6 +260,8 @@ public partial class @InputSystem: IInputActionCollection2, IDisposable
         public InputAction @Pause => m_Wrapper.m_PlayerControls_Pause;
         public InputAction @Restart => m_Wrapper.m_PlayerControls_Restart;
         public InputAction @Segment => m_Wrapper.m_PlayerControls_Segment;
+        public InputAction @Intercept => m_Wrapper.m_PlayerControls_Intercept;
+        public InputAction @Pass => m_Wrapper.m_PlayerControls_Pass;
         public InputActionMap Get() { return m_Wrapper.m_PlayerControls; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -240,6 +286,12 @@ public partial class @InputSystem: IInputActionCollection2, IDisposable
             @Segment.started += instance.OnSegment;
             @Segment.performed += instance.OnSegment;
             @Segment.canceled += instance.OnSegment;
+            @Intercept.started += instance.OnIntercept;
+            @Intercept.performed += instance.OnIntercept;
+            @Intercept.canceled += instance.OnIntercept;
+            @Pass.started += instance.OnPass;
+            @Pass.performed += instance.OnPass;
+            @Pass.canceled += instance.OnPass;
         }
 
         private void UnregisterCallbacks(IPlayerControlsActions instance)
@@ -259,6 +311,12 @@ public partial class @InputSystem: IInputActionCollection2, IDisposable
             @Segment.started -= instance.OnSegment;
             @Segment.performed -= instance.OnSegment;
             @Segment.canceled -= instance.OnSegment;
+            @Intercept.started -= instance.OnIntercept;
+            @Intercept.performed -= instance.OnIntercept;
+            @Intercept.canceled -= instance.OnIntercept;
+            @Pass.started -= instance.OnPass;
+            @Pass.performed -= instance.OnPass;
+            @Pass.canceled -= instance.OnPass;
         }
 
         public void RemoveCallbacks(IPlayerControlsActions instance)
@@ -283,5 +341,7 @@ public partial class @InputSystem: IInputActionCollection2, IDisposable
         void OnPause(InputAction.CallbackContext context);
         void OnRestart(InputAction.CallbackContext context);
         void OnSegment(InputAction.CallbackContext context);
+        void OnIntercept(InputAction.CallbackContext context);
+        void OnPass(InputAction.CallbackContext context);
     }
 }

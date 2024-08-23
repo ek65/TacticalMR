@@ -4,9 +4,9 @@ using UnityEngine;
 
 public class BallOwnership : MonoBehaviour
 {
-    private ObjectsList objectList;
     public bool heldByScenic = false;
     public bool heldByHuman = false;
+    public GameObject ballOwner = null;
     
     // Start is called before the first frame update
     void Start()
@@ -22,6 +22,11 @@ public class BallOwnership : MonoBehaviour
     public void SetScenicOwnership(bool ownership)
     {
         heldByScenic = ownership;
+    }
+    
+    public void SetBallOwner(GameObject owner)
+    {
+        ballOwner = owner;
     }
     
 }

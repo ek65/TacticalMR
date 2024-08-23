@@ -29,6 +29,7 @@ public class PlayerInterface : MonoBehaviour
 
     private bool canPossessBall = true;
     public bool canKickBall = true;
+    BallOwnership ballOwnership;
     
     private int localTick;  // NOTE: This is not the true tick and is what we will use to internally record a timestep.
 
@@ -62,6 +63,8 @@ public class PlayerInterface : MonoBehaviour
         }
 
         ballPossession = false;
+        
+        ballOwnership = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<BallOwnership>();
     }
 
     // Update is called once per frame
@@ -105,6 +108,9 @@ public class PlayerInterface : MonoBehaviour
         ball.transform.SetParent(ballPosition);
         ball.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
         ballPossession = true;
+        ballOwnership.SetScenicOwnership(true);
+        ballOwnership.SetHumanOwnership(false);
+        ballOwnership.SetBallOwner(this.gameObject);
         this.GetComponentInParent<ActionAPI>().ReceiveBall(other.transform.position);
     }
     
@@ -114,6 +120,8 @@ public class PlayerInterface : MonoBehaviour
         ball.transform.SetParent(null);
         ball.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
         ballPossession = false;
+        ballOwnership.SetScenicOwnership(false);
+        ballOwnership.SetBallOwner(null);
     }
     
     private IEnumerator PossessionDebounce()

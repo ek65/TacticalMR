@@ -22,6 +22,8 @@ public class ControllerInput : MonoBehaviour
     private ExitScenario exitScenario;
     private TimelineManager tlManager;
 
+    public Vector3 playerDirection;
+
     private void Awake()
     {
         inputSystem = new InputSystem();
@@ -39,6 +41,8 @@ public class ControllerInput : MonoBehaviour
         inputSystem.PlayerControls.Pause.performed += ControllerPause; // A Button
         inputSystem.PlayerControls.Restart.performed += ControllerRestart; // Y Button
         inputSystem.PlayerControls.Segment.performed += ControllerSegment; // X Button
+        inputSystem.PlayerControls.Intercept.performed += ControllerIntercept; // Left Trigger
+        inputSystem.PlayerControls.Pass.performed += ControllerPass; // Right Trigger
         inputSystem.PlayerControls.Enable();
     }
     
@@ -47,6 +51,8 @@ public class ControllerInput : MonoBehaviour
         inputSystem.PlayerControls.Pause.performed -= ControllerPause;
         inputSystem.PlayerControls.Restart.performed -= ControllerRestart;
         inputSystem.PlayerControls.Segment.performed -= ControllerSegment;
+        inputSystem.PlayerControls.Intercept.performed -= ControllerIntercept;
+        inputSystem.PlayerControls.Pass.performed -= ControllerPass;
         inputSystem.PlayerControls.Disable();
     }
 
@@ -75,14 +81,31 @@ public class ControllerInput : MonoBehaviour
         keyboardInput.HandleSegment();
     }
     
+    // Forcibly Take Possession of Ball from nearby player
+    private void ControllerIntercept(InputAction.CallbackContext ctx)
+    {
+        HumanInterface humanInterface = this.GetComponent<HumanInterface>();
+        humanInterface.ForciblyGainPossession();
+    }
+    
+    private void ControllerPass(InputAction.CallbackContext ctx)
+    {
+        HumanInterface humanInterface = this.GetComponent<HumanInterface>();
+        humanInterface.PassToPlayer();
+    }
+    
     private void Movement()
     {
         float horizontalInput = move.ReadValue<Vector2>().x;
         float verticalInput = move.ReadValue<Vector2>().y;
         
-        animator.SetFloat("VelX", horizontalInput * 2);
-        animator.SetFloat("VelZ", verticalInput * 2);
-
+        HumanInterface humanInterface = this.GetComponent<HumanInterface>();
+        if (!humanInterface.inAnimation)
+        {
+            animator.SetFloat("VelX", horizontalInput * 2);
+            animator.SetFloat("VelZ", verticalInput * 2);
+        }
+        
         forceDirection += (cam.transform.up * verticalInput + cam.transform.right * horizontalInput).normalized;
         
         rb.AddForce(forceDirection * movementForce, ForceMode.Impulse);
@@ -96,7 +119,7 @@ public class ControllerInput : MonoBehaviour
         
         if (Mathf.Abs(horizontalInput) > controllerDeadzone || Mathf.Abs(verticalInput) > controllerDeadzone)
         {
-            Vector3 playerDirection = Vector3.right * horizontalInput + Vector3.forward * verticalInput;
+            playerDirection = Vector3.right * horizontalInput + Vector3.forward * verticalInput;
 
             if (playerDirection.sqrMagnitude > 0.0f)
             {

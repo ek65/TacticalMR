@@ -233,7 +233,10 @@ public class ActionAPI : MonoBehaviour
         {
             return;
         }
-        if (this.GetComponent<PlayerInterface>().ballPossession == false && this.GetComponent<PlayerInterface>().canKickBall == false)
+        if (this.GetComponent<PlayerInterface>() == true && this.GetComponent<PlayerInterface>().ballPossession == false && this.GetComponent<PlayerInterface>().canKickBall == false)
+        {
+            return;
+        } else if (this.GetComponent<HumanInterface>() == true && this.GetComponent<HumanInterface>().ballPossession == false && this.GetComponent<HumanInterface>().canKickBall == false)
         {
             return;
         }
@@ -242,7 +245,14 @@ public class ActionAPI : MonoBehaviour
         // Debug.LogError(this.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0));
         // Debug.LogError("in gpf2");
         StartCoroutine(LookTowards(destinationPosition, "GroundPassFast"));
-        StartCoroutine(this.GetComponent<PlayerInterface>().KickDebounce());
+        if (this.GetComponent<PlayerInterface>() == true)
+        {
+            StartCoroutine(this.GetComponent<PlayerInterface>().KickDebounce());
+        }
+        else if (this.GetComponent<HumanInterface>() == true)
+        {
+            StartCoroutine(this.GetComponent<HumanInterface>().KickDebounce());
+        }
         
         SetMoveBallValues(destinationPosition, 0, strongPassForce);
     }
@@ -856,7 +866,7 @@ public class ActionAPI : MonoBehaviour
         yield return new WaitForSeconds(WaitTime());
     }
 
-    private void SetAnimController(string controllerHashCode)
+    public void SetAnimController(string controllerHashCode)
     {
         GameObject selfPlayer = this.gameObject;
         string currAnimationController = selfPlayer.GetComponent<Animator>().runtimeAnimatorController.name;
@@ -905,7 +915,14 @@ public class ActionAPI : MonoBehaviour
 
     public void MoveBall()
     {
-        this.GetComponent<PlayerInterface>().LosePossession();
+        if (this.GetComponent<PlayerInterface>() != null)
+        {
+            this.GetComponent<PlayerInterface>().LosePossession();
+        } else if (this.GetComponent<HumanInterface>() != null)
+        {
+            this.GetComponent<HumanInterface>().LosePossession();
+        }
+        
         Vector3 ballMotionVector = finalPos - soccerBall.transform.position;
         Vector3 forceDirection = new(ballMotionVector.x, aerialOffset, ballMotionVector.z);
         Debug.Log("force vector: " + forceDirection);
