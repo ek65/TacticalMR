@@ -106,6 +106,7 @@ public class JSONToLLM : MonoBehaviour
         public List<Velocity> velocity = new List<Velocity>();
         public List<Orientation> orientation = new List<Orientation>();
     }
+    
 
     // Class representing a segment of the scene, containing objects and their states
     [System.Serializable]
@@ -208,6 +209,33 @@ public class JSONToLLM : MonoBehaviour
         goalObject.velocity.Add(new Velocity(zeroVector));
         goalObject.position.Add(new Position(goal.transform.position));
         goalObject.orientation.Add(new Orientation(goal.transform));
+        
+        Transform leftPost = goal.transform.Find("goalpost_left");
+        Transform rightPost = goal.transform.Find("goalpost_right");
+
+        Goal leftGoalPost = (Goal)myRootSegment.objects.Find(obj => obj is Goal g && g.id == "goalpost_left");
+        if (leftGoalPost == null)
+        {
+            leftGoalPost = new Goal { id = "goalpost_left", type = "Goalpost" };
+            myRootSegment.objects.Add(leftGoalPost);
+        }
+
+        leftGoalPost.position.Add(new Position(leftPost.position));
+        leftGoalPost.velocity.Add(new Velocity(Vector3.zero));
+        leftGoalPost.orientation.Add(new Orientation(leftPost));
+
+        Goal rightGoalPost = (Goal)myRootSegment.objects.Find(obj => obj is Goal g && g.id == "goalpost_right");
+        if (rightGoalPost == null)
+        {
+            rightGoalPost = new Goal { id = "goalpost_right", type = "Goalpost" };
+            myRootSegment.objects.Add(rightGoalPost);
+        }
+
+        rightGoalPost.position.Add(new Position(rightPost.position));
+        rightGoalPost.velocity.Add(new Velocity(Vector3.zero));
+        rightGoalPost.orientation.Add(new Orientation(rightPost));
+       
+        
     }
 
     // Populate the current segment with scene objects and their states
