@@ -311,6 +311,14 @@ public class KeyboardInput : MonoBehaviour
                         { "type", actionData["type"] },
                         { "obj", actionData["obj"] }
                     });
+                } else if (actionData["type"] == "Through Pass")
+                {
+                    annotationsList.Add(new Dictionary<string, object>
+                    {
+                        { "id", id.ToString() },
+                        { "type", actionData["type"] },
+                        { "point", actionData["point"] }
+                    });
                 }
             }
         }
