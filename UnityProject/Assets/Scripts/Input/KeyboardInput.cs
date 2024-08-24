@@ -24,7 +24,7 @@ public class KeyboardInput : MonoBehaviour
     private Dictionary<int, string> annotationDescriptions = new Dictionary<int, string>();
     private Dictionary<GameObject, int> objectToKey = new Dictionary<GameObject, int>();
     public Dictionary<int, float> annotationTimes = new Dictionary<int, float>();
-    private int clickOrder = 0;
+    public int clickOrder = 0;
     private bool isAnnotationMode = false;
     private bool isReferenceMode = false;
     private bool isPositionMode = false;
@@ -293,6 +293,25 @@ public class KeyboardInput : MonoBehaviour
                     { "type", "Point" },
                     { "point", new { x = vector.x, y = vector.z } },
                 });
+            }
+            else if (value is Dictionary<string, string> actionData)
+            {
+                if (actionData["type"] == "Intercept")
+                {
+                    annotationsList.Add(new Dictionary<string, object>
+                    {
+                        { "id", id.ToString() },
+                        { "type", actionData["type"] }
+                    });
+                } else if (actionData["type"] == "Pass")
+                {
+                    annotationsList.Add(new Dictionary<string, object>
+                    {
+                        { "id", id.ToString() },
+                        { "type", actionData["type"] },
+                        { "obj", actionData["obj"] }
+                    });
+                }
             }
         }
 

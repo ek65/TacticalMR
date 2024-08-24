@@ -20,12 +20,14 @@ public class ControllerInput : MonoBehaviour
     private Animator animator;
     private KeyboardInput keyboardInput;
     private ExitScenario exitScenario;
+    private JSONToLLM jsonToLLM; 
     private TimelineManager tlManager;
 
     public Vector3 playerDirection;
 
     private void Awake()
     {
+        jsonToLLM = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<JSONToLLM>();
         inputSystem = new InputSystem();
         cam = Camera.main;
         animator = GetComponent<Animator>();

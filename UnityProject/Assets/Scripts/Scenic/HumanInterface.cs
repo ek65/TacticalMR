@@ -8,6 +8,7 @@ using System.Reflection;
 using System;
 using System.Linq;
 using OpenAI.Samples.Chat;
+using UnityEngine.InputSystem;
 
 public class HumanInterface : MonoBehaviour
 {
@@ -48,7 +49,8 @@ public class HumanInterface : MonoBehaviour
     
     public string behavior = "Idle";
     public string currAction = "No Action"; // just for debugging to see what actions function is being called
-
+    private KeyboardInput keyboardInput;
+    private JSONToLLM jsonToLLM;
     
     public FloatingText floatingText;
     
@@ -64,6 +66,8 @@ public class HumanInterface : MonoBehaviour
         // npc = GameObject.FindGameObjectWithTag("Character").GetComponent<ConvaiNPC>();
         chatBehaviour = GameObject.FindGameObjectWithTag("Character").GetComponentInChildren<ChatBehaviour>();
         objectList = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<ObjectsList>();
+        keyboardInput = GameObject.FindGameObjectWithTag("keyboard").GetComponent<KeyboardInput>();
+        jsonToLLM = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<JSONToLLM>();
         circleObjects = new List<GameObject>();
         arrowObjects = new List<GameObject>();
         // SpawnCircle(this.transform.position); // spawn the circle around the coach
@@ -167,9 +171,42 @@ public class HumanInterface : MonoBehaviour
         if (ballOwnership.heldByScenic && canPossessBall && distToBall < 1f)
         {
             Debug.LogError("forcibly get ball");
+            LogIntercept();
             ballOwnership.ballOwner.GetComponent<PlayerInterface>().LosePossession();
             GainPossession(ball);
         }
+    }
+
+    private void LogIntercept()
+    {
+        int interceptID = keyboardInput.clickOrder;
+        float interceptTime = jsonToLLM.time;
+        
+        keyboardInput.annotation.Add(keyboardInput.clickOrder, new Dictionary<string, string>
+        {
+            { "type", "Intercept" }
+        });
+
+        keyboardInput.annotationTimes.Add(interceptID, interceptTime);
+        Debug.Log($"Intercept action recorded with ID {interceptID} at time: {interceptTime}");
+        keyboardInput.clickOrder++; 
+    }
+    
+    private void LogPass()
+    {
+        int passID = keyboardInput.clickOrder;
+        float passTime = jsonToLLM.time;
+        
+        GameObject targetPlayer = closestPlayerInDirection;
+        keyboardInput.annotation.Add(keyboardInput.clickOrder, new Dictionary<string, string>
+        {
+            { "type", "Pass" },
+            {"obj", targetPlayer.name}
+        });
+
+        keyboardInput.annotationTimes.Add(passID, passTime);
+        Debug.Log($"Pass action recorded with ID {passID}, obj: {targetPlayer.name} at time: {passTime}");
+        keyboardInput.clickOrder++; 
     }
     
     private void GainPossession(GameObject other)
@@ -205,7 +242,7 @@ public class HumanInterface : MonoBehaviour
         }
         
         closestPlayerInDirection = GetClosestToLinePoint(objectList.scenicPlayers); // change to defense players later for teammate passing
-        
+        LogPass();
         actionAPI.GroundPassFast(closestPlayerInDirection.transform.position);
         StartCoroutine(ResetToMovementController());
     }
