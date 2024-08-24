@@ -89,6 +89,15 @@ public partial class @InputSystem: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""ThroughPass"",
+                    ""type"": ""Button"",
+                    ""id"": ""227cc767-8841-464d-a7f7-b5e18d610680"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -168,6 +177,17 @@ public partial class @InputSystem: IInputActionCollection2, IDisposable
                     ""action"": ""Pass"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""83c1b921-57f7-4ca3-a748-8426246a3fcb"",
+                    ""path"": ""<Gamepad>/rightShoulder"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ThroughPass"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -183,6 +203,7 @@ public partial class @InputSystem: IInputActionCollection2, IDisposable
         m_PlayerControls_Segment = m_PlayerControls.FindAction("Segment", throwIfNotFound: true);
         m_PlayerControls_Intercept = m_PlayerControls.FindAction("Intercept", throwIfNotFound: true);
         m_PlayerControls_Pass = m_PlayerControls.FindAction("Pass", throwIfNotFound: true);
+        m_PlayerControls_ThroughPass = m_PlayerControls.FindAction("ThroughPass", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -251,6 +272,7 @@ public partial class @InputSystem: IInputActionCollection2, IDisposable
     private readonly InputAction m_PlayerControls_Segment;
     private readonly InputAction m_PlayerControls_Intercept;
     private readonly InputAction m_PlayerControls_Pass;
+    private readonly InputAction m_PlayerControls_ThroughPass;
     public struct PlayerControlsActions
     {
         private @InputSystem m_Wrapper;
@@ -262,6 +284,7 @@ public partial class @InputSystem: IInputActionCollection2, IDisposable
         public InputAction @Segment => m_Wrapper.m_PlayerControls_Segment;
         public InputAction @Intercept => m_Wrapper.m_PlayerControls_Intercept;
         public InputAction @Pass => m_Wrapper.m_PlayerControls_Pass;
+        public InputAction @ThroughPass => m_Wrapper.m_PlayerControls_ThroughPass;
         public InputActionMap Get() { return m_Wrapper.m_PlayerControls; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -292,6 +315,9 @@ public partial class @InputSystem: IInputActionCollection2, IDisposable
             @Pass.started += instance.OnPass;
             @Pass.performed += instance.OnPass;
             @Pass.canceled += instance.OnPass;
+            @ThroughPass.started += instance.OnThroughPass;
+            @ThroughPass.performed += instance.OnThroughPass;
+            @ThroughPass.canceled += instance.OnThroughPass;
         }
 
         private void UnregisterCallbacks(IPlayerControlsActions instance)
@@ -317,6 +343,9 @@ public partial class @InputSystem: IInputActionCollection2, IDisposable
             @Pass.started -= instance.OnPass;
             @Pass.performed -= instance.OnPass;
             @Pass.canceled -= instance.OnPass;
+            @ThroughPass.started -= instance.OnThroughPass;
+            @ThroughPass.performed -= instance.OnThroughPass;
+            @ThroughPass.canceled -= instance.OnThroughPass;
         }
 
         public void RemoveCallbacks(IPlayerControlsActions instance)
@@ -343,5 +372,6 @@ public partial class @InputSystem: IInputActionCollection2, IDisposable
         void OnSegment(InputAction.CallbackContext context);
         void OnIntercept(InputAction.CallbackContext context);
         void OnPass(InputAction.CallbackContext context);
+        void OnThroughPass(InputAction.CallbackContext context);
     }
 }

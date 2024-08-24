@@ -30,6 +30,8 @@ public class HumanInterface : MonoBehaviour
 
     public List<GameObject> circleObjects;
     public List<GameObject> arrowObjects;
+
+    public GameObject forwardArrow;
     // private GameObject circle1;
     // private GameObject arrow0;
 
@@ -83,6 +85,9 @@ public class HumanInterface : MonoBehaviour
         {
             ball = GameObject.FindGameObjectWithTag("ball");
         }
+        
+        forwardArrow = SpawnArrow(this.transform.position, transform.forward*5);
+        forwardArrow.SetActive(false);
     }
 
     // Update is called once per frame
@@ -101,61 +106,74 @@ public class HumanInterface : MonoBehaviour
             distToBall = Vector3.Distance(transform.position, ballOnTheGround);
         }
         
-        string currResponse = "";
-        // if (chatBehaviour.sentences.Length > 0)
+        closestPlayerInDirection = GetClosestToLinePoint(objectList.defensePlayers);
+
+        if (ballPossession)
+        {
+            forwardArrow.SetActive(true);
+            ArrowGenerator arrow = forwardArrow.GetComponentInChildren<ArrowGenerator>();
+            arrow.SetOrigin(this.transform.position);
+            arrow.SetTarget(transform.position + transform.forward * 5);
+        }
+        else
+        {
+            forwardArrow.SetActive(false);
+        }
+
+        // string currResponse = "";
+        // // if (chatBehaviour.sentences.Length > 0)
+        // // {
+        // //     currResponse = chatBehaviour.sentences[chatBehaviour.sentenceIndex];
+        // // }
+        // if (circleObjects.Count > 0 && circleObjects[0] != null)
         // {
-        //     currResponse = chatBehaviour.sentences[chatBehaviour.sentenceIndex];
+        //     var temp = new Vector3(this.transform.position.x, 2f, this.transform.position.z);
+        //     circleObjects[0].transform.position = temp;
         // }
-        if (circleObjects.Count > 0 && circleObjects[0] != null)
-        {
-            var temp = new Vector3(this.transform.position.x, 2f, this.transform.position.z);
-            circleObjects[0].transform.position = temp;
-        }
-        // if (currResponse != null || currResponse != "")
+        // // if (currResponse != null || currResponse != "")
+        // // {
+        // //     Debug.LogError("current response: " + currResponse);
+        // // }
+        // if (!circleSpawned && ContainsAll(currResponse, "closest", "opponent"))
         // {
-        //     Debug.LogError("current response: " + currResponse);
+        //     circleSpawned = true;
+        //     if (objectList.scenicPlayers[0] != null)
+        //     {
+        //         GameObject closest = objectList.scenicPlayers[0]; // hardcoded closest opponent
+        //         SpawnCircle(closest.transform.position); 
+        //     }
+        // } 
+        // if (!arrowSpawned && ContainsAll(currResponse, "move in", "within a meter"))
+        // {
+        //     arrowSpawned = true;
+        //     if (objectList.scenicPlayers[0] != null)
+        //     {
+        //         GameObject closest = objectList.scenicPlayers[0]; // hardcoded closest opponent
+        //         SpawnArrow(this.transform.position, closest.transform.position);
+        //     }
         // }
-        if (!circleSpawned && ContainsAll(currResponse, "closest", "opponent"))
-        {
-            circleSpawned = true;
-            if (objectList.scenicPlayers[0] != null)
-            {
-                GameObject closest = objectList.scenicPlayers[0]; // hardcoded closest opponent
-                SpawnCircle(closest.transform.position); 
-            }
-        } 
-        if (!arrowSpawned && ContainsAll(currResponse, "move in", "within a meter"))
-        {
-            arrowSpawned = true;
-            if (objectList.scenicPlayers[0] != null)
-            {
-                GameObject closest = objectList.scenicPlayers[0]; // hardcoded closest opponent
-                SpawnArrow(this.transform.position, closest.transform.position);
-            }
-        }
-        if (tlManager.Paused == false && (circleObjects.Count > 1 || arrowObjects.Count > 0))
-        {
-            if (circleObjects.Count > 1)
-            {
-                for (int i = 1; i < circleObjects.Count; i++)
-                {
-                    Destroy(circleObjects[i]);
-                }
-                circleObjects.RemoveRange(1, circleObjects.Count - 1);
-            }
-            if (arrowObjects.Count > 0)
-            {
-                for (int i = 0; i < arrowObjects.Count; i++)
-                {
-                    Destroy(arrowObjects[i]);
-                }
-                arrowObjects.RemoveRange(0, arrowObjects.Count - 1);
-            }
-            circleSpawned = false;
-            arrowSpawned = false;
-        }
-        
-        closestPlayerInDirection = GetClosestToLinePoint(objectList.scenicPlayers); // change to defense players later for teammate passing
+        // if (tlManager.Paused == false && (circleObjects.Count > 1 || arrowObjects.Count > 0))
+        // {
+        //     if (circleObjects.Count > 1)
+        //     {
+        //         for (int i = 1; i < circleObjects.Count; i++)
+        //         {
+        //             Destroy(circleObjects[i]);
+        //         }
+        //         circleObjects.RemoveRange(1, circleObjects.Count - 1);
+        //     }
+        //     if (arrowObjects.Count > 0)
+        //     {
+        //         for (int i = 0; i < arrowObjects.Count; i++)
+        //         {
+        //             Destroy(arrowObjects[i]);
+        //         }
+        //         arrowObjects.RemoveRange(0, arrowObjects.Count - 1);
+        //     }
+        //     circleSpawned = false;
+        //     arrowSpawned = false;
+        // }
+
     }
     
     private void OnCollisionEnter(Collision other)
@@ -170,7 +188,7 @@ public class HumanInterface : MonoBehaviour
     {
         if (ballOwnership.heldByScenic && canPossessBall && distToBall < 1f)
         {
-            Debug.LogError("forcibly get ball");
+            // Debug.LogError("forcibly get ball");
             LogIntercept();
             ballOwnership.ballOwner.GetComponent<PlayerInterface>().LosePossession();
             GainPossession(ball);
@@ -209,6 +227,24 @@ public class HumanInterface : MonoBehaviour
         keyboardInput.clickOrder++; 
     }
     
+    private void LogThroughPass(Vector3 pos)
+    {
+        int passID = keyboardInput.clickOrder;
+        float passTime = jsonToLLM.time;
+
+        string posStr;
+        
+        keyboardInput.annotation.Add(keyboardInput.clickOrder, new Dictionary<string, string>
+        {
+            { "type", "Through Pass" },
+            {"point", posStr = new { x = pos.x, y = pos.z }.ToString()}
+        });
+        
+        keyboardInput.annotationTimes.Add(passID, passTime);
+        Debug.Log($"Through Pass action recorded with ID {passID}, point: {posStr} at time: {passTime}");
+        keyboardInput.clickOrder++; 
+    }
+    
     private void GainPossession(GameObject other)
     {
         int layerIgnoreBallCollision = LayerMask.NameToLayer("PlayerBall");
@@ -240,10 +276,23 @@ public class HumanInterface : MonoBehaviour
         {
             return;
         }
-        
-        closestPlayerInDirection = GetClosestToLinePoint(objectList.scenicPlayers); // change to defense players later for teammate passing
+
+        closestPlayerInDirection = GetClosestToLinePoint(objectList.defensePlayers);
         LogPass();
         actionAPI.GroundPassFast(closestPlayerInDirection.transform.position);
+        StartCoroutine(ResetToMovementController());
+    }
+    
+    public void ThroughPass()
+    {
+        if (!ballPossession || !canKickBall)
+        {
+            return;
+        }
+
+        Vector3 passPosition = transform.position + transform.forward * 5;
+        LogThroughPass(passPosition);
+        actionAPI.GroundPassFast(passPosition);
         StartCoroutine(ResetToMovementController());
     }
 
@@ -260,7 +309,7 @@ public class HumanInterface : MonoBehaviour
     }
 
     private GameObject GetClosestToLinePoint(List<GameObject> points) {
-        Ray ray = new Ray(transform.position, GetComponent<ControllerInput>().playerDirection.normalized);
+        Ray ray = new Ray(transform.position, transform.forward * 5);
         GameObject closestPoint = points.OrderBy(point => DistancePointToLineSqr(ray, point.transform.position)).FirstOrDefault();
 
         return closestPoint;
@@ -323,14 +372,15 @@ public class HumanInterface : MonoBehaviour
         }
     }
 
-    public void SpawnArrow(Vector3 from, Vector3 to)
+    public GameObject SpawnArrow(Vector3 from, Vector3 to)
     {
         Vector3 spawnPos = new Vector3(from.x, from.y, from.z);
         GameObject arrow = Instantiate(arrowGenerator, spawnPos, arrowGenerator.transform.rotation);
         arrow.GetComponentInChildren<ArrowGenerator>().SetOrigin(from);
         arrow.GetComponentInChildren<ArrowGenerator>().SetTarget(to);
         arrowObjects.Add(arrow);
-        arrow.GetComponentInChildren<Renderer>().material.SetColor("_Color", Color.yellow);
+        arrow.GetComponentInChildren<Renderer>().material.SetColor("_Color", new Color(1f, 0.92f, 0.016f, 0.25f));
+        return arrow;
     }
     
     public void ApplyMovement(ScenicMovementData data)

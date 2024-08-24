@@ -45,6 +45,7 @@ public class ControllerInput : MonoBehaviour
         inputSystem.PlayerControls.Segment.performed += ControllerSegment; // X Button
         inputSystem.PlayerControls.Intercept.performed += ControllerIntercept; // Left Trigger
         inputSystem.PlayerControls.Pass.performed += ControllerPass; // Right Trigger
+        inputSystem.PlayerControls.ThroughPass.performed += ControllerThroughPass; // Right Bumper
         inputSystem.PlayerControls.Enable();
     }
     
@@ -55,6 +56,7 @@ public class ControllerInput : MonoBehaviour
         inputSystem.PlayerControls.Segment.performed -= ControllerSegment;
         inputSystem.PlayerControls.Intercept.performed -= ControllerIntercept;
         inputSystem.PlayerControls.Pass.performed -= ControllerPass;
+        inputSystem.PlayerControls.ThroughPass.performed -= ControllerThroughPass;
         inputSystem.PlayerControls.Disable();
     }
 
@@ -94,6 +96,12 @@ public class ControllerInput : MonoBehaviour
     {
         HumanInterface humanInterface = this.GetComponent<HumanInterface>();
         humanInterface.PassToPlayer();
+    }
+    
+    private void ControllerThroughPass(InputAction.CallbackContext ctx)
+    {
+        HumanInterface humanInterface = this.GetComponent<HumanInterface>();
+        humanInterface.ThroughPass();
     }
     
     private void Movement()
