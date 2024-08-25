@@ -487,7 +487,7 @@ public class JSONToLLM : MonoBehaviour
     // Update the scene data on a fixed time interval
     private void FixedUpdate()
     {
-        if (streamingSampleMic.microphoneRecord.IsVoiceDetected)
+        if (streamingSampleMic.isSpeechDetected)
         {
             voiceActivated = true;
             Debug.Log("voice check activated");

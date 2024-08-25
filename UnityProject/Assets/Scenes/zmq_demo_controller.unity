@@ -534,15 +534,15 @@ MonoBehaviour:
   loop: 1
   frequency: 16000
   chunksLengthSec: 0.5
-  echo: 1
+  echo: 0
   useVad: 0
-  vadUpdateRateSec: 0.1
-  vadContextSec: 30
+  vadUpdateRateSec: 0.05
+  vadContextSec: 10
   vadLastSec: 1.25
   vadThd: 1
   vadFreqThd: 100
   vadIndicatorImage: {fileID: 298047096}
-  vadStop: 1
+  vadStop: 0
   dropVadPart: 1
   vadStopTime: 3
   microphoneDropdown: {fileID: 1576178246}
@@ -567,6 +567,7 @@ MonoBehaviour:
   scroll: {fileID: 756420436}
   transDone: 0
   tokenOrder: 0
+  isSpeechDetected: 0
 --- !u!4 &318410349
 Transform:
   m_ObjectHideFlags: 0
@@ -3555,7 +3556,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.14533333}
   m_AnchorMax: {x: 0.70032245, y: 1}
-  m_AnchoredPosition: {x: -482.7379, y: -21.999023}
+  m_AnchoredPosition: {x: -482.73804, y: -21.998169}
   m_SizeDelta: {x: -752.9071, y: -477.0649}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &1161327818
@@ -3843,7 +3844,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 467.3079, y: 0}
+  m_AnchoredPosition: {x: 541.58215, y: 0}
   m_SizeDelta: {x: 0, y: 64}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1359183744
@@ -5855,7 +5856,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 2129545209}
   m_HandleRect: {fileID: 2129545208}
   m_Direction: 2
-  m_Value: 0
+  m_Value: 1
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -6862,6 +6863,7 @@ MonoBehaviour:
   time: 0
   isTranscriptionComplete: 0
   isLogging: 0
+  voiceActivated: 0
   myRootSegment:
     timestep: 0
 --- !u!114 &777379925808647189

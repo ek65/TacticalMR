@@ -31,6 +31,7 @@ namespace Whisper.Samples
         private KeyboardInput keyboard;
         public bool transDone = false;
         public int tokenOrder = 0;
+        public bool isSpeechDetected = false;
 
 
         // Initialize the necessary components, set up event listeners, and start the transcription stream
@@ -44,7 +45,27 @@ namespace Whisper.Samples
             _stream.OnSegmentFinished += OnPhraseFinished;
             _stream.OnStreamFinished += OnFinished;
             microphoneRecord.OnRecordStop += OnRecordStop;
+            microphoneRecord.OnChunkReady += OnChunkReady;
             button.onClick.AddListener(OnButtonPressed);
+        }
+        
+        private void OnChunkReady(AudioChunk chunk)
+        {
+            isSpeechDetected = CheckForAudioInput(chunk);
+        }
+
+        // Method to check for audio input based on chunk amplitude
+        private bool CheckForAudioInput(AudioChunk chunk)
+        {
+            float sum = 0;
+            foreach (var sample in chunk.Data)
+            {
+                sum += sample * sample;
+            }
+            float rmsValue = Mathf.Sqrt(sum / chunk.Data.Length);
+
+            float rmsThreshold = 0.01f; 
+            return rmsValue > rmsThreshold;
         }
 
 
