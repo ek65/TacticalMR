@@ -212,39 +212,43 @@ public class HumanInterface : MonoBehaviour
     
     private void LogPass()
     {
+        if (closestPlayerInDirection == null)
+        {
+            Debug.LogWarning("No target player found for pass.");
+            return;
+        }
+
         int passID = keyboardInput.clickOrder;
         float passTime = jsonToLLM.time;
-        
+    
         GameObject targetPlayer = closestPlayerInDirection;
-        keyboardInput.annotation.Add(keyboardInput.clickOrder, new Dictionary<string, string>
+        keyboardInput.annotation.Add(passID, new Dictionary<string, object>
         {
             { "type", "Pass" },
-            {"obj", targetPlayer.name}
+            { "obj", targetPlayer.name }
         });
 
         keyboardInput.annotationTimes.Add(passID, passTime);
         Debug.Log($"Pass action recorded with ID {passID}, obj: {targetPlayer.name} at time: {passTime}");
         keyboardInput.clickOrder++; 
     }
-    
+
     private void LogThroughPass(Vector3 pos)
     {
         int passID = keyboardInput.clickOrder;
         float passTime = jsonToLLM.time;
 
-        string posStr;
-        
         var pointDict = new Dictionary<string, float>
         {
             { "x", pos.x },
             { "y", pos.z }
         };
-        keyboardInput.annotation.Add(keyboardInput.clickOrder, new Dictionary<string, object>
+        keyboardInput.annotation.Add(passID, new Dictionary<string, object>
         {
             { "type", "Through Pass" },
-            {"point", pointDict}
+            { "point", pointDict }
         });
-        
+    
         keyboardInput.annotationTimes.Add(passID, passTime);
         Debug.Log($"Through Pass action recorded with ID {passID} at time: {passTime}");
         keyboardInput.clickOrder++; 

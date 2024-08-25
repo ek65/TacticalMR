@@ -315,7 +315,7 @@ public class KeyboardInput : MonoBehaviour
                 {
                     { "id", id.ToString() },
                     { "type", actionType },
-                    { "obj", actionData["obj"].ToString() }
+                    { "obj", actionData["obj"] }
                 });
             }
             else if (actionType == "Through Pass")
@@ -377,11 +377,10 @@ public class KeyboardInput : MonoBehaviour
             countdownText.text = baseText + new string('.', dotCount);
             yield return new WaitForSeconds(0.5f); // Adjust the speed of the dots if needed
         }
-
+        yield return new WaitForSeconds(3);
         countdownText.color = Color.blue; // Set the color to blue when the transcription is complete
         countdownText.fontSize = 36;
         countdownText.text = "READY TO CONTINUE";
-        yield return new WaitForSeconds(1);
         countdownText.gameObject.SetActive(false);
         countdownText.color = Color.white;
         StartSegment(); 

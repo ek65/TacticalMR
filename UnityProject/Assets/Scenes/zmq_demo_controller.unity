@@ -945,7 +945,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 1658017393}
   m_Direction: 0
   m_Value: 1
-  m_Size: 1
+  m_Size: 0.99999994
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -1266,7 +1266,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 1
   data:
-    dataString: UEsDBBQAAAgIAACAn+tc9Q5E4wEAAMYDAAALACQAZ3JhcGgwLmpzb24KACAAAAAAAAEAGAAAgD7V3rGdAQCAPtXesZ0BAIA+1d6xnQGVU8FymzAQ/RVG5zaDTcBNjyWe9FDbHcghk04Pa2kBTYTkCsl27PG/VxJgk5leehJ6u++t9u1yJrQBDdSgLoBx25Gv0fxTRKiSRlm9guNSa6VHFIUo+QndNb7zwAHEG2wFfkdeN2bIGsFc8HYbUlOHtnAshdp5bhL39yWr8QfK2jSeGUAuC6y5kkOVACLjRulnLnBAZ/MvDjYD8BIU4wny6pA0ILZDz/NdVSA6dJBGgXuQ5knDrimtroDiSjGvSx7VWpkC/1iukfhc6JwxTjFXQnCG2gsZbXEaW2HXfKwwRp5Ra+DynyGNOBGjg34xxh/RABe+196r7s19nyOyB2GDMWkWXXzLUK/64K/f/tpXLKHdXd1KfF1lwDhbe5GjH4pD34fz5M8gVylNkX1TVrIuR+nk/ocxFBzysyvhLo5nA2kW97SuUQdv3MYawSXenPCBtRtHrqRE6t88tXakDXO70SSCxs6U7qDNRor3l9cJDaXfxzXsW8fNrTFc1jdubTn76C5Js+ohXWSYJfcPcZosPidVNUvvY8qqxXY2Z4yELrjkhoP46fSFGb1xOy4nD4M2KBZI3WyjsHV+tZiGwxM/tWqyBVxWqqRuM+Sm17i27XYChHOXLcO/UGJowVPJ+UIufwFQSwMEFAAACAgAAICf65ZBistvAAAAegAAAAkAJABtZXRhLmpzb24KACAAAAAAAAEAGAAAgD7V3rGdAQCAPtXesZ0BAIA+1d6xnQGrVipLLSrOzM9TslIw0TPSM7TQUVBKL0osyCgGihiCOKWZKSB2tJKpWZqlqblZqpmxiaWBqbG5rnFamqGpiUFySpp5kqFRSopSLFB9SWVBql9ibipET0BiSUZaZl5KZl66XlBqcmJxiTvIcKXYWgBQSwECLQAUAAAICAAAgJ/rXPUOROMBAADGAwAACwAkAAAAAAAAAAAAAAAAAAAAZ3JhcGgwLmpzb24KACAAAAAAAAEAGAAAgD7V3rGdAQCAPtXesZ0BAIA+1d6xnQFQSwECLQAUAAAICAAAgJ/rlkGKy28AAAB6AAAACQAkAAAAAAAAAAAAAAAwAgAAbWV0YS5qc29uCgAgAAAAAAABABgAAIA+1d6xnQEAgD7V3rGdAQCAPtXesZ0BUEsFBgAAAAACAAIAuAAAAOoCAAAAAA==
+    dataString: UEsDBBQAAAgIAACAn+srMFor5AEAAMYDAAALACQAZ3JhcGgwLmpzb24KACAAAAAAAAEAGAAAgD7V3rGdAQCAPtXesZ0BAIA+1d6xnQGVU8Fu2zAM/RXD561wktpZd1wadIclGeweig47MBJtC5WlTJaSNEH+fZRsJy6wy06yHvkexUf6HLMaDDCLJgcuXBt/jaafophpZbUzKzgujdFmQFHKQpyQrsmdBw4g32Ar8TuKqrZ91gAupGi2ITUltIFjIfXOc2dJd1/yCn+gqmxNYBZAoXKshFZ9lQAiF1abZyGxRyfTLwTbHngJiskIeSUkDYhr0fN8VyXIFgkyKHEPyj4Z2NWFMyUwXGnudeNHvdY2xz9OGIx9LrRkDCkutJSCo/FC1jgcx1bY1h8rDJFnNAaE+mfIII7EWK+fD/FHtCCk77Xzqn2j73MU70E6/9RpmkUX3zJUqy7467e/dhULaHZXt2a+rrZgydZO5OiHQuh7f578GeRKbRjyb9op3i5Qkdz/MPqCfX52JdwlyaQnTZKO1tb64I3bOCuFwpsTPrCmcSy0Usj8m8fWDrR+bjeaQjDY2oIOVm+UfH95HdFQ+X1cw74h7sJZK1R141ZO8I/uxmlWPqTzDLPZ/UOSzuafZ2U5Se8Txsv5djLlPA5dCCWsAPmT9KUdvKEdV6OHQRMUc2Q02yhsnV8tbuDwJE6NHm2BUKUuGG2G2nQa17ZpJ0CSu3wZ/oUCQwueGp8v8eUvUEsDBBQAAAgIAACAn+uWQYrLbwAAAHoAAAAJACQAbWV0YS5qc29uCgAgAAAAAAABABgAAIA+1d6xnQEAgD7V3rGdAQCAPtXesZ0Bq1YqSy0qzszPU7JSMNEz0jO00FFQSi9KLMgoBooYgjilmSkgdrSSqVmapam5WaqZsYmlgamxua5xWpqhqYlBckqaeZKhUUqKUixQfUllQapfYm4qRE9AYklGWmZeSmZeul5QanJicYk7yHCl2FoAUEsBAi0AFAAACAgAAICf6yswWivkAQAAxgMAAAsAJAAAAAAAAAAAAAAAAAAAAGdyYXBoMC5qc29uCgAgAAAAAAABABgAAIA+1d6xnQEAgD7V3rGdAQCAPtXesZ0BUEsBAi0AFAAACAgAAICf65ZBistvAAAAegAAAAkAJAAAAAAAAAAAAAAAMQIAAG1ldGEuanNvbgoAIAAAAAAAAQAYAACAPtXesZ0BAIA+1d6xnQEAgD7V3rGdAVBLBQYAAAAAAgACALgAAADrAgAAAAA=
     upgradeData: 
     file_cachedStartup: {fileID: 0}
     data_cachedStartup: 
@@ -1420,7 +1420,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8534884368792420308, guid: 44badfc3c0b614396bd7630d116ddd90, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 28.5
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8534884368792420308, guid: 44badfc3c0b614396bd7630d116ddd90, type: 3}
       propertyPath: m_LocalRotation.w
@@ -1468,7 +1468,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8841526821959432487, guid: 44badfc3c0b614396bd7630d116ddd90, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8868107066596129538, guid: 44badfc3c0b614396bd7630d116ddd90, type: 3}
       propertyPath: m_Enabled
@@ -3844,7 +3844,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 541.58215, y: 0}
+  m_AnchoredPosition: {x: 604.57446, y: 0}
   m_SizeDelta: {x: 0, y: 64}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1359183744
@@ -5856,7 +5856,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 2129545209}
   m_HandleRect: {fileID: 2129545208}
   m_Direction: 2
-  m_Value: 1
+  m_Value: 0
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
