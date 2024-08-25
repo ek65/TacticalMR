@@ -29,6 +29,7 @@ public class JSONToLLM : MonoBehaviour
     private Dictionary<float, string> manualTokenDictionary = new Dictionary<float, string>();
     public bool isLogging = false;
     private bool isAdjusted = false;
+    public int recordingNum;
     public bool voiceActivated = false;
 
     // Class representing the position of an object
@@ -132,7 +133,7 @@ public class JSONToLLM : MonoBehaviour
     // Initialize necessary components and set the file path for the JSON output
     void Start()
     {
-        filename = Application.dataPath + "/sanjit.json";
+        // filename = Application.dataPath + "/sanjit.json";
         keyboard = GameObject.FindGameObjectWithTag("keyboard").GetComponent<KeyboardInput>();
         timelineManager = GameObject.FindGameObjectWithTag("TimelineManager").GetComponent<TimelineManager>();
         streamingSampleMic = GameObject.FindGameObjectWithTag("stream").GetComponent<StreamingSampleMic>();
@@ -456,9 +457,15 @@ public class JSONToLLM : MonoBehaviour
             }
         }, settings);
 
+        var jsonOutputFolder = new DirectoryInfo(Path.Combine(Application.dataPath, "..", "SampleJsons"));
+        filename = jsonOutputFolder.FullName + "/" + "segment" + recordingNum.ToString() + ".json";
+
+        
         File.WriteAllText(filename, jsonString);
         isAdjusted = false;
         Debug.Log($"Segment written to {filename}");
+        
+        recordingNum++;
     }
 
     
