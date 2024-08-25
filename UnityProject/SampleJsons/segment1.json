@@ -1,0 +1,27 @@
+{
+  "scene": {
+    "id": "typical_1v1",
+    "language": "!!! [0]",
+    "step": 0.02,
+    "objects": [],
+    "annotations": [
+      {
+        "id": "0",
+        "type": "Point",
+        "point": {
+          "x": 2.05,
+          "y": 1.575922
+        }
+      }
+    ],
+    "tokens": {
+      "6": [
+        "!!! [0]",
+        0.0999999046
+      ]
+    },
+    "clickTimes": {
+      "0": 3.41999745
+    }
+  }
+}
