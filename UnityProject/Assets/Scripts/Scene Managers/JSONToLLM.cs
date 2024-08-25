@@ -29,6 +29,7 @@ public class JSONToLLM : MonoBehaviour
     private Dictionary<float, string> manualTokenDictionary = new Dictionary<float, string>();
     public bool isLogging = false;
     private bool isAdjusted = false;
+    public bool voiceActivated = false;
 
     // Class representing the position of an object
     [System.Serializable]
@@ -486,9 +487,14 @@ public class JSONToLLM : MonoBehaviour
     // Update the scene data on a fixed time interval
     private void FixedUpdate()
     {
-        if (isLogging)
+        if (streamingSampleMic.microphoneRecord.IsVoiceDetected)
         {
-            Debug.Log("JSON UPDATING");
+            voiceActivated = true;
+            Debug.Log("voice check activated");
+        }
+        if (isLogging && voiceActivated)
+        {
+            // Debug.Log("JSON UPDATING");
             time += 0.02f;
             PopulateSegment();
         }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using OpenAI.Samples.Chat;
 using TMPro;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using Whisper.Samples;
 
 public class KeyboardInput : MonoBehaviour
@@ -152,6 +153,7 @@ public class KeyboardInput : MonoBehaviour
             timelineManager.Pause();
             if (timelineManager.isRecordingSegment)
             {
+                jsonToLLM.voiceActivated = false;
                 StopSegment(); // Stop the segment if already recording
             }
             else
@@ -163,6 +165,8 @@ public class KeyboardInput : MonoBehaviour
         {
             if (timelineManager.isRecordingSegment)
             {
+                jsonToLLM.voiceActivated = false;
+                Debug.Log("voice check deactivated");
                 StopSegment(); // Stop the segment if already recording
             }
             else
@@ -361,8 +365,11 @@ public class KeyboardInput : MonoBehaviour
     private IEnumerator ProcessingTranscript()
     {
         countdownText.gameObject.SetActive(true);
-        string baseText = "TRANSCRIPTION PROCESSING";
+        string baseText = "PROCESSING";
         int dotCount = 0;
+        countdownText.fontSize = 100;
+        RectTransform rectTransform = countdownText.GetComponent<RectTransform>();
+        rectTransform.sizeDelta = new Vector2(Screen.width - 100, rectTransform.sizeDelta.y);
 
         while (!jsonToLLM.isTranscriptionComplete) // Wait until transcription is done
         {
@@ -372,10 +379,12 @@ public class KeyboardInput : MonoBehaviour
         }
 
         countdownText.color = Color.blue; // Set the color to blue when the transcription is complete
-        countdownText.text = "NEXT SEGMENT READY";
+        countdownText.fontSize = 36;
+        countdownText.text = "READY TO CONTINUE";
         yield return new WaitForSeconds(1);
         countdownText.gameObject.SetActive(false);
         countdownText.color = Color.white;
+        StartSegment(); 
     }
 
     void FixedUpdate()

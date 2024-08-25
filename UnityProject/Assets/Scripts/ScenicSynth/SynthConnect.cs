@@ -27,7 +27,7 @@ public class SynthConnect : MonoBehaviour
     public void SendScene()
     {
         // id = Guid.NewGuid().ToString(); // Generate a new unique ID for the scene
-        id = $"transcript4-segment{segmentNum}";  // (Commented out: Use a static ID if needed)
+        id = $"transcript7-segment{segmentNum}";  // (Commented out: Use a static ID if needed)
         segmentNum += 1;
         network.StoreScene(jsonToLLM.jsonString, id);
     }
