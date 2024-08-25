@@ -234,14 +234,19 @@ public class HumanInterface : MonoBehaviour
 
         string posStr;
         
-        keyboardInput.annotation.Add(keyboardInput.clickOrder, new Dictionary<string, string>
+        var pointDict = new Dictionary<string, float>
+        {
+            { "x", pos.x },
+            { "y", pos.z }
+        };
+        keyboardInput.annotation.Add(keyboardInput.clickOrder, new Dictionary<string, object>
         {
             { "type", "Through Pass" },
-            {"point", posStr = new { x = pos.x, y = pos.z }.ToString()}
+            {"point", pointDict}
         });
         
         keyboardInput.annotationTimes.Add(passID, passTime);
-        Debug.Log($"Through Pass action recorded with ID {passID}, point: {posStr} at time: {passTime}");
+        Debug.Log($"Through Pass action recorded with ID {passID} at time: {passTime}");
         keyboardInput.clickOrder++; 
     }
     

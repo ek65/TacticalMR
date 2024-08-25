@@ -268,63 +268,68 @@ public class KeyboardInput : MonoBehaviour
 
     // Converts annotations to a JSON-like structure for further processing
     public List<Dictionary<string, object>> GetAnnotationsAsJson()
+{
+    List<Dictionary<string, object>> annotationsList = new List<Dictionary<string, object>>();
+
+    foreach (var entry in annotation)
     {
-        List<Dictionary<string, object>> annotationsList = new List<Dictionary<string, object>>();
+        int id = entry.Key;
+        object value = entry.Value;
 
-        foreach (var entry in annotation)
+        if (value is GameObject gameObject)
         {
-            int id = entry.Key;
-            object value = entry.Value;
-
-            if (value is GameObject gameObject)
+            annotationsList.Add(new Dictionary<string, object>
+            {
+                { "id", id.ToString() },
+                { "type", "Reference" },
+                { "obj", gameObject.name }
+            });
+        }
+        else if (value is Vector3 vector)
+        {
+            annotationsList.Add(new Dictionary<string, object>
+            {
+                { "id", id.ToString() },
+                { "type", "Point" },
+                { "point", new { x = vector.x, y = vector.z } },
+            });
+        }
+        else if (value is Dictionary<string, object> actionData)
+        {
+            string actionType = actionData["type"].ToString();
+            if (actionType == "Intercept")
             {
                 annotationsList.Add(new Dictionary<string, object>
                 {
                     { "id", id.ToString() },
-                    { "type", "Reference" },
-                    { "obj", gameObject.name }
+                    { "type", actionType }
                 });
             }
-            else if (value is Vector3 vector)
+            else if (actionType == "Pass")
             {
                 annotationsList.Add(new Dictionary<string, object>
                 {
                     { "id", id.ToString() },
-                    { "type", "Point" },
-                    { "point", new { x = vector.x, y = vector.z } },
+                    { "type", actionType },
+                    { "obj", actionData["obj"].ToString() }
                 });
             }
-            else if (value is Dictionary<string, string> actionData)
+            else if (actionType == "Through Pass")
             {
-                if (actionData["type"] == "Intercept")
+                var point = actionData["point"] as Dictionary<string, float>;
+                annotationsList.Add(new Dictionary<string, object>
                 {
-                    annotationsList.Add(new Dictionary<string, object>
-                    {
-                        { "id", id.ToString() },
-                        { "type", actionData["type"] }
-                    });
-                } else if (actionData["type"] == "Pass")
-                {
-                    annotationsList.Add(new Dictionary<string, object>
-                    {
-                        { "id", id.ToString() },
-                        { "type", actionData["type"] },
-                        { "obj", actionData["obj"] }
-                    });
-                } else if (actionData["type"] == "Through Pass")
-                {
-                    annotationsList.Add(new Dictionary<string, object>
-                    {
-                        { "id", id.ToString() },
-                        { "type", actionData["type"] },
-                        { "point", actionData["point"] }
-                    });
-                }
+                    { "id", id.ToString() },
+                    { "type", actionType },
+                    { "point", point }
+                });
             }
         }
-
-        return annotationsList;
     }
+
+    return annotationsList;
+}
+
 
     // Handles sending JSON data to the synthesis component
     IEnumerator JSONCoroutine()
