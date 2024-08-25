@@ -498,5 +498,7 @@ public class JSONToLLM : MonoBehaviour
             time += 0.02f;
             PopulateSegment();
         }
+        var color = streamingSampleMic.isSpeechDetected ? Color.green : Color.red;
+        streamingSampleMic.microphoneRecord.vadIndicatorImage.color = color;
     }
 }

@@ -32,6 +32,7 @@ namespace Whisper.Samples
         public bool transDone = false;
         public int tokenOrder = 0;
         public bool isSpeechDetected = false;
+        
 
 
         // Initialize the necessary components, set up event listeners, and start the transcription stream
