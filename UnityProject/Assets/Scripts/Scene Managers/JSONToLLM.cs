@@ -72,6 +72,15 @@ public class JSONToLLM : MonoBehaviour
             y = magnitude * vector.z;
         }
     }
+    [System.Serializable]
+    public class Corner
+    {
+        public string id;
+        public string type = "Corner";
+        public List<Position> position = new List<Position>();
+        public List<Velocity> velocity = new List<Velocity>();
+        public List<Orientation> orientation = new List<Orientation>();
+    }
 
     // Class representing a player in the scene
     [System.Serializable]
@@ -141,7 +150,26 @@ public class JSONToLLM : MonoBehaviour
         {
             return;
         }
+        
+        // Process each corner in the scene
+        for (int i = 1; i <= 4; i++)
+        {
+            GameObject corner = GameObject.Find("corner" + i);
+            if (corner != null)
+            {
+                Corner cornerObject = (Corner)myRootSegment.objects.Find(obj => obj is Corner c && c.id == "corner" + i);
+                if (cornerObject == null)
+                {
+                    cornerObject = new Corner { id = "corner" + i };
+                    myRootSegment.objects.Add(cornerObject);
+                }
 
+                cornerObject.position.Add(new Position(corner.transform.position));
+                cornerObject.velocity.Add(new Velocity(Vector3.zero));
+                cornerObject.orientation.Add(new Orientation(corner.transform));
+            }
+        }
+        
         // Process each player in the scene
         foreach (GameObject currPlayer in objectsList.scenicPlayers)
         {
