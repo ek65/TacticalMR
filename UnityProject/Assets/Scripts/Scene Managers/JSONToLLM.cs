@@ -19,7 +19,6 @@ public class JSONToLLM : MonoBehaviour
     public ObjectsList objectsList;
     private string filename;
     public string jsonString;
-    public int segments;
     public TimelineManager timelineManager;
     public StreamingSampleMic streamingSampleMic;
     public float time;
@@ -29,7 +28,7 @@ public class JSONToLLM : MonoBehaviour
     private Dictionary<float, string> manualTokenDictionary = new Dictionary<float, string>();
     public bool isLogging = false;
     private bool isAdjusted = false;
-    public int recordingNum;
+    public int recordingNum; // segmentNum
     public bool voiceActivated = false;
 
     // Class representing the position of an object
@@ -457,9 +456,10 @@ public class JSONToLLM : MonoBehaviour
             }
         }, settings);
 
-        var jsonOutputFolder = new DirectoryInfo(Path.Combine(Application.dataPath, "..", "SampleJsons"));
-        filename = jsonOutputFolder.FullName + "/" + "segment" + recordingNum.ToString() + ".json";
-
+        JSONDirectory jsonDirectory = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<JSONDirectory>();
+        
+        // DirectoryInfo jsonOutputFolder = new DirectoryInfo(Path.Combine(Application.dataPath, "..", "SampleJsons"));
+        filename = jsonDirectory.InstantiateJSONSegmentFilePath(recordingNum) + ".json";
         
         File.WriteAllText(filename, jsonString);
         isAdjusted = false;

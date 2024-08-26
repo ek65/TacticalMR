@@ -103,6 +103,10 @@ public class InstantiateScenicObject
                         ExitScenario e = objectList.humanPlayers[0].GetComponent<ExitScenario>();
                         e.endScenario = false;
                         f.StartFadeAndMove(pos);
+                        
+                        // save previous demo
+                        JSONDirectory jsonDirectory = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<JSONDirectory>();
+                        jsonDirectory.AddDemo();
                     }
                 }
                 catch

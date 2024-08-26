@@ -1,0 +1,16 @@
+{
+  "scene": {
+    "id": "typical_1v1",
+    "language": "!!!",
+    "step": 0.02,
+    "objects": [],
+    "annotations": [],
+    "tokens": {
+      "0": [
+        "!!!",
+        0.1
+      ]
+    },
+    "clickTimes": {}
+  }
+}

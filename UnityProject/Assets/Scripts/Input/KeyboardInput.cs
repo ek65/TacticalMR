@@ -20,6 +20,7 @@ public class KeyboardInput : MonoBehaviour
     private JSONToLLM jsonToLLM;
     public TextMeshProUGUI countdownText;
     private SynthConnect synthConnect;
+    private JSONDirectory jsonDirectory;
 
     public Dictionary<int, object> annotation = new Dictionary<int, object>();
     private Dictionary<int, string> annotationDescriptions = new Dictionary<int, string>();
@@ -46,6 +47,7 @@ public class KeyboardInput : MonoBehaviour
         chatBehaviour = GameObject.FindGameObjectWithTag("Character").GetComponent<ChatBehaviour>();
         streamingSampleMic = GameObject.FindGameObjectWithTag("stream").GetComponent<StreamingSampleMic>();
         synthConnect = GameObject.FindGameObjectWithTag("connect").GetComponent<SynthConnect>();
+        jsonDirectory = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<JSONDirectory>();
         Debug.Log("KeyboardInput script initialized");
     }
 
@@ -181,17 +183,20 @@ public class KeyboardInput : MonoBehaviour
     {
         timelineManager.isRecordingSegment = true;
         jsonToLLM.isLogging = true;
-        recorderManager.StartRecording();
 
         if (timelineManager.segmentCount <= 0)
         {
             Debug.Log("Started first segment recording");
+            jsonDirectory.IncrementDemoNum();
+            jsonDirectory.InstantiateDemoFolders();
+            recorderManager.StartRecording();
             streamingSampleMic.OnButtonPressed();
         }
         else
         {
-            streamingSampleMic.OnButtonPressed();
             Debug.Log("Started new segment recording");
+            recorderManager.StartRecording();
+            streamingSampleMic.OnButtonPressed();
         }
 
         timelineManager.segmentCount++;

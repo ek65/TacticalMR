@@ -59,10 +59,13 @@ public class RecorderManager : MonoBehaviour
 
     public void StartRecording()
     {
-        var mediaOutputFolder = new DirectoryInfo(Path.Combine(Application.dataPath, "..", "SampleRecordings"));
-        
+        // var mediaOutputFolder = new DirectoryInfo(Path.Combine(Application.dataPath, "..", "SampleRecordings"));
+        // Debug.LogError(mediaOutputFolder.FullName);
         // Simple file name (no wildcards) so that FileInfo constructor works in OutputFile getter.
-        m_Settings.OutputFile = mediaOutputFolder.FullName + "/" + "video" + recordingNum.ToString();
+        // m_Settings.OutputFile = mediaOutputFolder.FullName + "/" + "video" + recordingNum.ToString();
+        
+        JSONDirectory jsonDirectory = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<JSONDirectory>();
+        m_Settings.OutputFile = jsonDirectory.InstantiateVideoFilePath(recordingNum);
         
         RecorderOptions.VerboseMode = false;
         m_RecorderController.PrepareRecording();

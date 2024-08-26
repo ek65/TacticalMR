@@ -12,6 +12,9 @@ GameObject:
   - component: {fileID: 777379923757108249}
   - component: {fileID: 777379923757108247}
   - component: {fileID: 777379923757108244}
+  - component: {fileID: 278377970342781417}
+  - component: {fileID: 777379925808647185}
+  - component: {fileID: 777379925808647189}
   m_Layer: 0
   m_Name: ZMQManager
   m_TagString: ScenicManager
@@ -62,8 +65,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ballObject: {fileID: 0}
-  bluePlayers: 
-  orangePlayers: 
+  goalObject: {fileID: 0}
+  defensePlayers: []
+  offensePlayers: []
   scenicPlayers: []
   humanPlayers: []
   scenicObjects: []
@@ -79,3 +83,55 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d4f41d11692e24a05a91a681d16b1894, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &278377970342781417
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 777379923757108248}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0517522acca3443dca98c2a68da045d9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &777379925808647185
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 777379923757108248}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 956534c9e32d7473caebacd6d6adbdbf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  keyboard: {fileID: 0}
+  objectsList: {fileID: 777379923757108247}
+  jsonString: 
+  segments: 0
+  timelineManager: {fileID: 0}
+  streamingSampleMic: {fileID: 0}
+  time: 0
+  isTranscriptionComplete: 0
+  isLogging: 0
+  recordingNum: 0
+  voiceActivated: 0
+  myRootSegment:
+    timestep: 0
+--- !u!114 &777379925808647189
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 777379923757108248}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9f8740b4bec2a4be8a4d9c89941263c0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  heldByScenic: 0
+  heldByHuman: 0
+  ballOwner: {fileID: 0}
