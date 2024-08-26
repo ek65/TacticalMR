@@ -29,12 +29,13 @@ behavior teammateBehavior():
         do MoveTo(ball.position) 
         do Idle() for 2 seconds
         do GroundPassFast(ego.position)
-        first_possession = True
-        do Idle() for 8 seconds 
-        do MoveTo(ego.position) for 1 seconds
-        do GroundPassFast(ego.position)
+        do Idle() for 3 seconds
 
-    interrupt when hasBallPosession(opponent):
+    
+    interrupt when hasBallPosession(self):
+        do Idle() for 2 seconds 
+        coachPos = ego.position
+        do MoveTo(coachPos) for 1 seconds
         do GroundPassFast(coachPos)
         print("passing ball again")
         do Idle()
