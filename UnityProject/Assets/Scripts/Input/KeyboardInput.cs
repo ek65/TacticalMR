@@ -370,11 +370,16 @@ public class KeyboardInput : MonoBehaviour
     private IEnumerator ProcessingTranscript()
     {
         countdownText.gameObject.SetActive(true);
-        string baseText = "PROCESSING";
+        string baseText = "TRANSCRIPTION PROCESSING";
         int dotCount = 0;
         countdownText.fontSize = 100;
-        RectTransform rectTransform = countdownText.GetComponent<RectTransform>();
-        rectTransform.sizeDelta = new Vector2(Screen.width - 100, rectTransform.sizeDelta.y);
+        // RectTransform rectTransform = countdownText.GetComponent<RectTransform>();
+        // rectTransform.sizeDelta = new Vector2(Screen.width - 100, rectTransform.sizeDelta.y);
+        //
+        // rectTransform.anchorMin = new Vector2(0.5f, 0.5f); 
+        // rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
+        // rectTransform.pivot = new Vector2(0.5f, 0.5f); 
+        // rectTransform.anchoredPosition = Vector2.zero; 
 
         while (!jsonToLLM.isTranscriptionComplete) // Wait until transcription is done
         {
@@ -382,10 +387,10 @@ public class KeyboardInput : MonoBehaviour
             countdownText.text = baseText + new string('.', dotCount);
             yield return new WaitForSeconds(0.5f); // Adjust the speed of the dots if needed
         }
-        yield return new WaitForSeconds(3);
         countdownText.color = Color.blue; // Set the color to blue when the transcription is complete
         countdownText.fontSize = 36;
         countdownText.text = "READY TO CONTINUE";
+        yield return new WaitForSeconds(2);
         countdownText.gameObject.SetActive(false);
         countdownText.color = Color.white;
         StartSegment(); 
