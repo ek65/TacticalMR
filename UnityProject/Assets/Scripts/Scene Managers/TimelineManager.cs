@@ -247,6 +247,10 @@ public void InitializeTimeline()
     {
         Timeseries = new Dictionary<GameObject, RewindableTimeSeries>();
         rewindables = new List<Rewindable>();
+        segmentCount = 0;
+        JSONDirectory jsonDirectory = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<JSONDirectory>();
+        jsonDirectory.ResetRecordingNum();
+        
     }
     
     // Update is called once per frame

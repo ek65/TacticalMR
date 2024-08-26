@@ -9,6 +9,7 @@ public class GroundSelection : MonoBehaviour, IPointerClickHandler, IPointerEnte
 {
     public GameObject groundHighlighter;
     public GameObject newGroundHighlighter;
+    public List<GameObject> placedGroundHighlighters;
 
     private Camera cam;
     private RaycastHit raycastHit;
@@ -20,6 +21,7 @@ public class GroundSelection : MonoBehaviour, IPointerClickHandler, IPointerEnte
     {
         cam = Camera.main;
         keyboardInput = GameObject.FindGameObjectWithTag("keyboard").GetComponent<KeyboardInput>();
+        placedGroundHighlighters= new List<GameObject>();
     }
 
     private void Update()
@@ -56,12 +58,22 @@ public class GroundSelection : MonoBehaviour, IPointerClickHandler, IPointerEnte
 #endif
         
     }
+    
+    public void ClearGroundHighlights()
+    {
+        foreach (GameObject go in placedGroundHighlighters)
+        {
+            Destroy(go);
+        }
+        placedGroundHighlighters.Clear();
+    }
 
     public void OnPointerClick(PointerEventData eventData)
     {
         if (keyboardInput.canClick)
         {
             GameObject go = Instantiate(newGroundHighlighter, raycastHit.point, Quaternion.identity);
+            placedGroundHighlighters.Add(go);
             go.GetComponent<Collider>().enabled = true;
             keyboardInput.HandlePositionClick();
         }

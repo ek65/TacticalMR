@@ -107,7 +107,8 @@ public class ObjectsList : MonoBehaviour
         defensePlayers = new List<GameObject>();
         ballObject = null;
         goalObject = null;
-        GameObject.FindGameObjectWithTag("TimelineManager").GetComponent<TimelineManager>().Reset();
+        TimelineManager tlManager = GameObject.FindGameObjectWithTag("TimelineManager").GetComponent<TimelineManager>();
+        tlManager.Reset();
         //call reset function on the ready boolean for human and index
         // humanPlayers[0].GetComponentInChildren<HumanInterface>().ResetValues();
     }

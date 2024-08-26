@@ -1,14 +1,14 @@
 {
   "scene": {
     "id": "typical_1v1",
-    "language": "!!!",
+    "language": ".",
     "step": 0.02,
     "objects": [],
     "annotations": [],
     "tokens": {
       "0": [
-        "!!!",
-        0.1
+        ".",
+        0.09
       ]
     },
     "clickTimes": {}

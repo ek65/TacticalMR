@@ -13,7 +13,7 @@ public class RecorderManager : MonoBehaviour
     RecorderController m_RecorderController;
     public bool m_RecordAudio = true;
     internal MovieRecorderSettings m_Settings = null;
-    private int recordingNum;
+    public int recordingNum;
 
     public FileInfo OutputFile
     {

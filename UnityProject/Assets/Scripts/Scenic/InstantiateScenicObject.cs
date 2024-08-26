@@ -87,26 +87,31 @@ public class InstantiateScenicObject
             {
                 try
                 {
-                    // for the case of observer vr
+                    // // for the case of observer vr
+                    // if (GameObject.FindGameObjectWithTag("human") != null)
+                    // {
+                    //     addedGameObject = GameObject.FindGameObjectWithTag("human");
+                    //     Fade f = addedGameObject.GetComponent<Fade>();
+                    //     ExitScenario e = addedGameObject.GetComponent<ExitScenario>();
+                    //     e.endScenario = false;
+                    //     f.StartFadeAndMove2(objectList.humanPlayers[0], pos);
+                    // }
+                    // else
+                    // {
+                    //     addedGameObject = objectList.humanPlayers[0];
+                    //     Fade f = objectList.humanPlayers[0].GetComponent<Fade>();
+                    //     ExitScenario e = objectList.humanPlayers[0].GetComponent<ExitScenario>();
+                    //     e.endScenario = false;
+                    //     f.StartFadeAndMove(pos);
+                    // }
+
                     if (GameObject.FindGameObjectWithTag("human") != null)
-                    {
-                        addedGameObject = GameObject.FindGameObjectWithTag("human");
-                        Fade f = addedGameObject.GetComponent<Fade>();
-                        ExitScenario e = addedGameObject.GetComponent<ExitScenario>();
-                        e.endScenario = false;
-                        f.StartFadeAndMove2(objectList.humanPlayers[0], pos);
-                    }
-                    else
                     {
                         addedGameObject = objectList.humanPlayers[0];
                         Fade f = objectList.humanPlayers[0].GetComponent<Fade>();
                         ExitScenario e = objectList.humanPlayers[0].GetComponent<ExitScenario>();
                         e.endScenario = false;
                         f.StartFadeAndMove(pos);
-                        
-                        // save previous demo
-                        JSONDirectory jsonDirectory = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<JSONDirectory>();
-                        jsonDirectory.AddDemo();
                     }
                 }
                 catch

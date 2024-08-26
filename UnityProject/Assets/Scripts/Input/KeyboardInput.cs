@@ -15,12 +15,14 @@ public class KeyboardInput : MonoBehaviour
     private ChatBehaviour chatBehaviour;
     private StreamingSampleMic streamingSampleMic;
 
-    private TimelineManager timelineManager;
+    public TimelineManager timelineManager;
     private RecorderManager recorderManager;
     private JSONToLLM jsonToLLM;
     public TextMeshProUGUI countdownText;
     private SynthConnect synthConnect;
     private JSONDirectory jsonDirectory;
+    public GameObject saveDemoCanvas;
+    public bool restarting = false;
 
     public Dictionary<int, object> annotation = new Dictionary<int, object>();
     private Dictionary<int, string> annotationDescriptions = new Dictionary<int, string>();
@@ -63,7 +65,8 @@ public class KeyboardInput : MonoBehaviour
         // End the scenario when the 'E' key is pressed
         if (Input.GetKeyDown(KeyCode.E) && gameObject.CompareTag("keyboard"))
         {
-            exitScenario.EndScenario();
+            // exitScenario.EndScenario();
+            HandleRestart();
         }
         
         if (Input.GetKeyDown(KeyCode.B) && gameObject.CompareTag("keyboard"))
@@ -145,6 +148,24 @@ public class KeyboardInput : MonoBehaviour
         }
     }
 
+    public void HandleRestart()
+    {
+        restarting = true;
+        // make sure segment recordings are stopped before restarting
+        StopSegment();
+        
+        // if scene is not paused, pause it
+        if (!timelineManager.Paused)
+        {
+            timelineManager.Pause();
+        }
+
+        canClick = false;
+        
+        // enable button UI for the user to confirm the restart
+        saveDemoCanvas.SetActive(true);
+    }
+
     // When unpaused, HandleSegment() should pause the scenario and start/stop recording a segment and set isRecordingSegment to true/false
     // When paused, and isRecordingSegment is true, HandleSegment() should end recording the segment and set isRecordingSegment to false (SHOULD NOT UNPAUSE)
     // When paused, and isRecordingSegment is false, HandleSegment() should start recording the segment and set isRecordingSegment to true (SHOULD NOT UNPAUSE)
@@ -207,7 +228,9 @@ public class KeyboardInput : MonoBehaviour
         timelineManager.isRecordingSegment = false;
         jsonToLLM.isLogging = false;
         recorderManager.StopRecording();
-        
+        GroundSelection groundSelection = GameObject.FindGameObjectWithTag("Ground").GetComponent<GroundSelection>();
+        groundSelection.ClearGroundHighlights();
+
         Debug.Log("Stopped segment recording");
         streamingSampleMic.OnButtonPressed();
         StartCoroutine(ChainedCoroutines());
@@ -393,7 +416,10 @@ public class KeyboardInput : MonoBehaviour
         yield return new WaitForSeconds(2);
         countdownText.gameObject.SetActive(false);
         countdownText.color = Color.white;
-        StartSegment(); 
+        if (!restarting)
+        {
+            StartSegment(); 
+        }
     }
 
     void FixedUpdate()

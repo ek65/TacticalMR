@@ -1,6 +1,8 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using Assets.OVR.Scripts;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using UnityEngine;
@@ -17,6 +19,7 @@ public class JSONDirectory : MonoBehaviour
     private DirectoryInfo demoFolder;
     private DirectoryInfo videoFolder;
     private DirectoryInfo jsonSegmentFolder;
+    private KeyboardInput keyboardInput;
     
     public enum Drills
     {
@@ -50,10 +53,18 @@ public class JSONDirectory : MonoBehaviour
     
     private UsableDemos usableDemos = new UsableDemos();
 
-    public void AddDemo()
+    private void Start()
     {
-        usableDemos.demoNums.Add(demoNum);
-        WriteUsableDemosFile();
+        keyboardInput = GameObject.FindGameObjectWithTag("keyboard").GetComponent<KeyboardInput>();
+    }
+
+    public void AddAndSaveDemo()
+    {
+        if (!usableDemos.demoNums.Contains(demoNum))
+        {
+            usableDemos.demoNums.Add(demoNum);
+            WriteUsableDemosFile();
+        }
     }
     
     public void IncrementDemoNum()
@@ -105,6 +116,10 @@ public class JSONDirectory : MonoBehaviour
         if (!demoFolder.Exists)
         {
             demoFolder.Create();
+        } else if (demoFolder.Exists)
+        {
+            demoFolder.Delete(true);
+            demoFolder.Create();
         }
         
         videoFolder = 
@@ -135,10 +150,7 @@ public class JSONDirectory : MonoBehaviour
     {
         DirectoryInfo videoFile = 
             new DirectoryInfo(Path.Combine(videoFolder.FullName, ParticipantID + "_" + DemoNum + "_" + "segment" + recordingNum.ToString()));
-        if (!videoFile.Exists)
-        {
-            videoFile.Create();
-        }
+
         return videoFile.FullName;
     }
     
@@ -146,12 +158,43 @@ public class JSONDirectory : MonoBehaviour
     {
         DirectoryInfo jsonSegmentFile = 
             new DirectoryInfo(Path.Combine(jsonSegmentFolder.FullName, ParticipantID + "_" + DemoNum + "_" + "segment" + recordingNum.ToString()));
-        if (!jsonSegmentFile.Exists)
-        {
-            jsonSegmentFile.Create();
-        }
+
         return jsonSegmentFile.FullName;
     }
+
+    public void SaveDemonstrationButton()
+    {
+        AddAndSaveDemo();
+        
+        // when finished prompting the user, unpause then restart the scenario
+        StartCoroutine(UnpauseAndEndScenario());
+    }
+
+    public void DoNotSaveDemonstrationButton()
+    {
+        // when finished prompting the user, unpause then restart the scenario
+        StartCoroutine(UnpauseAndEndScenario());
+    }
     
-    
+    private IEnumerator UnpauseAndEndScenario()
+    {
+        yield return null;
+        keyboardInput.saveDemoCanvas.SetActive(false);
+        // adding this reset here in case, it also resets in ObjectsList.cs in Reset()
+        keyboardInput.timelineManager.Reset();
+        keyboardInput.timelineManager.Unpause();
+        keyboardInput.exitScenario.EndScenario();
+        keyboardInput.canClick = true;
+        keyboardInput.restarting = false;
+    }
+
+    public void ResetRecordingNum()
+    {
+        JSONToLLM jsonToLLM = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<JSONToLLM>();
+        jsonToLLM.recordingNum = 0;
+        jsonToLLM.time = 0;
+        
+        RecorderManager recorderManager = GameObject.FindGameObjectWithTag("RecorderManager").GetComponent<RecorderManager>();
+        recorderManager.recordingNum = 0;
+    }
 }
