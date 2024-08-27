@@ -59,6 +59,12 @@ public class ActionAPI : MonoBehaviour
             soccerBall = GameObject.FindGameObjectWithTag("ball");
         }
         
+        string currAnimationController = this.GetComponent<Animator>().runtimeAnimatorController.name;
+        if (currAnimationController == "Movement")
+        {
+            alreadyInAnimation = false;
+        }
+        
         // Debug.LogError(this.GetComponent<Animator>().runtimeAnimatorController.name);
     }
 

@@ -313,6 +313,7 @@ public class HumanInterface : MonoBehaviour
         {
             yield return null;
         }
+        yield return new WaitForSeconds(1.0f);
         actionAPI.SetAnimController("Movement");
         // actionAPI.alreadyInAnimation = true;
         // yield return new WaitForSeconds(1.0f);
