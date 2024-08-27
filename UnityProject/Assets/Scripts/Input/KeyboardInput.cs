@@ -19,7 +19,7 @@ public class KeyboardInput : MonoBehaviour
     private RecorderManager recorderManager;
     private JSONToLLM jsonToLLM;
     public TextMeshProUGUI countdownText;
-    private SynthConnect synthConnect;
+    // private SynthConnect synthConnect;
     private JSONDirectory jsonDirectory;
     public GameObject saveDemoCanvas;
     public bool restarting = false;
@@ -48,7 +48,7 @@ public class KeyboardInput : MonoBehaviour
         countdownText = GameObject.FindGameObjectWithTag("countdown").GetComponent<TextMeshProUGUI>();
         chatBehaviour = GameObject.FindGameObjectWithTag("Character").GetComponent<ChatBehaviour>();
         streamingSampleMic = GameObject.FindGameObjectWithTag("stream").GetComponent<StreamingSampleMic>();
-        synthConnect = GameObject.FindGameObjectWithTag("connect").GetComponent<SynthConnect>();
+        // synthConnect = GameObject.FindGameObjectWithTag("connect").GetComponent<SynthConnect>();
         jsonDirectory = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<JSONDirectory>();
         Debug.Log("KeyboardInput script initialized");
     }
@@ -374,16 +374,16 @@ public class KeyboardInput : MonoBehaviour
     {
         Debug.Log("Started JSON Coroutine at timestamp : " + Time.time);
         yield return new WaitForSeconds(1);
-        synthConnect.SendScene();
+        // synthConnect.SendScene();
         yield return new WaitForSeconds(1);
-        synthConnect.SendSceneAndExplanation();
+        // synthConnect.SendSceneAndExplanation();
     }
     
     // Chains the execution of multiple coroutines sequentially
     IEnumerator ChainedCoroutines()
     {
         yield return FileCoroutine();
-        yield return JSONCoroutine();
+        // yield return JSONCoroutine();
     }
     
     // Writes the segment data to a file and resets JSON data
