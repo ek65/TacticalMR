@@ -48,7 +48,7 @@ public class TimelineManager : MonoBehaviour
     public int RewindTimeIndex = 0;
     public int maxRewindTimeIndex = 0;
     
-    public int segmentCount;
+    public int segmentCount = -1;
     public bool isRecordingSegment = false;
     
     // Start is called before the first frame update
@@ -247,7 +247,7 @@ public void InitializeTimeline()
     {
         Timeseries = new Dictionary<GameObject, RewindableTimeSeries>();
         rewindables = new List<Rewindable>();
-        segmentCount = 0;
+        segmentCount = -1;
         JSONDirectory jsonDirectory = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<JSONDirectory>();
         jsonDirectory.ResetRecordingNum();
         

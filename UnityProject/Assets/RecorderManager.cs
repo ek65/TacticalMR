@@ -10,10 +10,12 @@ using UnityEditor.Recorder.Input;
 
 public class RecorderManager : MonoBehaviour
 {
-    RecorderController m_RecorderController;
+    private RecorderController m_RecorderController;
+    public RecorderController RecorderController => m_RecorderController;
+    
     public bool m_RecordAudio = true;
     internal MovieRecorderSettings m_Settings = null;
-    public int recordingNum;
+    public int recordingNum = -1;
 
     public FileInfo OutputFile
     {
@@ -63,6 +65,7 @@ public class RecorderManager : MonoBehaviour
         // Debug.LogError(mediaOutputFolder.FullName);
         // Simple file name (no wildcards) so that FileInfo constructor works in OutputFile getter.
         // m_Settings.OutputFile = mediaOutputFolder.FullName + "/" + "video" + recordingNum.ToString();
+        recordingNum++;
         
         JSONDirectory jsonDirectory = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<JSONDirectory>();
         m_Settings.OutputFile = jsonDirectory.InstantiateVideoFilePath(recordingNum);
@@ -72,8 +75,6 @@ public class RecorderManager : MonoBehaviour
         m_RecorderController.StartRecording();
 
         Debug.Log($"Started recording for file {OutputFile.FullName}");
-
-        recordingNum++;
     }
     
     public void StopRecording()

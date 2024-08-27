@@ -114,6 +114,10 @@ public class KeyboardInput : MonoBehaviour
     // Resets JSON data of the current segment to prepare for the next segment
     private void ResetJsonData()
     {
+        if (recorderManager.RecorderController.IsRecording())
+        {
+            recorderManager.StopRecording();
+        }
         annotation.Clear();
         annotationDescriptions.Clear();
         objectToKey.Clear();
@@ -205,27 +209,25 @@ public class KeyboardInput : MonoBehaviour
         timelineManager.isRecordingSegment = true;
         jsonToLLM.isLogging = true;
         
+        timelineManager.segmentCount++;
+        
         if (timelineManager.segmentCount <= 0)
         {
             Debug.Log("Started first segment recording");
+            jsonDirectory.IncrementDemoNum();
             if (jsonDirectory.InitialDemo)
             {
                 jsonDirectory.InstantiateInitialFolders();
                 jsonDirectory.InitialDemo = false;
             }
-            jsonDirectory.IncrementDemoNum();
             jsonDirectory.InstantiateDemoFolders();
-            recorderManager.StartRecording();
             streamingSampleMic.OnButtonPressed();
         }
         else
         {
             Debug.Log("Started new segment recording");
-            recorderManager.StartRecording();
             streamingSampleMic.OnButtonPressed();
         }
-
-        timelineManager.segmentCount++;
     }
 
     private void StopSegment()
@@ -390,7 +392,6 @@ public class KeyboardInput : MonoBehaviour
         Debug.Log("Started File Coroutine at timestamp : " + Time.time);
         yield return ProcessingTranscript();
         jsonToLLM.WriteFile();
-        recorderManager.StopRecording();
         ResetJsonData();
     }
     
@@ -423,6 +424,7 @@ public class KeyboardInput : MonoBehaviour
         countdownText.color = Color.white;
         if (!restarting)
         {
+            Debug.LogError("in not restarting");
             StartSegment(); 
         }
     }

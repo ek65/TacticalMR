@@ -20,7 +20,7 @@ public class JSONDirectory : MonoBehaviour
     private DirectoryInfo videoFolder;
     private DirectoryInfo jsonSegmentFolder;
     private KeyboardInput keyboardInput;
-    private bool initialDemo;
+    private bool initialDemo = true;
 
     public bool InitialDemo
     {
@@ -211,8 +211,13 @@ public class JSONDirectory : MonoBehaviour
     
     private IEnumerator UnpauseAndEndScenario()
     {
-        yield return null;
+        JSONToLLM jsonToLLM = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<JSONToLLM>();
         keyboardInput.saveDemoCanvas.SetActive(false);
+        while (!jsonToLLM.isTranscriptionComplete) // Wait until transcription is done
+        {
+            yield return new WaitForSeconds(0.5f);
+        }
+        yield return new WaitForSeconds(0.5f);
         // adding this reset here in case, it also resets in ObjectsList.cs in Reset()
         keyboardInput.timelineManager.Unpause();
         keyboardInput.exitScenario.EndScenario();
@@ -226,10 +231,10 @@ public class JSONDirectory : MonoBehaviour
     public void ResetRecordingNum()
     {
         JSONToLLM jsonToLLM = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<JSONToLLM>();
-        jsonToLLM.recordingNum = 0;
+        jsonToLLM.recordingNum = -1;
         jsonToLLM.time = 0;
         
         RecorderManager recorderManager = GameObject.FindGameObjectWithTag("RecorderManager").GetComponent<RecorderManager>();
-        recorderManager.recordingNum = 0;
+        recorderManager.recordingNum = -1;
     }
 }

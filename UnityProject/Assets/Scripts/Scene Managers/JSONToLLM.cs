@@ -28,8 +28,10 @@ public class JSONToLLM : MonoBehaviour
     private Dictionary<float, string> manualTokenDictionary = new Dictionary<float, string>();
     public bool isLogging = false;
     private bool isAdjusted = false;
-    public int recordingNum; // segmentNum
+    public int recordingNum = -1; // segmentNum
     public bool voiceActivated = false;
+    public bool videoIsRecording;
+    private RecorderManager recorderManager;
 
     // Class representing the position of an object
     [System.Serializable]
@@ -136,6 +138,7 @@ public class JSONToLLM : MonoBehaviour
         keyboard = GameObject.FindGameObjectWithTag("keyboard").GetComponent<KeyboardInput>();
         timelineManager = GameObject.FindGameObjectWithTag("TimelineManager").GetComponent<TimelineManager>();
         streamingSampleMic = GameObject.FindGameObjectWithTag("stream").GetComponent<StreamingSampleMic>();
+        recorderManager = GameObject.FindGameObjectWithTag("RecorderManager").GetComponent<RecorderManager>();
     }
 
     void Update()
@@ -234,6 +237,11 @@ public class JSONToLLM : MonoBehaviour
             myRootSegment.objects.Add(goalObject);
         }
 
+        // if goal still null, skip this
+        if (goal == null)
+        {
+            return;
+        }
         Vector3 zeroVector = Vector3.zero;
         goalObject.velocity.Add(new Velocity(zeroVector));
         goalObject.position.Add(new Position(goal.transform.position));
@@ -430,6 +438,8 @@ public class JSONToLLM : MonoBehaviour
     // Create the final JSON string representing the scene and its annotations
     public void CreateJSONString()
     {
+        recordingNum++;
+        
         // Build the sentence before creating JSON
         keyboard.explanation = BuildSentenceFromTokens(tokenDictionary);
         Debug.Log("Constructed Sentence: " + keyboard.explanation);
@@ -464,8 +474,6 @@ public class JSONToLLM : MonoBehaviour
         File.WriteAllText(filename, jsonString);
         isAdjusted = false;
         Debug.Log($"Segment written to {filename}");
-        
-        recordingNum++;
     }
 
     
@@ -532,6 +540,19 @@ public class JSONToLLM : MonoBehaviour
             // Debug.Log("JSON UPDATING");
             time += 0.02f;
             PopulateSegment();
+            
+            if (!recorderManager.RecorderController.IsRecording())
+            {
+                recorderManager.StartRecording();
+                videoIsRecording = recorderManager.RecorderController.IsRecording();
+            }
+        } else if (isLogging == false && voiceActivated == false)
+        {
+            if (recorderManager.RecorderController.IsRecording())
+            {
+                recorderManager.StopRecording();
+                videoIsRecording = recorderManager.RecorderController.IsRecording();
+            }
         }
         var color = streamingSampleMic.isSpeechDetected ? Color.green : Color.red;
         streamingSampleMic.microphoneRecord.vadIndicatorImage.color = color;
