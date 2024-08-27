@@ -181,11 +181,11 @@ public class JSONDirectory : MonoBehaviour
         yield return null;
         keyboardInput.saveDemoCanvas.SetActive(false);
         // adding this reset here in case, it also resets in ObjectsList.cs in Reset()
-        keyboardInput.timelineManager.Reset();
         keyboardInput.timelineManager.Unpause();
         keyboardInput.exitScenario.EndScenario();
         keyboardInput.canClick = true;
         keyboardInput.restarting = false;
+        keyboardInput.timelineManager.Reset();
     }
 
     public void ResetRecordingNum()
