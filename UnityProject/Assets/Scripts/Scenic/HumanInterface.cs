@@ -352,10 +352,12 @@ public class HumanInterface : MonoBehaviour
     
     public void SetTransform(Vector3 pos)
     {
+        Debug.LogError("In SetTransform: " + pos);
         source.PlayOneShot(source.clip);
         this.transform.position = pos;
         Debug.LogWarning("Local: I am transforming to: " + pos.ToString());
 
+        ResetHuman();
     }
     
     public void SetTransform2(GameObject go, Vector3 pos)
@@ -363,6 +365,12 @@ public class HumanInterface : MonoBehaviour
         source.PlayOneShot(source.clip);
         go.transform.position = pos;
 
+    }
+
+    public void ResetHuman()
+    {
+        ballPossession = false;
+        forwardArrow.SetActive(false);
     }
     
     public void SpawnCircle(Vector3 pos)
