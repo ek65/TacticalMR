@@ -232,7 +232,6 @@ public class KeyboardInput : MonoBehaviour
     {
         timelineManager.isRecordingSegment = false;
         jsonToLLM.isLogging = false;
-        recorderManager.StopRecording();
         GroundSelection groundSelection = GameObject.FindGameObjectWithTag("Ground").GetComponent<GroundSelection>();
         groundSelection.ClearGroundHighlights();
 
@@ -391,6 +390,7 @@ public class KeyboardInput : MonoBehaviour
         Debug.Log("Started File Coroutine at timestamp : " + Time.time);
         yield return ProcessingTranscript();
         jsonToLLM.WriteFile();
+        recorderManager.StopRecording();
         ResetJsonData();
     }
     
