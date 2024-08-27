@@ -88,7 +88,7 @@ public class HumanInterface : MonoBehaviour
         
         floatingNameText.SetText(this.gameObject.name);
         
-        forwardArrow = SpawnArrow(this.transform.position, transform.forward*5);
+        forwardArrow = SpawnArrow(this.transform.position, transform.forward*7);
         forwardArrow.SetActive(false);
     }
 
@@ -115,7 +115,7 @@ public class HumanInterface : MonoBehaviour
             forwardArrow.SetActive(true);
             ArrowGenerator arrow = forwardArrow.GetComponentInChildren<ArrowGenerator>();
             arrow.SetOrigin(this.transform.position);
-            arrow.SetTarget(transform.position + transform.forward * 5);
+            arrow.SetTarget(transform.position + transform.forward * 7);
         }
         else
         {
@@ -301,7 +301,7 @@ public class HumanInterface : MonoBehaviour
             return;
         }
 
-        Vector3 passPosition = transform.position + transform.forward * 5;
+        Vector3 passPosition = transform.position + transform.forward * 7;
         LogThroughPass(passPosition);
         actionAPI.GroundPassFast(passPosition);
         StartCoroutine(ResetToMovementController());
