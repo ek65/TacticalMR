@@ -77,7 +77,7 @@ public class ControllerInput : MonoBehaviour
 
     private void ControllerRestart(InputAction.CallbackContext ctx)
     {
-        exitScenario.EndScenario();
+        keyboardInput.HandleRestart();
     }
     
     private void ControllerSegment(InputAction.CallbackContext ctx)
