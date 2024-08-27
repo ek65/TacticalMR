@@ -60,8 +60,11 @@ public class Rewindable : MonoBehaviour
         savedPosition = transform.position;
         
         r.constraints = RigidbodyConstraints.FreezePosition;
-        r.constraints = RigidbodyConstraints.FreezeRotation;
-
+        // don't freeze rotation for human player
+        // if (this.GetComponent<PlayerInterface>() == true)
+        // {
+        //     r.constraints = RigidbodyConstraints.FreezeRotation;
+        // }
     }
     private void UnfreezePhysics()
     {

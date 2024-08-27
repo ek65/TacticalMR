@@ -109,6 +109,9 @@ public class ObjectsList : MonoBehaviour
         goalObject = null;
         TimelineManager tlManager = GameObject.FindGameObjectWithTag("TimelineManager").GetComponent<TimelineManager>();
         tlManager.Reset();
+
+        HumanInterface humanInterface = humanPlayers[0].GetComponent<HumanInterface>();
+        humanInterface.ResetHuman();
         //call reset function on the ready boolean for human and index
         // humanPlayers[0].GetComponentInChildren<HumanInterface>().ResetValues();
     }

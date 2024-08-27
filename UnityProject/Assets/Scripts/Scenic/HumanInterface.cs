@@ -369,6 +369,7 @@ public class HumanInterface : MonoBehaviour
 
     public void ResetHuman()
     {
+        LosePossession();
         ballPossession = false;
         forwardArrow.SetActive(false);
     }

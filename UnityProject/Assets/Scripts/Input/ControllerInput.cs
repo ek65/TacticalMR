@@ -15,7 +15,7 @@ public class ControllerInput : MonoBehaviour
     private Vector3 forceDirection = Vector3.zero;
 
     private float controllerDeadzone = 0.1f;
-    private float gamepadRotateSmoothing = 500f;
+    private float gamepadRotateSmoothing = 200f;
     private Camera cam;
     private Animator animator;
     private KeyboardInput keyboardInput;

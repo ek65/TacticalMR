@@ -219,6 +219,8 @@ public class JSONDirectory : MonoBehaviour
         keyboardInput.canClick = true;
         keyboardInput.restarting = false;
         keyboardInput.timelineManager.Reset();
+        HumanInterface humanInterface = GameObject.FindGameObjectWithTag("human").GetComponent<HumanInterface>();
+        humanInterface.ResetHuman();
     }
 
     public void ResetRecordingNum()
