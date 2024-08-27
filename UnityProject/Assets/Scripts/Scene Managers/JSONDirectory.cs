@@ -20,6 +20,13 @@ public class JSONDirectory : MonoBehaviour
     private DirectoryInfo videoFolder;
     private DirectoryInfo jsonSegmentFolder;
     private KeyboardInput keyboardInput;
+    private bool initialDemo;
+
+    public bool InitialDemo
+    {
+        get => initialDemo;
+        set => initialDemo = value;
+    }
     
     public enum Drills
     {
@@ -89,6 +96,32 @@ public class JSONDirectory : MonoBehaviour
         File.WriteAllText(usableDemosFile, usableDemosString);
     }
 
+    public void InstantiateInitialFolders()
+    {
+        DirectoryInfo directoryOutputFolder = new DirectoryInfo(Path.Combine(Application.dataPath, "..", "..", "output"));
+        if (!directoryOutputFolder.Exists)
+        {
+            directoryOutputFolder.Create();
+        }
+        
+        DirectoryInfo participantFolder = 
+            new DirectoryInfo(Path.Combine(directoryOutputFolder.FullName, "participant" + participantID.ToString()));
+        if (!participantFolder.Exists)
+        {
+            participantFolder.Create();
+        }
+        
+        drillFolder = 
+            new DirectoryInfo(Path.Combine(participantFolder.FullName, drillID.ToString()));
+        if (!drillFolder.Exists)
+        {
+            drillFolder.Create();
+        } else if (drillFolder.Exists)
+        {
+            drillFolder.Delete(true);
+            drillFolder.Create();
+        }
+    }
     public void InstantiateDemoFolders()
     {
         DirectoryInfo directoryOutputFolder = new DirectoryInfo(Path.Combine(Application.dataPath, "..", "..", "output"));

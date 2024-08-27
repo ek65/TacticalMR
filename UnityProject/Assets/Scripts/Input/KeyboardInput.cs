@@ -204,10 +204,15 @@ public class KeyboardInput : MonoBehaviour
     {
         timelineManager.isRecordingSegment = true;
         jsonToLLM.isLogging = true;
-
+        
         if (timelineManager.segmentCount <= 0)
         {
             Debug.Log("Started first segment recording");
+            if (jsonDirectory.InitialDemo)
+            {
+                jsonDirectory.InstantiateInitialFolders();
+                jsonDirectory.InitialDemo = false;
+            }
             jsonDirectory.IncrementDemoNum();
             jsonDirectory.InstantiateDemoFolders();
             recorderManager.StartRecording();
