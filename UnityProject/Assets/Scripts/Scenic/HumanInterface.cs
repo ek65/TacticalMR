@@ -46,7 +46,6 @@ public class HumanInterface : MonoBehaviour
     private bool canPossessBall = true;
     public bool canKickBall = true;
     BallOwnership ballOwnership;
-    public bool inAnimation = false;
     public GameObject closestPlayerInDirection;
     
     public string behavior = "Idle";
@@ -54,7 +53,8 @@ public class HumanInterface : MonoBehaviour
     private KeyboardInput keyboardInput;
     private JSONToLLM jsonToLLM;
     
-    public FloatingText floatingText;
+    public FloatingText floatingBehaviorText;
+    public FloatingText floatingNameText;
     
     public bool ally;
     public Renderer shirt;
@@ -85,6 +85,8 @@ public class HumanInterface : MonoBehaviour
         {
             ball = GameObject.FindGameObjectWithTag("ball");
         }
+        
+        floatingNameText.SetText(this.gameObject.name);
         
         forwardArrow = SpawnArrow(this.transform.position, transform.forward*5);
         forwardArrow.SetActive(false);
@@ -266,7 +268,7 @@ public class HumanInterface : MonoBehaviour
         ballOwnership.SetScenicOwnership(false);
         ballOwnership.SetHumanOwnership(true);
         ballOwnership.SetBallOwner(this.gameObject);
-        this.GetComponentInParent<ActionAPI>().ReceiveBall(other.transform.position);
+        actionAPI.ReceiveBall(other.transform.position);
     }
     
     public void LosePossession()
@@ -307,10 +309,15 @@ public class HumanInterface : MonoBehaviour
 
     private IEnumerator ResetToMovementController()
     {
-        inAnimation = true;
-        yield return new WaitForSeconds(1.0f);
+        while (actionAPI.alreadyInAnimation)
+        {
+            yield return null;
+        }
         actionAPI.SetAnimController("Movement");
-        inAnimation = false;
+        // actionAPI.alreadyInAnimation = true;
+        // yield return new WaitForSeconds(1.0f);
+        // actionAPI.SetAnimController("Movement");
+        // actionAPI.alreadyInAnimation = false;
     }
 
     public float DistancePointToLineSqr(Ray ray, Vector3 point) {
@@ -371,6 +378,7 @@ public class HumanInterface : MonoBehaviour
     {
         LosePossession();
         ballPossession = false;
+        actionAPI.alreadyInAnimation = false;
         forwardArrow.SetActive(false);
     }
     
@@ -409,29 +417,32 @@ public class HumanInterface : MonoBehaviour
         {
             return;
         }
-        
-        if (data.behavior == " " || data.behavior == "" || data.behavior == "Idle")
-        {
-            behavior = "Idle";
-            floatingText.SetText("Idle");
-        }
-        else if (data.behavior != "" || data.behavior != null)
-        {
-            behavior = data.behavior;
-            floatingText.SetText(data.behavior);
-        }
-        else
-        {
-            behavior = "Idle";
-            floatingText.SetText("Idle");
-        }
 
+        // if player is already in kick animation, dont update behavior text yet
+        if (!actionAPI.alreadyInAnimation)
+        {
+            if (data.behavior == " " || data.behavior == "" || data.behavior == "Idle")
+            {
+                behavior = "Idle";
+                floatingBehaviorText.SetText("Idle");
+            }
+            else if (data.behavior != "" || data.behavior != null)
+            {
+                behavior = data.behavior;
+                floatingBehaviorText.SetText(data.behavior);
+            }
+            else
+            {
+                behavior = "Idle";
+                floatingBehaviorText.SetText("Idle");
+            }
+        }
+        
         if (behavior == "Idle")
         {
             currAction = "No Action";
         }
 
-        
         if (data.actionFunc != null)
         {
             currAction = data.actionFunc;

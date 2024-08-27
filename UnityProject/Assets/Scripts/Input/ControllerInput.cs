@@ -110,7 +110,7 @@ public class ControllerInput : MonoBehaviour
         float verticalInput = move.ReadValue<Vector2>().y;
         
         HumanInterface humanInterface = this.GetComponent<HumanInterface>();
-        if (!humanInterface.inAnimation)
+        if (!humanInterface.actionAPI.alreadyInAnimation)
         {
             animator.SetFloat("VelX", horizontalInput * 2);
             animator.SetFloat("VelZ", verticalInput * 2);

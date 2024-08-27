@@ -913,6 +913,7 @@ public class ActionAPI : MonoBehaviour
         return quadrant;
     }
 
+    // called from animation event
     public void MoveBall()
     {
         if (this.GetComponent<PlayerInterface>() != null)
@@ -929,6 +930,17 @@ public class ActionAPI : MonoBehaviour
         soccerBall.GetComponent<Rigidbody>().AddForce(forceDirection * forceMagnitude * forceFactor);
         Debug.Log("in moveball");
         Debug.Log("force:" + forceDirection * forceMagnitude * forceFactor);
+    }
+    
+    // set already in animation. mainly for pass and shoot animations (called from animation event)
+    public void SetAlreadyInAnimationTrue()
+    {
+        alreadyInAnimation = true;
+    }
+    
+    public void SetAlreadyInAnimationFalse()
+    {
+        alreadyInAnimation = false;
     }
 
     private IEnumerator BallTriggerColliderDebounce(GameObject ballTriggerCollider)

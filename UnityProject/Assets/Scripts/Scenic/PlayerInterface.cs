@@ -34,7 +34,8 @@ public class PlayerInterface : MonoBehaviour
     private int localTick;  // NOTE: This is not the true tick and is what we will use to internally record a timestep.
 
     public ActionAPI actionAPI;
-    public FloatingText floatingText;
+    public FloatingText floatingBehaviorText;
+    public FloatingText floatingNameText;
     public string behavior = "Idle";
     public string currAction = "No Action"; // just for debugging to see what actions function is being called
     
@@ -65,6 +66,8 @@ public class PlayerInterface : MonoBehaviour
         ballPossession = false;
         
         ballOwnership = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<BallOwnership>();
+        
+        floatingNameText.SetText(this.gameObject.name);
     }
 
     // Update is called once per frame
@@ -148,27 +151,24 @@ public class PlayerInterface : MonoBehaviour
             return;
         }
         
-        // Debug.LogError(data.behavior);
-        if (this.gameObject.name == "Unknown")
+        // if player is already in kick animation, dont update behavior text yet
+        if (!actionAPI.alreadyInAnimation)
         {
-            Debug.LogError("CURRENT ACTION: " + data.actionFunc);
-        }
-        
-
-        if (data.behavior == " " || data.behavior == "" || data.behavior == "Idle")
-        {
-            behavior = "Idle";
-            floatingText.SetText("Idle");
-        }
-        else if (data.behavior != "" || data.behavior != null)
-        {
-            behavior = data.behavior;
-            floatingText.SetText(data.behavior);
-        }
-        else
-        {
-            behavior = "Idle";
-            floatingText.SetText("Idle");
+            if (data.behavior == " " || data.behavior == "" || data.behavior == "Idle")
+            {
+                behavior = "Idle";
+                floatingBehaviorText.SetText("Idle");
+            }
+            else if (data.behavior != "" || data.behavior != null)
+            {
+                behavior = data.behavior;
+                floatingBehaviorText.SetText(data.behavior);
+            }
+            else
+            {
+                behavior = "Idle";
+                floatingBehaviorText.SetText("Idle");
+            }
         }
 
         if (behavior == "Idle")
