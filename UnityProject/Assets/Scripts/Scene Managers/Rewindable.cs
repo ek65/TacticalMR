@@ -24,7 +24,10 @@ public class Rewindable : MonoBehaviour
     {
         if (Paused)
         {
-            transform.position = savedPosition;
+            if (this.GetComponent<PlayerInterface>() == true)
+            {
+                transform.position = savedPosition;
+            }
         }
     }
     //reason for abstraction: generic solution that works both for character and soccer ball
@@ -60,11 +63,6 @@ public class Rewindable : MonoBehaviour
         savedPosition = transform.position;
         
         r.constraints = RigidbodyConstraints.FreezePosition;
-        // don't freeze rotation for human player
-        // if (this.GetComponent<PlayerInterface>() == true)
-        // {
-        //     r.constraints = RigidbodyConstraints.FreezeRotation;
-        // }
     }
     private void UnfreezePhysics()
     {
