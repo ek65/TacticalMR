@@ -67,7 +67,7 @@ public class PlayerInterface : MonoBehaviour
         
         ballOwnership = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<BallOwnership>();
         
-        floatingNameText.SetText(this.gameObject.name);
+        floatingNameText.SetText2(this.gameObject.name);
     }
 
     // Update is called once per frame
