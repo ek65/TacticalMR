@@ -538,7 +538,7 @@ public class JSONToLLM : MonoBehaviour
             Debug.Log("voice check activated");
         }
 
-        // Check both flags before starting logging
+        // check both flags before starting logging (voice activity or unpause)
         if (keyboard.segmentStarted && keyboard.activationConditionMet && !isLogging)
         {
             isLogging = true;
