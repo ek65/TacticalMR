@@ -32,6 +32,7 @@ public class JSONToLLM : MonoBehaviour
     public bool voiceActivated = false;
     public bool videoIsRecording;
     private RecorderManager recorderManager;
+    public bool loggingStartedByUnpause = false;
 
     // Class representing the position of an object
     [System.Serializable]
@@ -533,20 +534,30 @@ public class JSONToLLM : MonoBehaviour
         if (streamingSampleMic.isSpeechDetected)
         {
             voiceActivated = true;
+            keyboard.activationConditionMet = true; 
             Debug.Log("voice check activated");
         }
-        if (isLogging && voiceActivated)
+
+        // Check both flags before starting logging
+        if (keyboard.segmentStarted && keyboard.activationConditionMet && !isLogging)
         {
-            // Debug.Log("JSON UPDATING");
+            isLogging = true;
+            Debug.Log("Started logging");
+        }
+
+        if (isLogging)
+        {
+            Debug.Log("JSON LOGGING");
             time += 0.02f;
             PopulateSegment();
-            
+
             if (!recorderManager.RecorderController.IsRecording())
             {
                 recorderManager.StartRecording();
                 videoIsRecording = recorderManager.RecorderController.IsRecording();
             }
-        } else if (isLogging == false && voiceActivated == false)
+        }
+        else if (!isLogging && !voiceActivated)
         {
             if (recorderManager.RecorderController.IsRecording())
             {
@@ -554,6 +565,7 @@ public class JSONToLLM : MonoBehaviour
                 videoIsRecording = recorderManager.RecorderController.IsRecording();
             }
         }
+
         var color = streamingSampleMic.isSpeechDetected ? Color.green : Color.red;
         streamingSampleMic.microphoneRecord.vadIndicatorImage.color = color;
     }

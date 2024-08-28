@@ -33,6 +33,9 @@ public class KeyboardInput : MonoBehaviour
     private bool isReferenceMode = false;
     private bool isPositionMode = false;
     public string explanation;
+    
+    public bool segmentStarted = false; 
+    public bool activationConditionMet = false; 
 
     public Vector3 movement;
 
@@ -145,6 +148,13 @@ public class KeyboardInput : MonoBehaviour
         if (timelineManager.Paused)
         {
             timelineManager.Unpause();
+            
+            activationConditionMet = true; 
+            
+            if (segmentStarted && activationConditionMet && !jsonToLLM.isLogging)
+            {
+                jsonToLLM.isLogging = true;
+            }
         }
         else
         {
@@ -207,7 +217,7 @@ public class KeyboardInput : MonoBehaviour
     private void StartSegment()
     {
         timelineManager.isRecordingSegment = true;
-        jsonToLLM.isLogging = true;
+        segmentStarted = true;
         
         timelineManager.segmentCount++;
         
@@ -234,6 +244,8 @@ public class KeyboardInput : MonoBehaviour
     {
         timelineManager.isRecordingSegment = false;
         jsonToLLM.isLogging = false;
+        segmentStarted = false;
+        activationConditionMet = false; 
         GroundSelection groundSelection = GameObject.FindGameObjectWithTag("Ground").GetComponent<GroundSelection>();
         groundSelection.ClearGroundHighlights();
 
