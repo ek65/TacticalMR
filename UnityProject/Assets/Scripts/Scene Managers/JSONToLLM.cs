@@ -427,6 +427,7 @@ public class JSONToLLM : MonoBehaviour
     public void ResetSegmentData()
     {
         myRootSegment = new RootSegment();
+        isTranscriptionComplete = false;
         tokenDictionary.Clear();
         keyboard.explanation = "";
         Debug.Log("EXPLANATION AFTER RESET:");
