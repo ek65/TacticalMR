@@ -414,13 +414,6 @@ public class KeyboardInput : MonoBehaviour
         string baseText = "TRANSCRIPTION PROCESSING";
         int dotCount = 0;
         countdownText.fontSize = 100;
-        // RectTransform rectTransform = countdownText.GetComponent<RectTransform>();
-        // rectTransform.sizeDelta = new Vector2(Screen.width - 100, rectTransform.sizeDelta.y);
-        //
-        // rectTransform.anchorMin = new Vector2(0.5f, 0.5f); 
-        // rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
-        // rectTransform.pivot = new Vector2(0.5f, 0.5f); 
-        // rectTransform.anchoredPosition = Vector2.zero; 
 
         while (!jsonToLLM.isTranscriptionComplete) // Wait until transcription is done
         {
