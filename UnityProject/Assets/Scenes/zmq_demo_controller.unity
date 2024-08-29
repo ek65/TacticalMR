@@ -38,6 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
+  m_IndirectSpecularColor: {r: 0, g: 0, b: 0, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -532,7 +533,7 @@ MonoBehaviour:
   maxLengthSec: 100
   loop: 1
   frequency: 16000
-  chunksLengthSec: 0.5
+  chunksLengthSec: 0.2
   echo: 0
   useVad: 0
   vadUpdateRateSec: 0.05
@@ -943,8 +944,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1658017394}
   m_HandleRect: {fileID: 1658017393}
   m_Direction: 0
-  m_Value: 1
-  m_Size: 0.9999999
+  m_Value: 0
+  m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -3827,7 +3828,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.14533333}
   m_AnchorMax: {x: 0.70032245, y: 1}
-  m_AnchoredPosition: {x: -482.73804, y: -21.998169}
+  m_AnchoredPosition: {x: -482.738, y: -21.997192}
   m_SizeDelta: {x: -752.9071, y: -477.0649}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &1161327818
@@ -4033,7 +4034,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   logLevel: 2
-  modelPath: Whisper/ggml-base.en.bin
+  modelPath: Whisper/ggml-small.en.bin
   isModelPathInStreamingAssets: 1
   initOnAwake: 1
   language: en
@@ -4045,9 +4046,9 @@ MonoBehaviour:
   initialPrompt: I am a soccer coach that is going to explain a strategy, specifying 
     a condition to do an action and what action to take.  Do not output random links
     or "subscribe" messages.
-  stepSec: 1
-  keepSec: 0
-  lengthSec: 400
+  stepSec: 0.02
+  keepSec: 1
+  lengthSec: 300
   updatePrompt: 1
   dropOldBuffer: 1
   useVad: 0
@@ -4107,6 +4108,8 @@ MonoBehaviour:
   restarting: 0
   clickOrder: 0
   explanation: 
+  segmentStarted: 0
+  activationConditionMet: 0
   movement: {x: 0, y: 0, z: 0}
   canClick: 1
 --- !u!4 &1297644842
@@ -4251,9 +4254,9 @@ RectTransform:
   m_Father: {fileID: 2047078679}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 408.92007, y: -64}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 593.90735, y: 0}
   m_SizeDelta: {x: 0, y: 64}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1359183744
@@ -6643,7 +6646,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 2129545209}
   m_HandleRect: {fileID: 2129545208}
   m_Direction: 2
-  m_Value: 0
+  m_Value: 1
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
