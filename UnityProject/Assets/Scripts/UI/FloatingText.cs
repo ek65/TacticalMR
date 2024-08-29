@@ -23,4 +23,9 @@ public class FloatingText : MonoBehaviour
     {
         GetComponent<TextMesh>().text = "[ " + text + " ]";
     }
+    
+    public void SetText2(string text)
+    {
+        GetComponent<TextMesh>().text = text;
+    }
 }

@@ -62,10 +62,10 @@ public class ControllerInput : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (tlManager.Paused)
-        {
-            return;
-        }
+        // if (tlManager.Paused)
+        // {
+        //     return;
+        // }
         Movement();
         Rotate();
     }
@@ -88,18 +88,30 @@ public class ControllerInput : MonoBehaviour
     // Forcibly Take Possession of Ball from nearby player
     private void ControllerIntercept(InputAction.CallbackContext ctx)
     {
+        if (tlManager.Paused)
+        {
+            return;
+        }
         HumanInterface humanInterface = this.GetComponent<HumanInterface>();
         humanInterface.ForciblyGainPossession();
     }
     
     private void ControllerPass(InputAction.CallbackContext ctx)
     {
+        if (tlManager.Paused)
+        {
+            return;
+        }
         HumanInterface humanInterface = this.GetComponent<HumanInterface>();
         humanInterface.PassToPlayer();
     }
     
     private void ControllerThroughPass(InputAction.CallbackContext ctx)
     {
+        if (tlManager.Paused)
+        {
+            return;
+        }
         HumanInterface humanInterface = this.GetComponent<HumanInterface>();
         humanInterface.ThroughPass();
     }

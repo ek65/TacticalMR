@@ -86,7 +86,7 @@ public class HumanInterface : MonoBehaviour
             ball = GameObject.FindGameObjectWithTag("ball");
         }
         
-        floatingNameText.SetText(this.gameObject.name);
+        floatingNameText.SetText2(this.gameObject.name);
         
         forwardArrow = SpawnArrow(this.transform.position, transform.forward*7);
         forwardArrow.SetActive(false);
