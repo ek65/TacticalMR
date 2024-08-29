@@ -28,7 +28,7 @@ public class JSONToLLM : MonoBehaviour
     private Dictionary<float, string> manualTokenDictionary = new Dictionary<float, string>();
     public bool isLogging = false;
     private bool isAdjusted = false;
-    public int recordingNum = -1; // segmentNum
+    public int recordingNum;
     public bool voiceActivated = false;
     public bool videoIsRecording;
     private RecorderManager recorderManager;
@@ -467,14 +467,15 @@ public class JSONToLLM : MonoBehaviour
             }
         }, settings);
 
-        JSONDirectory jsonDirectory = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<JSONDirectory>();
-        
-        // DirectoryInfo jsonOutputFolder = new DirectoryInfo(Path.Combine(Application.dataPath, "..", "SampleJsons"));
-        filename = jsonDirectory.InstantiateJSONSegmentFilePath(recordingNum) + ".json";
+        var jsonOutputFolder = new DirectoryInfo(Path.Combine(Application.dataPath, "..", "SampleJsons"));
+        filename = jsonOutputFolder.FullName + "/" + "segment" + recordingNum.ToString() + ".json";
+
         
         File.WriteAllText(filename, jsonString);
         isAdjusted = false;
         Debug.Log($"Segment written to {filename}");
+        
+        recordingNum++;
     }
 
     
