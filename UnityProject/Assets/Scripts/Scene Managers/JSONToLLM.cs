@@ -442,6 +442,7 @@ public class JSONToLLM : MonoBehaviour
     public void CreateJSONString()
     {
         recordingNum++;
+        JSONDirectory jsonDirectory = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<JSONDirectory>();
         
         // Build the sentence before creating JSON
         keyboard.explanation = BuildSentenceFromTokens(tokenDictionary);
@@ -459,7 +460,7 @@ public class JSONToLLM : MonoBehaviour
         {
             scene = new
             {
-                id = "typical_1v1",
+                id = jsonDirectory.drillID,
                 language = keyboard.explanation,
                 step = 0.02,
                 objects = myRootSegment.objects,
@@ -469,8 +470,6 @@ public class JSONToLLM : MonoBehaviour
             }
         }, settings);
 
-        JSONDirectory jsonDirectory = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<JSONDirectory>();
-        
         // DirectoryInfo jsonOutputFolder = new DirectoryInfo(Path.Combine(Application.dataPath, "..", "SampleJsons"));
         filename = jsonDirectory.InstantiateJSONSegmentFilePath(recordingNum) + ".json";
         
