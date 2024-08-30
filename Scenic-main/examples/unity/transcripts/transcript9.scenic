@@ -11,7 +11,7 @@ import random
 penalty_box = MeshVolumeRegion(trimesh.creation.box((1, 1, 1)), dimensions = (4, 2, .1), position = (5, -1.5, 0))
 timestep = 0.1
 pt = new OrientedPoint at (0,0,0)
-midfielderPos = Vector(Range(-1.5,-2), 1, 0)
+midfielderPos = Vector(Range(-1.5,-2), -2, 0)
 destPosMid = Vector(midfielderPos.x - 3, midfielderPos.y, midfielderPos.z)
 
 behavior leftBackBehavior():
@@ -85,9 +85,12 @@ opponent_C = new Player at (Range(-4,-5), Range(3,4)),
         facing teamGoal
 
 opponent_D = new Player at (Range(2,4), Range(3.5,4.5)),
-        with name "opponent_d",
+        with name "opponent_D",
         facing teamGoal
 
+opponent_E = new Player at (Range(0,1), Range(0,1)),
+        with name "opponent_E",
+        facing teamGoal
 
 goalie = new Player behind teamGoal by 0.5,
     facing pt,
