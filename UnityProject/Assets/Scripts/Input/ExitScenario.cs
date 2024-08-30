@@ -126,7 +126,10 @@ public class ExitScenario : MonoBehaviour
     // sends endScenario to JSONStatusMaker.cs
     public void EndScenario()
     {
-        GameObject.FindGameObjectWithTag("goal").GetComponent<ParticleSystem>().Stop();
+        if (GameObject.FindGameObjectWithTag("goal"))
+        {
+            GameObject.FindGameObjectWithTag("goal").GetComponent<ParticleSystem>().Stop();
+        }
         endScenario = true;
         // bodyTrackingTarget.transform.parent = playerHuman.transform;
         // bodyTrackingTarget.GetComponent<OVRBody>().enabled = true;
