@@ -49,6 +49,7 @@ class Ball(UnityObject):
 
 class Goal(UnityObject):
     gameObjectType: "goal"
+    name: "goal"
     width: 1
     length : 1
     height : 1
