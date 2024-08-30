@@ -25,19 +25,17 @@ behavior opponent1Behavior(pt):
 
 
 behavior teammateBehavior():
+    passed = False
     try:
         do MoveTo(ball.position) 
         do Idle() for 2 seconds
         do GroundPassFast(ego.position)
-        do Idle() for 3 seconds
-
-    interrupt when hasBallPosession(self):
-        do Idle() for 2 seconds 
-        coachPos = ego.position
-        do MoveTo(coachPos) for 1 seconds
-        do GroundPassFast(coachPos)
-        print("passing ball again")
+        passed = True
         do Idle()
+
+    interrupt when hasBallPosession(self) and passed:
+        pos = inBetween(opponent, opponent2)
+        do GroundPassFast(pos)
     
 egoY = Range(4,4)
 ego = new Human at (-2, egoY,0)
