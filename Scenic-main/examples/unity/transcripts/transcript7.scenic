@@ -31,7 +31,6 @@ behavior teammateBehavior():
         do GroundPassFast(ego.position)
         do Idle() for 3 seconds
 
-    
     interrupt when hasBallPosession(self):
         do Idle() for 2 seconds 
         coachPos = ego.position
