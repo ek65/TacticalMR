@@ -25,7 +25,7 @@ behavior midfielder2Behavior():
     try: 
         do Idle()
     interrupt when hasBallPosession(goalie):
-        do MoveTo(ego.position) until (distance from self to ego < 1)
+        do MoveTo(centerBack.position) until (distance from self to centerBack < 1)
         do Idle()
 
 behavior opponentCbehavior():
@@ -58,13 +58,14 @@ behavior leftBackBehavior():
         do GroundPassFast(goalie.position)
         do Idle()
 
-behavior rightBackBehavior():
+behavior centerBackBehavior():
     try: 
         do Idle()
-    interrupt when distance from midfielder2 to ego < 1:
-        do Idle() for 1 seconds
-        do MoveTo(Vector(self.position.x + 1.5, self.position.y + 1.5, self.position.z))
+    interrupt when distance from self to midfielder2 < 1.5:
+        do Idle() for 4 seconds
+        do MoveTo(Vector(self.position.x + 3, self.position.y - 2.5, self.position.z))
         do Idle()
+
 
 
 behavior goalieBehavior():
@@ -75,27 +76,22 @@ behavior goalieBehavior():
     interrupt when hasBallPosession(opponent_A):
         do Idle() 
 
-ego = new Human at (0, Range(-10,-11), 0), with name 'centerBack'
+ego = new Human at (Range(5.5, 6), -9, 0), with name 'rightback'
 
 leftback = new Player at (Range(-5.5,-6), -9, 0), 
         with name "leftback",
         with team "blue",
         with behavior leftBackBehavior()
 
-midfielder2 = new Player ahead of ego by 2, 
-        with name "midfielder2",
-        with team "blue",
-        with behavior midfielder2Behavior()
-
-centerBack = new Player behind midfielder2 by 1,
+centerBack = new Player at (0, Range(-10,-11), 0),
         with name "centerBack",
         with team "blue",
         with behavior centerBackBehavior()
 
-rightback = new Player at (Range(5.5, 6), -9, 0), 
-        with name "rightback",
+midfielder2 = new Player ahead of centerBack by 2, 
+        with name "midfielder2",
         with team "blue",
-        with behavior rightBackBehavior()
+        with behavior midfielder2Behavior()
 
 midfielder1 = new Player at midfielderPos, 
         with name "midfielder1",
