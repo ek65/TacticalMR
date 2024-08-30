@@ -10,66 +10,93 @@ import random
 
 penalty_box = MeshVolumeRegion(trimesh.creation.box((1, 1, 1)), dimensions = (4, 2, .1), position = (5, -1.5, 0))
 timestep = 0.1
+pt = new OrientedPoint at (0,0,0)
+midfielderPos = Vector(Range(-1.5,-2), 1, 0)
+destPosMid = Vector(midfielderPos.x - 3, midfielderPos.y, midfielderPos.z)
 
-footed = DiscreteRange(-1, 1)
-
-pressingDistance = 3.5 #Uniform(4, 5)
-shootingDistance = Uniform(4, 8)
-first_possession = False
-
-behavior opponent1Behavior(pt):
-    do Idle()
-
-
-behavior teammateBehavior():
-    try:
-        do MoveTo(ball.position) 
-        do Idle() for 2 seconds
-        do GroundPassFast(ego.position)
-        do Idle() for 3 seconds
-
-    interrupt when hasBallPosession(self):
-        do Idle() for 2 seconds 
-        coachPos = ego.position
-        do MoveTo(coachPos) for 1 seconds
-        do GroundPassFast(coachPos)
-        print("passing ball again")
+behavior leftBackBehavior():
+    try: 
         do Idle()
-    
-egoY = Range(4,4)
-ego = new Human at (-2, egoY,0)
+    interrupt when (hasBallPosession(self) and (distance from ego to leftback < 7)):
+        do GroundPassFast(ego.position)
+        do Idle()
 
-pt = new Point offset by (Range(-3,3), Range(-1,0))
+behavior midfielder2Behavior():
+    try: 
+        do Idle()
+    interrupt when hasBallPosession(leftback):
+        do Idle() for 1 seconds
+        do MoveTo(destPosMid)
+        do Idle()
 
-oppY = Range(5,6)
-opponent = new Player at (0,oppY,0),
-                facing toward ego,
-                with behavior opponent1Behavior(pt),
-                with name "opponent_A"
+behavior opponentAbehavior():
+    try: 
+        do Idle()
+    interrupt when hasBallPosession(leftback):
+        do SetSpeed(0.5)
+        do MoveTo(leftback.position) until (distance from self to leftback < 2)
+
+behavior goalieBehavior():
+    try: 
+        do Idle() for 1 seconds
+        do GroundPassFast(leftback.position)
+        do Idle() 
+    interrupt when hasBallPosession(leftback):
+        do MoveTo(Vector(self.position.x - 2, self.position.y, self.position.z))
+        do Idle() 
 
 
-opponent2 = new Player at (-3,oppY,0),
-                facing toward ego,
-                with behavior opponent1Behavior(pt),
-                with name "opponent_B"
 
-opponent3 = new Player at (3,oppY,0),
-                facing toward ego,
-                with behavior opponent1Behavior(pt),
-                with name "opponent_C"
+ego = new Human at (Range(0.4,1), Range(1.5,1.9),0), with name 'midfielder2'
+
+leftback = new Player at (Range(-5.5,-6), -9, 0), 
+        with name "leftback",
+        with team "blue",
+        with behavior leftBackBehavior()
+
+rightback = new Player at (Range(5.5, 6), -9, 0), 
+        with name "rightback",
+        with team "blue"
+
+midfielder1 = new Player at midfielderPos, 
+        with name "midfielder1",
+        with team "blue",
+        with behavior midfielder2Behavior()
+
+centerBack = new Player at (0, Range(-9,-10), 0), 
+        with name "centerBack",
+        with team "blue"
+
+opponentGoal = new Goal at (0,16,0), 
+    facing away from pt,
+    with name "opponentGoal"
+
+teamGoal= new Goal at (0,-16,0), 
+    with name "teamGoal",
+    facing away from pt
+
+opponent_A = new Player at (Range(-4,-5), Range(-4,-5)),
+        with name "opponent_A",
+
+opponent_B = new Player at (Range(2,4), Range(-4,-5)),
+        with name "opponent_B"
+
+opponent_C = new Player at (Range(-4,-5), Range(3,4)),
+        with name "opponent_C",
+        facing teamGoal
+
+opponent_D = new Player at (Range(2,4), Range(3.5,4.5)),
+        with name "opponent_d",
+        facing teamGoal
 
 
-opponent4= new Player at (6,oppY,0),
-                facing toward ego,
-                with behavior opponent1Behavior(pt),
-                with name "opponent_D"
+goalie = new Player behind teamGoal by 0.5,
+    facing pt,
+    with name "goalie",
+    with team "blue",
+    with behavior goalieBehavior()
 
-teammate = new Player ahead of opponent2 by Range(4.5,5),
-            facing toward ego,
-            with behavior teammateBehavior(),
-            with name "teammate",
-            with team "blue"
 
-ball = new Ball ahead of teammate 
+ball = new Ball ahead of goalie
 
 terminate when (ego.gameObject.stopButton)
