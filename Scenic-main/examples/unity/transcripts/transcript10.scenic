@@ -14,44 +14,48 @@ pt = new OrientedPoint at (0,0,0)
 midfielderPos = Vector(Range(-1.5,-2), 1, 0)
 destPosMid = Vector(midfielderPos.x - 3, midfielderPos.y, midfielderPos.z)
 
-behavior leftBackBehavior():
-    try: 
-        do Idle()
-    interrupt when (hasBallPosession(self) and (distance from ego to leftback < 7)):
-        do GroundPassFast(ego.position)
-        do Idle()
 
 behavior midfielder1Behavior():
     try: 
         do Idle()
-    interrupt when hasBallPosession(leftback):
-        do Idle() for 1 seconds
+    interrupt when hasBallPosession(ego):
         do MoveTo(destPosMid)
         do Idle()
+
+behavior midfielder2Behavior():
+    try: 
+        do Idle()
+    interrupt when hasBallPosession(ego):
+        do MoveTo(mfTwoPos.position)
+        do Idle()
+    interrupt when hasBallPosession(self):
+        do GroundPassFast(midfielder1.position)
+        do Idle()
+
 
 behavior opponentAbehavior():
     try: 
         do Idle()
-    interrupt when hasBallPosession(leftback):
+    interrupt when hasBallPosession(ego):
         do SetSpeed(0.5)
-        do MoveTo(leftback.position) until (distance from self to leftback < 2)
+        do MoveTo(ego.position) until (distance from self to ego < 2)
 
 behavior goalieBehavior():
     try: 
         do Idle() for 1 seconds
-        do GroundPassFast(leftback.position)
+        do GroundPassFast(ego.position)
         do Idle() 
-    interrupt when hasBallPosession(leftback):
+    interrupt when hasBallPosession(ego):
         do MoveTo(Vector(self.position.x - 2, self.position.y, self.position.z))
         do Idle() 
 
+ego = new Human at (Range(-5.5,-6), -9, 0), with name 'leftback'
 
-ego = new Human at (Range(0.4,1), Range(1.5,1.9),0), with name 'midfielder2'
 
-leftback = new Player at (Range(-5.5,-6), -9, 0), 
-        with name "leftback",
+midfielder2 = new Player at (Range(0.4,1), Range(1.5,1.9),0), 
+        with name "midfielder2",
         with team "blue",
-        with behavior leftBackBehavior()
+        with behavior midfielder2Behavior()
 
 rightback = new Player at (Range(5.5, 6), -9, 0), 
         with name "rightback",
@@ -65,6 +69,8 @@ midfielder1 = new Player at midfielderPos,
 centerBack = new Player at (0, Range(-9,-10), 0), 
         with name "centerBack",
         with team "blue"
+
+mfTwoPos = new OrientedPoint ahead of centerBack by Range(1.5,2)
 
 opponentGoal = new Goal at (0,16,0), 
     facing away from pt,
