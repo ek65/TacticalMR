@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.ConstrainedExecution;
 using OpenAI.Samples.Chat;
 using Pathfinding;
@@ -922,12 +923,14 @@ public class ActionAPI : MonoBehaviour
     // called from animation event
     public void MoveBall()
     {
-        if (this.GetComponent<PlayerInterface>() != null)
+        PlayerInterface pI = GetComponent<PlayerInterface>();
+        HumanInterface hI = GetComponent<HumanInterface>();
+        if (pI)
         {
-            this.GetComponent<PlayerInterface>().LosePossession();
-        } else if (this.GetComponent<HumanInterface>() != null)
+            pI.LosePossession();
+        } else if (hI)
         {
-            this.GetComponent<HumanInterface>().LosePossession();
+            hI.LosePossession();
         }
         
         Vector3 ballMotionVector = finalPos - soccerBall.transform.position;
@@ -936,6 +939,84 @@ public class ActionAPI : MonoBehaviour
         soccerBall.GetComponent<Rigidbody>().AddForce(forceDirection * forceMagnitude * forceFactor);
         Debug.Log("in moveball");
         Debug.Log("force:" + forceDirection * forceMagnitude * forceFactor);
+        
+        // find closest opponent within 0.1m of the ball. if there is an opponent, then the ball was passed to them (for non-human player only)
+        if (pI)
+        {
+            GameObject closestPlayer = FindClosestPlayerToFinalPos(finalPos);
+            if (closestPlayer != null)
+            {
+                KeyboardInput keyboardInput = GameObject.FindGameObjectWithTag("keyboard").GetComponent<KeyboardInput>();
+                JSONToLLM jsonToLLM = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<JSONToLLM>();
+
+                int passID = keyboardInput.clickOrder;
+                float passTime = jsonToLLM.time;
+            
+                keyboardInput.annotation.Add(passID, new Dictionary<string, object>
+                {
+                    { "type", "Pass" },
+                    { "from", this.name },
+                    { "to", closestPlayer.name }
+                });
+
+                keyboardInput.annotationDescriptions.Add(passID, $"({this.name} passed to {closestPlayer.name})");
+                keyboardInput.annotationTimes.Add(passID, passTime);
+                Debug.Log($"Pass action recorded with ID {passID}, from: {this.name} to: {closestPlayer.name} at time: {passTime}");
+                keyboardInput.clickOrder++; 
+            } else if (closestPlayer == null)
+            {
+                KeyboardInput keyboardInput = GameObject.FindGameObjectWithTag("keyboard").GetComponent<KeyboardInput>();
+                JSONToLLM jsonToLLM = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<JSONToLLM>();
+
+                int passID = keyboardInput.clickOrder;
+                float passTime = jsonToLLM.time;
+
+                var pointDict = new Dictionary<string, float>
+                {
+                    { "x", finalPos.x },
+                    { "y", finalPos.z }
+                };
+                keyboardInput.annotation.Add(passID, new Dictionary<string, object>
+                {
+                    { "type", "Through Pass" },
+                    { "point", pointDict }
+                });
+        
+                keyboardInput.annotationDescriptions.Add(passID, $"({this.name} passed to position: {pointDict})");
+    
+                keyboardInput.annotationTimes.Add(passID, passTime);
+                Debug.Log($"Through Pass action recorded with ID {passID} at time: {passTime}");
+                keyboardInput.clickOrder++; 
+            }
+
+        }
+    }
+
+    public GameObject FindClosestPlayerToFinalPos(Vector3 pos)
+    {
+        ObjectsList objectList = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<ObjectsList>();
+        List<GameObject> players = objectList.scenicPlayers.Concat(objectList.humanPlayers).ToList();
+        GameObject bestTarget = null;
+        float closestDistanceSqr = Mathf.Infinity;
+        foreach (GameObject player in players)
+        {
+            Vector3 directionToTarget = player.transform.position - pos;
+            float dSqrToTarget = directionToTarget.sqrMagnitude;
+            if (dSqrToTarget < closestDistanceSqr)
+            {
+                closestDistanceSqr = dSqrToTarget;
+                bestTarget = player;
+            }
+        }
+        
+        if (closestDistanceSqr < 0.1f)
+        {
+            return bestTarget;
+        }
+        else
+        {
+            return null;
+        }
     }
     
     // set already in animation. mainly for pass and shoot animations (called from animation event)

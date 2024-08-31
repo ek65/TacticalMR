@@ -25,7 +25,7 @@ public class KeyboardInput : MonoBehaviour
     public bool restarting = false;
 
     public Dictionary<int, object> annotation = new Dictionary<int, object>();
-    private Dictionary<int, string> annotationDescriptions = new Dictionary<int, string>();
+    public Dictionary<int, string> annotationDescriptions = new Dictionary<int, string>();
     private Dictionary<GameObject, int> objectToKey = new Dictionary<GameObject, int>();
     public Dictionary<int, float> annotationTimes = new Dictionary<int, float>();
     public int clickOrder = 0;
@@ -361,7 +361,8 @@ public class KeyboardInput : MonoBehaviour
                 {
                     { "id", id.ToString() },
                     { "type", actionType },
-                    { "obj", actionData["obj"] }
+                    { "from", actionData["from"] },
+                    { "to", actionData["to"] }
                 });
             }
             else if (actionType == "Through Pass")
@@ -374,6 +375,9 @@ public class KeyboardInput : MonoBehaviour
                     { "point", point }
                 });
             }
+        } else if (value is Dictionary<string, object[]> actionData2)
+        {
+            
         }
     }
 
