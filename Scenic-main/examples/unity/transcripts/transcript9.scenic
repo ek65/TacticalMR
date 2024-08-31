@@ -46,7 +46,7 @@ behavior goalieBehavior():
         do Idle() 
 
 
-ego = new Human at (Range(0.4,1), Range(1.5,1.9),0), with name 'midfielder2'
+ego = new Human at (Range(0.4,1), Range(1.5,1.9),0), with name 'coach'
 
 leftback = new Player at (Range(-5.5,-6), -9, 0), 
         with name "leftback",
@@ -58,7 +58,7 @@ rightback = new Player at (Range(5.5, 6), -9, 0),
         with team "blue"
 
 midfielder1 = new Player at midfielderPos, 
-        with name "midfielder1",
+        with name "midfielder",
         with team "blue",
         with behavior midfielder1Behavior()
 
@@ -88,13 +88,13 @@ opponent_D = new Player at (Range(2,4), Range(3.5,4.5)),
         with name "opponent_D",
         facing teamGoal
 
-opponent_E = new Player at (Range(0,1), Range(0,1)),
+opponent_E = new Player at (Range(0,2), Range(0,2)),
         with name "opponent_E",
         facing teamGoal
 
 goalie = new Player behind teamGoal by 0.5,
     facing pt,
-    with name "goalie",
+    with name "goalkeeper",
     with team "blue",
     with behavior goalieBehavior()
 

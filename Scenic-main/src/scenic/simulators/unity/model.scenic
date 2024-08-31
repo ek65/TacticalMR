@@ -4,7 +4,7 @@ This is how scenic actually grabs information.
 from scenic.simulators.unity.simulator import UnitySimulator
 # from scenic.simulators.unity.behaviors import *
 from scenic.simulators.unity.client import gameObject
-from scenic.core.vectors import Orientation
+from scenic.core.vectors import Orientation, Vector
 param unity_map = None
 # param address = '10.57.155.29'
 param address = 'localhost'
@@ -314,4 +314,18 @@ def orientWaist(player: Player, angle: int) -> None:
 #     Returns:
 #     bool: True if the object is within the specified bounds, False otherwise.
 #     '''
+
+def inBetween(object1: UnityObject | Vector, object2: UnityObject | Vector) -> Vector:
+    ''' 
+    compute a center position in between two objects. 
+    Args:
+    object1 (Player)
+    object1: (Player)
     
+    Returns: Vector
+    '''
+
+    pos1 = object1 if isinstance(object1, Vector) else object1.position
+    pos2 = object2 if isinstance(object2, Vector) else object2.position
+    pos = (pos1+pos2) / 2
+    return pos
