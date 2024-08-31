@@ -4064,7 +4064,7 @@ MonoBehaviour:
     or "subscribe" messages.
   stepSec: 0.1
   keepSec: 0
-  lengthSec: 300
+  lengthSec: 500
   updatePrompt: 1
   dropOldBuffer: 1
   useVad: 0
