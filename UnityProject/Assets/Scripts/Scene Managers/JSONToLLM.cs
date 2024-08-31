@@ -265,7 +265,7 @@ public class JSONToLLM : MonoBehaviour
         Goal rightGoalPost = (Goal)myRootSegment.objects.Find(obj => obj is Goal g && g.id == "goal_rightpost");
         if (rightGoalPost == null)
         {
-            rightGoalPost = new Goal { id =  "goal_rightpost", type = "Goal" };
+            rightGoalPost = new Goal { id =  "goal_rightpost", type = "Bound" };
             myRootSegment.objects.Add(rightGoalPost);
         }
 
