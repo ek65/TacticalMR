@@ -233,8 +233,6 @@ public class ActionAPI : MonoBehaviour
 
     public void GroundPassFast(Vector3 destinationPosition)
     {
-        
-        // Debug.LogError("in gpf");
         stopMovement = true;
         if (this.GetComponent<Animator>().enabled == false)
         {
@@ -923,8 +921,24 @@ public class ActionAPI : MonoBehaviour
     // called from animation event
     public void MoveBall()
     {
+        Debug.LogError("IN MOVE BALL");
         PlayerInterface pI = GetComponent<PlayerInterface>();
         HumanInterface hI = GetComponent<HumanInterface>();
+
+        if (pI)
+        {
+            if (pI.ballPossession == false)
+            {
+                return;
+            }
+        } else if (hI)
+        {
+            if (hI.ballPossession == false)
+            {
+                return;
+            }
+        }
+        
         if (pI)
         {
             pI.LosePossession();
@@ -979,7 +993,8 @@ public class ActionAPI : MonoBehaviour
                 keyboardInput.annotation.Add(passID, new Dictionary<string, object>
                 {
                     { "type", "Through Pass" },
-                    { "point", pointDict }
+                    { "from", this.name},
+                    { "to", pointDict }
                 });
         
                 keyboardInput.annotationDescriptions.Add(passID, $"({this.name} passed to position: {pointDict})");

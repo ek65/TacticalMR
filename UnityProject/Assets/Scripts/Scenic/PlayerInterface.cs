@@ -179,6 +179,16 @@ public class PlayerInterface : MonoBehaviour
         if (data.actionFunc != null)
         {
             currAction = data.actionFunc;
+            
+            // check for if player already kicked recently, skip this action
+            if (currAction == "GroundPassFast" || currAction == "Shoot")
+            {
+                if (!canKickBall)
+                {
+                    return;
+                }
+            }
+            
             Type type = actionAPI.GetType();
             MethodInfo method = type.GetMethod(data.actionFunc);
             // Debug.Log("here12");
