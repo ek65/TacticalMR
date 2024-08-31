@@ -27,7 +27,7 @@ behavior opponent1Behavior(pt):
 behavior teammateBehavior():
     passed = False
     try:
-        do MoveTo(ball.position) 
+        do MoveTo(ball) 
         do Idle() for 2 seconds
         do GroundPassFast(ego.position)
         passed = True

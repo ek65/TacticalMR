@@ -32,8 +32,11 @@ behavior LookAt(vec : Vector):
 
 behavior MoveTo(v, status=""):
     dist = 1000
-    while not (dist < 0.2):
-        take MoveToAction(v, status), LookAtAction(ball)
+    while not (dist < 0.5):
+        if isinstance(v, Ball):
+            take MoveToAction(v.position, status)
+        else:
+            take MoveToAction(v.position, status), LookAtAction(v)
         dist = distance from self to v
 
 behavior ApproachGoal(v):
