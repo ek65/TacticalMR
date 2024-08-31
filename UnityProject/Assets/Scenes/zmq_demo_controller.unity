@@ -3844,7 +3844,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.14533333}
   m_AnchorMax: {x: 0.70032245, y: 1}
-  m_AnchoredPosition: {x: -482.738, y: -21.997192}
+  m_AnchoredPosition: {x: -482.73804, y: -28.344696}
   m_SizeDelta: {x: -752.9071, y: -477.0649}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &1161327818
@@ -4050,7 +4050,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   logLevel: 2
-  modelPath: Whisper/ggml-tiny.en-q8_0.bin
+  modelPath: Whisper/ggml-tiny.en.bin
   isModelPathInStreamingAssets: 1
   initOnAwake: 1
   language: en
@@ -4272,7 +4272,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 515.4356, y: 0}
+  m_AnchoredPosition: {x: 452.14355, y: 0}
   m_SizeDelta: {x: 0, y: 64}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1359183744
@@ -6662,7 +6662,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 2129545209}
   m_HandleRect: {fileID: 2129545208}
   m_Direction: 2
-  m_Value: 1
+  m_Value: 0
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:

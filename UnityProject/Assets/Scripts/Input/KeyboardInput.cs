@@ -420,13 +420,13 @@ public class KeyboardInput : MonoBehaviour
         int dotCount = 0;
         countdownText.fontSize = 150;
 
-        while (!jsonToLLM.isTranscriptionComplete) // Wait until transcription is done
+        while (!jsonToLLM.isTranscriptionComplete) 
         {
-            dotCount = (dotCount + 1) % 4; // Cycle through 0 to 3 dots
+            dotCount = (dotCount + 1) % 4; 
             countdownText.text = baseText + new string('.', dotCount);
-            yield return new WaitForSeconds(0.5f); // Adjust the speed of the dots if needed
+            yield return new WaitForSeconds(1f); 
         }
-        yield return new WaitForSeconds(4);
+        
         countdownText.gameObject.SetActive(false);
         countdownText.color = Color.red;
         if (!restarting)

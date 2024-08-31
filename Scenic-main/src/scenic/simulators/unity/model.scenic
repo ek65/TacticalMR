@@ -23,6 +23,7 @@ simulator UnitySimulator(
     render=True,
     timestep=float(globalParameters.timestep)
 )
+
 class UnityObject:
     position : (0,0,0)
     prevPosition: (0,0,0)
@@ -315,17 +316,17 @@ def orientWaist(player: Player, angle: int) -> None:
 #     bool: True if the object is within the specified bounds, False otherwise.
 #     '''
 
-def inBetween(object1: UnityObject | Vector, object2: UnityObject | Vector) -> Vector:
-    ''' 
-    compute a center position in between two objects. 
-    Args:
-    object1 (Player)
-    object1: (Player)
+# def inBetween(object1: UnityObject | Vector, object2: UnityObject | Vector) -> Vector:
+#     ''' 
+#     compute a center position in between two objects. 
+#     Args:
+#     object1 (Player)
+#     object1: (Player)
     
-    Returns: Vector
-    '''
+#     Returns: Vector
+#     '''
 
-    pos1 = object1 if isinstance(object1, Vector) else object1.position
-    pos2 = object2 if isinstance(object2, Vector) else object2.position
-    pos = (pos1+pos2) / 2
-    return pos
+#     pos1 = object1 if isinstance(object1, Vector) else object1.position
+#     pos2 = object2 if isinstance(object2, Vector) else object2.position
+#     pos = (pos1+pos2) / 2
+#     return pos
