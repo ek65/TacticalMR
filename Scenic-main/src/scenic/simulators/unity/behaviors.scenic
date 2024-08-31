@@ -32,8 +32,8 @@ behavior LookAt(vec : Vector):
 
 behavior MoveTo(v, status=""):
     dist = 1000
-    while not (dist < 0.5):
-        take MoveToAction(v, status)
+    while not (dist < 0.2):
+        take MoveToAction(v, status), LookAtAction(ball)
         dist = distance from self to v
 
 behavior ApproachGoal(v):
@@ -89,27 +89,27 @@ behavior moveTo(player: Player, target: Coordinate, ref: list, speed: Speed):
 
     while (distance from self to target_position > 0.01):
         target_position = target.predict(ref)
-        take MoveToWithSpeed(target_position, target_speed)
+        take MoveToWithSpeed(target_position, target_speed), LookAtAction(ball)
 
-behavior getTo(destination):
-    while (distance from self to destination > 0.01):
-        # take MoveToAction(destination)
-        take MoveToLookAtBallWithSpeed(destination, 2.0)
+# behavior getTo(destination):
+#     while (distance from self to destination > 0.01):
+#         # take MoveToAction(destination)
+#         take MoveToLookAtBallWithSpeed(destination, 2.0)
 
 
-behavior moveToLookAtBall(player: Player, target: Coordinate, ref: list, speed: Speed):
-    """
-    A player will move to the specified target with a specified velocity and style.
-    Args:
-        targetPosition (Vector): A position of the end point of the trajectory.
-        style (MovingStyle): A moving style out of the options ‘walk’, ‘run’ and ‘sprint’.
-        velocity (float): The velocity to move to the target.
-    """
-    target_position = target.predict(ref)
-    target_speed = speed.predict()
-    while (distance from self to target_position > 0.05):
-        target_position = target.predict(ref)
-        take MoveToLookAtBallWithSpeed(target_position, target_speed)
+# behavior moveToLookAtBall(player: Player, target: Coordinate, ref: list, speed: Speed):
+#     """
+#     A player will move to the specified target with a specified velocity and style.
+#     Args:
+#         targetPosition (Vector): A position of the end point of the trajectory.
+#         style (MovingStyle): A moving style out of the options ‘walk’, ‘run’ and ‘sprint’.
+#         velocity (float): The velocity to move to the target.
+#     """
+#     target_position = target.predict(ref)
+#     target_speed = speed.predict()
+#     while (distance from self to target_position > 0.05):
+#         target_position = target.predict(ref)
+#         take MoveToLookAtBallWithSpeed(target_position, target_speed)
 
 # MARK: faceTowards
 # TODO: Need to Create an Action to called "FaceTowards"

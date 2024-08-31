@@ -58,7 +58,7 @@ class Goal(UnityObject):
 class Player(UnityObject):
     gameObjectType : "player"
     width : 1.0
-    length : 2.0
+    length : 1.0
     height : 1.0
     team : "red"
     path : None
@@ -111,10 +111,9 @@ class AIAgent(UnityObject):
 
 
 # MARK: movingTowards
-def movingTowards(refObject: UnityObject, targetObject: UnityObject) -> bool:
+def isMovingTowards(refObject: UnityObject, targetObject: UnityObject) -> bool:
     """
-    Determines if the reference object (refObj) is moving towards the 
-    target object.
+    Determines if the reference object (refObj) is moving towards the target object.
 
     Args:
     refObject (Object): The reference object whose movement is being evaluated.
@@ -143,7 +142,7 @@ def movingTowards(refObject: UnityObject, targetObject: UnityObject) -> bool:
 
     dot_product = unit_moveDir.x * unit_direction.x + unit_moveDir.y * unit_direction.y + unit_moveDir.z * unit_direction.z
 
-    return dot_product > 0.75
+    return False
 
 
 def positionInLine(start: Vector, end: Vector, distance: float) -> Vector:
@@ -330,3 +329,5 @@ def inBetween(object1: UnityObject | Vector, object2: UnityObject | Vector) -> V
     pos2 = object2 if isinstance(object2, Vector) else object2.position
     pos = (pos1+pos2) / 2
     return pos
+
+    
