@@ -421,9 +421,6 @@ public class KeyboardInput : MonoBehaviour
             yield return new WaitForSeconds(0.5f); // Adjust the speed of the dots if needed
         }
         yield return new WaitForSeconds(2);
-        // countdownText.color = Color.blue; // Set the color to blue when the transcription is complete
-        // countdownText.fontSize = 60;
-        // countdownText.text = "READY TO CONTINUE";
         countdownText.gameObject.SetActive(false);
         countdownText.color = Color.white;
         if (!restarting)
