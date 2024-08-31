@@ -227,11 +227,14 @@ public class HumanInterface : MonoBehaviour
         keyboardInput.annotation.Add(passID, new Dictionary<string, object>
         {
             { "type", "Pass" },
-            { "obj", targetPlayer.name }
+            { "from", this.name },
+            { "to", targetPlayer.name }
         });
 
+        keyboardInput.annotationDescriptions.Add(passID, $"({this.name} passed to {targetPlayer.name})");
+        
         keyboardInput.annotationTimes.Add(passID, passTime);
-        Debug.Log($"Pass action recorded with ID {passID}, obj: {targetPlayer.name} at time: {passTime}");
+        Debug.Log($"Pass action recorded with ID {passID}, from: {this.name} to: {targetPlayer.name} at time: {passTime}");
         keyboardInput.clickOrder++; 
     }
 
@@ -250,6 +253,8 @@ public class HumanInterface : MonoBehaviour
             { "type", "Through Pass" },
             { "point", pointDict }
         });
+        
+        keyboardInput.annotationDescriptions.Add(passID, $"({this.name} passed to position: {pointDict})");
     
         keyboardInput.annotationTimes.Add(passID, passTime);
         Debug.Log($"Through Pass action recorded with ID {passID} at time: {passTime}");
