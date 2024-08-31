@@ -410,9 +410,11 @@ public class KeyboardInput : MonoBehaviour
     private IEnumerator ProcessingTranscript()
     {
         countdownText.gameObject.SetActive(true);
+        countdownText.color = Color.red;
         string baseText = "TRANSCRIPTION PROCESSING";
+        
         int dotCount = 0;
-        countdownText.fontSize = 100;
+        countdownText.fontSize = 150;
 
         while (!jsonToLLM.isTranscriptionComplete) // Wait until transcription is done
         {
@@ -422,7 +424,7 @@ public class KeyboardInput : MonoBehaviour
         }
         yield return new WaitForSeconds(2);
         countdownText.gameObject.SetActive(false);
-        countdownText.color = Color.white;
+        countdownText.color = Color.red;
         if (!restarting)
         {
             Debug.LogError("in not restarting");

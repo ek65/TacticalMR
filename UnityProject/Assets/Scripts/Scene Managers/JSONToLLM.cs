@@ -340,13 +340,13 @@ public class JSONToLLM : MonoBehaviour
         {
             string text = tokenEntry.Value[0] as string;
 
-            List<string> unwantedTokens = new List<string>
-                { "BL", "ANK", "AUD", "IO", "_", "@", ".com" };
-
-            if (unwantedTokens.Any(unwanted => text.Contains(unwanted)))
-            {
-                continue;
-            }
+            // List<string> unwantedTokens = new List<string>
+            //     { "BL", "ANK", "AUD", "IO", "_", "@", ".com" };
+            //
+            // if (unwantedTokens.Any(unwanted => text.Contains(unwanted)))
+            // {
+            //     continue;
+            // }
 
             text = text.Trim();
 
@@ -378,7 +378,8 @@ public class JSONToLLM : MonoBehaviour
         List<List<string>> sequencesToRemove = new List<List<string>>
         {
             new List<string> { "[", "BL", "ANK", "_", "AUD", "IO", "]" },
-            new List<string> { "Thank", "you", "." }
+            new List<string> { "Thank", "you", "." },
+            new List<string> { "Thank", "you", "for", "watching", "." }
         };
 
         foreach (var sequence in sequencesToRemove)
