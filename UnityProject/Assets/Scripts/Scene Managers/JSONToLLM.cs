@@ -287,7 +287,6 @@ public class JSONToLLM : MonoBehaviour
     public void ProcessTokens()
     {
         RemoveSpecificSequences();
-        isTranscriptionComplete = false;
         foreach (var token in tokenDictionary)
         {
             Debug.Log($"JSONTOLLM KEY saved at time: {token.Key:F2} seconds, VALUE: {token.Value}");
@@ -301,8 +300,8 @@ public class JSONToLLM : MonoBehaviour
         };
 
         string tokenJsonString = JsonConvert.SerializeObject(tokenDictionary, settings);
-        Debug.Log("Created Token JSON String: " + tokenJsonString);
         isTranscriptionComplete = true;
+        Debug.Log("Created Token JSON String: " + tokenJsonString);
     }
 
     // Clean up the sentence by removing unwanted patterns
@@ -428,7 +427,6 @@ public class JSONToLLM : MonoBehaviour
     public void ResetSegmentData()
     {
         myRootSegment = new RootSegment();
-        isTranscriptionComplete = false;
         time = 0;
         tokenDictionary.Clear();
         keyboard.explanation = "";

@@ -127,7 +127,7 @@ public class KeyboardInput : MonoBehaviour
         annotationTimes.Clear();
         clickOrder = 0;
         streamingSampleMic.ResetTranscriptionData();
-        jsonToLLM.ResetSegmentData(); 
+        jsonToLLM.ResetSegmentData();
     }
 
     // Handles the position click functionality and marks position-based annotations
@@ -413,6 +413,7 @@ public class KeyboardInput : MonoBehaviour
     
     private IEnumerator ProcessingTranscript()
     {
+        jsonToLLM.isTranscriptionComplete = false;
         countdownText.gameObject.SetActive(true);
         countdownText.color = Color.red;
         string baseText = "TRANSCRIPTION PROCESSING";
