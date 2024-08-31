@@ -38,6 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
+  m_IndirectSpecularColor: {r: 0, g: 0, b: 0, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -944,7 +945,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 1658017393}
   m_Direction: 0
   m_Value: 1
-  m_Size: 0.9999999
+  m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -4049,7 +4050,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   logLevel: 2
-  modelPath: Whisper/ggml-tiny.bin
+  modelPath: Whisper/ggml-tiny.en-q8_0.bin
   isModelPathInStreamingAssets: 1
   initOnAwake: 1
   language: en
@@ -4061,9 +4062,9 @@ MonoBehaviour:
   initialPrompt: I am a soccer coach that is going to explain a strategy, specifying 
     a condition to do an action and what action to take.  Do not output random links
     or "subscribe" messages.
-  stepSec: 0.02
+  stepSec: 0.1
   keepSec: 0
-  lengthSec: 300
+  lengthSec: 500
   updatePrompt: 1
   dropOldBuffer: 1
   useVad: 0
@@ -4271,8 +4272,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 408.92007, y: 0}
-  m_SizeDelta: {x: 64, y: 64}
+  m_AnchoredPosition: {x: 515.4356, y: 0}
+  m_SizeDelta: {x: 0, y: 64}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1359183744
 MonoBehaviour:
@@ -6661,7 +6662,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 2129545209}
   m_HandleRect: {fileID: 2129545208}
   m_Direction: 2
-  m_Value: 0
+  m_Value: 1
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:

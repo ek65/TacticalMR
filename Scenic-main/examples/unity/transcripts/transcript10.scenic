@@ -94,7 +94,7 @@ opponent_D = new Player at (Range(2,4), Range(3.5,4.5)),
         with name "opponent_D",
         facing teamGoal
 
-opponent_E = new Player at (Range(0,1), Range(0,1)),
+opponent_E = new Player at (Range(0,2), Range(0,2)),
         with name "opponent_E",
         facing teamGoal
 
