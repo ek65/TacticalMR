@@ -478,7 +478,6 @@ public class JSONToLLM : MonoBehaviour
         isAdjusted = false;
         Debug.Log($"Segment written to {filename}");
         
-        recordingNum++;
     }
 
     
