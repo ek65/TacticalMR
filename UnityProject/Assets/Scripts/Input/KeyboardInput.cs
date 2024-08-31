@@ -422,7 +422,7 @@ public class KeyboardInput : MonoBehaviour
             countdownText.text = baseText + new string('.', dotCount);
             yield return new WaitForSeconds(0.5f); // Adjust the speed of the dots if needed
         }
-        yield return new WaitForSeconds(2);
+        yield return new WaitForSeconds(4);
         countdownText.gameObject.SetActive(false);
         countdownText.color = Color.red;
         if (!restarting)
