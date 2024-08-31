@@ -40,6 +40,7 @@ behavior teammateBehavior():
 egoY = Range(4,4)
 ego = new Human at (-2, egoY,0)
 
+
 pt = new Point offset by (Range(-3,3), Range(-1,0))
 
 oppY = Range(5,6)

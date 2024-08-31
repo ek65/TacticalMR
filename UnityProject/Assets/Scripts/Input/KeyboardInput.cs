@@ -366,17 +366,15 @@ public class KeyboardInput : MonoBehaviour
             }
             else if (actionType == "Through Pass")
             {
-                var point = actionData["point"] as Dictionary<string, float>;
+                var point = actionData["to"] as Dictionary<string, float>;
                 annotationsList.Add(new Dictionary<string, object>
                 {
                     { "id", id.ToString() },
                     { "type", actionType },
-                    { "point", point }
+                    { "from", actionData["from"]},
+                    { "to", point }
                 });
             }
-        } else if (value is Dictionary<string, object[]> actionData2)
-        {
-            
         }
     }
 

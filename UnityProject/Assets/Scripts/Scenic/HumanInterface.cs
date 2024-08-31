@@ -251,7 +251,8 @@ public class HumanInterface : MonoBehaviour
         keyboardInput.annotation.Add(passID, new Dictionary<string, object>
         {
             { "type", "Through Pass" },
-            { "point", pointDict }
+            { "from", this.name},
+            { "to", pointDict }
         });
         
         keyboardInput.annotationDescriptions.Add(passID, $"({this.name} passed to position: {pointDict})");
