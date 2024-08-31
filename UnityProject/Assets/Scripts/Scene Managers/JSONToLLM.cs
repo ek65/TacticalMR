@@ -434,8 +434,6 @@ public class JSONToLLM : MonoBehaviour
         keyboard.explanation = "";
         Debug.Log("EXPLANATION AFTER RESET:");
         Debug.Log(keyboard.explanation);
-        Debug.Log("AFTER RESET TOKENS");
-        ProcessTokens();
         Debug.Log("Segment data has been reset.");
     }
 

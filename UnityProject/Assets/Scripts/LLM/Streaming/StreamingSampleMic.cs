@@ -173,11 +173,10 @@ namespace Whisper.Samples
                             tokenOrder++; // Increment the order index
                             Debug.Log($"Token saved at order: {tokenOrder}, Time: {tokenTime:F2} seconds, Text: {cleanTokenText}");
                         }
-                            
-                        jsonToLLM.ProcessTokens();
                     }
                 }
             }
+            jsonToLLM.ProcessTokens();
             
         }
 
