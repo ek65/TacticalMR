@@ -242,15 +242,14 @@ public class KeyboardInput : MonoBehaviour
 
     private void StopSegment()
     {
+        streamingSampleMic.OnButtonPressed();
+        Debug.Log("Stopped segment recording");
         timelineManager.isRecordingSegment = false;
         jsonToLLM.isLogging = false;
         segmentStarted = false;
         activationConditionMet = false; 
         GroundSelection groundSelection = GameObject.FindGameObjectWithTag("Ground").GetComponent<GroundSelection>();
         groundSelection.ClearGroundHighlights();
-
-        Debug.Log("Stopped segment recording");
-        streamingSampleMic.OnButtonPressed();
         StartCoroutine(ChainedCoroutines());
     }
 
@@ -421,9 +420,6 @@ public class KeyboardInput : MonoBehaviour
             countdownText.text = baseText + new string('.', dotCount);
             yield return new WaitForSeconds(0.5f); // Adjust the speed of the dots if needed
         }
-        countdownText.color = Color.blue; // Set the color to blue when the transcription is complete
-        countdownText.fontSize = 36;
-        countdownText.text = "READY TO CONTINUE";
         yield return new WaitForSeconds(2);
         countdownText.gameObject.SetActive(false);
         countdownText.color = Color.white;
