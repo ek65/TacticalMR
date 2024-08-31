@@ -10,7 +10,7 @@ import random
 
 penalty_box = MeshVolumeRegion(trimesh.creation.box((1, 1, 1)), dimensions = (4, 2, .1), position = (5, -1.5, 0))
 timestep = 0.1
-
+pt = new OrientedPoint at (0,0,0)
 footed = DiscreteRange(-1, 1)
 
 pressingDistance = 3.5 #Uniform(4, 5)
@@ -72,5 +72,9 @@ teammate = new Player ahead of opponent2 by Range(4.5,5),
             with team "blue"
 
 ball = new Ball ahead of teammate 
+
+goal= new Goal at (0,-16,0), 
+    with name "goal",
+    facing away from pt
 
 terminate when (ego.gameObject.stopButton)
