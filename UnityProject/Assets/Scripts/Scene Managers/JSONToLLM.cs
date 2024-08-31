@@ -164,7 +164,7 @@ public class JSONToLLM : MonoBehaviour
                 Corner cornerObject = (Corner)myRootSegment.objects.Find(obj => obj is Corner c && c.id == "corner" + i);
                 if (cornerObject == null)
                 {
-                    cornerObject = new Corner { id = "corner" + i , type = "Corner"};
+                    cornerObject = new Corner { id = "corner" + i , type = "Bound"};
                     myRootSegment.objects.Add(cornerObject);
                 }
 
@@ -265,7 +265,7 @@ public class JSONToLLM : MonoBehaviour
         Goal rightGoalPost = (Goal)myRootSegment.objects.Find(obj => obj is Goal g && g.id == "goal_rightpost");
         if (rightGoalPost == null)
         {
-            rightGoalPost = new Goal { id =  "goal_rightpost", type = "Bound" };
+            rightGoalPost = new Goal { id =  "goal_rightpost", type = "Goal" };
             myRootSegment.objects.Add(rightGoalPost);
         }
 
