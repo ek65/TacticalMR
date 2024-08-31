@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 7718718554899593161}
   - component: {fileID: 6376597774969980081}
   m_Layer: 0
-  m_Name: goalpost_left
+  m_Name: goal_leftpost
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -209,7 +209,7 @@ GameObject:
   - component: {fileID: 4736676788867959722}
   - component: {fileID: 8908337171854939325}
   m_Layer: 0
-  m_Name: goalpost_right
+  m_Name: goal_rightpost
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

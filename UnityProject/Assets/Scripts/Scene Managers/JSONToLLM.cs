@@ -79,7 +79,7 @@ public class JSONToLLM : MonoBehaviour
     public class Corner
     {
         public string id;
-        public string type = "Corner";
+        public string type = "Bound";
         public List<Position> position = new List<Position>();
         public List<Velocity> velocity = new List<Velocity>();
         public List<Orientation> orientation = new List<Orientation>();
@@ -164,7 +164,7 @@ public class JSONToLLM : MonoBehaviour
                 Corner cornerObject = (Corner)myRootSegment.objects.Find(obj => obj is Corner c && c.id == "corner" + i);
                 if (cornerObject == null)
                 {
-                    cornerObject = new Corner { id = "corner" + i };
+                    cornerObject = new Corner { id = "corner" + i , type = "Corner"};
                     myRootSegment.objects.Add(cornerObject);
                 }
 
@@ -248,13 +248,13 @@ public class JSONToLLM : MonoBehaviour
         goalObject.position.Add(new Position(goal.transform.position));
         goalObject.orientation.Add(new Orientation(goal.transform));
         
-        Transform leftPost = goal.transform.Find("goalpost_left");
-        Transform rightPost = goal.transform.Find("goalpost_right");
+        Transform leftPost = goal.transform.Find("goal_leftpost");
+        Transform rightPost = goal.transform.Find("goal_rightpost");
 
-        Goal leftGoalPost = (Goal)myRootSegment.objects.Find(obj => obj is Goal g && g.id == "goalpost_left");
+        Goal leftGoalPost = (Goal)myRootSegment.objects.Find(obj => obj is Goal g && g.id == "goal_leftpost");
         if (leftGoalPost == null)
         {
-            leftGoalPost = new Goal { id = "goalpost_left", type = "Goalpost" };
+            leftGoalPost = new Goal { id = "goal_leftpost", type = "Goal" };
             myRootSegment.objects.Add(leftGoalPost);
         }
 
@@ -262,10 +262,10 @@ public class JSONToLLM : MonoBehaviour
         leftGoalPost.velocity.Add(new Velocity(Vector3.zero));
         leftGoalPost.orientation.Add(new Orientation(leftPost));
 
-        Goal rightGoalPost = (Goal)myRootSegment.objects.Find(obj => obj is Goal g && g.id == "goalpost_right");
+        Goal rightGoalPost = (Goal)myRootSegment.objects.Find(obj => obj is Goal g && g.id == "goal_rightpost");
         if (rightGoalPost == null)
         {
-            rightGoalPost = new Goal { id = "goalpost_right", type = "Goalpost" };
+            rightGoalPost = new Goal { id =  "goal_rightpost", type = "Goal" };
             myRootSegment.objects.Add(rightGoalPost);
         }
 

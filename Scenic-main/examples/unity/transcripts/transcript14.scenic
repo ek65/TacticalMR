@@ -119,13 +119,8 @@ midfielder1 = new Player at midfielderPos,
         with team "blue",
         with behavior midfielder1Behavior()
 
-
-opponentGoal = new Goal at (0,16,0), 
-    facing away from pt,
-    with name "opponentGoal"
-
-teamGoal= new Goal at (0,-16,0), 
-    with name "teamGoal",
+goal= new Goal at (0,-16,0), 
+    with name "goal",
     facing away from pt
 
 opponent_A = new Player at (Range(-4,-5), Range(-4,-5)),
@@ -138,21 +133,21 @@ opponent_B = new Player at (Range(2,4), Range(-4,-5)),
 
 opponent_C = new Player at (Range(-4,-5), Range(3,4)),
         with name "opponent_C",
-        facing teamGoal,
+        facing goal,
         with behavior opponentCbehavior()
 
 opponent_D = new Player at (Range(0,1.5), Range(2,3)),
         with name "opponent_D",
-        facing teamGoal,
+        facing goal,
         with behavior opponentDbehavior()
 
 opponent_E = new Player at (Range(0,0.5), Range(0,0.5)),
         with name "opponent_E",
-        facing teamGoal,
+        facing goal,
         with behavior opponentEbehavior()
 
 
-goalie = new Player behind teamGoal by 0.5,
+goalie = new Player behind goal by 0.5,
     facing pt,
     with name "goalie",
     with team "blue",
