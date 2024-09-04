@@ -23,7 +23,6 @@ def checkFirstPos():
 behavior opponent1Behavior(pt):
     do Idle()
 
-
 behavior teammateBehavior():
     passed = False
     try:
@@ -37,8 +36,8 @@ behavior teammateBehavior():
         pos = inBetween(opponent, opponent2)
         do GroundPassFast(pos)
     
-egoY = Range(4,4)
-ego = new Human at (-2, egoY,0)
+# egoY = Range(4,4)
+ego = new Human at (-2, 0,0)
 
 
 pt = new Point offset by (Range(-3,3), Range(-1,0))

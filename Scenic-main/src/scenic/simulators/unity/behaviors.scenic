@@ -35,6 +35,8 @@ behavior MoveTo(v, status=""):
     while not (dist < 0.5):
         if isinstance(v, Ball):
             take MoveToAction(v.position, status)
+        elif isinstance(v, Vector):
+            take MoveToAction(v, status), LookAtAction(v)
         else:
             take MoveToAction(v.position, status), LookAtAction(v)
         dist = distance from self to v
