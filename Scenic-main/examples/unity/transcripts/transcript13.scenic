@@ -11,7 +11,6 @@ import random
 penalty_box = MeshVolumeRegion(trimesh.creation.box((1, 1, 1)), dimensions = (4, 2, .1), position = (5, -1.5, 0))
 timestep = 0.1
 pt = new OrientedPoint at (0,0,0)
-midfielderPos = Vector(Range(-1.5,-2) - 3, -2, 0)
 rightBackFlag = False
 
 
@@ -25,37 +24,30 @@ behavior midfielder2Behavior():
     try: 
         do Idle()
     interrupt when hasBallPosession(goalie):
-        do MoveTo(centerBack.position) until (distance from self to centerBack < 1)
         do Idle()
 
 behavior opponentCbehavior():
     try: 
         do Idle()
     interrupt when hasBallPosession(leftback):
-        do MoveTo(midfielder1.position) until (distance from self to midfielder1 < 1)
         do Idle()
 
 behavior opponentEbehavior():
     try: 
         do Idle()
     interrupt when hasBallPosession(leftback):
-        do MoveTo(leftback.position) for 1.5 seconds
         do Idle()
 
 behavior opponentBbehavior():
     try: 
         do Idle()
     interrupt when hasBallPosession(leftback):
-        do MoveTo(midfielder2.position) until (distance from self to midfielder2Ahead < 1)
         do Idle()
 
 behavior leftBackBehavior():
     try: 
-        do MoveTo(ball.position)
         do Idle()
     interrupt when hasBallPosession(self):
-        do Idle() for 2 seconds
-        do GroundPassFast(goalie.position)
         do Idle()
 
 behavior centerBackBehavior():
@@ -63,37 +55,33 @@ behavior centerBackBehavior():
         do Idle()
     interrupt when distance from self to midfielder2 < 1.5:
         do Idle() for 4 seconds
-        do MoveTo(Vector(self.position.x + 3, self.position.y - 2.5, self.position.z))
-        do Idle()
 
 
 
 behavior goalieBehavior():
     try: 
         do Idle() for 1 seconds
-        do MoveTo(Vector(self.position.x - 2, self.position.y, self.position.z))
-        do Idle() 
     interrupt when hasBallPosession(opponent_A):
         do Idle() 
 
 ego = new Human at (Range(5.5, 6), -9, 0), with name 'rightback'
 
-leftback = new Player at (Range(-5.5,-6), -9, 0), 
+leftback = new Player at (Range(-7,-8), -9, 0), 
         with name "leftback",
         with team "blue",
         with behavior leftBackBehavior()
 
-centerBack = new Player at (0, Range(-10,-11), 0),
+centerBack = new Player at (-2, Range(-12,-13), 0),
         with name "centerBack",
         with team "blue",
         with behavior centerBackBehavior()
 
-midfielder2 = new Player ahead of centerBack by 2, 
+midfielder2 = new Player ahead of centerBack by 5, 
         with name "midfielder2",
         with team "blue",
         with behavior midfielder2Behavior()
 
-midfielder1 = new Player at midfielderPos, 
+midfielder1 = new Player at (8,1.5,0), 
         with name "midfielder1",
         with team "blue",
         with behavior midfielder1Behavior()
@@ -104,23 +92,23 @@ goal= new Goal at (0,-16,0),
     with name "goal",
     facing away from pt
 
-opponent_A = new Player at (Range(-4,-5), Range(-4,-5)),
+opponent_A = new Player at (Range(-4.7,-5), Range(-6.8,-7), 0),
         with name "opponent_A",
 
-opponent_B = new Player at (Range(2,4), Range(-4,-5)),
+opponent_B = new Player ahead of midfielder1 by 0.1,
         with name "opponent_B",
         with behavior opponentBbehavior
 
-opponent_C = new Player at (Range(-4,-5), Range(3,4)),
+opponent_C = new Player at (Range(-6,-6.5), Range(1,1.5)),
         with name "opponent_C",
         facing goal,
         with behavior opponentCbehavior()
 
-opponent_D = new Player at (Range(2,4), Range(3.5,4.5)),
+opponent_D = new Player at (Range(0,0.5), 10),
         with name "opponent_D",
         facing goal
 
-opponent_E = new Player at (Range(0,2), Range(0,2)),
+opponent_E = new Player at (0,0),
         with name "opponent_E",
         facing goal,
         with behavior opponentEbehavior()
@@ -133,6 +121,6 @@ goalie = new Player behind goal by 0.5,
     with behavior goalieBehavior()
 
 
-ball = new Ball ahead of leftback
+ball = new Ball ahead of goalie
 
 terminate when (ego.gameObject.stopButton)
