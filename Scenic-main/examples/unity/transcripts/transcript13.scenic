@@ -11,19 +11,30 @@ import random
 penalty_box = MeshVolumeRegion(trimesh.creation.box((1, 1, 1)), dimensions = (4, 2, .1), position = (5, -1.5, 0))
 timestep = 0.1
 pt = new OrientedPoint at (0,0,0)
-rightBackFlag = False
-
+pt1 = new OrientedPoint at (0,-10,0)
+param performAct = False
 
 behavior midfielder1Behavior():
     try: 
+        do Idle() 
+    interrupt when (hasBallPosession(rightback)):
+        do Idle() for 1 seconds
+        do MoveTo(Vector(self.position.x + 1, self.position.y - 1, self.position.z))
         do Idle()
-    interrupt when hasBallPosession(leftback):
+    interrupt when ((distance from opponent_E to pt1) <= 3):
+        do Idle() for 2 seconds 
+        do MoveTo(Vector(self.position.x - 3, self.position.y + 2, self.position.z))      
         do Idle()
 
 behavior midfielder2Behavior():
     try: 
+        do Idle() for 1 seconds
+        do MoveTo(opponent_E.position)
+    interrupt when (distance from self to opponent_E) <= 1.5:
         do Idle()
-    interrupt when hasBallPosession(goalie):
+    interrupt when (hasBallPosession(rightback)):
+        do MoveTo(Vector(self.position.x - 1, self.position.y - 7, self.position.z))
+        performAct = True
         do Idle()
 
 behavior opponentCbehavior():
@@ -35,20 +46,32 @@ behavior opponentCbehavior():
 behavior opponentEbehavior():
     try: 
         do Idle()
-    interrupt when hasBallPosession(leftback):
-        do Idle()
+    interrupt when ((distance from midfielder2 to pt1) <= 3):
+        do Idle() for 1 seconds
+        do MoveTo(midfielder2.position)
+        try:
+            do Idle()
+        interrupt when ((distance from self to midfielder2) <= 1.5):
+            do Idle() for 2 seconds
+            do MoveTo(rightback.position) until ((distance from self to rightback <= 2))
+            do Idle()
+
 
 behavior opponentBbehavior():
     try: 
         do Idle()
-    interrupt when hasBallPosession(leftback):
+    interrupt when ((distance from opponent_E to pt1) <= 3):
+        do Idle() for 2 seconds 
+        do MoveTo(rightback.position) until ((distance from self to rightback <= 2))
         do Idle()
 
 behavior leftBackBehavior():
     try: 
         do Idle()
-    interrupt when hasBallPosession(self):
+    interrupt when ((distance from opponent_E to rightback) <= 4):
+        do MoveTo(Vector(self.position.x + 3, self.position.y + 8, self.position.z))
         do Idle()
+
 
 behavior centerBackBehavior():
     try: 
@@ -61,10 +84,16 @@ behavior centerBackBehavior():
 behavior goalieBehavior():
     try: 
         do Idle() for 1 seconds
-    interrupt when hasBallPosession(opponent_A):
-        do Idle() 
+        do MoveTo(ball.position)
+    interrupt when (hasBallPosession(self)):
+        do Idle() for 2 seconds
+        do GroundPassFast(rightback.position)
+        do Idle() for 1 seconds
+        do MoveTo(Vector(self.position.x + 2, self.position.y, self.position.z))
+        do Idle()
 
 ego = new Human at (Range(5.5, 6), -9, 0), with name 'rightback'
+rightback = ego
 
 leftback = new Player at (Range(-7,-8), -9, 0), 
         with name "leftback",
@@ -97,7 +126,7 @@ opponent_A = new Player at (Range(-4.7,-5), Range(-6.8,-7), 0),
 
 opponent_B = new Player ahead of midfielder1 by 0.1,
         with name "opponent_B",
-        with behavior opponentBbehavior
+        with behavior opponentBbehavior()
 
 opponent_C = new Player at (Range(-6,-6.5), Range(1,1.5)),
         with name "opponent_C",
@@ -114,13 +143,13 @@ opponent_E = new Player at (0,0),
         with behavior opponentEbehavior()
 
 
-goalie = new Player behind goal by 0.5,
+goalie = new Player behind goal by 0.2,
     facing pt,
     with name "goalie",
     with team "blue",
     with behavior goalieBehavior()
 
 
-ball = new Ball ahead of goalie
+ball = new Ball ahead of goalie by 0.2
 
 terminate when (ego.gameObject.stopButton)
