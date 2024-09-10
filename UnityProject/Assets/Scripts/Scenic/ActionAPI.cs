@@ -921,7 +921,6 @@ public class ActionAPI : MonoBehaviour
     // called from animation event
     public void MoveBall()
     {
-        Debug.LogError("IN MOVE BALL");
         PlayerInterface pI = GetComponent<PlayerInterface>();
         HumanInterface hI = GetComponent<HumanInterface>();
 
@@ -950,7 +949,15 @@ public class ActionAPI : MonoBehaviour
         Vector3 ballMotionVector = finalPos - soccerBall.transform.position;
         Vector3 forceDirection = new(ballMotionVector.x, aerialOffset, ballMotionVector.z);
         Debug.Log("force vector: " + forceDirection);
-        soccerBall.GetComponent<Rigidbody>().AddForce(forceDirection * forceMagnitude * forceFactor);
+        // if pass is close, multiply by some more force sice it's slow. band-aid fix. look for better way to do this
+        if (forceDirection.magnitude < 5f)
+        {
+            soccerBall.GetComponent<Rigidbody>().AddForce(forceDirection * forceMagnitude * forceFactor * 1.5f);
+        }
+        else
+        {
+            soccerBall.GetComponent<Rigidbody>().AddForce(forceDirection * forceMagnitude * forceFactor);
+        }
         Debug.Log("in moveball");
         Debug.Log("force:" + forceDirection * forceMagnitude * forceFactor);
         

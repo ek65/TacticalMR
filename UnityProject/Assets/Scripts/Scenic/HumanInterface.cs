@@ -88,7 +88,7 @@ public class HumanInterface : MonoBehaviour
         
         floatingNameText.SetText2(this.gameObject.name);
         
-        forwardArrow = SpawnArrow(this.transform.position, transform.forward*7);
+        forwardArrow = SpawnArrow(this.transform.position, transform.forward * 8.5f);
         forwardArrow.SetActive(false);
     }
 
@@ -115,7 +115,7 @@ public class HumanInterface : MonoBehaviour
             forwardArrow.SetActive(true);
             ArrowGenerator arrow = forwardArrow.GetComponentInChildren<ArrowGenerator>();
             arrow.SetOrigin(this.transform.position);
-            arrow.SetTarget(transform.position + transform.forward * 7);
+            arrow.SetTarget(transform.position + transform.forward * 8.5f);
         }
         else
         {
@@ -307,7 +307,7 @@ public class HumanInterface : MonoBehaviour
             return;
         }
 
-        Vector3 passPosition = transform.position + transform.forward * 7;
+        Vector3 passPosition = transform.position + transform.forward * 8.5f;
         LogThroughPass(passPosition);
         actionAPI.GroundPassFast(passPosition);
         StartCoroutine(ResetToMovementController());
@@ -332,7 +332,7 @@ public class HumanInterface : MonoBehaviour
     }
 
     private GameObject GetClosestToLinePoint(List<GameObject> points) {
-        Ray ray = new Ray(transform.position, transform.forward * 5);
+        Ray ray = new Ray(transform.position, transform.forward * 8.5f);
         GameObject closestPoint = points.OrderBy(point => DistancePointToLineSqr(ray, point.transform.position)).FirstOrDefault();
 
         return closestPoint;

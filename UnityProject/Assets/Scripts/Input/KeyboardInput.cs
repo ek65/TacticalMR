@@ -417,7 +417,7 @@ public class KeyboardInput : MonoBehaviour
         string baseText = "TRANSCRIPTION PROCESSING";
         
         int dotCount = 0;
-        countdownText.fontSize = 150;
+        countdownText.fontSize = 230;
 
         while (!jsonToLLM.isTranscriptionComplete) 
         {
@@ -430,7 +430,7 @@ public class KeyboardInput : MonoBehaviour
         countdownText.color = Color.red;
         if (!restarting)
         {
-            Debug.LogError("in not restarting");
+            // Debug.LogError("in not restarting");
             StartSegment(); 
         }
     }
