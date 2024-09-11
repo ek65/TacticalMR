@@ -36,9 +36,10 @@ behavior MoveTo(v, status=""):
         if isinstance(v, Ball):
             take MoveToAction(v.position, status)
         elif isinstance(v, Vector):
-            take MoveToAction(v, status), LookAtAction(v)
+            take MoveToAction(v, status)
         else:
-            take MoveToAction(v.position, status), LookAtAction(v)
+            take MoveToAction(v.position, status)
+            # take MoveToAction(v.position, status), LookAtAction(v)
         dist = distance from self to v
 
 behavior ApproachGoal(v):
@@ -78,6 +79,7 @@ behavior Unpause():
 behavior WaitFor(timesteps):
     for i in range(timesteps):
         take StopAction()
+
 
 # MARK: moveTo
 behavior moveTo(player: Player, target: Coordinate, ref: list, speed: Speed):

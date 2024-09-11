@@ -13,7 +13,7 @@ timestep = 0.1
 pt = new OrientedPoint at (0,0,0)
 footed = DiscreteRange(-1, 1)
 
-pressingDistance = 3.5 #Uniform(4, 5)
+pressingDistance = 3.5 # Uniform(4, 5)
 shootingDistance = Uniform(4, 8)
 first_possession = False
 
@@ -37,8 +37,7 @@ behavior teammateBehavior():
         do GroundPassFast(pos)
     
 # egoY = Range(4,4)
-ego = new Human at (-2, 0,0)
-
+ego = new Human at (-2,0,0)
 
 pt = new Point offset by (Range(-3,3), Range(-1,0))
 
@@ -47,7 +46,6 @@ opponent = new Player at (0,oppY,0),
                 facing toward ego,
                 with behavior opponent1Behavior(pt),
                 with name "opponent_A"
-
 
 opponent2 = new Player at (-3,oppY,0),
                 facing toward ego,
@@ -58,7 +56,6 @@ opponent3 = new Player at (3,oppY,0),
                 facing toward ego,
                 with behavior opponent1Behavior(pt),
                 with name "opponent_C"
-
 
 opponent4= new Player at (6,oppY,0),
                 facing toward ego,

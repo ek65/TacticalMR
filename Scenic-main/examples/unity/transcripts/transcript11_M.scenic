@@ -66,6 +66,13 @@ behavior rightBackBehavior():
         do MoveTo(Vector(self.position.x + 1.5, self.position.y + 1.5, self.position.z))
         do Idle()
 
+behavior centerBackBehavior():
+    try: 
+        do Idle()
+    interrupt when distance from ego to self < 1.5:
+        do Idle() for 4 seconds
+        do MoveTo(Vector(self.position.x + 3, self.position.y - 2.5, self.position.z))
+        do Idle()
 
 behavior goalieBehavior():
     try: 
