@@ -34,7 +34,8 @@ behavior teammateBehavior():
         do Idle()
 
     interrupt when hasBallPosession(self) and passed:
-        pos = inBetween(opponent, opponent2)
+        #pos = inBetween(opponent, opponent2)
+        pos = ego.position
         do GroundPassFast(pos)
     
 egoY = Range(4,4)
@@ -79,3 +80,9 @@ goal= new Goal at (0,-16,0),
     facing away from pt
 
 terminate when (ego.gameObject.stopButton)
+
+
+    
+    
+
+            

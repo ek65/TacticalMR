@@ -34,7 +34,7 @@ behavior opponentBehavior():
                 do MoveTo(goal.position + Vector(0, 4, 0)) for 0.1 seconds
                 opponent.prevPosition = opponent.position
             interrupt when distance from self to goal < shootingDistance:
-                do ShootBall(goal.position, "center-middle")
+                do ShootBall(goal.position)
                 do Idle()
                 opponent.prevPosition = opponent.position
 

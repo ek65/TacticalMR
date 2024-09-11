@@ -41,6 +41,9 @@ behavior opponentEbehavior():
     interrupt when hasBallPosession(leftback):
         do MoveTo(leftback.position) for 1.5 seconds
         do Idle()
+behavior centerBackBehavior():
+    do Idle()
+    
 
 behavior opponentBbehavior():
     try: 
