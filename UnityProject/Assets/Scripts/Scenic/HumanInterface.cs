@@ -327,15 +327,41 @@ public class HumanInterface : MonoBehaviour
         // actionAPI.alreadyInAnimation = false;
     }
 
-    public float DistancePointToLineSqr(Ray ray, Vector3 point) {
-        return Vector3.Cross(ray.direction, point - ray.origin).sqrMagnitude;
-    }
 
     private GameObject GetClosestToLinePoint(List<GameObject> points) {
         Ray ray = new Ray(transform.position, transform.forward * 8.5f);
-        GameObject closestPoint = points.OrderBy(point => DistancePointToLineSqr(ray, point.transform.position)).FirstOrDefault();
+        
+        GameObject closestPoint = null;
+        float minDist = Mathf.Infinity;
+        
+        foreach (var obj in points)
+        {
+            Vector3 closestPointOnRay = GetClosestPointOnRay(ray, obj.transform.position);
+            float distance = Vector3.Distance(closestPointOnRay, obj.transform.position);
+
+            if (distance < minDist)
+            {
+                minDist = distance;
+                closestPoint = obj;
+            }
+        }
 
         return closestPoint;
+    }
+    
+    private Vector3 GetClosestPointOnRay(Ray ray, Vector3 point)
+    {
+        Vector3 rayToPoint = point - ray.origin;
+        float t = Vector3.Dot(rayToPoint, ray.direction);
+
+        if (t <= 0)
+        {
+            return ray.origin;
+        }
+        else
+        {
+            return ray.origin + ray.direction * t;
+        }
     }
     
     private IEnumerator PossessionDebounce()

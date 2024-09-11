@@ -74,27 +74,29 @@ class MoveToWithSpeed(Action):
         obj.gameObject.DoAction(self.actionName, self.position, self.speed)
 
 class MoveToLookAtBallWithSpeed(Action):
-    def __init__(self, obj, speed):
+    def __init__(self, obj):
         self.actionName = "MoveToPosLookAtBall"
+        self.behavior = ""
 
         if not isinstance(speed, float):
             raise RuntimeError("height must be a float")
         self.speed = speed
 
-        if isinstance(obj, tuple) or type(obj) is tuple:
-            self.position = obj
-        elif isinstance(obj, OrientedPoint):
+        if isinstance(obj, OrientedPoint):
             self.position = obj.position
+            self.behavior = f"move to:{obj.name}"
         elif isinstance(obj, Point):
             self.position = (obj.position.x, obj.position.y, obj.position.z)
+            self.behavior = f"move to:{self.position}"
         elif isinstance(obj, Vector):
             self.position = (obj.x, obj.y, obj.z)
+            self.behavior = f"move to:{self.position}"
         else:
-            self.clientID = obj.gameObject.clientID
+            raise RuntimeError(f"Unacceptable Input Detected: {obj}")
 
     def applyTo(self, obj, sim):
-        obj.gameObject.SetBehavior("Move While Looking at Ball")
-        obj.gameObject.DoAction(self.actionName, self.position, self.speed)
+        obj.gameObject.SetBehavior(self.behavior)
+        obj.gameObject.DoAction(self.actionName, self.position)
 
 class MoveToAction(Action):
     def __init__(self, obj, behavior = None):

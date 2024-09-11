@@ -11,89 +11,112 @@ import random
 penalty_box = MeshVolumeRegion(trimesh.creation.box((1, 1, 1)), dimensions = (4, 2, .1), position = (5, -1.5, 0))
 timestep = 0.1
 pt = new OrientedPoint at (0,0,0)
-midfielderPos = Vector(Range(-1.5,-2), -2, 0)
-destPosMid = Vector(midfielderPos.x - 3, midfielderPos.y, midfielderPos.z)
 
-behavior leftBackBehavior():
+behavior midfielder2Behavior():
     try: 
         do Idle()
-    interrupt when (hasBallPosession(self) and (distance from ego to leftback < 7)):
-        do GroundPassFast(ego.position)
-        do Idle()
+    interrupt when (hasBallPosession(ego)):
+        do MoveTo(new Point at (-1, -6))
+    interrupt when (hasBallPosession(self)):
+        do GroundPassFast(midfielder1)
 
 behavior midfielder1Behavior():
     try: 
         do Idle()
-    interrupt when hasBallPosession(leftback):
+    interrupt when hasBallPosession(ego):
         do Idle() for 1 seconds
         do MoveTo(destPosMid)
+        take LookAtAction(ball)
         do Idle()
 
 behavior opponentAbehavior():
     try: 
         do Idle()
-    interrupt when hasBallPosession(leftback):
+    interrupt when hasBallPosession(ego):
         do SetSpeed(0.5)
-        do MoveTo(leftback.position) until (distance from self to leftback < 2)
+        do MoveTo(oppAposition) 
 
 behavior goalieBehavior():
     try: 
         do Idle() for 1 seconds
-        do GroundPassFast(leftback.position)
+        do GroundPassFast(ego.position)
         do Idle() 
-    interrupt when hasBallPosession(leftback):
+    interrupt when hasBallPosession(ego):
         do MoveTo(Vector(self.position.x - 2, self.position.y, self.position.z))
         do Idle() 
 
+behavior blockSideLine(opp_A_dest):
+    try:
+        do Idle()
+    interrupt when (hasBallPosession(ego)):
+        do MoveTo(opp_A_dest)
+        take LookAtAction(ball)
 
-ego = new Human at (Range(0.4,1), Range(1.5,1.9),0), with name 'coach'
-
-leftback = new Player at (Range(-5.5,-6), -9, 0), 
-        with name "leftback",
-        with team "blue",
-        with behavior leftBackBehavior()
-
-rightback = new Player at (Range(5.5, 6), -9, 0), 
-        with name "rightback",
-        with team "blue"
-
-midfielder1 = new Player at midfielderPos, 
-        with name "midfielder",
-        with team "blue",
-        with behavior midfielder1Behavior()
-
-centerBack = new Player at (0, Range(-9,-10), 0), 
-        with name "centerBack",
-        with team "blue"
-
-goal= new Goal at (0,-16,0), 
-    with name "goal",
+teamGoal= new Goal at (0,-16,0), 
+    with name "teamGoal",
     facing away from pt
 
-opponent_A = new Player at (Range(-4,-5), Range(-4,-5)),
+ego = new Human at (-7, -8.5, 0), 
+        with name 'coach',
+        facing teamGoal
+
+midfielder2 = new Player at (4.5, 1.5, 0), 
+        with name "midfielder2",
+        with team "blue",
+        with behavior midfielder2Behavior(),
+        facing teamGoal
+
+rightback = new Player at (7, -9, 0), 
+        with name "rightBack",
+        with team "blue",
+        facing teamGoal
+
+midfielderPos = new Point at (-3, 2, 0)
+destPosMid = new Point at (-6, 2, 0)
+
+midfielder1 = new Player at midfielderPos, 
+        with name "midfielder1",
+        with team "blue",
+        with behavior midfielder1Behavior(),
+        facing teamGoal
+
+centerBack = new Player at (0, -11, 0), 
+        with name "centerBack",
+        with team "blue",
+        facing teamGoal
+
+opponentGoal = new Goal at (0,16,0), 
+    facing away from pt,
+    with name "opponentGoal"
+
+opp_A_dest = new Point at (-6.5, -7, 0)
+
+opponent_A = new Player at (-5, -3.5),
         with name "opponent_A",
+        facing teamGoal,
+        with behavior blockSideLine(opp_A_dest)
 
-opponent_B = new Player at (Range(2,4), Range(-4,-5)),
-        with name "opponent_B"
+opponent_B = new Player at (3, -4.5),
+        with name "opponent_B",
+        facing teamGoal
 
-opponent_C = new Player at (Range(-4,-5), Range(3,4)),
+opponent_C = new Player at (-4.5, 4.5),
         with name "opponent_C",
-        facing goal
+        facing teamGoal
 
-opponent_D = new Player at (Range(2,4), Range(3.5,4.5)),
+opponent_D = new Player at (4, 5),
         with name "opponent_D",
-        facing goal
+        facing teamGoal
 
-opponent_E = new Player at (Range(0,2), Range(0,2)),
+opponent_E = new Player at (0, 4),
         with name "opponent_E",
-        facing goal
+        facing teamGoal
 
-goalie = new Player behind goal by 0.5,
-    facing pt,
+goalie = new Player at (0, -14, 0),
+    facing 180 deg,
     with name "goalkeeper",
     with team "blue",
     with behavior goalieBehavior()
-
 
 ball = new Ball ahead of goalie
 

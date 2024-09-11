@@ -10,7 +10,7 @@ import random
 
 penalty_box = MeshVolumeRegion(trimesh.creation.box((1, 1, 1)), dimensions = (4, 2, .1), position = (5, -1.5, 0))
 timestep = 0.1
-
+pt = new OrientedPoint at (0,0,0)
 footed = DiscreteRange(-1, 1)
 
 pressingDistance = 3.5 #Uniform(4, 5)
@@ -57,7 +57,9 @@ behavior teammateBehavior():
 
 ego = new Human at (5, Range(0,0.1), 0)
 
-goal = new Goal behind ego by Range(2.9,3), facing away from ego
+goal= new Goal at (0,-16,0), 
+    with name "goal",
+    facing away from pt
 pt = new Point offset by (Range(-3,3), Range(-1,0))
 
 opponent = new Player offset by (Range(-4,0), Range(6,10)),
