@@ -14,34 +14,23 @@ pt = new OrientedPoint at (0,0,0)
 midfielderPos = new Point at (-6.5, 0.5, 0)
 rightBackFlag = False
 
-
-behavior midfielder1Behavior():
-    try: 
-        do Idle()
-    interrupt when hasBallPosession(leftback):
-        do Idle()
-
-
 behavior opponentCbehavior():
     try: 
         do Idle()
     interrupt when hasBallPosession(leftback):
         do MoveTo(midfielder1.position) until (distance from self to midfielder1 < 1)
-        do Idle()
 
 behavior opponentEbehavior():
     try: 
         do Idle()
     interrupt when hasBallPosession(leftback):
         do MoveTo(new Point at (-3, 0.5, 0)) 
-        do Idle()
 
 behavior opponentBbehavior():
     try: 
         do Idle()
     interrupt when hasBallPosession(leftback):
         do MoveTo(new Point at (0, -4, 0))
-        do Idle()
 
 behavior leftBackBehavior():
     try: 
@@ -49,7 +38,7 @@ behavior leftBackBehavior():
         do Idle()
     interrupt when hasBallPosession(self):
         do Idle() for 2 seconds
-        do GroundPassFast(goalie.position)
+        do PassTo(goalie)
 
 behavior rightBackBehavior():
     try: 
@@ -59,47 +48,50 @@ behavior rightBackBehavior():
         do LookAt(ball)
 
 behavior goalieBehavior():
-    try: 
-        do Idle() for 1 seconds
-        do MoveTo(new Point at (self.position.x - 2, self.position.y, self.position.z))
-        do Idle() 
-    interrupt when hasBallPosession(opponent_A):
-        do Idle() 
+    do Idle() for 0.5 seconds
+    do MoveTo(new Point at (self.position.x - 2, self.position.y, self.position.z))
+    do Idle()
 
 behavior centerBackBehavior():
     try: 
         do Idle()
-    interrupt when ego.position.y < -5:
+    interrupt when isMovingTowards(ego, goal) and (distance from self to ego) < 8:
         do MoveTo(new Point at (3,-14, 0))
         do LookAt(ball)
+
+behavior coachBehavior():
+    try:
+        do Idle()
+    interrupt when hasBallPosession(goalie):
+        do MoveTo(new Point at (0, -11, 0))
 
 leftback = new Player at (-7, -9, 0), 
         with name "leftback",
         with team "blue",
         with behavior leftBackBehavior()
 
-ego = new Human at (-1, -4, 0), with name "midfielder2"
+midfielder2 = new Player at (-1,-4,0), 
+        with name "midfielder2",
+        with team "blue",
+        with behavior coachBehavior()
 
 centerBack = new Player at (0,-11, 0),
         with name "centerBack",
         with team "blue",
         with behavior centerBackBehavior()
 
-rightback = new Player at (7, -9, 0), 
-        with name "rightback",
+ego = new Player at (7, -9, 0), 
+        with name "coach",
         with team "blue",
         with behavior rightBackBehavior()
 
 midfielder1 = new Player at midfielderPos, 
         with name "midfielder1",
-        with team "blue",
-        with behavior midfielder1Behavior()
+        with team "blue"
 
-midfielder2Ahead = new OrientedPoint ahead of ego by 0.2
-
-goal= new Goal at (0,-16,0), 
-    with name "goal",
-    facing away from pt
+goal= new Goal at (0,-16,0),
+        with name "goal",
+        facing away from pt
 
 opponent_A = new Player at (-4.5, -5),
         with name "opponent_A",
@@ -121,7 +113,6 @@ opponent_E = new Player at (0, 4, 0),
         with name "opponent_E",
         facing goal,
         with behavior opponentEbehavior()
-
 
 goalie = new Player behind goal by 0.5,
     facing pt,

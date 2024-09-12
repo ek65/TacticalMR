@@ -132,18 +132,24 @@ def isMovingTowards(refObject: UnityObject, targetObject: UnityObject) -> bool:
 
     # Normalize the direction vector
     length = distance from Vector(0, 0, 0) to moveDir
-    unit_moveDir = moveDir / length
+    if length == 0:
+        return False
+
+    unit_moveDir = Vector(moveDir.x / length, moveDir.y / length, moveDir.z / length)
+    # print(f"unit_moveDir: {unit_moveDir}")
 
     # Epected direction
     direction = targetObject.position - refObject.position
 
     length = distance from Vector(0, 0, 0) to direction
-    unit_direction = direction / length
+    if length == 0:
+        return False
+    unit_direction = Vector(direction.x / length, direction.y / length, direction.z / length)
+    # print(f"unit_direction: {unit_direction}")
 
     dot_product = unit_moveDir.x * unit_direction.x + unit_moveDir.y * unit_direction.y + unit_moveDir.z * unit_direction.z
-
-    return False
-
+    # print(f"dot_product: {dot_product}")
+    return dot_product > 0.866    
 
 def positionInLine(start: Vector, end: Vector, distance: float) -> Vector:
     """

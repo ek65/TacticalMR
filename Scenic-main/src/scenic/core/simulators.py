@@ -657,6 +657,9 @@ class Simulation(abc.ABC):
             dynTypes = obj._simulatorProvidedProperties
             properties = set(dynTypes)
             values = self.getProperties(obj, properties)
+            # print(f"obj name: {obj.gameObjectType}")
+            # print(f"properties: {properties}")
+            # print(f"values: {values}")
             assert properties == set(values), properties ^ set(values)
             for prop, value in values.items():
                 ty = dynTypes[prop]

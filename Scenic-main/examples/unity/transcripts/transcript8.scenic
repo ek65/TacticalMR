@@ -16,7 +16,7 @@ behavior leftBackBehavior():
     try: 
         do Idle()
     interrupt when (hasBallPosession(self) and (ego.position.y <= -4)):
-        do GroundPassFast(ego.position)
+        do PassTo(ego)
         do Idle()
 
 behavior midfielder1Behavior():
@@ -25,8 +25,7 @@ behavior midfielder1Behavior():
     interrupt when hasBallPosession(leftback):
         do Idle() for 1 seconds
         do MoveTo(destPosMid)
-        take LookAtAction(ball)
-        do Idle()
+        do LookAt(ball)
 
 behavior opponentAbehavior():
     try: 
@@ -38,7 +37,7 @@ behavior opponentAbehavior():
 behavior goalieBehavior():
     try: 
         do Idle() for 1 seconds
-        do GroundPassFast(leftback.position)
+        do PassTo(leftback)
         do Idle() 
     interrupt when hasBallPosession(leftback):
         do MoveTo(Vector(self.position.x - 2, self.position.y, self.position.z))
@@ -49,7 +48,7 @@ behavior blockSideLine(opp_A_dest):
         do Idle()
     interrupt when (hasBallPosession(leftback)):
         do MoveTo(opp_A_dest)
-        take LookAtAction(ball)
+        do LookAt(ball)
 
 teamGoal= new Goal at (0,-16,0), 
     with name "teamGoal",

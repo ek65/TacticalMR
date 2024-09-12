@@ -248,8 +248,7 @@ class GroundPassFastAction(Action):
     def __init__(self, obj, behavior = None):
         self.actionName = "GroundPassFast"
         self.behavior = behavior
-        
-
+    
         if isinstance(obj, tuple) or type(obj) is tuple:
             self.position = obj
         elif isinstance(obj, OrientedPoint):
@@ -259,13 +258,10 @@ class GroundPassFastAction(Action):
         elif isinstance(obj, Vector):
             self.position = (obj.x, obj.y, obj.z)
         else:
-            self.clientID = obj.gameObject.clientID
+            self.position = obj.position
     def applyTo(self, obj, sim):
-        if self.position is None:
-            obj.gameObject.MoveToObject(self.clientID)
-        else:
-            obj.gameObject.SetBehavior(self.behavior)
-            obj.gameObject.DoAction(self.actionName, self.position)
+        obj.gameObject.SetBehavior(self.behavior)
+        obj.gameObject.DoAction(self.actionName, self.position)
 
 class AirPassAction(Action):
     def __init__(self, obj, height):
