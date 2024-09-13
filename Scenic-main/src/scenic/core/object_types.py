@@ -671,6 +671,7 @@ class Point(Constructible):
 
     _scenic_properties = {
         "position": PropertyDefault((), {"dynamic"}, lambda self: Vector(0.0, 0.0, 0.0)),
+        "prevPosition": PropertyDefault((), {"dynamic"}, lambda self: Vector(0.0, 0.0, 0.0)),
         "width": 0.0,
         "length": 0.0,
         "height": 0.0,

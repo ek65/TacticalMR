@@ -238,6 +238,7 @@ class UnityMessageServer:
 
     def getProperties(self, obj, properties):
         if obj.gameObjectType == "player":
+            prevPosition = obj.position
             game_object = obj.gameObject
             stored_game_object = self.ScenicPlayers[int(game_object.tag)]
             position = stored_game_object.position
@@ -255,6 +256,7 @@ class UnityMessageServer:
 
             values = dict(
                 position = position,
+                prevPosition = prevPosition,
                 velocity = velocity,
                 speed = speed,
                 angularSpeed = speed,
@@ -266,6 +268,7 @@ class UnityMessageServer:
 
             return values
         elif obj.gameObjectType == "human":
+            prevPosition = obj.position
             game_object = obj.gameObject
             #change when we implement more human players
             stored_game_object = self.HumanPlayers["ego"]
@@ -292,6 +295,7 @@ class UnityMessageServer:
 
             values = dict(
                 position = position,
+                prevPosition = prevPosition,
                 velocity = velocity,
                 speed = speed,
                 angularSpeed = speed,
@@ -320,6 +324,7 @@ class UnityMessageServer:
                     topSurface = None
                 )
                 return values
+            prevPosition = obj.position
             game_object = obj.gameObject
             stored_game_object = self.ball
             # print(stored_game_object.position)
@@ -342,6 +347,7 @@ class UnityMessageServer:
 
             values = dict(
                 position = position,
+                prevPosition = prevPosition,
                 speed = speed,
                 velocity = velocity,
                 angularSpeed = speed,
@@ -354,12 +360,14 @@ class UnityMessageServer:
             return values
         elif obj.isUnityObject:
             #It must be a scenicObj
+            prevPosition = obj.position
             game_object = obj.gameObject
             stored_game_object = self.objects[int(game_object.tag)]
             position = stored_game_object.position
             rotation = stored_game_object.rotation
             values = dict(
                     position=position,
+                    prevPosition = prevPosition,
                     velocity=Vector(0,0,0),
                     speed = 0.0,
                     angularSpeed = 0.0,

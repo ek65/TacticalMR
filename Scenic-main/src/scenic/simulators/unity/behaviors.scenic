@@ -6,9 +6,18 @@ model scenic.simulators.unity.model
 # This file defines all shared scenic behaviors. In order to use any behavior defined
 # here, add "from scenic.simulators.vr.behaviors import *" to the top of the scenic file
 
+timestep = 0.1 # sec per timestep
+
+behavior IdleSpecial():
+    while True:
+        prev = ego.prevPosition
+        pos = ego.position
+        print(f"ego.prevPosition = {(prev.x, prev.y, prev.z)}")
+        print(f"ego.currPosition = {(pos.x, pos.y, pos.z)}")
+        take IdleAction()
+
 behavior Idle():
     while True:
-        # print(distance from ego to self)
         take IdleAction()
 
 behavior ShootBall(vec : Vector, string : str):
@@ -21,26 +30,56 @@ behavior InterceptBall(ball):
         take MoveToAction(ball.position, "Intercept Ball")
     take StopAction()
 
-behavior GroundPassFast(vec : Vector):
-    take GroundPassFastAction(vec, "Pass Ball")
+behavior PassTo(target):
+    # if the target is moving, then pass in front of the target
+    # target_pass_pos = target
+    # if isinstance(target, UnityObject):
+    #     target_pass_pos = target.position
+        # currPos  = target.position
+        # prevPos  = target.prevPosition
+        # move_dir = currPos - prevPos
+
+        # # compute predicted position of the target 1 second into the future
+        # target_pass_pos = new Point at (currPos.x + move_dir.x * 1/timestep, currPos.y + move_dir.y * 1/timestep, currPos.z + move_dir.z * 1/timestep)
+        # print(f"target name: {target.name}")
+        # print(f"currPos: {currPos}")
+        # print(f"move_dir: {move_dir}")
+        # print(f"target_pass_pos: {(target_pass_pos.x, target_pass_pos.y, target_pass_pos.z)}")
+    if isinstance(target, UnityObject):
+        target = target.position
+
+    take GroundPassFastAction(target, "Pass Ball")
     do Idle() for 0.6 seconds
     take StopAction()
 
-behavior LookAt(vec : Vector):
-    take LookAtAction(vec, "Look At")
+behavior LookAt(vec):
+    location = vec
+    if isinstance(vec, UnityObject):
+        location = vec.position
+    take LookAtAction(location, "Look At")
     take StopAction()
 
-behavior MoveTo(v, status=""):
+behavior MoveTo(v, lookAtTarget = None, distance = 0.5, status=""):
     dist = 1000
-    while not (dist < 0.5):
+    while not (dist < distance):
         if isinstance(v, Ball):
             take MoveToAction(v.position, status)
+            # take LookAtAction(v)
         elif isinstance(v, Vector):
             take MoveToAction(v, status)
+            # take LookAtAction(v)
         else:
+            # take MoveToAction(v.position, status)
             take MoveToAction(v.position, status)
-            # take MoveToAction(v.position, status), LookAtAction(v)
+            # take LookAtAction(v)
         dist = distance from self to v
+    
+    if lookAtTarget is None:
+        lookAtTarget = Vector(0, -13, 0)
+    else:
+        lookAtTarget = lookAtTarget.position
+    do LookAt(lookAtTarget)
+    
 
 behavior ApproachGoal(v):
     dist = 1000
