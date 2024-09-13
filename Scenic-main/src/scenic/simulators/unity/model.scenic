@@ -109,7 +109,6 @@ class AIAgent(UnityObject):
     length : 1.0
     height : 1.0
 
-
 # MARK: movingTowards
 def isMovingTowards(refObject: UnityObject, targetObject: UnityObject) -> bool:
     """
@@ -150,6 +149,93 @@ def isMovingTowards(refObject: UnityObject, targetObject: UnityObject) -> bool:
     dot_product = unit_moveDir.x * unit_direction.x + unit_moveDir.y * unit_direction.y + unit_moveDir.z * unit_direction.z
     # print(f"dot_product: {dot_product}")
     return dot_product > 0.866    
+
+# Mark: movesBeyond
+def movesBeyond(referenceObj, target):
+    """
+    Checks whether the reference object moves beyond, or drops below, the target object or position. 
+
+    Args:
+    referenceObj (Object): The reference object 
+    target (Object | Vector): The target object or position
+
+    Returns:
+    bool: True if the reference object is moves beyond, or drops below, the target object or position. 
+          Otherwise, returns False. 
+    """
+    return abs(referenceObj.position.y - target.position.y) < 0.1
+
+# Mark: isMovingUpTheField()
+def isMovingUpTheField(referenceObj):
+    """
+    Checks whether the reference object is moving up the field pitch. 
+
+    Args:
+    referenceObj (Object): The reference object 
+
+    Returns:
+    bool: True if the reference object is moving up the field pitch. 
+          Otherwise, returns False. 
+    """
+    return (referenceObj.position.y - referenceObj.prevPosition.y) > 0.01
+
+# Mark: isMovingDownTheField()
+def isMovingDownTheField(referenceObj):
+    """
+    Checks whether the reference object is moving down the field pitch. 
+
+    Args:
+    referenceObj (Object): The reference object 
+
+    Returns:
+    bool: True if the reference object is moving down the field pitch. 
+          Otherwise, returns False. 
+    """
+    return (referenceObj.position.y - referenceObj.prevPosition.y) < -0.01
+
+# Mark: movesDownTheMidLine
+def movesDownTheMidLine(referenceObj):
+    """
+    Checks whether the reference object moves below the middle line of the field. 
+
+    Args:
+    referenceObj (Object): The reference object 
+
+    Returns:
+    bool: True if the reference object moves below the middle line of the field
+          Otherwise, returns False. 
+    """
+    return referenceObj.position.y < 0
+
+# Mark: movesAboveTheMidLine
+def movesAboveTheMidLine(referenceObj):
+    """
+    Checks whether the reference object moves above the middle line of the field. 
+
+    Args:
+    referenceObj (Object): The reference object 
+
+    Returns:
+    bool: True if the reference object moves above the middle line of the field
+          Otherwise, returns False. 
+    """
+    return referenceObj.position.y > 0
+
+# Mark: isCloseTo
+def isCloseTo(referenceObj, target, distance = 4):
+    """
+    The reference object is close to the target object or position
+
+    Args:
+    referenceObj (Object): The reference object 
+    target (Object | Vector): The target object or position
+    distance (float): The threshold to distance to determine closenss. By default, it is set to 4 meters. 
+
+    Returns:
+    bool: True if the reference object is close to the target. 
+          Otherwise, returns False. 
+    """
+    return (distance from referenceObj to target) < distance
 
 def positionInLine(start: Vector, end: Vector, distance: float) -> Vector:
     """
