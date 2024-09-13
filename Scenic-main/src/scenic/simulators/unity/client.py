@@ -38,7 +38,7 @@ class UnityMessageServer:
         self.socket_address = "tcp://"+ str(self.ip) +":" + str(self.port)
         if self.isClient:
             self.socket = self.context.socket(zmq.REQ)
-            #self.socket.setsockopt(zmq.RCVTIMEO, self.timeout * 100)
+            self.socket.setsockopt(zmq.RCVTIMEO, self.timeout * 100)
             self.socket.setsockopt(zmq.HANDSHAKE_IVL, 0)
             self.socket.connect(self.socket_address)
         else:
@@ -132,8 +132,10 @@ class UnityMessageServer:
         self.sendData.clearObjects()
         self.step()
         self.sendData.clearControl()
-        self.resetData()
+        # self.resetData()
         self.step()
+        self.socket.close()
+        self.context.destroy()
     def resetData(self):
         self.timestepNumber = 0
         self.sendData = SendData()
