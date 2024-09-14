@@ -51,9 +51,22 @@ behavior opponentBbehavior():
     
 behavior leftBackBehavior():
     try: 
+        do Idle() for 2 seconds
+        do LookAt(ego.position)
+        do Idle() for 2 seconds
+        do LookAt(opponent_E.position) 
+    interrupt when ((distance from opponent_E to rightback) <= 4):
+        do MoveTo(Vector(self.position.x + 3, self.position.y + 8, self.position.z))
         do Idle()
-    interrupt when (isMovingUpTheField(ego)):
-        do MoveTo(Vector(-3,0,0))
+
+
+behavior centerBackBehavior():
+    try: 
+        do Idle()
+    interrupt when distance from self to midfielder2 < 1.5:
+        do Idle() for 4 seconds
+
+
 
 behavior goalieBehavior():
     do MoveTo(ball.position)
