@@ -80,13 +80,12 @@ midfielder2 = new Player at (-1,-4,0),
         with team "blue",
         with behavior midfielder2Behavior()
 
-# ego = new Human at (0,-11, 0),
-            # with name "coach"
+ego = new Human at (0,-11, 0), with name "coach"
 
-ego = new Player at (0,-11, 0),
-        with name "coach",
-        with team "blue",
-        with behavior centerBackBehavior()
+# ego = new Player at (0,-11, 0),
+#         with name "coach",
+#         with team "blue",
+#         with behavior centerBackBehavior()
 
 rightback = new Player at (7, -9, 0), 
         with name "rightback",
