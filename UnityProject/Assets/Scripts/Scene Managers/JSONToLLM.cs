@@ -33,6 +33,10 @@ public class JSONToLLM : MonoBehaviour
     public bool videoIsRecording;
     private RecorderManager recorderManager;
     public bool loggingStartedByUnpause = false;
+    [Tooltip("Used to record system jsons/videos")]
+    // used in tandem with python script to run all scenic tests, records jsons and videos in ONE segment
+    // if this bool is activated, mic should not be activated 
+    public bool activateSystemRecording = false; 
 
     // Class representing the position of an object
     [System.Serializable]
@@ -442,8 +446,20 @@ public class JSONToLLM : MonoBehaviour
         JSONDirectory jsonDirectory = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<JSONDirectory>();
         
         // Build the sentence before creating JSON
-        keyboard.explanation = BuildSentenceFromTokens(tokenDictionary);
-        Debug.Log("Constructed Sentence: " + keyboard.explanation);
+        if (!activateSystemRecording)
+        {
+            keyboard.explanation = BuildSentenceFromTokens(tokenDictionary);
+            Debug.Log("Constructed Sentence: " + keyboard.explanation);
+        } else if (activateSystemRecording)
+        {
+            keyboard.explanation = GameObject.FindGameObjectWithTag("human").GetComponent<HumanInterface>().explanation;
+            foreach (var clickTime in keyboard.annotationTimes)
+            {
+                int annotationKey = clickTime.Key;
+                keyboard.explanation += $" [{annotationKey}]";
+            }
+        }
+        
 
         // Proceed to serialize the scene data into JSON
         var settings = new JsonSerializerSettings
@@ -530,13 +546,20 @@ public class JSONToLLM : MonoBehaviour
     // Update the scene data on a fixed time interval
     private void FixedUpdate()
     {
-        if (streamingSampleMic.isSpeechDetected)
+        if (!activateSystemRecording)
         {
-            voiceActivated = true;
-            keyboard.activationConditionMet = true; 
-            Debug.Log("voice check activated");
+            if (streamingSampleMic.isSpeechDetected)
+            {
+                voiceActivated = true;
+                keyboard.activationConditionMet = true; 
+                Debug.Log("voice check activated");
+            }
         }
-
+        else if (activateSystemRecording && keyboard.segmentStarted) // if system recording and segment started, we want to start logging
+        {
+            isLogging = true;
+        }
+        
         // check both flags before starting logging (voice activity or unpause)
         if (keyboard.segmentStarted && keyboard.activationConditionMet && !isLogging)
         {
@@ -556,7 +579,7 @@ public class JSONToLLM : MonoBehaviour
                 videoIsRecording = recorderManager.RecorderController.IsRecording();
             }
         }
-        else if (!isLogging && !voiceActivated)
+        else if (!isLogging)
         {
             if (recorderManager.RecorderController.IsRecording())
             {

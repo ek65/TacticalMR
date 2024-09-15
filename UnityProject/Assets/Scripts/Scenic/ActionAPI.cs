@@ -186,7 +186,19 @@ public class ActionAPI : MonoBehaviour
     {
         TimelineManager tlManager =
             GameObject.FindGameObjectWithTag("TimelineManager").GetComponent<TimelineManager>();
-        tlManager.Unpause();;
+        tlManager.Unpause();
+    }
+
+    public void SegmentStart()
+    {
+        KeyboardInput keyboardInput = GameObject.FindGameObjectWithTag("keyboard").GetComponent<KeyboardInput>();
+        keyboardInput.StartSegment();
+    }
+    
+    public void SegmentEnd()
+    {
+        KeyboardInput keyboardInput = GameObject.FindGameObjectWithTag("keyboard").GetComponent<KeyboardInput>();
+        keyboardInput.StopSegment();
     }
 
     #endregion

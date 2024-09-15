@@ -14,13 +14,17 @@ public class JSONDirectory : MonoBehaviour
     public Drills drillID;
     public int demoNum = -1;
     public string DemoNum => "demo" + demoNum.ToString();
+    public int transcriptNum = -1; // only used for system recording
     
     private DirectoryInfo drillFolder;
     private DirectoryInfo demoFolder;
     private DirectoryInfo videoFolder;
     private DirectoryInfo jsonSegmentFolder;
     private KeyboardInput keyboardInput;
+    private JSONToLLM jsonToLLM;
     private bool initialDemo = true;
+
+    private DirectoryInfo systemTranscriptsFolder;
 
     public bool InitialDemo
     {
@@ -63,6 +67,7 @@ public class JSONDirectory : MonoBehaviour
     private void Start()
     {
         keyboardInput = GameObject.FindGameObjectWithTag("keyboard").GetComponent<KeyboardInput>();
+        jsonToLLM = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<JSONToLLM>();
     }
 
     public void AddAndSaveDemo()
@@ -98,84 +103,166 @@ public class JSONDirectory : MonoBehaviour
 
     public void InstantiateInitialFolders()
     {
-        DirectoryInfo directoryOutputFolder = new DirectoryInfo(Path.Combine(Application.dataPath, "..", "..", "output"));
-        if (!directoryOutputFolder.Exists)
+        if (!jsonToLLM.activateSystemRecording)
         {
-            directoryOutputFolder.Create();
+            DirectoryInfo directoryOutputFolder = new DirectoryInfo(Path.Combine(Application.dataPath, "..", "..", "output"));
+            if (!directoryOutputFolder.Exists)
+            {
+                directoryOutputFolder.Create();
+            }
+        
+            DirectoryInfo participantFolder = 
+                new DirectoryInfo(Path.Combine(directoryOutputFolder.FullName, "participant" + participantID.ToString()));
+            if (!participantFolder.Exists)
+            {
+                participantFolder.Create();
+            }
+        
+            drillFolder = 
+                new DirectoryInfo(Path.Combine(participantFolder.FullName, drillID.ToString()));
+            if (!drillFolder.Exists)
+            {
+                drillFolder.Create();
+            } else if (drillFolder.Exists)
+            {
+                drillFolder.Delete(true);
+                drillFolder.Create();
+            }
+        }
+        else if (jsonToLLM.activateSystemRecording)
+        {
+            DirectoryInfo directoryOutputFolder = new DirectoryInfo(Path.Combine(Application.dataPath, "..", "..", "output"));
+            if (!directoryOutputFolder.Exists)
+            {
+                directoryOutputFolder.Create();
+            }
+            
+            DirectoryInfo systemFolder = 
+                new DirectoryInfo(Path.Combine(directoryOutputFolder.FullName, "system_recordings"));
+            if (!systemFolder.Exists)
+            {
+                systemFolder.Create();
+            }
+            systemTranscriptsFolder = 
+                new DirectoryInfo(Path.Combine(systemFolder.FullName, "transcript" + transcriptNum.ToString()));
+            if (!systemTranscriptsFolder.Exists)
+            {
+                systemTranscriptsFolder.Create();
+            }
+            
         }
         
-        DirectoryInfo participantFolder = 
-            new DirectoryInfo(Path.Combine(directoryOutputFolder.FullName, "participant" + participantID.ToString()));
-        if (!participantFolder.Exists)
-        {
-            participantFolder.Create();
-        }
-        
-        drillFolder = 
-            new DirectoryInfo(Path.Combine(participantFolder.FullName, drillID.ToString()));
-        if (!drillFolder.Exists)
-        {
-            drillFolder.Create();
-        } else if (drillFolder.Exists)
-        {
-            drillFolder.Delete(true);
-            drillFolder.Create();
-        }
     }
     public void InstantiateDemoFolders()
     {
-        DirectoryInfo directoryOutputFolder = new DirectoryInfo(Path.Combine(Application.dataPath, "..", "..", "output"));
-        if (!directoryOutputFolder.Exists)
+        if (!jsonToLLM.activateSystemRecording)
         {
-            directoryOutputFolder.Create();
+            DirectoryInfo directoryOutputFolder = new DirectoryInfo(Path.Combine(Application.dataPath, "..", "..", "output"));
+            if (!directoryOutputFolder.Exists)
+            {
+                directoryOutputFolder.Create();
+            }
+        
+            DirectoryInfo participantFolder = 
+                new DirectoryInfo(Path.Combine(directoryOutputFolder.FullName, "participant" + participantID.ToString()));
+            if (!participantFolder.Exists)
+            {
+                participantFolder.Create();
+            }
+        
+            drillFolder = 
+                new DirectoryInfo(Path.Combine(participantFolder.FullName, drillID.ToString()));
+            if (!drillFolder.Exists)
+            {
+                drillFolder.Create();
+            }
+        
+            demoFolder = 
+                new DirectoryInfo(Path.Combine(drillFolder.FullName, "demonstration" + demoNum.ToString()));
+            if (!demoFolder.Exists)
+            {
+                demoFolder.Create();
+            } else if (demoFolder.Exists)
+            {
+                demoFolder.Delete(true);
+                demoFolder.Create();
+            }
+        
+            videoFolder = 
+                new DirectoryInfo(Path.Combine(demoFolder.FullName, "videos"));
+            if (!videoFolder.Exists)
+            {
+                videoFolder.Create();
+            } else if (videoFolder.Exists)
+            {
+                videoFolder.Delete(true);
+                videoFolder.Create();
+            }
+        
+            jsonSegmentFolder = 
+                new DirectoryInfo(Path.Combine(demoFolder.FullName, "json_segments"));
+            if (!jsonSegmentFolder.Exists)
+            {
+                jsonSegmentFolder.Create();
+            } else if (jsonSegmentFolder.Exists)
+            {
+                jsonSegmentFolder.Delete(true);
+                jsonSegmentFolder.Create();
+            }
+        } else if (jsonToLLM.activateSystemRecording)
+        {
+            DirectoryInfo directoryOutputFolder = new DirectoryInfo(Path.Combine(Application.dataPath, "..", "..", "output"));
+            if (!directoryOutputFolder.Exists)
+            {
+                directoryOutputFolder.Create();
+            }
+            
+            DirectoryInfo systemFolder = 
+                new DirectoryInfo(Path.Combine(directoryOutputFolder.FullName, "system_recordings"));
+            if (!systemFolder.Exists)
+            {
+                systemFolder.Create();
+            }
+            systemTranscriptsFolder = 
+                new DirectoryInfo(Path.Combine(systemFolder.FullName, "transcript" + transcriptNum.ToString()));
+            if (!systemTranscriptsFolder.Exists)
+            {
+                systemTranscriptsFolder.Create();
+            }
+            demoFolder = 
+                new DirectoryInfo(Path.Combine(systemTranscriptsFolder.FullName, "demonstration" + demoNum.ToString()));
+            if (!demoFolder.Exists)
+            {
+                demoFolder.Create();
+            } else if (demoFolder.Exists)
+            {
+                demoFolder.Delete(true);
+                demoFolder.Create();
+            }
+        
+            videoFolder = 
+                new DirectoryInfo(Path.Combine(demoFolder.FullName, "videos"));
+            if (!videoFolder.Exists)
+            {
+                videoFolder.Create();
+            } else if (videoFolder.Exists)
+            {
+                videoFolder.Delete(true);
+                videoFolder.Create();
+            }
+        
+            jsonSegmentFolder = 
+                new DirectoryInfo(Path.Combine(demoFolder.FullName, "json_segments"));
+            if (!jsonSegmentFolder.Exists)
+            {
+                jsonSegmentFolder.Create();
+            } else if (jsonSegmentFolder.Exists)
+            {
+                jsonSegmentFolder.Delete(true);
+                jsonSegmentFolder.Create();
+            }
         }
         
-        DirectoryInfo participantFolder = 
-            new DirectoryInfo(Path.Combine(directoryOutputFolder.FullName, "participant" + participantID.ToString()));
-        if (!participantFolder.Exists)
-        {
-            participantFolder.Create();
-        }
-        
-        drillFolder = 
-            new DirectoryInfo(Path.Combine(participantFolder.FullName, drillID.ToString()));
-        if (!drillFolder.Exists)
-        {
-            drillFolder.Create();
-        }
-        
-        demoFolder = 
-            new DirectoryInfo(Path.Combine(drillFolder.FullName, "demonstration" + demoNum.ToString()));
-        if (!demoFolder.Exists)
-        {
-            demoFolder.Create();
-        } else if (demoFolder.Exists)
-        {
-            demoFolder.Delete(true);
-            demoFolder.Create();
-        }
-        
-        videoFolder = 
-            new DirectoryInfo(Path.Combine(demoFolder.FullName, "videos"));
-        if (!videoFolder.Exists)
-        {
-            videoFolder.Create();
-        } else if (videoFolder.Exists)
-        {
-            videoFolder.Delete(true);
-            videoFolder.Create();
-        }
-        
-        jsonSegmentFolder = 
-            new DirectoryInfo(Path.Combine(demoFolder.FullName, "json_segments"));
-        if (!jsonSegmentFolder.Exists)
-        {
-            jsonSegmentFolder.Create();
-        } else if (jsonSegmentFolder.Exists)
-        {
-            jsonSegmentFolder.Delete(true);
-            jsonSegmentFolder.Create();
-        }
         
     }
     
@@ -183,6 +270,11 @@ public class JSONDirectory : MonoBehaviour
     {
         DirectoryInfo videoFile = 
             new DirectoryInfo(Path.Combine(videoFolder.FullName, ParticipantID + "_" + DemoNum + "_" + "segment" + recordingNum.ToString()));
+        if (jsonToLLM.activateSystemRecording)
+        {
+            videoFile = 
+                new DirectoryInfo(Path.Combine(videoFolder.FullName, "transcript" + transcriptNum + "_" + DemoNum + "_" + "segment" + recordingNum.ToString()));
+        }
 
         return videoFile.FullName;
     }
@@ -191,10 +283,16 @@ public class JSONDirectory : MonoBehaviour
     {
         DirectoryInfo jsonSegmentFile = 
             new DirectoryInfo(Path.Combine(jsonSegmentFolder.FullName, ParticipantID + "_" + DemoNum + "_" + "segment" + recordingNum.ToString()));
+        if (jsonToLLM.activateSystemRecording)
+        {
+            jsonSegmentFile = 
+                new DirectoryInfo(Path.Combine(jsonSegmentFolder.FullName, "transcript" + transcriptNum + "_" + DemoNum + "_" + "segment" + recordingNum.ToString()));
+        }
 
         return jsonSegmentFile.FullName;
     }
 
+    // UI element prompt
     public void SaveDemonstrationButton()
     {
         AddAndSaveDemo();

@@ -214,35 +214,66 @@ public class KeyboardInput : MonoBehaviour
     }
 
 
-    private void StartSegment()
+    public void StartSegment()
     {
+        if (segmentStarted)
+        {
+            return;
+        }
+        
         timelineManager.isRecordingSegment = true;
         segmentStarted = true;
         
         timelineManager.segmentCount++;
         
+        // this is to reset time index since we dont unpause on system recording
+        if (jsonToLLM.activateSystemRecording)
+        {
+            // reset time index on unpause
+            timelineManager.TimeIndex = 0;
+            timelineManager.RewindTimeIndex = 0;
+        }
+        
         if (timelineManager.segmentCount <= 0)
         {
             Debug.Log("Started first segment recording");
             jsonDirectory.IncrementDemoNum();
+            
+            // only used for system recording
+            if (jsonToLLM.activateSystemRecording)
+            {
+                jsonDirectory.transcriptNum++;
+            }
+            
             if (jsonDirectory.InitialDemo)
             {
                 jsonDirectory.InstantiateInitialFolders();
                 jsonDirectory.InitialDemo = false;
             }
             jsonDirectory.InstantiateDemoFolders();
-            streamingSampleMic.OnButtonPressed();
+            if (!jsonToLLM.activateSystemRecording)
+            {
+                streamingSampleMic.OnButtonPressed();
+            }
         }
         else
         {
             Debug.Log("Started new segment recording");
-            streamingSampleMic.OnButtonPressed();
+            if (!jsonToLLM.activateSystemRecording)
+            {
+                streamingSampleMic.OnButtonPressed();
+            }
         }
     }
 
-    private void StopSegment()
+    public void StopSegment()
     {
-        streamingSampleMic.OnButtonPressed();
+        if (segmentStarted == false)
+        {
+            return;
+        }
+        jsonToLLM.voiceActivated = false;
+        streamingSampleMic.microphoneRecord.StopRecord();
         Debug.Log("Stopped segment recording");
         timelineManager.isRecordingSegment = false;
         jsonToLLM.isLogging = false;
@@ -250,7 +281,16 @@ public class KeyboardInput : MonoBehaviour
         activationConditionMet = false; 
         GroundSelection groundSelection = GameObject.FindGameObjectWithTag("Ground").GetComponent<GroundSelection>();
         groundSelection.ClearGroundHighlights();
-        StartCoroutine(ChainedCoroutines());
+        if (!jsonToLLM.activateSystemRecording)
+        {
+            StartCoroutine(ChainedCoroutines());
+        } else if (jsonToLLM.activateSystemRecording) // dont need to process transcript if recording system
+        {
+            jsonToLLM.CreateJSONString();
+            ResetJsonData();
+            jsonDirectory.demoNum = -1;
+        }
+        
     }
 
     // Handles a mouse click with a delay to prevent rapid clicks

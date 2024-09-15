@@ -594,6 +594,20 @@ class UnpauseAction(Action):
     def applyTo(self, obj, sim):
         obj.gameObject.DoAction(self.actionName)
 
+class SegmentStartAction(Action):
+    def __init__(self):
+        self.actionName = "SegmentStart"
+
+    def applyTo(self, obj, sim):
+        obj.gameObject.DoAction(self.actionName)
+
+class SegmentEndAction(Action):
+    def __init__(self):
+        self.actionName = "SegmentEnd"
+
+    def applyTo(self, obj, sim):
+        obj.gameObject.DoAction(self.actionName)
+
 class ExplainAction(Action):
     def __init__(self, input):
         self.actionName = "Explain"
