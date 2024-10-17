@@ -47,6 +47,7 @@ class Ball(UnityObject):
     width : 0.15
     length : 0.15
     height : 0.15
+    name: "Ball"
 
 class Goal(UnityObject):
     gameObjectType: "goal"
@@ -407,7 +408,7 @@ def orientWaist(player: Player, angle: int) -> None:
 #     bool: True if the object is within the specified bounds, False otherwise.
 #     '''
 
-def inBetween(object1: UnityObject | Vector, object2: UnityObject | Vector) -> Vector:
+def inBetween(object1, object2) -> Vector:
     ''' 
     compute a center position in between two objects. 
     Args:

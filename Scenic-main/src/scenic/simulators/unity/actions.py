@@ -3,6 +3,7 @@ from scenic.core.vectors import Vector
 from scenic.core.object_types import OrientedPoint, Point
 from scenic.simulators.unity.client import *
 from enum import Enum
+import numpy as np
 
 # Language: Python 3
 # This file holds all base actions defined for scenic
@@ -705,3 +706,80 @@ class MoveToLookAtBallWithSpeed(Action):
     def applyTo(self, obj, sim):
         obj.gameObject.SetBehavior("Move While Looking at Ball")
         obj.gameObject.DoAction(self.actionName, self.position, self.speed)
+
+
+
+FIELD_WIDTH, FIELD_HEIGHT = 20, 34
+NUM_ZONES_X, NUM_ZONES_Y = 4, 5
+ZONE_WIDTH = FIELD_WIDTH / NUM_ZONES_X
+ZONE_HEIGHT = FIELD_HEIGHT / NUM_ZONES_Y
+class Constraint:
+
+    def __init__(self, args):
+        self.args = args
+
+    def verify(self, sample):
+        raise Exception("verify() not implemented")
+
+class InZone(Constraint):
+
+    def __init__(self, args={}):
+        super().__init__(args=args)
+
+    def verify(self, sample, scene):
+        return self.get_zone(sample) == self.args['zone']
+
+    def get_zone(self, point):
+
+        zone_x = int((point[0] + FIELD_WIDTH / 2) // ZONE_WIDTH)
+        zone_y = int((point[1] + FIELD_HEIGHT / 2) // ZONE_HEIGHT)
+
+        zone_x_labels = ['A', 'B', 'C', 'D', 'E']
+        zone_y_labels = ['1', '2', '3', '4', '5', '6', '7', '8']
+
+        if 0 <= zone_x < NUM_ZONES_X and 0 <= zone_y < NUM_ZONES_Y:
+            zone_label = zone_x_labels[zone_x] + zone_y_labels[zone_y]
+            return zone_label
+        else:
+            return None
+
+class Object:
+    def __init__(self, label, type, location):
+        self.label = label
+        self.type = type
+        self.location = location
+
+class HasAngle(Constraint):
+
+    def __init__(self, ref):
+        super().__init__({'ref': ref})
+
+    def verify(self, sample, scene):
+        for obj in [i for i in scene.objects if i.name.startswith("opponent")]:
+            # print(self.args['ref'])
+
+            if self.closest(Object('A', 'coach', sample), Object('R', 'ref', [self.args['ref']['ref'].position.x, self.args['ref']['ref'].position.y]), Object('O', 'opponent', [obj.position.x, obj.position.y])) < self.args['ref']['r']:
+                return False
+        return True
+
+    def closest(self, start, end, obj):
+
+        p1 = np.array(start.location)
+        p2 = np.array(end.location)
+        p0 = np.array(obj.location)
+        print('p0', p0)
+        print('p1', p1)
+        print('p2', p2)
+        line_vec, obj_vec = p2 - p1, p0 - p1
+        line_len = np.dot(line_vec, line_vec)
+
+        if line_len == 0:
+            return np.linalg.norm(p0 - p1)
+
+        t = np.dot(obj_vec, line_vec) / line_len
+        t = max(0, min(1, t))
+
+        closest_point = p1 + t * line_vec
+        distance = np.linalg.norm(p0 - closest_point)
+
+        return distance
