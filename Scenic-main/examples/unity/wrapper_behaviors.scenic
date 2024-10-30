@@ -14,11 +14,11 @@ NUM_ZONES_X, NUM_ZONES_Y = 4, 5
 ZONE_WIDTH = FIELD_WIDTH / NUM_ZONES_X
 ZONE_HEIGHT = FIELD_HEIGHT / NUM_ZONES_Y
 
-def sample_target(prev_target : Vector, scene, λ_dest : list, λ_always = None : list) -> Vector:
+def sample_target(prev_target : Vector, scene, λ_dest : Callable, λ_always = None : Callable) -> Vector:
     i = 0
     sample = [prev_target.x, prev_target.y]
 
-    while not λ(sample, scene, λ_dest):
+    while not λ_dest(sample, scene):
 
         x = Range(-FIELD_WIDTH / 2, FIELD_WIDTH / 2)
         y = Range(-FIELD_HEIGHT / 2, FIELD_HEIGHT / 2)
@@ -31,31 +31,34 @@ def sample_target(prev_target : Vector, scene, λ_dest : list, λ_always = None 
     target = Vector(sample[0], sample[1], 0)
     return target
 
-def λ(sample, scene, λ_dest : list) -> bool:
-    for i in range(len(λ_dest)):
-        if not λ_dest[i].verify(sample, scene):
-            return False
-    return True
-
-behavior MoveTo(λ_dest : list):
+#info is index of corresponding action
+behavior MoveTo(info):
     scene = simulation()
+    λ_dest = create_lambda_dest(info[0][0])
+
     target = Vector(0, 0, 0)
 	target = sample_target(target, scene, λ_dest)
 	while (distance from self to target > 0.5){
-		do moveTo(target) for timestep seconds
+		do MoveTo(target) for timestep seconds
 		target = sample_target(target, scene, λ_dest)
 	}
 	do Idle()
 
-behavior MoveTo(λ_dest : list, λ_always : list):
-    scene = simulation()
-    target = Vector(0, 0, 0)
-	target = sample_target(target, scene, λ_dest, λ_always)
-	while (distance from self to target > 0.5){
-		do moveTo(target) for timestep seconds
-		target = sample_target(target, scene, λ_dest, λ_always)
-	}
-	do Idle()
+# def create_lambda_dest(constraints : info["args"]):
+#     for i in range(len(constraints)):
+#         if not constraints[i].verify(sample, scene):
+#             return False
+#     return True
+
+# behavior MoveTo(λ_dest: Callable, λ_always : Callable):
+#     scene = simulation()
+#     target = Vector(0, 0, 0)
+# 	target = sample_target(target, scene, λ_dest, λ_always)
+# 	while (distance from self to target > 0.5){
+# 		do MoveTo(target) for timestep seconds
+# 		target = sample_target(target, scene, λ_dest, λ_always)
+# 	}
+# 	do Idle()
 
 
 behavior ThroughPass(λ_dest : list):
