@@ -62,7 +62,6 @@ terminate when (ego.gameObject.stopButton)
 A = InZone({'zone': 'C2'})
 B = HasAngle({'ref': 'teammate', 'r': 2.3})
 
-
 def λ_dest(scene, sample):
     scene = simulation()
     return (A(scene, sample) and B(scene,sample))
@@ -97,5 +96,12 @@ behavior MoveToWrapper(λ_dest):
     while (distance from self to target > 0.5):
         do MoveTo(target) for timestep seconds
         target = sample_target(target, scene, λ_dest)
+    do Idle()
+
+behavior ThroughPass(λ_dest):
+    scene = simulation()
+    target = Vector(0, 0, 0)
+    target = sample_target(target, scene, λ_dest)
+    do PassTo(target)
     do Idle()
 
