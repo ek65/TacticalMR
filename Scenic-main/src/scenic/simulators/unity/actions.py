@@ -718,7 +718,7 @@ class Constraint:
     def __init__(self, args):
         self.args = args
 
-    def verify(self, sample):
+    def __call__(self, sample):
         raise Exception("verify() not implemented")
 
 class InZone(Constraint):
@@ -726,7 +726,7 @@ class InZone(Constraint):
     def __init__(self, args={}):
         super().__init__(args=args)
 
-    def verify(self, sample, scene):
+    def __call__(self, sample, scene):
         return self.get_zone(sample) == self.args['zone']
 
     def get_zone(self, point):

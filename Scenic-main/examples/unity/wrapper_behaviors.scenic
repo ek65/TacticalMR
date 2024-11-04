@@ -32,9 +32,8 @@ def sample_target(prev_target : Vector, scene, λ_dest : Callable, λ_always = N
     return target
 
 #info is index of corresponding action
-behavior MoveTo(info):
+behavior MoveToWrapper():
     scene = simulation()
-    λ_dest = create_lambda_dest(info[0][0])
 
     target = Vector(0, 0, 0)
 	target = sample_target(target, scene, λ_dest)

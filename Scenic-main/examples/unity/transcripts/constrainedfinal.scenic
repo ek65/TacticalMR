@@ -11,21 +11,17 @@ import random
 penalty_box = MeshVolumeRegion(trimesh.creation.box((1, 1, 1)), dimensions = (4, 2, .1), position = (5, -1.5, 0))
 timestep = 0.1
 pt = new OrientedPoint at (0,0,0)
-target = Vector(0, 0, 0)
 
 FIELD_WIDTH, FIELD_HEIGHT = 20, 34
 NUM_ZONES_X, NUM_ZONES_Y = 4, 5
 ZONE_WIDTH = FIELD_WIDTH / NUM_ZONES_X
 ZONE_HEIGHT = FIELD_HEIGHT / NUM_ZONES_Y
 
-
+### inserted
 behavior coachBehavior():
-    try:
-        scene = simulation()
-        do MoveTo(sample_target()) for timestep seconds
-    interrupt when (distance from ego to opponent_2 < 10):
-        do Idle() for 0.5 seconds
-        do PassTo(teammate)
+    scene = simulation()
+    do MoveToWrapper(λ_dest) until λ_termination
+###
 
 behavior teammateBehavior():
     try: 
@@ -55,36 +51,51 @@ goal= new Goal at (0,-16,0),
     with name "goal",
     facing away from pt
 
-ego = new Player at (3.5,2, 0),
-            with name "coach",
-            with behavior coachBehavior(),
-            facing goal 
+ego = new Player at (3.5,2, 0), with name "coach", with behavior coachBehavior(), facing goal 
 
 ball = new Ball ahead of ego
-# [obj if obj.name.startswith(" ") else None for obj in scene.objects]
+
 terminate when (ego.gameObject.stopButton)
 
+### inserted 
+
 A = InZone({'zone': 'C2'})
-B = HasAngle({'ref': teammate, 'r': 2.3})
+B = HasAngle({'ref': 'teammate', 'r': 2.3})
 
-def sample_target() -> Vector:
-    global target
+
+def λ_dest(scene, sample):
+    scene = simulation()
+    return (A(scene, sample) and B(scene,sample))
+
+def λ_termination(scene, sample):
+    scene = simulation()
+    return B(scene,sample)
+
+####
+
+def sample_target(prev_target, scene, λ_dest) -> Vector: 
     i = 0
-    prev = [target.x, target.y]
+    sample = [prev_target.x, prev_target.y]
 
-    while not λ(prev):
+    while not λ_dest(sample, scene):
 
         x = Range(-FIELD_WIDTH / 2, FIELD_WIDTH / 2)
         y = Range(-FIELD_HEIGHT / 2, FIELD_HEIGHT / 2)
-        prev = [x,y]
+        sample = [x,y]
 
         if i > 1000:
             raise Exception("Maximum sample depth exceeded.")
         i += 1
 
-    target = Vector(prev[0], prev[1], 0)
+    target = Vector(sample[0], sample[1], 0)
     return target
 
-def λ(sample) -> bool:
+behavior MoveToWrapper(λ_dest):
     scene = simulation()
-    return A.verify(sample, scene) and B.verify(sample, scene)
+    target = Vector(0, 0, 0)
+    target = sample_target(target, scene, λ_dest)
+    while (distance from self to target > 0.5):
+        do MoveTo(target) for timestep seconds
+        target = sample_target(target, scene, λ_dest)
+    do Idle()
+

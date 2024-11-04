@@ -15,6 +15,7 @@ midfielderPos = Vector(Range(-1.5,-2), -2, 0)
 destPosMid = Vector(midfielderPos.x - 3, midfielderPos.y, midfielderPos.z)
 
 
+
 behavior midfielder1Behavior():
     try: 
         do Idle()
