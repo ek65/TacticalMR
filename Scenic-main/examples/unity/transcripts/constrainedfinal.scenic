@@ -17,10 +17,15 @@ NUM_ZONES_X, NUM_ZONES_Y = 4, 5
 ZONE_WIDTH = FIELD_WIDTH / NUM_ZONES_X
 ZONE_HEIGHT = FIELD_HEIGHT / NUM_ZONES_Y
 
+target = None
+
 ### inserted
 behavior coachBehavior():
     scene = simulation()
-    do MoveToWrapper(λ_dest) until λ_termination
+    presample(scene, λ_dest)
+    # do MoveToWrapper(λ_dest) until λ_termination(target, scene)
+    do MoveToWrapper(λ_dest)
+    do PassTo(teammate)
 ###
 
 behavior teammateBehavior():
@@ -62,20 +67,24 @@ terminate when (ego.gameObject.stopButton)
 A = InZone({'zone': 'C2'})
 B = HasAngle({'ref': 'teammate', 'r': 2.3})
 
-def λ_dest(scene, sample):
+def λ_dest(sample, scene):
+    # print(sample)
+    # print(scene)
     scene = simulation()
-    return (A(scene, sample) and B(scene,sample))
+    return (A(sample, scene) and B(sample,scene))
 
-def λ_termination(scene, sample):
+def λ_termination(sample, scene):
+    print(target)
     scene = simulation()
-    return B(scene,sample)
+    return B(sample, scene)
 
 ####
 
-def sample_target(prev_target, scene, λ_dest) -> Vector: 
+def presample(scene, λ_dest) -> Vector:
+    global target
     i = 0
-    sample = [prev_target.x, prev_target.y]
-
+    sample = Vector(0, 0)
+    
     while not λ_dest(sample, scene):
 
         x = Range(-FIELD_WIDTH / 2, FIELD_WIDTH / 2)
@@ -86,21 +95,39 @@ def sample_target(prev_target, scene, λ_dest) -> Vector:
             raise Exception("Maximum sample depth exceeded.")
         i += 1
 
-    target = Vector(sample[0], sample[1], 0)
+    target = Vector(sample[0], sample[1])
+    return target
+
+def sample_target(prev_target, scene, λ_dest) -> Vector: 
+    global target
+    i = 0
+    sample = [prev_target.x, prev_target.y]
+    
+    while not λ_dest(sample, scene):
+
+        x = Range(-FIELD_WIDTH / 2, FIELD_WIDTH / 2)
+        y = Range(-FIELD_HEIGHT / 2, FIELD_HEIGHT / 2)
+        sample = [x,y]
+
+        if i > 1000:
+            raise Exception("Maximum sample depth exceeded.")
+        i += 1
+
+    target = Vector(sample[0], sample[1])
     return target
 
 behavior MoveToWrapper(λ_dest):
     scene = simulation()
-    target = Vector(0, 0, 0)
+    target = Vector(0, 0)
     target = sample_target(target, scene, λ_dest)
     while (distance from self to target > 0.5):
         do MoveTo(target) for timestep seconds
         target = sample_target(target, scene, λ_dest)
-    do Idle()
+    do Idle() for 1 seconds
 
 behavior ThroughPass(λ_dest):
     scene = simulation()
-    target = Vector(0, 0, 0)
+    target = Vector(0, 0)
     target = sample_target(target, scene, λ_dest)
     do PassTo(target)
     do Idle()

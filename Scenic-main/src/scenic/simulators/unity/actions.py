@@ -718,16 +718,17 @@ class Constraint:
     def __init__(self, args):
         self.args = args
 
-    def __call__(self, sample):
-        raise Exception("verify() not implemented")
+    def __call__(self, sample, scene):
+        pass
 
 class InZone(Constraint):
 
     def __init__(self, args={}):
-        super().__init__(args=args)
+        self.zone = args.get('zone', None)
+        # super().__init__(args=args)
 
     def __call__(self, sample, scene):
-        return self.get_zone(sample) == self.args['zone']
+        return self.get_zone(sample) == self.zone
 
     def get_zone(self, point):
 
@@ -739,6 +740,7 @@ class InZone(Constraint):
 
         if 0 <= zone_x < NUM_ZONES_X and 0 <= zone_y < NUM_ZONES_Y:
             zone_label = zone_x_labels[zone_x] + zone_y_labels[zone_y]
+            # print(zone_label)
             return zone_label
         else:
             return None
@@ -751,25 +753,31 @@ class Object:
 
 class HasAngle(Constraint):
 
-    def __init__(self, ref):
-        super().__init__({'ref': ref})
+    def __init__(self, args={}):
+        self.ref = args.get('ref', None)
+        self.radius = args.get('r', None)
+        # super().__init__({'ref': ref})
 
-    def verify(self, sample, scene):
+    def __call__(self, sample, scene):
+        if isinstance(self.ref, str):
+            self.ref = [obj for obj in scene.objects if obj.name == self.ref][0] # converts string into object reference
+
         for obj in [i for i in scene.objects if i.name.startswith("opponent")]:
-            # print(self.args['ref'])
-
-            if self.closest(Object('A', 'coach', sample), Object('R', 'ref', [self.args['ref']['ref'].position.x, self.args['ref']['ref'].position.y]), Object('O', 'opponent', [obj.position.x, obj.position.y])) < self.args['ref']['r']:
+            if self.closest(Object('A', 'coach', sample), Object('R', 'ref', [self.ref.position.x, self.ref.position.y]), Object('O', 'opponent', [obj.position.x, obj.position.y])) < self.radius:
                 return False
         return True
 
     def closest(self, start, end, obj):
 
-        p1 = np.array(start.location)
-        p2 = np.array(end.location)
-        p0 = np.array(obj.location)
-        print('p0', p0)
-        print('p1', p1)
-        print('p2', p2)
+        p1 = np.array(start.location)[:2]
+        p2 = np.array(end.location)[:2]
+        p0 = np.array(obj.location)[:2]
+        # print('p0', p0)
+        # print(type(p0))
+        # print('p1', p1)
+        # print(type(p1))
+        # print('p2', p2)
+        # print(type(p2))
         line_vec, obj_vec = p2 - p1, p0 - p1
         line_len = np.dot(line_vec, line_vec)
 
