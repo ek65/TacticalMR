@@ -27,6 +27,8 @@ public class ScenicParser
         }
         return objData;
     }
+    
+    
     private ScenicMovementData HandleMovementData(Object data)
     {
         Vector3 pos = ListToVector(data.Position);

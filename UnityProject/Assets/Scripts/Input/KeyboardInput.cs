@@ -457,7 +457,7 @@ public class KeyboardInput : MonoBehaviour
         string baseText = "TRANSCRIPTION PROCESSING";
         
         int dotCount = 0;
-        countdownText.fontSize = 230;
+        countdownText.fontSize = 100;
 
         while (!jsonToLLM.isTranscriptionComplete) 
         {
