@@ -56,7 +56,7 @@ public class ZMQRequester : RunAbleThread
                             gotMessage = server.TryReceiveFrameString(timeout, out message);
                             if (gotMessage)
                             {
-                                Debug.Log(gotMessage);
+                                // Debug.Log(gotMessage);
                                 data = message;
                                 break;
                             }

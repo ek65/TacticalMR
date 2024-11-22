@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ScenicMovementData : MonoBehaviour
+public class ScenicMovementData
 {
     public Model model;
     public Vector3 position;
