@@ -573,19 +573,19 @@ public class JSONToLLM : MonoBehaviour
             time += 0.02f;
             PopulateSegment();
 
-            // if (!recorderManager.RecorderController.IsRecording())
-            // {
-            //     recorderManager.StartRecording();
-            //     videoIsRecording = recorderManager.RecorderController.IsRecording();
-            // }
+            if (!recorderManager.RecorderController.IsRecording())
+            {
+                recorderManager.StartRecording();
+                videoIsRecording = recorderManager.RecorderController.IsRecording();
+            }
         }
         else if (!isLogging)
         {
-            // if (recorderManager.RecorderController.IsRecording())
-            // {
-            //     recorderManager.StopRecording();
-            //     videoIsRecording = recorderManager.RecorderController.IsRecording();
-            // }
+            if (recorderManager.RecorderController.IsRecording())
+            {
+                recorderManager.StopRecording();
+                videoIsRecording = recorderManager.RecorderController.IsRecording();
+            }
         }
 
         var color = streamingSampleMic.isSpeechDetected ? Color.green : Color.red;
