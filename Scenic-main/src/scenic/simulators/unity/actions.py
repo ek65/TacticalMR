@@ -791,3 +791,11 @@ class HasAngle(Constraint):
         distance = np.linalg.norm(p0 - closest_point)
 
         return distance
+    
+class HasBallPossession(Constraint):
+
+    def __init__(self, args):
+        self.ref = args.get('ref', None)
+
+    def __call__(self, scene, sample):
+        return self.ref.ballPossession
