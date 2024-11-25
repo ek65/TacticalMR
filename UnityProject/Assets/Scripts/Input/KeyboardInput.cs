@@ -454,26 +454,27 @@ public class KeyboardInput : MonoBehaviour
         jsonToLLM.isTranscriptionComplete = false;
         countdownText.gameObject.SetActive(true);
         countdownText.color = Color.red;
+
         string baseText = "TRANSCRIPTION PROCESSING";
-        
         int dotCount = 0;
         countdownText.fontSize = 100;
 
         while (!jsonToLLM.isTranscriptionComplete) 
         {
-            dotCount = (dotCount + 1) % 4; 
-            countdownText.text = baseText + new string('.', dotCount);
+            countdownText.text = $"{baseText}{new string('.', dotCount % 4)}";
+            dotCount++;
             yield return new WaitForSeconds(1f); 
         }
-        
+
         countdownText.gameObject.SetActive(false);
         countdownText.color = Color.red;
+
         if (!restarting)
         {
-            // Debug.LogError("in not restarting");
-            StartSegment(); 
+            StartSegment();
         }
     }
+
 
     void FixedUpdate()
     {

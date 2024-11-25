@@ -18,7 +18,7 @@ behavior midfielder2Behavior():
     interrupt when (hasBallPosession(ego)):
         do MoveTo(new Point at (-1, -6))
     interrupt when (hasBallPosession(self)):
-        do GroundPassFast(midfielder1)
+        do PassTo(midfielder1)
 
 behavior midfielder1Behavior():
     try: 
@@ -39,7 +39,7 @@ behavior opponentAbehavior():
 behavior goalieBehavior():
     try: 
         do Idle() for 1 seconds
-        do GroundPassFast(ego.position)
+        do PassTo(ego.position)
         do Idle() 
     interrupt when hasBallPosession(ego):
         do MoveTo(Vector(self.position.x - 2, self.position.y, self.position.z))

@@ -13,57 +13,47 @@ timestep = 0.1
 pt = new OrientedPoint at (0,0,0)
 footed = DiscreteRange(-1, 1)
 
-pressingDistance = 3.5 # Uniform(4, 5)
-shootingDistance = Uniform(4, 8)
-first_possession = False
-
-def checkFirstPos():
-    return first_possession
 
 behavior opponent1Behavior(pt):
     do Idle()
 
 behavior teammateBehavior():
-    passed = False
     try:
-        do MoveTo(ball) 
-        do Idle() for 2 seconds
-        do GroundPassFast(ego.position)
-        passed = True
-        do Idle()
-
-    interrupt when hasBallPosession(self) and passed:
-        #pos = inBetween(opponent, opponent2)
-        pos = ego.position
-        do GroundPassFast(pos)
+        do MoveTo(ball)
+        do Idle() for 1 seconds
+        do PassTo(ego.position)
+        do Idle() for 4 seconds
+        do PassTo(ego.position)
+    interrupt when hasBallPosession(ego):
+        do Idle() for 4 seconds 
+        do PassTo(ego.position)
     
 # egoY = Range(4,4)
-ego = new Human at (-2,0,0)
+ego = new Human at (-4.2,3.5,0)
 
-pt = new Point offset by (Range(-3,3), Range(-1,0))
+pt = new Point at (0,-10,0)
 
-oppY = Range(5,6)
-opponent = new Player at (0,oppY,0),
+opponent = new Player at (-4.5,6,0),
                 facing toward ego,
                 with behavior opponent1Behavior(pt),
                 with name "opponent_A"
 
-opponent2 = new Player at (-3,oppY,0),
+opponent2 = new Player at (-0.5,6,0),
                 facing toward ego,
                 with behavior opponent1Behavior(pt),
                 with name "opponent_B"
 
-opponent3 = new Player at (3,oppY,0),
+opponent3 = new Player at (3.5,6,0),
                 facing toward ego,
                 with behavior opponent1Behavior(pt),
                 with name "opponent_C"
 
-opponent4= new Player at (6,oppY,0),
+opponent4= new Player at (7.5,6,0),
                 facing toward ego,
                 with behavior opponent1Behavior(pt),
                 with name "opponent_D"
 
-teammate = new Player ahead of opponent2 by Range(4.5,5),
+teammate = new Player at (0,0,0),
             facing toward ego,
             with behavior teammateBehavior(),
             with name "teammate",
