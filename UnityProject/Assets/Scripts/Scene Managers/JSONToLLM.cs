@@ -469,19 +469,34 @@ public class JSONToLLM : MonoBehaviour
             ContractResolver = new CamelCasePropertyNamesContractResolver()
         };
 
-        jsonString = JsonConvert.SerializeObject(new
+        if (!activateSystemRecording)
         {
-            scene = new
+            jsonString = JsonConvert.SerializeObject(new
             {
-                id = jsonDirectory.drillID,
-                language = keyboard.explanation,
-                step = 0.02,
-                objects = myRootSegment.objects,
-                annotations = keyboard.GetAnnotationsAsJson(),
-                tokens = tokenDictionary,
-                clickTimes = keyboard.annotationTimes
-            }
-        }, settings);
+                scene = new
+                {
+                    id = jsonDirectory.drillID,
+                    language = keyboard.explanation,
+                    step = 0.02,
+                    objects = myRootSegment.objects,
+                    annotations = keyboard.GetAnnotationsAsJson(),
+                    tokens = tokenDictionary,
+                    clickTimes = keyboard.annotationTimes
+                }
+            }, settings);
+        }
+        else
+        {
+            jsonString = JsonConvert.SerializeObject(new
+            {
+                scene = new
+                {
+                    id = jsonDirectory.drillID,
+                    step = 0.02,
+                    objects = myRootSegment.objects,
+                }
+            }, settings);
+        }
 
         // DirectoryInfo jsonOutputFolder = new DirectoryInfo(Path.Combine(Application.dataPath, "..", "SampleJsons"));
         filename = jsonDirectory.InstantiateJSONSegmentFilePath(recordingNum) + ".json";
