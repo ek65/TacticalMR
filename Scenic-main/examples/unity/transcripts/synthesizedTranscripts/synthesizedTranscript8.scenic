@@ -17,13 +17,13 @@ NUM_ZONES_X, NUM_ZONES_Y = 4, 5
 ZONE_WIDTH = FIELD_WIDTH / NUM_ZONES_X
 ZONE_HEIGHT = FIELD_HEIGHT / NUM_ZONES_Y
 
-target = None
+sample = None
 
 ### inserted
 behavior coachBehavior():
     scene = simulation()
     do MoveToWrapper(λ_dest)
-    do Idle() until λ_precondition(scene, target)
+    do Idle() until λ_precondition(scene, sample)
     do PassTo("midfielder")
 ###
 
@@ -138,43 +138,43 @@ ball = new Ball ahead of goalie
 
 ### inserted
 A = InZone({'zone': 'B2'})
-B = HasAngle({'ref': 'leftback', 'radius': {'avg': 3.3851227232864622, 'std': 1.0}})
+B = HasAngle({'ref': 'leftback', 'radius': {'avg': 3.3851227232864622, 'std': 0.0}})
 
 def λ_dest(scene, sample):
     return A(scene, sample) and B(scene, sample)
 
 C = HasBallPossession({'ref': 'coach'})
-D = HasAngle({'ref': 'midfielder', 'radius': {'avg': 2.8538201912442296, 'std': 1.0}})
+D = HasAngle({'ref': 'midfielder', 'radius': {'avg': 2.8538201912442296, 'std': 0.0}})
 
 def λ_precondition(scene, sample):
     return C(scene, sample) and D(scene, sample)
 ###
 
 def sample_target(scene, prev_target, λ_dest) -> Vector: 
-    global target
+    global sample
     i = 0
-    sample = [prev_target.x, prev_target.y]
+    target = [prev_target.x, prev_target.y]
     
-    while not λ_dest(scene, sample):
+    while not λ_dest(scene, target):
 
         x = Range(-FIELD_WIDTH / 2, FIELD_WIDTH / 2)
         y = Range(-FIELD_HEIGHT / 2, FIELD_HEIGHT / 2)
-        sample = [x,y]
+        target = [x,y]
 
         if i > 100000:
             raise Exception("Maximum sample depth exceeded.")
         i += 1
 
-    target = Vector(sample[0], sample[1])
-    return target
+    sample = Vector(target[0], target[1])
+    return sample
 
 behavior MoveToWrapper(λ_dest):
     scene = simulation()
-    target = Vector(0, 0)
-    target = sample_target(scene, target, λ_dest)
-    while (distance from self to target > 0.5):
-        do MoveTo(target) for timestep seconds
-        target = sample_target(scene, target, λ_dest)
+    sample = Vector(0, 0)
+    sample = sample_target(scene, sample, λ_dest)
+    while (distance from self to sample > 0.5):
+        do MoveTo(sample) for timestep seconds
+        sample = sample_target(scene, sample, λ_dest)
     do Idle() for 1 seconds
 
 terminate when (ego.gameObject.stopButton)
