@@ -727,7 +727,7 @@ class InZone(Constraint):
         self.zone = args.get('zone', None)
         # super().__init__(args=args)
 
-    def __call__(self, sample, scene):
+    def __call__(self, scene, sample):
         return self.get_zone(sample) == self.zone
 
     def get_zone(self, point):
@@ -755,15 +755,21 @@ class HasAngle(Constraint):
 
     def __init__(self, args={}):
         self.ref = args.get('ref', None)
-        self.radius = args.get('r', None)
+        self.radius = args.get('radius', None)
         # super().__init__({'ref': ref})
 
-    def __call__(self, sample, scene):
-        if isinstance(self.ref, str):
-            self.ref = [obj for obj in scene.objects if obj.name == self.ref][0] # converts string into object reference
+    def __call__(self, scene, sample):
+        avg = self.radius.get('avg', 0)
+        std = self.radius.get('std', 0)
 
-        for obj in [i for i in scene.objects if i.name.startswith("opponent")]:
-            if self.closest(Object('A', 'coach', sample), Object('R', 'ref', [self.ref.position.x, self.ref.position.y]), Object('O', 'opponent', [obj.position.x, obj.position.y])) < self.radius:
+        if isinstance(self.ref, str):
+            self.ref = [obj for obj in scene.objects if obj.name.lower() == self.ref][0] # converts string into object reference
+
+        for obj in [i for i in scene.objects if i.name.lower().startswith("opponent")]:
+            # setting radius to small value since it will error out if too large sometimes
+            r = avg - std if avg - std > 0 else 0.1
+
+            if self.closest(Object('A', 'coach', sample), Object('R', 'ref', [self.ref.position.x, self.ref.position.y]), Object('O', 'opponent', [obj.position.x, obj.position.y])) < r:
                 return False
         return True
 
@@ -798,4 +804,9 @@ class HasBallPossession(Constraint):
         self.ref = args.get('ref', None)
 
     def __call__(self, scene, sample):
-        return self.ref.ballPossession
+        if isinstance(self.ref, str):
+            self.ref = [obj for obj in scene.objects if obj.name.lower() == self.ref][0] # converts string into object reference
+        return self.ref.gameObject.ballPossession
+    
+def checkIfString(target):
+    return isinstance(target, str)

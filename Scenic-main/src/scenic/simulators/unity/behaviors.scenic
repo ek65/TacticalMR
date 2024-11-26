@@ -45,9 +45,15 @@ behavior PassTo(target):
         # print(f"currPos: {currPos}")
         # print(f"move_dir: {move_dir}")
         # print(f"target_pass_pos: {(target_pass_pos.x, target_pass_pos.y, target_pass_pos.z)}")
+    scene = simulation()
+
     if isinstance(target, UnityObject):
         target = target.position
+    elif checkIfString(target):
+        target = [obj for obj in scene.objects if obj.name.lower() == target][0].position # converts string into object reference
 
+    print(f"Passing to {target}")
+    
     take GroundPassFastAction(target, "Pass Ball")
     do Idle() for 0.6 seconds
     take StopAction()

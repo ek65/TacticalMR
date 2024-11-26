@@ -12,84 +12,156 @@ penalty_box = MeshVolumeRegion(trimesh.creation.box((1, 1, 1)), dimensions = (4,
 timestep = 0.1
 pt = new OrientedPoint at (0,0,0)
 
+FIELD_WIDTH, FIELD_HEIGHT = 20, 34
+NUM_ZONES_X, NUM_ZONES_Y = 4, 5
+ZONE_WIDTH = FIELD_WIDTH / NUM_ZONES_X
+ZONE_HEIGHT = FIELD_HEIGHT / NUM_ZONES_Y
+
+target = None
+
+### inserted
 behavior coachBehavior():
     scene = simulation()
     do MoveToWrapper(λ_dest)
-    do Idle() until λ_precondition
-    do PassTo(midfielder)
+    do Idle() until λ_precondition(scene, target)
+    do PassTo("midfielder")
+###
 
-behavior teammateBehavior():
+behavior leftBackBehavior():
     try: 
         do Idle()
-    interrupt when hasBallPosession(ego):
-        do MoveTo(Vector(self.position.x + 1.5, self.position.y - 1, 0)) 
+    interrupt when (hasBallPosession(self) and (ego.position.y <= -4)):
+        do Idle() until ego.gameObject.speed < 0.1
+        do PassTo(ego)
         do Idle()
 
-behavior opponent1Behavior():
+behavior midfielder1Behavior():
     try: 
         do Idle()
-    interrupt when hasBallPosession(ego):
-        do MoveTo(Vector(self.position.x - 0.5, self.position.y - 0.5, 0))
+    interrupt when hasBallPosession(leftback):
+        do Idle() for 1 seconds
+        do MoveTo(destPosMid)
+        do LookAt(ball)
+
+behavior opponentAbehavior():
+    try: 
+        do Idle()
+    interrupt when hasBallPosession(leftback):
+        do SetSpeed(0.5)
+        do MoveTo(oppAposition) 
+
+behavior goalieBehavior():
+    try: 
+        do Idle() for 1 seconds
+        do PassTo(leftback)
+        do Idle() 
+    interrupt when hasBallPosession(leftback):
+        do MoveTo(Vector(self.position.x - 2, self.position.y, self.position.z))
         do Idle() 
 
-behavior opponent2Behavior():
-    try: 
+behavior blockSideLine(opp_A_dest):
+    try:
         do Idle()
-    interrupt when hasBallPosession(ego):
-        do MoveTo(Vector(self.position.x - 1.8 , self.position.y + 2, 0)) for 2 seconds 
-        do Idle()
+    interrupt when (hasBallPosession(leftback)):
+        do MoveTo(opp_A_dest)
+        do LookAt(ball)
 
-
-oppGoal= new Goal at (0,-16,0), 
-    with name "oppGoal",
+teamGoal= new Goal at (0,-16,0), 
+    with name "teamGoal",
     facing away from pt
 
-teammate = new Player at (-6.5, -9, 0),
-          with team 'blue',
-          with name 'teammate',
-          with behavior teammateBehavior()
-
-
-opponent1 = new Player at (-4, -6, 0),
-        with name 'opponent1',
-        with behavior opponent1Behavior()
-
-opponent2 = new Player at (4, -12, 0),
-        with name 'opponent2',
-        with behavior opponent2Behavior()
-
-ego = new Player at (3.5, 2, 0), 
+ego = new Player at (4.5, 1.5, 0), 
         with name 'coach',
-        facing oppGoal,
-        with coachBehavior()
+        with behavior coachBehavior(),
+        facing teamGoal,
+        with team "blue"
 
+leftback = new Player at (-7, -8.5, 0), 
+        with name "leftBack",
+        with team "blue",
+        with behavior leftBackBehavior(),
+        facing teamGoal
+
+rightback = new Player at (7, -9, 0), 
+        with name "rightBack",
+        with team "blue",
+        facing teamGoal
+
+midfielderPos = new Point at (-3, 2, 0)
+destPosMid = new Point at (-6, 2, 0)
+
+midfielder1 = new Player at midfielderPos, 
+        with name "Midfielder",
+        with team "blue",
+        with behavior midfielder1Behavior(),
+        facing teamGoal
+
+centerBack = new Player at (0, -11, 0), 
+        with name "CenterBack",
+        with team "blue",
+        facing teamGoal
+
+opponentGoal = new Goal at (0,16,0), 
+    facing away from pt,
+    with name "opponentGoal"
+
+opp_A_dest = new Point at (-6.5, -7, 0)
+
+opponent_A = new Player at (-5, -3.5),
+        with name "opponent_A",
+        facing teamGoal,
+        with behavior blockSideLine(opp_A_dest)
+
+opponent_B = new Player at (3, -4.5),
+        with name "opponent_B",
+        facing teamGoal
+
+opponent_C = new Player at (-4.5, 4.5),
+        with name "opponent_C",
+        facing teamGoal
+
+opponent_D = new Player at (4, 5),
+        with name "opponent_D",
+        facing teamGoal
+
+opponent_E = new Player at (0, 4),
+        with name "opponent_E",
+        facing teamGoal
+
+goalie = new Player at (0, -14, 0),
+    facing 180 deg,
+    with name "goalkeeper",
+    with team "blue",
+    with behavior goalieBehavior()
+
+ball = new Ball ahead of goalie
+
+### inserted
 A = InZone({'zone': 'B2'})
-B = HasAngle({'ref': 'leftback', 'radius': {'avg': 3.3851227232864622, 'std': 0.0}})
-C = HasBallPossession({'ref': 'leftback'})
+B = HasAngle({'ref': 'leftback', 'radius': {'avg': 3.3851227232864622, 'std': 1.0}})
 
 def λ_dest(scene, sample):
-    return A(scene, sample) and B(scene, sample) and C(scene, sample)
+    return A(scene, sample) and B(scene, sample)
 
-D = HasBallPossession({'ref': 'coach'})
-E = HasAngle({'ref': 'midfielder', 'radius': {'avg': 2.8538201912442296, 'std': 0.0}})
+C = HasBallPossession({'ref': 'coach'})
+D = HasAngle({'ref': 'midfielder', 'radius': {'avg': 2.8538201912442296, 'std': 1.0}})
 
 def λ_precondition(scene, sample):
-    return D(scene, sample) and E(scene, sample)
-        
-ball = new Ball ahead of ego
+    return C(scene, sample) and D(scene, sample)
+###
 
-def sample_target(prev_target, scene, λ_dest) -> Vector: 
+def sample_target(scene, prev_target, λ_dest) -> Vector: 
     global target
     i = 0
     sample = [prev_target.x, prev_target.y]
     
-    while not λ_dest(sample, scene):
+    while not λ_dest(scene, sample):
 
         x = Range(-FIELD_WIDTH / 2, FIELD_WIDTH / 2)
         y = Range(-FIELD_HEIGHT / 2, FIELD_HEIGHT / 2)
         sample = [x,y]
 
-        if i > 1000:
+        if i > 100000:
             raise Exception("Maximum sample depth exceeded.")
         i += 1
 
@@ -99,10 +171,10 @@ def sample_target(prev_target, scene, λ_dest) -> Vector:
 behavior MoveToWrapper(λ_dest):
     scene = simulation()
     target = Vector(0, 0)
-    target = sample_target(target, scene, λ_dest)
+    target = sample_target(scene, target, λ_dest)
     while (distance from self to target > 0.5):
         do MoveTo(target) for timestep seconds
-        target = sample_target(target, scene, λ_dest)
+        target = sample_target(scene, target, λ_dest)
     do Idle() for 1 seconds
 
 terminate when (ego.gameObject.stopButton)

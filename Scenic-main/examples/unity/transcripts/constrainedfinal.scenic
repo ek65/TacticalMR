@@ -22,7 +22,8 @@ target = None
 ### inserted
 behavior coachBehavior():
     scene = simulation()
-    presample(scene, λ_dest)
+    print("coachBehavior")
+    # presample(scene, λ_dest)
     # do MoveToWrapper(λ_dest) until λ_termination(target, scene)
     do MoveToWrapper(λ_dest)
     do PassTo(teammate)
@@ -31,7 +32,8 @@ behavior coachBehavior():
 behavior teammateBehavior():
     try: 
         do Idle()
-    interrupt when hasBallPosession(self):
+    interrupt when hasBallPosession(ego):
+        do MoveTo(Vector(self.position.x + 1.5, self.position.y - 1, 0)) 
         do Idle()
 
 behavior opponentBehavior():

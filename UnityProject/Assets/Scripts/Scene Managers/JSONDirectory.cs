@@ -96,7 +96,15 @@ public class JSONDirectory : MonoBehaviour
         string usableDemosString = JsonConvert.SerializeObject(usableDemos, settings);
         Debug.Log("Created Usable Demos JSON String: " + usableDemosString);
 
-        string usableDemosFile = drillFolder.FullName + "/usable_demonstrations.json";
+        string usableDemosFile = null;
+        if (!jsonToLLM.activateSystemRecording)
+        {
+            usableDemosFile = drillFolder.FullName + "/usable_demonstrations.json";
+        }
+        else if (jsonToLLM.activateSystemRecording)
+        {
+            usableDemosFile = systemTranscriptsFolder.FullName + "/usable_demonstrations.json";
+        }
         
         File.WriteAllText(usableDemosFile, usableDemosString);
     }
