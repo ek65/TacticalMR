@@ -22,64 +22,67 @@ sample = None
 ### inserted
 behavior coachBehavior():
     scene = simulation()
-    do MoveToWrapper(λ_dest)
+    print("coachBehavior1")
     do Idle() until λ_precondition(scene, sample)
-    do PassTo("midfielder")
+    print("coachBehavior2")
+    do PassTo("midfielder1")
 ###
 
-behavior leftBackBehavior():
+behavior midfielder2Behavior():
     try: 
         do Idle()
-    interrupt when (hasBallPosession(self) and (ego.position.y <= -4)):
-        do Idle() until ego.gameObject.speed < 0.1
-        do PassTo(ego)
-        do Idle()
+    interrupt when (hasBallPosession(ego)):
+        do MoveTo(new Point at (-1, -6))
+        # do MoveTo(ball)
+    interrupt when (hasBallPosession(self)):
+        do PassTo(midfielder1)
 
 behavior midfielder1Behavior():
     try: 
         do Idle()
-    interrupt when hasBallPosession(leftback):
+    interrupt when hasBallPosession(ego):
         do Idle() for 1 seconds
         do MoveTo(destPosMid)
-        do LookAt(ball)
+        take LookAtAction(ball)
+        do Idle()
 
 behavior opponentAbehavior():
     try: 
         do Idle()
-    interrupt when hasBallPosession(leftback):
+    interrupt when hasBallPosession(ego):
         do SetSpeed(0.5)
         do MoveTo(oppAposition) 
 
 behavior goalieBehavior():
     try: 
         do Idle() for 1 seconds
-        do PassTo(leftback)
+        do PassTo(ego.position)
         do Idle() 
-    interrupt when hasBallPosession(leftback):
+    interrupt when hasBallPosession(ego):
         do MoveTo(Vector(self.position.x - 2, self.position.y, self.position.z))
         do Idle() 
 
 behavior blockSideLine(opp_A_dest):
     try:
         do Idle()
-    interrupt when (hasBallPosession(leftback)):
+    interrupt when (hasBallPosession(ego)):
         do MoveTo(opp_A_dest)
-        do LookAt(ball)
+        take LookAtAction(ball)
 
 teamGoal= new Goal at (0,-16,0), 
     with name "teamGoal",
     facing away from pt
 
-ego = new Player at (4.5, 1.5, 0), 
+ego = new Player at (-7, -8.5, 0), 
         with name 'coach',
         with behavior coachBehavior(),
         facing teamGoal,
         with team "blue"
 
-leftback = new Player at (-7, -8.5, 0), 
-        with name "leftBack",
+midfielder2 = new Player at (4.5, 1.5, 0), 
+        with name "midfielder2",
         with team "blue",
-        with behavior leftBackBehavior(),
+        with behavior midfielder2Behavior(),
         facing teamGoal
 
 rightback = new Player at (7, -9, 0), 
@@ -91,13 +94,13 @@ midfielderPos = new Point at (-3, 2, 0)
 destPosMid = new Point at (-6, 2, 0)
 
 midfielder1 = new Player at midfielderPos, 
-        with name "Midfielder",
+        with name "midfielder1",
         with team "blue",
         with behavior midfielder1Behavior(),
         facing teamGoal
 
 centerBack = new Player at (0, -11, 0), 
-        with name "CenterBack",
+        with name "centerBack",
         with team "blue",
         facing teamGoal
 
@@ -137,44 +140,18 @@ goalie = new Player at (0, -14, 0),
 ball = new Ball ahead of goalie
 
 ### inserted
-A = InZone({'zone': 'B2'})
-B = HasAngleOfPass({'ref': 'leftback', 'radius': {'avg': 3.3851227232864622, 'std': 0.0}})
-
-def λ_dest(scene, sample):
-    return A(scene, sample) and B(scene, sample)
-
-C = HasBallPossession({'ref': 'coach'})
-D = HasAngleOfPass({'ref': 'midfielder', 'radius': {'avg': 2.8538201912442296, 'std': 0.0}})
+A = HasBallPossession({'ref': 'coach'})
+B = InZone({'zone': 'A2'})
+C = HasAngleOfPass({'ref': 'midfielder2', 'radius': {'avg': 2.460801632098414, 'std': 1.0}})
 
 def λ_precondition(scene, sample):
-    return C(scene, sample) and D(scene, sample)
+    a = A(scene, sample)
+    b = B(scene, sample)
+    c = C(scene, sample)
+    print(a, b, c)
+    return a and b and c
 ###
 
-def sample_target(scene, prev_target, λ_dest) -> Vector: 
-    global sample
-    i = 0
-    target = [prev_target.x, prev_target.y]
-    
-    while not λ_dest(scene, target):
 
-        x = Range(-FIELD_WIDTH / 2, FIELD_WIDTH / 2)
-        y = Range(-FIELD_HEIGHT / 2, FIELD_HEIGHT / 2)
-        target = [x,y]
-
-        if i > 100000:
-            raise Exception("Maximum sample depth exceeded.")
-        i += 1
-
-    sample = Vector(target[0], target[1])
-    return sample
-
-behavior MoveToWrapper(λ_dest):
-    scene = simulation()
-    sample = Vector(0, 0)
-    sample = sample_target(scene, sample, λ_dest)
-    while (distance from self to sample > 0.5):
-        do MoveTo(sample) for timestep seconds
-        sample = sample_target(scene, sample, λ_dest)
-    do Idle() for 1 seconds
 
 terminate when (ego.gameObject.stopButton)
