@@ -53,9 +53,9 @@ behavior PassTo(target):
         target = [obj for obj in scene.objects if obj.name.lower() == target][0].position # converts string into object reference
 
     print(f"Passing to {target}")
-    
+
     take GroundPassFastAction(target, "Pass Ball")
-    do Idle() for 0.6 seconds
+    do Idle() for 1 seconds
     take StopAction()
 
 behavior LookAt(vec):

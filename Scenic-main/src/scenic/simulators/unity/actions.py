@@ -725,6 +725,7 @@ class InZone(Constraint):
 
     def __init__(self, args={}):
         self.zone = args.get('zone', None)
+        self.obj = args.get('obj', None)
         # super().__init__(args=args)
 
     def __call__(self, scene, sample):
@@ -732,7 +733,14 @@ class InZone(Constraint):
         if sample is None:
             sample = [obj for obj in scene.objects if obj.name.lower() == "coach"][0].position
 
-        return self.get_zone(sample) == self.zone
+        if self.obj.lower() == "coach":
+            # if it is coach, this should test the sampled destination
+            # print(sample)
+            return self.get_zone(sample) in self.zone
+        elif self.obj is not None:
+            # if its not coach, check obj's current position (this is only for always and termination)
+            sample = [obj for obj in scene.objects if obj.name.lower() == self.obj][0].position
+            return self.get_zone(sample) in self.zone
 
     def get_zone(self, point):
 
@@ -823,17 +831,16 @@ class AheadOfLine(Constraint):
         self.height = args.get('height', None)
 
     def __call__(self, scene, sample):
-        avg = self.radius.get('avg', 0)
-        std = self.radius.get('std', 0)
+        avg = self.height.get('avg', 0)
+        std = self.height.get('std', 0)
 
-        coachObj = [obj for obj in scene.objects if obj.name.lower() == "coach"][0]
+        if isinstance(self.obj, str):
+            self.obj = [obj for obj in scene.objects if obj.name.lower() == self.obj][0] # converts string into object reference
 
         # if no obj given, use coach object
         if self.obj is None:
+            coachObj = [obj for obj in scene.objects if obj.name.lower() == "coach"][0]
             self.obj = coachObj
-
-        if isinstance(self.ref, str):
-            self.obj = [obj for obj in scene.objects if obj.name.lower() == self.obj][0] # converts string into object reference
 
         # if no sample position, use self.obj's current position
         if sample is None:
@@ -842,8 +849,7 @@ class AheadOfLine(Constraint):
         # TODO: change to use PDF later
         h = avg
 
-        # How do we know if it should be < or >?
-        if self.obj.position.y < h:
+        if sample[1] >= h:
             return True
         
         return False
