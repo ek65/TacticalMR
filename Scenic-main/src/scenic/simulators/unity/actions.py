@@ -725,10 +725,22 @@ class InZone(Constraint):
 
     def __init__(self, args={}):
         self.zone = args.get('zone', None)
+        self.obj = args.get('obj', None)
         # super().__init__(args=args)
 
     def __call__(self, scene, sample):
-        return self.get_zone(sample) == self.zone
+        # if no sample position, use coach's current position
+        if sample is None:
+            sample = [obj for obj in scene.objects if obj.name.lower() == "coach"][0].position
+
+        if self.obj.lower() == "coach":
+            # if it is coach, this should test the sampled destination
+            # print(sample)
+            return self.get_zone(sample) in self.zone
+        elif self.obj is not None:
+            # if its not coach, check obj's current position (this is only for always and termination)
+            sample = [obj for obj in scene.objects if obj.name.lower() == self.obj][0].position
+            return self.get_zone(sample) in self.zone
 
     def get_zone(self, point):
 
@@ -751,7 +763,7 @@ class Object:
         self.type = type
         self.location = location
 
-class HasAngle(Constraint):
+class HasAngleOfPass(Constraint):
 
     def __init__(self, args={}):
         self.ref = args.get('ref', None)
@@ -762,11 +774,15 @@ class HasAngle(Constraint):
         avg = self.radius.get('avg', 0)
         std = self.radius.get('std', 0)
 
+        # if no sample position, use coach's current position
+        if sample is None:
+            sample = [obj for obj in scene.objects if obj.name.lower() == "coach"][0].position
+
         if isinstance(self.ref, str):
             self.ref = [obj for obj in scene.objects if obj.name.lower() == self.ref][0] # converts string into object reference
 
         for obj in [i for i in scene.objects if i.name.lower().startswith("opponent")]:
-            # setting radius to small value since it will error out if too large sometimes
+            # TODO: change to PDF?
             r = avg - std if avg - std > 0 else 0.1
 
             if self.closest(Object('A', 'coach', sample), Object('R', 'ref', [self.ref.position.x, self.ref.position.y]), Object('O', 'opponent', [obj.position.x, obj.position.y])) < r:
@@ -807,6 +823,36 @@ class HasBallPossession(Constraint):
         if isinstance(self.ref, str):
             self.ref = [obj for obj in scene.objects if obj.name.lower() == self.ref][0] # converts string into object reference
         return self.ref.gameObject.ballPossession
+    
+class AheadOfLine(Constraint):
+
+    def __init__(self, args):
+        self.obj = args.get('obj', None)
+        self.height = args.get('height', None)
+
+    def __call__(self, scene, sample):
+        avg = self.height.get('avg', 0)
+        std = self.height.get('std', 0)
+
+        if isinstance(self.obj, str):
+            self.obj = [obj for obj in scene.objects if obj.name.lower() == self.obj][0] # converts string into object reference
+
+        # if no obj given, use coach object
+        if self.obj is None:
+            coachObj = [obj for obj in scene.objects if obj.name.lower() == "coach"][0]
+            self.obj = coachObj
+
+        # if no sample position, use self.obj's current position
+        if sample is None:
+            sample = self.obj.position
+
+        # TODO: change to use PDF later
+        h = avg
+
+        if sample[1] >= h:
+            return True
+        
+        return False
     
 def checkIfString(target):
     return isinstance(target, str)
