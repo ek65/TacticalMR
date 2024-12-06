@@ -254,6 +254,7 @@ public class KeyboardInput : MonoBehaviour
             if (!jsonToLLM.activateSystemRecording)
             {
                 streamingSampleMic.OnButtonPressed();
+                Debug.Log("recording started");
             }
         }
         else
@@ -272,6 +273,7 @@ public class KeyboardInput : MonoBehaviour
         {
             return;
         }
+
         jsonToLLM.voiceActivated = false;
         streamingSampleMic.microphoneRecord.StopRecord();
         Debug.Log("Stopped segment recording");

@@ -91,10 +91,10 @@ public class JSONToLLM : MonoBehaviour
 
     // Class representing a player in the scene
     [System.Serializable]
-    public class Player
+       public class Player
     {
         public string id;
-        public string type = "Player";
+        public string type;
         public List<Position> position = new List<Position>();
         public List<Velocity> velocity = new List<Velocity>();
         public List<bool> ballPossession = new List<bool>();
@@ -179,7 +179,7 @@ public class JSONToLLM : MonoBehaviour
         }
         
         // Process each player in the scene
-        foreach (GameObject currPlayer in objectsList.scenicPlayers)
+        foreach (GameObject currPlayer in objectsList.defensePlayers)
         {
             Player player = (Player)myRootSegment.objects.Find(obj => obj is Player p && p.id == currPlayer.name);
             if (player == null)
@@ -187,7 +187,28 @@ public class JSONToLLM : MonoBehaviour
                 player = new Player
                 {
                     id = currPlayer.name,
-                    behavior = currPlayer.GetComponent<PlayerInterface>().behavior
+                    behavior = currPlayer.GetComponent<PlayerInterface>().behavior,
+                    type = "Teammate"
+                };
+                myRootSegment.objects.Add(player);
+            }
+
+            player.position.Add(new Position(currPlayer.transform.position));
+            player.velocity.Add(new Velocity(currPlayer.GetComponent<PlayerInterface>().currVelocity));
+            player.orientation.Add(new Orientation(currPlayer.transform));
+            player.ballPossession.Add(currPlayer.GetComponent<PlayerInterface>().ballPossession);
+        }
+        
+        foreach (GameObject currPlayer in objectsList.offensePlayers)
+        {
+            Player player = (Player)myRootSegment.objects.Find(obj => obj is Player p && p.id == currPlayer.name);
+            if (player == null)
+            {
+                player = new Player
+                {
+                    id = currPlayer.name,
+                    behavior = currPlayer.GetComponent<PlayerInterface>().behavior,
+                    type = "Opponent"
                 };
                 myRootSegment.objects.Add(player);
             }
@@ -207,7 +228,8 @@ public class JSONToLLM : MonoBehaviour
                 coach = new Player
                 {
                     id = humanPlayer.name,
-                    behavior = "expert"
+                    behavior = "expert",
+                    type = "Coach" 
                 };
                 myRootSegment.objects.Add(coach);
             }
