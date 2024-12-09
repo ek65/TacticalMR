@@ -738,8 +738,8 @@ class InZone(Constraint):
             # print(sample)
             return self.get_zone(sample) in self.zone
         elif self.obj is not None:
-            # if its not coach, check obj's current position (this is only for always and termination)
-            sample = [obj for obj in scene.objects if obj.name.lower() == self.obj][0].position
+            # if its not coach, check obj's current position (this is only for always and termination/precondition)
+            sample = [obj for obj in scene.objects if obj.name.lower() == self.obj.lower()][0].position
             return self.get_zone(sample) in self.zone
 
     def get_zone(self, point):
@@ -779,7 +779,7 @@ class HasAngleOfPass(Constraint):
             sample = [obj for obj in scene.objects if obj.name.lower() == "coach"][0].position
 
         if isinstance(self.ref, str):
-            self.ref = [obj for obj in scene.objects if obj.name.lower() == self.ref][0] # converts string into object reference
+            self.ref = [obj for obj in scene.objects if obj.name.lower() == self.ref.lower()][0] # converts string into object reference
 
         for obj in [i for i in scene.objects if i.name.lower().startswith("opponent")]:
             # TODO: change to PDF?
@@ -821,7 +821,7 @@ class HasBallPossession(Constraint):
 
     def __call__(self, scene, sample):
         if isinstance(self.ref, str):
-            self.ref = [obj for obj in scene.objects if obj.name.lower() == self.ref][0] # converts string into object reference
+            self.ref = [obj for obj in scene.objects if obj.name.lower() == self.ref.lower()][0] # converts string into object reference
         return self.ref.gameObject.ballPossession
     
 class AheadOfLine(Constraint):

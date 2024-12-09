@@ -23,10 +23,11 @@ sample = None
 ### inserted
 behavior coachBehavior():
     scene = simulation()
+    do Idle() for 1 seconds
     do Idle() until λ_precondition1(scene, sample)
     do PassTo("teammate")
-    do MoveToWrapper(λ_dest)
     do Idle() until λ_precondition2(scene, sample)
+    do PassTo("teammate")
 ###
 
 behavior opponent1Behavior(pt):
@@ -34,17 +35,18 @@ behavior opponent1Behavior(pt):
 
 behavior teammateBehavior():
     try:
-        do MoveTo(ball)
+        do Idle()
+
+    interrupt when hasBallPosession(self):
+        #pos = inBetween(opponent, opponent2)
         do Idle() for 1 seconds
         do PassTo(ego.position)
-        do Idle() for 4 seconds
-        do PassTo(ego.position)
-    interrupt when hasBallPosession(ego):
-        do Idle() for 4 seconds 
-        do PassTo(ego.position)
+        do Idle() for 0.5 seconds
+        do MoveTo(Vector(teammate.position.x + 2, teammate.position.y, teammate.position.z)) for 1 seconds
+        do MoveTo(Vector(3.3,7,0))
+        do Idle()
     
-# egoY = Range(4,4)
-ego = new Player at (-4.2,3.5,0), 
+ego = new Player at (0,0,0), 
         with name 'coach',
         with behavior coachBehavior(),
         with team "blue"
@@ -71,36 +73,30 @@ opponent4= new Player at (7.5,6,0),
                 with behavior opponent1Behavior(pt),
                 with name "opponent_D"
 
-teammate = new Player at (0,0,0),
+teammate = new Player at (-4.2,3.5,0),
             facing toward ego,
             with behavior teammateBehavior(),
             with name "teammate",
             with team "blue"
 
-ball = new Ball ahead of teammate 
+ball = new Ball ahead of ego 
 
 goal= new Goal at (0,-16,0), 
     with name "goal",
     facing away from pt
 
 ### inserted
-A = HasBallPossession({'ref': 'coach'})
-B = HasAngleOfPass({'ref': 'teammate', 'radius': {'avg': 2.8347777487222947, 'std': 1.0}})
+A = HasAngleOfPass({'ref': 'teammate', 'radius': {'avg': 2.5179357573229906, 'std': 0.0}})
+B = AheadOfLine({'obj': 'teammate', 'height': {'avg': 3.50000119, 'std': 0.0}})
 
 def λ_precondition1(scene, sample):
     return A(scene, sample) and B(scene, sample)
 
-C = AheadOfLine({'obj': 'coach', 'height': {'avg': 6.66573238, 'std': 0.0}})
-D = InZone({'obj': 'coach', 'zone': 'B4'})
-
-def λ_dest(scene, sample):
-    return C(scene, sample) and D(scene, sample)
-
-E = AheadOfLine({'obj': 'coach', 'height': {'avg': 6.66573238, 'std': 0.0}})
-F = HasBallPossession({'ref': 'teammate'})
+C = HasBallPossession({'ref': 'coach'})
+D = AheadOfLine({'obj': 'teammate', 'height': {'avg': 6.50001025, 'std': 0.0}})
 
 def λ_precondition2(scene, sample):
-    return E(scene, sample) and F(scene, sample)
+    return C(scene, sample) and D(scene, sample)
 ###
 
 def sample_target(scene, prev_target, λ_dest) -> Vector: 

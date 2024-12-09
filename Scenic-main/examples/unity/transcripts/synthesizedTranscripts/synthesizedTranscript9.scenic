@@ -22,10 +22,8 @@ sample = None
 ### inserted
 behavior coachBehavior():
     scene = simulation()
-    print("coachBehavior1")
     do Idle() until λ_precondition(scene, sample)
-    print("coachBehavior2")
-    do PassTo("midfielder1")
+    do PassTo("midfielder2")
 ###
 
 behavior midfielder2Behavior():
@@ -141,15 +139,11 @@ ball = new Ball ahead of goalie
 
 ### inserted
 A = HasBallPossession({'ref': 'coach'})
-B = InZone({'zone': 'A2'})
-C = HasAngleOfPass({'ref': 'midfielder2', 'radius': {'avg': 2.460801632098414, 'std': 1.0}})
+B = HasAngleOfPass({'ref': 'midfielder2', 'radius': {'avg': 2.460801632098414, 'std': 1.5}})
+C = InZone({'obj': 'midfielder2', 'zone': 'B2'})
 
 def λ_precondition(scene, sample):
-    a = A(scene, sample)
-    b = B(scene, sample)
-    c = C(scene, sample)
-    print(a, b, c)
-    return a and b and c
+    return A(scene, sample) and B(scene, sample) and C(scene, sample)
 ###
 
 
