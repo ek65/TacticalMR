@@ -190,8 +190,8 @@ public class KeyboardInput : MonoBehaviour
             timelineManager.Pause();
             if (timelineManager.isRecordingSegment)
             {
-                jsonToLLM.voiceActivated = false;
-                StopSegment(); // Stop the segment if already recording
+                // jsonToLLM.voiceActivated = false;
+                // StopSegment(); // Stop the segment if already recording
             }
             else
             {
@@ -202,9 +202,9 @@ public class KeyboardInput : MonoBehaviour
         {
             if (timelineManager.isRecordingSegment)
             {
-                jsonToLLM.voiceActivated = false;
-                Debug.Log("voice check deactivated");
-                StopSegment(); // Stop the segment if already recording
+                // jsonToLLM.voiceActivated = false;
+                // Debug.Log("voice check deactivated");
+                // StopSegment(); // Stop the segment if already recording
             }
             else
             {

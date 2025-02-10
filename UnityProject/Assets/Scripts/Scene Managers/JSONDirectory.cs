@@ -34,6 +34,8 @@ public class JSONDirectory : MonoBehaviour
     
     public enum Drills
     {
+        Test,
+        
         // Defense Drills
         OneVSOneDefensePress,
         OneVSOneDefensePressPositioningPatience,

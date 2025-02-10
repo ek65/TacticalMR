@@ -47,8 +47,8 @@ public class RecorderManager : MonoBehaviour
 
         m_Settings.ImageInputSettings = new GameViewInputSettings
         {
-            OutputWidth = 1920,
-            OutputHeight = 1080
+            OutputWidth = 1080,
+            OutputHeight = 1920
         };
 
         m_Settings.AudioInputSettings.PreserveAudio = m_RecordAudio;
