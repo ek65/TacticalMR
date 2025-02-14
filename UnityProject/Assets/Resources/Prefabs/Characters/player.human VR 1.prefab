@@ -1027,7 +1027,7 @@ GameObject:
   - component: {fileID: 7548823583122488351}
   - component: {fileID: 7608673702315941356}
   m_Layer: 0
-  m_Name: player.human VR
+  m_Name: player.human VR 1
   m_TagString: human
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4537,6 +4537,10 @@ PrefabInstance:
       propertyPath: m_LocalPosition.z
       value: 0.01224212
       objectReference: {fileID: 0}
+    - target: {fileID: 4325497552437736820, guid: eb6bc10f92728a546a3d8c144d0ef787, type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: e918d2ad6334e144893385438d3b2b14, type: 2}
     - target: {fileID: 5376228129323388834, guid: eb6bc10f92728a546a3d8c144d0ef787, type: 3}
       propertyPath: m_LocalPosition.x
       value: -0.012848594
