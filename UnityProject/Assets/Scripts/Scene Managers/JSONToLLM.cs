@@ -589,7 +589,7 @@ public class JSONToLLM : MonoBehaviour
             {
                 voiceActivated = true;
                 keyboard.activationConditionMet = true; 
-                Debug.Log("voice check activated");
+                // Debug.Log("voice check activated");
             }
         }
         else if (activateSystemRecording && keyboard.segmentStarted) // if system recording and segment started, we want to start logging
@@ -606,7 +606,7 @@ public class JSONToLLM : MonoBehaviour
 
         if (isLogging)
         {
-            Debug.Log("JSON LOGGING");
+            // Debug.Log("JSON LOGGING");
             time += 0.02f;
             PopulateSegment();
             // if (!recorderManager.RecorderController.IsRecording())

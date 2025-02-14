@@ -170,7 +170,7 @@ namespace Whisper.Samples
                         if (!string.IsNullOrEmpty(cleanTokenText) && !token.IsSpecial)
                         {
                             jsonToLLM.tokenDictionary[tokenOrder] = new List<object> { cleanTokenText, tokenTime };
-                            tokenOrder++; // Increment the order index
+                            tokenOrder++; 
                             Debug.Log($"Token saved at order: {tokenOrder}, Time: {tokenTime:F2} seconds, Text: {cleanTokenText}");
                         }
                     }
