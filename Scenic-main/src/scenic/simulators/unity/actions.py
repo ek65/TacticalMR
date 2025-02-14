@@ -835,7 +835,7 @@ class AheadOfLine(Constraint):
         std = self.height.get('std', 0)
 
         if isinstance(self.obj, str):
-            self.obj = [obj for obj in scene.objects if obj.name.lower() == self.obj][0] # converts string into object reference
+            self.obj = [obj for obj in scene.objects if obj.name.lower() == self.obj.lower()][0] # converts string into object reference
 
         # if no obj given, use coach object
         if self.obj is None:
@@ -853,6 +853,57 @@ class AheadOfLine(Constraint):
             return True
         
         return False
+    
+class DistanceToObject(Constraint):
+
+    def __init__(self, args):
+        self.ref = args.get('ref', None)  # Reference object to measure distance to
+        self.obj = args.get('obj', None)  # Object to check distance from (defaults to coach)
+        self.min_dist = args.get('min_dist', None)  # Minimum distance threshold
+        self.max_dist = args.get('max_dist', None)  # Maximum distance threshold
+        self.operator = args.get('operator', 'between')  # Comparison operator: 'between', 'less_than', 'greater_than'
+
+
+    def __call__(self, scene, sample):
+        """
+        Checks if the distance between objects satisfies the constraint based on the operator.
+        Returns True if the constraint is satisfied, False otherwise.
+        """
+        # Get reference object
+        ref_obj = [obj for obj in scene.objects if obj.name.lower() == self.ref][0]
+        
+        # Get current position to check (either sample point or object position)
+        if self.obj is None:
+            current_pos = [obj for obj in scene.objects if obj.name.lower() == "coach"][0].position  # Direct position for coach/target
+        else:
+            current_pos = [obj for obj in scene.objects if obj.name.lower() == self.obj.lower()][0].position
+
+        distance = self.calculate_distance(ref_obj.position, current_pos)
+
+        # TODO: Change to actually sample from PDF
+        if (self.min_dist is not None):
+            min_dist_sample = self.min_dist.get('avg', 0) - self.min_dist.get('std', 0)
+        else:
+            min_dist_sample = 0
+
+        if (self.max_dist is not None):
+            max_dist_sample = self.max_dist.get('avg', 0) + self.max_dist.get('std', 0)
+        else:
+            max_dist_sample = 1000
+        
+        # Check distance based on operator
+        if self.operator == 'between':
+            return (min_dist_sample <= distance <= max_dist_sample)
+        elif self.operator == 'less_than':
+            return distance <= max_dist_sample
+        elif self.operator == 'greater_than':
+            return distance >= min_dist_sample
+        
+        return False  # Invalid operator
+    
+    def calculate_distance(self, pos1, pos2):
+        """Helper function to calculate distance between two positions"""
+        return np.sqrt((pos1.x - pos2.x)**2 + (pos1.y - pos2.y)**2)
     
 def checkIfString(target):
     return isinstance(target, str)

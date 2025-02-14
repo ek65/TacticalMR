@@ -23,10 +23,9 @@ sample = None
 ### inserted
 behavior coachBehavior():
     scene = simulation()
-    do Idle() until λ_precondition1(scene, sample)
+    do Idle() until λ_precondition(scene, sample)
     do PassTo("teammate")
     do MoveToWrapper(λ_dest)
-    do Idle() until λ_precondition2(scene, sample)
 ###
 
 behavior opponent1Behavior(pt):
@@ -84,23 +83,22 @@ goal= new Goal at (0,-16,0),
     facing away from pt
 
 ### inserted
+### Constraints and Lambda Functions for Action 1: Idle
 A = HasBallPossession({'ref': 'coach'})
-B = HasAngleOfPass({'ref': 'teammate', 'radius': {'avg': 2.8347777487222947, 'std': 1.0}})
+B = DistanceToObject({'ref': 'teammate', 'obj': None, 'min_dist': None, 'max_dist': {'avg': 9.050328299915442, 'std': 0.18991056768148784}, 'operator': 'less_than'})
 
-def λ_precondition1(scene, sample):
+def λ_precondition(scene, sample):
     return A(scene, sample) and B(scene, sample)
 
-C = AheadOfLine({'obj': 'coach', 'height': {'avg': 6.66573238, 'std': 0.0}})
+### Constraints and Lambda Functions for Action 2: PassTo
+
+### Constraints and Lambda Functions for Action 3: MoveTo
+C = AheadOfLine({'obj': 'coach', 'height': {'avg': 7.8179485, 'std': 0.23615550000000018}})
 D = InZone({'obj': 'coach', 'zone': 'B4'})
 
 def λ_dest(scene, sample):
     return C(scene, sample) and D(scene, sample)
 
-E = AheadOfLine({'obj': 'coach', 'height': {'avg': 6.66573238, 'std': 0.0}})
-F = HasBallPossession({'ref': 'teammate'})
-
-def λ_precondition2(scene, sample):
-    return E(scene, sample) and F(scene, sample)
 ###
 
 def sample_target(scene, prev_target, λ_dest) -> Vector: 

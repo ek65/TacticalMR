@@ -22,8 +22,9 @@ sample = None
 ### inserted
 behavior coachBehavior():
     scene = simulation()
+    do Idle() until λ_precondition1(scene, sample)
     do MoveToWrapper(λ_dest)
-    do Idle() until λ_precondition(scene, sample)
+    do Idle() until λ_precondition2(scene, sample)
     do PassTo("midfielder")
 ###
 
@@ -137,17 +138,28 @@ goalie = new Player at (0, -14, 0),
 ball = new Ball ahead of goalie
 
 ### inserted
-A = InZone({'zone': 'B2'})
-B = HasAngleOfPass({'ref': 'leftback', 'radius': {'avg': 3.3851227232864622, 'std': 0.0}})
+### Constraints and Lambda Functions for Action 1: Idle
+A = HasBallPossession({'ref': 'leftBack'})
+B = DistanceToObject({'ref': 'goalkeeper', 'obj': 'leftBack', 'min_dist': {'avg': 8.012040391621941, 'std': 1.7780501826436534e-06}, 'max_dist': None, 'operator': 'greater_than'})
 
-def λ_dest(scene, sample):
+def λ_precondition1(scene, sample):
     return A(scene, sample) and B(scene, sample)
 
-C = HasBallPossession({'ref': 'coach'})
-D = HasAngleOfPass({'ref': 'midfielder', 'radius': {'avg': 2.8538201912442296, 'std': 0.0}})
+### Constraints and Lambda Functions for Action 2: MoveTo
+C = InZone({'obj': 'Coach', 'zone': 'B2'})
+D = HasAngleOfPass({'ref': 'leftBack', 'radius': {'avg': 1.0114652498742274, 'std': 0.004478846927278735}})
 
-def λ_precondition(scene, sample):
+def λ_dest(scene, sample):
     return C(scene, sample) and D(scene, sample)
+
+### Constraints and Lambda Functions for Action 3: Idle
+E = HasBallPossession({'ref': 'coach'})
+
+def λ_precondition2(scene, sample):
+    return E(scene, sample)
+
+### Constraints and Lambda Functions for Action 4: PassTo
+
 ###
 
 def sample_target(scene, prev_target, λ_dest) -> Vector: 
