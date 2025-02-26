@@ -250,3 +250,15 @@ behavior idle(player: Player):
 
     '''
     take IdleAction()
+
+# --------------------
+# MARK: Robot Scenario Behaviors
+# --------------------
+behavior MoveToRobot(v, lookAtTarget = None, distance = 0.5, status=""):
+    dist = 1000
+    while not (dist < distance):
+        if isinstance(v, Vector):
+            take MoveToRobotAction(v, status)
+        else:
+            take MoveToRobotAction(v.position, status)
+        dist = distance from self to v

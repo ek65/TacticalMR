@@ -907,3 +907,26 @@ class DistanceToObject(Constraint):
     
 def checkIfString(target):
     return isinstance(target, str)
+
+
+# --------------------
+# MARK: Robot Scenario Actions
+# --------------------
+class MoveToRobotAction(Action):
+    def __init__(self, obj, behavior = None):
+        self.actionName = "MoveToPosRobot"
+        self.behavior = behavior
+
+        if isinstance(obj, tuple) or type(obj) is tuple:
+            self.position = obj
+        elif isinstance(obj, OrientedPoint):
+            self.position = obj.position
+        elif isinstance(obj, Point):
+            self.position = (obj.position.x, obj.position.y, obj.position.z)
+        elif isinstance(obj, Vector):
+            self.position = (obj.x, obj.y, obj.z)
+        else:
+            self.clientID = obj.gameObject.clientID
+    def applyTo(self, obj, sim):
+        obj.gameObject.SetBehavior(self.behavior)
+        obj.gameObject.DoAction(self.actionName, self.position)
