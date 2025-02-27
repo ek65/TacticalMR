@@ -72,25 +72,6 @@ public class KeyboardInput : MonoBehaviour
         {
             exitScenario = GameObject.FindGameObjectWithTag("human").GetComponent<ExitScenario>();
         }
-        
-        if (Input.GetKeyDown(KeyCode.N))
-        {
-            Vector3 newPosition = actionAPI.transform.position + actionAPI.transform.forward * 2f;
-
-            actionAPI.FactoryMoveToPos(newPosition, 2f, false);
-        }
-        if (Input.GetKeyDown(KeyCode.O))
-        {
-            Vector3 newPosition = new Vector3(10f,0f,0f);
-            // Call FactoryMoveToPos with the new position
-            actionAPI.PutDown(newPosition);
-        }
-        if (Input.GetKeyDown(KeyCode.P))
-        {
-            Vector3 newPosition = new Vector3(10f,0f,0f);
-            // Call FactoryMoveToPos with the new position
-            actionAPI.PickUp(newPosition);
-        }
         // End the scenario when the 'E' key is pressed
         if (Input.GetKeyDown(KeyCode.E) && gameObject.CompareTag("keyboard"))
         {
