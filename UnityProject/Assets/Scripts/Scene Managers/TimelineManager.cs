@@ -118,7 +118,8 @@ public void InitializeTimeline()
                 r.Freeze();
             }
         }
-        pauseTxt.text = "Scenic Called Pause...Everything paused except ego";
+        // TODO: RE-ADD, IMPLEMENT IsRobotScenario Bool in Scenic Manager, DISABLED FOR NOW FOR VR TESTING
+        // pauseTxt.text = "Scenic Called Pause...Everything paused except ego";
         Paused = true;
         maxRewindTimeIndex = 0;
     }

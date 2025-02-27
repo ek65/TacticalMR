@@ -914,7 +914,7 @@ def checkIfString(target):
 # --------------------
 class MoveToRobotAction(Action):
     def __init__(self, obj, behavior = None):
-        self.actionName = "MoveToPosRobot"
+        self.actionName = "FactoryMoveToPos"
         self.behavior = behavior
 
         if isinstance(obj, tuple) or type(obj) is tuple:
@@ -932,7 +932,7 @@ class MoveToRobotAction(Action):
         obj.gameObject.DoAction(self.actionName, self.position)
 
 class PickUpAction(Action):
-    def __init__(self, obj, behavior = None):
+    def __init__(self, behavior = None):
         self.actionName = "PickUp"
         self.behavior = behavior
     

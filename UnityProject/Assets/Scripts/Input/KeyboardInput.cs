@@ -40,24 +40,26 @@ public class KeyboardInput : MonoBehaviour
     public bool activationConditionMet = false; 
 
     public Vector3 movement;
-    private ActionAPI actionAPI;
     public bool canClick = true; // Add a boolean to track if clicking is allowed
 
     void Start()
     {
-        actionAPI = GameObject.FindGameObjectWithTag("player").GetComponent<ActionAPI>();
         // Initialize the necessary components and references at the start of the scene
         // rb = GetComponent<Rigidbody>();
         timelineManager = GameObject.FindGameObjectWithTag("TimelineManager").GetComponent<TimelineManager>();
         // recorderManager = GameObject.FindGameObjectWithTag("RecorderManager").GetComponent<RecorderManager>();
         jsonToLLM = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<JSONToLLM>();
-        countdownText = GameObject.FindGameObjectWithTag("countdown").GetComponent<TextMeshProUGUI>();
-        chatBehaviour = GameObject.FindGameObjectWithTag("Character").GetComponent<ChatBehaviour>();
-        streamingSampleMic = GameObject.FindGameObjectWithTag("stream").GetComponent<StreamingSampleMic>();
+        
+        // TODO: RE-ADD, IMPLEMENT IsRobotScenario Bool in Scenic Manager, DISABLED FOR NOW FOR VR TESTING
+        // countdownText = GameObject.FindGameObjectWithTag("countdown").GetComponent<TextMeshProUGUI>();
+        // chatBehaviour = GameObject.FindGameObjectWithTag("Character").GetComponent<ChatBehaviour>();
+        // streamingSampleMic = GameObject.FindGameObjectWithTag("stream").GetComponent<StreamingSampleMic>();
+        
         // synthConnect = GameObject.FindGameObjectWithTag("connect").GetComponent<SynthConnect>();
+        
         jsonDirectory = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<JSONDirectory>();
         Debug.Log("KeyboardInput script initialized");
-        StartCoroutine(CallHandleSegmentAfterDelay());
+        // StartCoroutine(CallHandleSegmentAfterDelay());
     }
     private IEnumerator CallHandleSegmentAfterDelay()
     {

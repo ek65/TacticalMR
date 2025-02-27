@@ -80,7 +80,8 @@ public class InstantiateScenicObject
             {
                 if (modelType == "Human")
                 {
-                    addedGameObject = MonoBehaviour.Instantiate(objectList.modelList["player.human"], pos, rot);
+                    // Change to "player.human VR" for VR human, otherwise "player.human"
+                    addedGameObject = MonoBehaviour.Instantiate(objectList.modelList["player.human VR"], pos, rot);
                 } else if (modelType == "Coach")
                 {
                     addedGameObject = MonoBehaviour.Instantiate(objectList.modelList["player.coach"], pos, rot);

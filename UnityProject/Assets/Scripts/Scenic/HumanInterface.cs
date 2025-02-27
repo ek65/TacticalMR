@@ -53,8 +53,9 @@ public class HumanInterface : MonoBehaviour
     private KeyboardInput keyboardInput;
     private JSONToLLM jsonToLLM;
     
-    public FloatingText floatingBehaviorText;
-    public FloatingText floatingNameText;
+    // TODO: RE-ADD, IMPLEMENT IsRobotScenario Bool in Scenic Manager, DISABLED FOR NOW FOR VR TESTING
+    // public FloatingText floatingBehaviorText;
+    // public FloatingText floatingNameText;
     
     public bool ally;
     public Renderer shirt;
@@ -66,7 +67,9 @@ public class HumanInterface : MonoBehaviour
         source = GetComponent<AudioSource>();
         tlManager = GameObject.FindGameObjectWithTag("TimelineManager").GetComponent<TimelineManager>();
         // npc = GameObject.FindGameObjectWithTag("Character").GetComponent<ConvaiNPC>();
-        chatBehaviour = GameObject.FindGameObjectWithTag("Character").GetComponentInChildren<ChatBehaviour>();
+        
+        // TODO: RE-ADD, IMPLEMENT IsRobotScenario Bool in Scenic Manager, DISABLED FOR NOW FOR VR TESTING
+        // chatBehaviour = GameObject.FindGameObjectWithTag("Character").GetComponentInChildren<ChatBehaviour>();
         objectList = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<ObjectsList>();
         keyboardInput = GameObject.FindGameObjectWithTag("keyboard").GetComponent<KeyboardInput>();
         jsonToLLM = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<JSONToLLM>();
@@ -86,10 +89,10 @@ public class HumanInterface : MonoBehaviour
             ball = GameObject.FindGameObjectWithTag("ball");
         }
         
-        floatingNameText.SetText2(this.gameObject.name);
-        
-        forwardArrow = SpawnArrow(this.transform.position, transform.forward * 8.5f);
-        forwardArrow.SetActive(false);
+        // TODO: RE-ADD, IMPLEMENT IsRobotScenario Bool in Scenic Manager, DISABLED FOR NOW FOR VR TESTING
+        // floatingNameText.SetText2(this.gameObject.name);
+        // forwardArrow = SpawnArrow(this.transform.position, transform.forward * 8.5f);
+        // forwardArrow.SetActive(false);
     }
 
     // Update is called once per frame
@@ -108,19 +111,19 @@ public class HumanInterface : MonoBehaviour
             distToBall = Vector3.Distance(transform.position, ballOnTheGround);
         }
         
-        closestPlayerInDirection = GetClosestToLinePoint(objectList.defensePlayers);
-
-        if (ballPossession)
-        {
-            forwardArrow.SetActive(true);
-            ArrowGenerator arrow = forwardArrow.GetComponentInChildren<ArrowGenerator>();
-            arrow.SetOrigin(this.transform.position);
-            arrow.SetTarget(transform.position + transform.forward * 8.5f);
-        }
-        else
-        {
-            forwardArrow.SetActive(false);
-        }
+        // TODO: RE-ADD, IMPLEMENT IsRobotScenario Bool in Scenic Manager, DISABLED FOR NOW FOR VR TESTING
+        // closestPlayerInDirection = GetClosestToLinePoint(objectList.defensePlayers);
+        // if (ballPossession)
+        // {
+        //     forwardArrow.SetActive(true);
+        //     ArrowGenerator arrow = forwardArrow.GetComponentInChildren<ArrowGenerator>();
+        //     arrow.SetOrigin(this.transform.position);
+        //     arrow.SetTarget(transform.position + transform.forward * 8.5f);
+        // }
+        // else
+        // {
+        //     forwardArrow.SetActive(false);
+        // }
 
         // string currResponse = "";
         // // if (chatBehaviour.sentences.Length > 0)
@@ -450,26 +453,27 @@ public class HumanInterface : MonoBehaviour
         {
             return;
         }
-
-        // if player is already in kick animation, dont update behavior text yet
-        if (!actionAPI.alreadyInAnimation)
-        {
-            if (data.behavior == " " || data.behavior == "" || data.behavior == "Idle")
-            {
-                behavior = "Idle";
-                floatingBehaviorText.SetText("Idle");
-            }
-            else if (data.behavior != "" || data.behavior != null)
-            {
-                behavior = data.behavior;
-                floatingBehaviorText.SetText(data.behavior);
-            }
-            else
-            {
-                behavior = "Idle";
-                floatingBehaviorText.SetText("Idle");
-            }
-        }
+        
+        // TODO: RE-ADD, IMPLEMENT IsRobotScenario Bool in Scenic Manager, DISABLED FOR NOW FOR VR TESTING
+        // // if player is already in kick animation, dont update behavior text yet
+        // if (!actionAPI.alreadyInAnimation)
+        // {
+        //     if (data.behavior == " " || data.behavior == "" || data.behavior == "Idle")
+        //     {
+        //         behavior = "Idle";
+        //         floatingBehaviorText.SetText("Idle");
+        //     }
+        //     else if (data.behavior != "" || data.behavior != null)
+        //     {
+        //         behavior = data.behavior;
+        //         floatingBehaviorText.SetText(data.behavior);
+        //     }
+        //     else
+        //     {
+        //         behavior = "Idle";
+        //         floatingBehaviorText.SetText("Idle");
+        //     }
+        // }
         
         if (behavior == "Idle")
         {

@@ -142,7 +142,9 @@ public class JSONToLLM : MonoBehaviour
         // filename = Application.dataPath + "/sanjit.json";
         keyboard = GameObject.FindGameObjectWithTag("keyboard").GetComponent<KeyboardInput>();
         timelineManager = GameObject.FindGameObjectWithTag("TimelineManager").GetComponent<TimelineManager>();
-        streamingSampleMic = GameObject.FindGameObjectWithTag("stream").GetComponent<StreamingSampleMic>();
+        // TODO: RE-ADD, IMPLEMENT IsRobotScenario Bool in Scenic Manager, DISABLED FOR NOW FOR VR TESTING
+        // streamingSampleMic = GameObject.FindGameObjectWithTag("stream").GetComponent<StreamingSampleMic>();
+        
         // recorderManager = GameObject.FindGameObjectWithTag("RecorderManager").GetComponent<RecorderManager>()
     }
 
@@ -585,12 +587,13 @@ public class JSONToLLM : MonoBehaviour
     {
         if (!activateSystemRecording)
         {
-            if (streamingSampleMic.isSpeechDetected)
-            {
-                voiceActivated = true;
-                keyboard.activationConditionMet = true; 
-                // Debug.Log("voice check activated");
-            }
+            // TODO: RE-ADD, IMPLEMENT IsRobotScenario Bool in Scenic Manager, DISABLED FOR NOW FOR VR TESTING
+            // if (streamingSampleMic.isSpeechDetected)
+            // {
+            //     voiceActivated = true;
+            //     keyboard.activationConditionMet = true; 
+            //     // Debug.Log("voice check activated");
+            // }
         }
         else if (activateSystemRecording && keyboard.segmentStarted) // if system recording and segment started, we want to start logging
         {
@@ -624,7 +627,8 @@ public class JSONToLLM : MonoBehaviour
             // }
         }
 
-        var color = streamingSampleMic.isSpeechDetected ? Color.green : Color.red;
-        streamingSampleMic.microphoneRecord.vadIndicatorImage.color = color;
+        // TODO: RE-ADD, IMPLEMENT IsRobotScenario Bool in Scenic Manager, DISABLED FOR NOW FOR VR TESTING
+        // var color = streamingSampleMic.isSpeechDetected ? Color.green : Color.red;
+        // streamingSampleMic.microphoneRecord.vadIndicatorImage.color = color;
     }
 }

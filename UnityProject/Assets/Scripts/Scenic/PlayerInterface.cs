@@ -45,6 +45,7 @@ public class PlayerInterface : MonoBehaviour
     public bool isRobot;
     public Transform objectPosition;
     public bool objectPossession;
+    public GameObject grabbedObject;
     
     private void Start()
     {
