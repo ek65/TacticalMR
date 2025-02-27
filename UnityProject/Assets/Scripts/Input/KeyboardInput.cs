@@ -1,10 +1,13 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Numerics;
 using OpenAI.Samples.Chat;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using Whisper.Samples;
+using Vector3 = UnityEngine.Vector3;
 
 public class KeyboardInput : MonoBehaviour
 {
@@ -16,14 +19,13 @@ public class KeyboardInput : MonoBehaviour
     private StreamingSampleMic streamingSampleMic;
 
     public TimelineManager timelineManager;
-    private RecorderManager recorderManager;
+    // private RecorderManager recorderManager;
     private JSONToLLM jsonToLLM;
     public TextMeshProUGUI countdownText;
     // private SynthConnect synthConnect;
     private JSONDirectory jsonDirectory;
     public GameObject saveDemoCanvas;
     public bool restarting = false;
-
     public Dictionary<int, object> annotation = new Dictionary<int, object>();
     public Dictionary<int, string> annotationDescriptions = new Dictionary<int, string>();
     private Dictionary<GameObject, int> objectToKey = new Dictionary<GameObject, int>();
@@ -38,15 +40,16 @@ public class KeyboardInput : MonoBehaviour
     public bool activationConditionMet = false; 
 
     public Vector3 movement;
-
+    private ActionAPI actionAPI;
     public bool canClick = true; // Add a boolean to track if clicking is allowed
 
     void Start()
     {
+        actionAPI = GameObject.FindGameObjectWithTag("player").GetComponent<ActionAPI>();
         // Initialize the necessary components and references at the start of the scene
         // rb = GetComponent<Rigidbody>();
         timelineManager = GameObject.FindGameObjectWithTag("TimelineManager").GetComponent<TimelineManager>();
-        recorderManager = GameObject.FindGameObjectWithTag("RecorderManager").GetComponent<RecorderManager>();
+        // recorderManager = GameObject.FindGameObjectWithTag("RecorderManager").GetComponent<RecorderManager>();
         jsonToLLM = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<JSONToLLM>();
         countdownText = GameObject.FindGameObjectWithTag("countdown").GetComponent<TextMeshProUGUI>();
         chatBehaviour = GameObject.FindGameObjectWithTag("Character").GetComponent<ChatBehaviour>();
@@ -54,8 +57,13 @@ public class KeyboardInput : MonoBehaviour
         // synthConnect = GameObject.FindGameObjectWithTag("connect").GetComponent<SynthConnect>();
         jsonDirectory = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<JSONDirectory>();
         Debug.Log("KeyboardInput script initialized");
+        StartCoroutine(CallHandleSegmentAfterDelay());
     }
-
+    private IEnumerator CallHandleSegmentAfterDelay()
+    {
+        yield return new WaitForSeconds(5f);
+        HandleSegment();
+    }
     // Handles user input and triggers different actions based on key presses
     void Update()
     {
@@ -65,6 +73,24 @@ public class KeyboardInput : MonoBehaviour
             exitScenario = GameObject.FindGameObjectWithTag("human").GetComponent<ExitScenario>();
         }
         
+        if (Input.GetKeyDown(KeyCode.N))
+        {
+            Vector3 newPosition = actionAPI.transform.position + actionAPI.transform.forward * 2f;
+
+            actionAPI.FactoryMoveToPos(newPosition, 2f, false);
+        }
+        if (Input.GetKeyDown(KeyCode.O))
+        {
+            Vector3 newPosition = new Vector3(10f,0f,0f);
+            // Call FactoryMoveToPos with the new position
+            actionAPI.PutDown(newPosition);
+        }
+        if (Input.GetKeyDown(KeyCode.P))
+        {
+            Vector3 newPosition = new Vector3(10f,0f,0f);
+            // Call FactoryMoveToPos with the new position
+            actionAPI.PickUp(newPosition);
+        }
         // End the scenario when the 'E' key is pressed
         if (Input.GetKeyDown(KeyCode.E) && gameObject.CompareTag("keyboard"))
         {
@@ -117,10 +143,10 @@ public class KeyboardInput : MonoBehaviour
     // Resets JSON data of the current segment to prepare for the next segment
     private void ResetJsonData()
     {
-        if (recorderManager.RecorderController.IsRecording())
-        {
-            recorderManager.StopRecording();
-        }
+        // if (recorderManager.RecorderController.IsRecording())
+        // {
+        //     recorderManager.StopRecording();
+        // }
         annotation.Clear();
         annotationDescriptions.Clear();
         objectToKey.Clear();

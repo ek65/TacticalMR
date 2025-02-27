@@ -342,7 +342,7 @@ public class JSONDirectory : MonoBehaviour
         jsonToLLM.recordingNum = -1;
         jsonToLLM.time = 0;
         
-        RecorderManager recorderManager = GameObject.FindGameObjectWithTag("RecorderManager").GetComponent<RecorderManager>();
-        recorderManager.recordingNum = -1;
+        // RecorderManager recorderManager = GameObject.FindGameObjectWithTag("RecorderManager").GetComponent<RecorderManager>();
+        // recorderManager.recordingNum = -1;
     }
 }

@@ -86,6 +86,15 @@ public class ActionAPI : MonoBehaviour
         //StartCoroutine(MovementLerp(destinationPosition, lookAt));
     }
     
+    public void FactoryMoveToPos(Vector3 destinationPosition, float speed = 2f, bool lookAt = false)
+    {
+        // TODO: replace this anim controller with movement, need to merge humanoid AI movement with the movement controller
+        //SetAnimController("Humanoid");
+        SetAnimController("FactoryMovement");
+        StartCoroutine(MoveToPosHelper(destinationPosition, lookAt));
+        //StartCoroutine(MovementLerp(destinationPosition, lookAt));
+    }
+    
     public void MoveToPosLookAtBall(Vector3 destinationPosition, float speed = 2f, bool lookAt = true)
     {
         // TODO: replace this anim controller with movement, need to merge humanoid AI movement with the movement controller
@@ -214,6 +223,21 @@ public class ActionAPI : MonoBehaviour
     //     waitToReceiveBall = true;
     //     StartCoroutine(LookTowards(receiveFrom, null));
     // }
+    
+    // factory setting 
+    public void PickUp(Vector3 lookAtPosition)
+    {
+        SetAnimController("FactoryMovement");
+        stopMovement = true;
+        StartCoroutine(LookTowards(lookAtPosition, "PickUp"));
+    }
+    public void PutDown(Vector3 lookAtPosition)
+    {
+        SetAnimController("FactoryMovement");
+        stopMovement = true;
+        StartCoroutine(LookTowards(lookAtPosition, "PutDown"));
+    }
+    // soccer
     public void ReceiveBall(Vector3 receiveFrom)
     {
         SetAnimController("Movement");
@@ -487,6 +511,8 @@ public class ActionAPI : MonoBehaviour
     #endregion
 
     #region Helper Coroutines
+    
+    
     IEnumerator MoveToPosHelper(Vector3 destinationPosition, bool lookAt)
     {
         // Debug.Log("here");
@@ -590,6 +616,26 @@ public class ActionAPI : MonoBehaviour
         aiNav.updateRotation = true;
         yield return null;
 
+        // selfPlayer.GetComponent<NavMeshAgent>().enabled = false; // Deactivate Agent 
+        // selfPlayer.GetComponentInChildren<NavMeshObstacle>().enabled = true;
+    }
+    
+    IEnumerator Move4(AIDestinationSetter destSetter, RichAI aiNav, Vector3 Destiny)
+    {
+        GameObject selfPlayer = this.gameObject;
+        destSetter.target.position = Destiny;
+        while (destSetter.target.position != this.gameObject.transform.position)
+        {
+            // normalize speed then *2 for anim values
+            float velz = aiNav.velocity.magnitude / playerRunningSpeed * 2;
+            
+            // Debug.LogError(velz);
+            selfPlayer.GetComponent<Animator>().SetFloat("VelZ", 1);
+
+            // yield return StartCoroutine(MovementLerp2(Destiny));
+            yield return null;
+        }
+        
         // selfPlayer.GetComponent<NavMeshAgent>().enabled = false; // Deactivate Agent 
         // selfPlayer.GetComponentInChildren<NavMeshObstacle>().enabled = true;
     }
@@ -883,7 +929,8 @@ public class ActionAPI : MonoBehaviour
         yield return new WaitForSeconds(WaitTime());
     }
 
-    public void SetAnimController(string controllerHashCode)
+    public void 
+        SetAnimController(string controllerHashCode)
     {
         GameObject selfPlayer = this.gameObject;
         string currAnimationController = selfPlayer.GetComponent<Animator>().runtimeAnimatorController.name;
@@ -1111,6 +1158,7 @@ public class ActionAPI : MonoBehaviour
             selfPlayer.GetComponent<Animator>().SetTrigger(keyCode);
         }
     }
+    
 
     private IEnumerator RotateCoroutine(float angle, float rotationDirection, float duration)
     {

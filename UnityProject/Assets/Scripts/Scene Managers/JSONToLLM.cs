@@ -31,7 +31,7 @@ public class JSONToLLM : MonoBehaviour
     public int recordingNum = -1; // segmentNum
     public bool voiceActivated = false;
     public bool videoIsRecording;
-    private RecorderManager recorderManager;
+    // private RecorderManager recorderManager;
     public bool loggingStartedByUnpause = false;
     [Tooltip("Used to record system jsons/videos")]
     // used in tandem with python script to run all scenic tests, records jsons and videos in ONE segment
@@ -143,7 +143,7 @@ public class JSONToLLM : MonoBehaviour
         keyboard = GameObject.FindGameObjectWithTag("keyboard").GetComponent<KeyboardInput>();
         timelineManager = GameObject.FindGameObjectWithTag("TimelineManager").GetComponent<TimelineManager>();
         streamingSampleMic = GameObject.FindGameObjectWithTag("stream").GetComponent<StreamingSampleMic>();
-        recorderManager = GameObject.FindGameObjectWithTag("RecorderManager").GetComponent<RecorderManager>();
+        // recorderManager = GameObject.FindGameObjectWithTag("RecorderManager").GetComponent<RecorderManager>()
     }
 
     void Update()
