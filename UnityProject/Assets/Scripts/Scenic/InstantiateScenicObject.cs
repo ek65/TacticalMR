@@ -45,23 +45,32 @@ public class InstantiateScenicObject
         //     addedGameObject.transform.parent = GameObject.Find("AI Interface").transform;
         //     objectList.AIAgent = addedGameObject;
         // }
-        else if (modelType == "Player")
+        else if (modelType == "Player" || modelType == "Robot")
         {
-            addedGameObject = MonoBehaviour.Instantiate(objectList.modelList["player.scenic"], pos, rot);
+            if (modelType == "Player")
+            {
+                addedGameObject = MonoBehaviour.Instantiate(objectList.modelList["player.scenic"], pos, rot);
+            } else if (modelType == "Robot")
+            {
+                addedGameObject = MonoBehaviour.Instantiate(objectList.modelList["player.scenic2"], pos, rot);
+            }
             addedGameObject.name = name;
             //scenicPlayer.GetComponent<NetworkObject>().Spawn();
             objectList.scenicPlayers.Add(addedGameObject);
-            if (color == new Color(0f, 0f, 255f, 1f)) // defense team
+            if (modelType == "Player")
             {
-                addedGameObject.GetComponentInChildren<PlayerInterface>().ally = true;
-                objectList.defensePlayers.Add(addedGameObject);
+                if (color == new Color(0f, 0f, 255f, 1f)) // defense team
+                {
+                    addedGameObject.GetComponentInChildren<PlayerInterface>().ally = true;
+                    objectList.defensePlayers.Add(addedGameObject);
+                }
+                else if (color == new Color(255f, 0f, 0f, 1f)) // offense team
+                {
+                    addedGameObject.GetComponentInChildren<PlayerInterface>().enemy = true;
+                    objectList.offensePlayers.Add(addedGameObject);
+                }
             }
-            else if (color == new Color(255f, 0f, 0f, 1f)) // offense team
-            {
-                addedGameObject.GetComponentInChildren<PlayerInterface>().enemy = true;
-                objectList.offensePlayers.Add(addedGameObject);
-            }
-            
+
             //objectList.orangePlayers.Add(scenicPlayer.GetComponent<NetworkObject>().NetworkInstanceId);
             Debug.Log("Added Scenic Player");
         }

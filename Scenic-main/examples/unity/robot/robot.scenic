@@ -5,15 +5,13 @@ import trimesh
 from scenic.core.regions import MeshVolumeRegion
 import random
 
-behavior coachBehavior():
+behavior robotBehavior():
         pass
 
 behavior humanBehavior():
         pass
 
 
-ego = new Robot at (4.5, 1.5, 0), 
-        with behavior robotBehavior()
+ego = new Robot at (17.122, -50.207, 0)
 
-human = new NPC at (-7, -8.5, 0), 
-        with behavior humanBehavior()
+human = new Robot at (17.122, -54.1, 0)
