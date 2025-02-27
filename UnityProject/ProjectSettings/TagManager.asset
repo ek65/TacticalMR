@@ -28,6 +28,7 @@ TagManager:
   - GroundHover
   - RecorderManager
   - Grabbable
+  - NetworkedPlayer
   layers:
   - Default
   - TransparentFX

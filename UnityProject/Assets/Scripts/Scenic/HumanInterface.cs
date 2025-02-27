@@ -93,6 +93,11 @@ public class HumanInterface : MonoBehaviour
         // floatingNameText.SetText2(this.gameObject.name);
         // forwardArrow = SpawnArrow(this.transform.position, transform.forward * 8.5f);
         // forwardArrow.SetActive(false);
+        
+        if (objectList.humanPlayers.Count == 0)
+        {
+            objectList.humanPlayers.Add(this.gameObject);
+        }
     }
 
     // Update is called once per frame
