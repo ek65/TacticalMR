@@ -33,7 +33,7 @@ public class KeyboardInput : MonoBehaviour
     public Dictionary<int, string> annotationDescriptions = new Dictionary<int, string>();
     private Dictionary<GameObject, int> objectToKey = new Dictionary<GameObject, int>();
     public Dictionary<int, float> annotationTimes = new Dictionary<int, float>();
-    public int clickOrder = 0;
+    public int clickOrder = 0; 
 
     [Header("Segment / Logging State")]
     public bool segmentStarted = false;
@@ -50,6 +50,7 @@ public class KeyboardInput : MonoBehaviour
 
     void Start()
     {
+        // Basic references
         timelineManager = GameObject.FindGameObjectWithTag("TimelineManager").GetComponent<TimelineManager>();
         jsonToLLM = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<JSONToLLM>();
         countdownText = GameObject.FindGameObjectWithTag("countdown").GetComponent<TextMeshProUGUI>();
@@ -100,7 +101,7 @@ public class KeyboardInput : MonoBehaviour
             }
         }
 
-        // Debug: Press K
+        // Debug: Press K 
         if (Input.GetKeyDown(KeyCode.K))
         {
             foreach (var ann in annotation)
@@ -117,6 +118,7 @@ public class KeyboardInput : MonoBehaviour
         }
     }
 
+    // For annotation clicks
     public void HandlePositionClick()
     {
         StartCoroutine(HandleClickWithDelay(HandlePositionMode));
@@ -127,6 +129,7 @@ public class KeyboardInput : MonoBehaviour
         StartCoroutine(HandleClickWithDelay(HandleAnnotationMode));
     }
 
+    // Pause/unpause
     public void HandlePause()
     {
         if (timelineManager.Paused)
@@ -134,6 +137,7 @@ public class KeyboardInput : MonoBehaviour
             timelineManager.Unpause();
             activationConditionMet = true;
 
+            // If a segment is running, tell JSONToLLM to start logging
             if (segmentStarted && activationConditionMet && !jsonToLLM.isLogging)
             {
                 jsonToLLM.isLogging = true;
@@ -145,6 +149,7 @@ public class KeyboardInput : MonoBehaviour
         }
     }
 
+    // Restart scenario
     public void HandleRestart()
     {
         restarting = true;
@@ -159,12 +164,12 @@ public class KeyboardInput : MonoBehaviour
         saveDemoCanvas.SetActive(true);
     }
 
-    // B toggles segment start/stop
+    // Press B: toggle segment (start/stop)
     public void HandleSegment()
     {
+        // If unpaused, pause it first
         if (!timelineManager.Paused)
         {
-            // If unpaused, pause it first
             timelineManager.Pause();
             if (timelineManager.isRecordingSegment)
             {
@@ -188,7 +193,9 @@ public class KeyboardInput : MonoBehaviour
             }
         }
     }
-    
+
+    // Start the segment + audio
+    // (Video is started automatically in JSONToLLM.FixedUpdate if isLogging==true)
     public void StartSegment()
     {
         if (segmentStarted) return;
@@ -199,6 +206,7 @@ public class KeyboardInput : MonoBehaviour
 
         segmentStartTime = Time.time;
 
+        // Start audio only
         if (recordAudio != null)
         {
             recordAudio.StartRecording();
@@ -209,13 +217,13 @@ public class KeyboardInput : MonoBehaviour
             Debug.LogWarning("No RecordAudio reference set in KeyboardInput!");
         }
 
-        if (!recorderManager.RecorderController.IsRecording())
-        {
-            recorderManager.StartRecording();
-            Debug.Log("Video recording started with the segment.");
-        }
-        
+        // Instead of calling recorderManager.StartRecording(), we rely on JSONToLLM
+        // to do that in its FixedUpdate when isLogging==true.
+
+        // Force JSONToLLM to start logging so video can start in FixedUpdate
         jsonToLLM.isLogging = true;
+
+        // Folder setup if needed
         if (jsonDirectory.InitialDemo)
         {
             jsonDirectory.InstantiateInitialFolders();
@@ -223,10 +231,11 @@ public class KeyboardInput : MonoBehaviour
         }
         jsonDirectory.InstantiateDemoFolders();
 
-        Debug.Log("Started new segment recording (audio + video).");
+        Debug.Log("Started new segment recording (audio). JSONToLLM will auto-start video in FixedUpdate.");
     }
 
-    // Stop the segment + audio + video
+    // Stop the segment + audio
+    // (Video is stopped automatically in JSONToLLM.FixedUpdate if isLogging==false)
     public void StopSegment()
     {
         if (!segmentStarted) return;
@@ -234,23 +243,23 @@ public class KeyboardInput : MonoBehaviour
         jsonToLLM.voiceActivated = false;
         Debug.Log("Stopped segment recording");
         timelineManager.isRecordingSegment = false;
-        jsonToLLM.isLogging = false;
+        jsonToLLM.isLogging = false; // triggers video stop in JSONToLLM
         segmentStarted = false;
         activationConditionMet = false;
 
-        // Stop mic
+        // Stop audio
         if (recordAudio != null && Microphone.IsRecording(null))
         {
             recordAudio.StopRecording();
             Debug.Log("Audio recording stopped with the segment.");
         }
 
-        // Stop video
-        if (recorderManager.RecorderController.IsRecording())
-        {
-            recorderManager.StopRecording();
-            Debug.Log("Video recording stopped with the segment.");
-        }
+        // DO NOT call recorderManager.StopRecording() here, JSONToLLM will do it in FixedUpdate
+        // if (recorderManager.RecorderController.IsRecording())
+        // {
+        //     recorderManager.StopRecording();
+        //     Debug.Log("Video recording stopped with the segment.");
+        // }
 
         GroundSelection groundSelection = GameObject.FindGameObjectWithTag("Ground")
             .GetComponent<GroundSelection>();
@@ -383,6 +392,7 @@ public class KeyboardInput : MonoBehaviour
         countdownText.gameObject.SetActive(false);
         countdownText.color = Color.red;
         
+        // If you don’t want to auto-restart the segment, comment the next line:
         // StartSegment();
     }
 
