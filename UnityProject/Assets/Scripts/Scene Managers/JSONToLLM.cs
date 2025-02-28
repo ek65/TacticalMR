@@ -113,17 +113,12 @@ public class JSONToLLM : MonoBehaviour
         public int timestep;
         public List<object> objects = new List<object>();
     }
-
-    // ---------------------------------------------------------
-    // The root segment to store per-frame data
+    
     public RootSegment myRootSegment = new RootSegment();
     private List<RootSegment> segmentsList = new List<RootSegment>();
-
-    // The dictionary for transcribed words + annotation placeholders
-    // Key = timestamp (float), Value = list of tokens (strings or placeholders)
+    
     public Dictionary<float, List<object>> tokenDictionary = new Dictionary<float, List<object>>();
-
-    // We'll subscribe to Scribe’s event for transcription
+    
     private Scribe scribe;
 
     void Start()

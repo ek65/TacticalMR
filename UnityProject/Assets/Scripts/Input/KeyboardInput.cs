@@ -200,7 +200,6 @@ public class KeyboardInput : MonoBehaviour
 
         segmentStartTime = Time.time;
 
-        // 1) AUDIO: Start microphone
         if (recordAudio != null)
         {
             recordAudio.StartRecording();
@@ -211,17 +210,13 @@ public class KeyboardInput : MonoBehaviour
             Debug.LogWarning("No RecordAudio reference set in KeyboardInput!");
         }
 
-        // 2) VIDEO: Start the Unity Recorder
         if (!recorderManager.RecorderController.IsRecording())
         {
             recorderManager.StartRecording();
             Debug.Log("Video recording started with the segment.");
         }
-
-        // 3) If you want to ensure JSONToLLM logs from now on:
+        
         jsonToLLM.isLogging = true;
-
-        // Optionally do folder setup
         if (jsonDirectory.InitialDemo)
         {
             jsonDirectory.InstantiateInitialFolders();
