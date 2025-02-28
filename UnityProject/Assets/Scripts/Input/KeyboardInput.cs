@@ -45,7 +45,7 @@ public class KeyboardInput : MonoBehaviour
 
     void Start()
     {
-        actionAPI = GameObject.FindGameObjectWithTag("player").GetComponent<ActionAPI>();
+        // actionAPI = GameObject.FindGameObjectWithTag("player").GetComponent<ActionAPI>();
         // Initialize the necessary components and references at the start of the scene
         // rb = GetComponent<Rigidbody>();
         timelineManager = GameObject.FindGameObjectWithTag("TimelineManager").GetComponent<TimelineManager>();
