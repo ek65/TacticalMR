@@ -20,7 +20,6 @@ public class JSONToLLM : MonoBehaviour
     private string filename;
     public string jsonString;
     public TimelineManager timelineManager;
-    public StreamingSampleMic streamingSampleMic;
     public float time;
     public Dictionary<int, List<object>> tokenDictionary = new Dictionary<int, List<object>>();
     public bool isTranscriptionComplete = false;
@@ -142,7 +141,6 @@ public class JSONToLLM : MonoBehaviour
         // filename = Application.dataPath + "/sanjit.json";
         keyboard = GameObject.FindGameObjectWithTag("keyboard").GetComponent<KeyboardInput>();
         timelineManager = GameObject.FindGameObjectWithTag("TimelineManager").GetComponent<TimelineManager>();
-        streamingSampleMic = GameObject.FindGameObjectWithTag("stream").GetComponent<StreamingSampleMic>();
         // recorderManager = GameObject.FindGameObjectWithTag("RecorderManager").GetComponent<RecorderManager>()
     }
 
@@ -312,7 +310,6 @@ public class JSONToLLM : MonoBehaviour
     // Process tokens collected during the scene and log them
     public void ProcessTokens()
     {
-        RemoveSpecificSequences();
         foreach (var token in tokenDictionary)
         {
             Debug.Log($"JSONTOLLM KEY saved at time: {token.Key:F2} seconds, VALUE: {token.Value}");
@@ -329,124 +326,7 @@ public class JSONToLLM : MonoBehaviour
         isTranscriptionComplete = true;
         Debug.Log("Created Token JSON String: " + tokenJsonString);
     }
-
-    // Clean up the sentence by removing unwanted patterns
-    private string CleanSentence(string sentence)
-    {
-        string pattern = @"\b[tT] ?h?e?d? ?r\.com\b|\/ ?s ?port\b";
-        return Regex.Replace(sentence, pattern, string.Empty, RegexOptions.IgnoreCase).Trim();
-    }
-
-    // Build a sentence from the tokens, attaching annotations where applicable
-    private string BuildSentenceFromTokens(Dictionary<int, List<object>> dict)
-    {
-        foreach (var clickTime in keyboard.annotationTimes)
-        {
-            int annotationKey = clickTime.Key;
-            float clickTimestamp = clickTime.Value;
-
-            int closestKey = tokenDictionary
-                .Where(pair => pair.Value.Count > 1)
-                .OrderBy(pair => Mathf.Abs((float)pair.Value[1] - clickTimestamp))
-                .FirstOrDefault().Key;
-
-            if (tokenDictionary.ContainsKey(closestKey))
-            {
-                tokenDictionary[closestKey][0] = $"{tokenDictionary[closestKey][0]} [{annotationKey}]";
-                Debug.Log(
-                    $"Appended annotation key [{annotationKey}] to token at order {closestKey} with time {((float)tokenDictionary[closestKey][1]):F2} seconds");
-            }
-        }
-
-        StringBuilder sentenceBuilder = new StringBuilder();
-        bool lastWasPunctuation = false;
-
-        foreach (var tokenEntry in tokenDictionary)
-        {
-            string text = tokenEntry.Value[0] as string;
-
-            // List<string> unwantedTokens = new List<string>
-            //     { "BL", "ANK", "AUD", "IO", "_", "@", ".com" };
-            //
-            // if (unwantedTokens.Any(unwanted => text.Contains(unwanted)))
-            // {
-            //     continue;
-            // }
-
-            text = text.Trim();
-
-            if (text == "," || text == "." || text == "!" || text == "?")
-            {
-                sentenceBuilder.Append(text);
-                lastWasPunctuation = true;
-            }
-            else
-            {
-                if (sentenceBuilder.Length > 0 && !lastWasPunctuation && !text.StartsWith("'"))
-                {
-                    sentenceBuilder.Append(" ");
-                }
-
-                sentenceBuilder.Append(text);
-                lastWasPunctuation = false;
-            }
-        }
-
-        sentence = sentenceBuilder.ToString();
-        return CleanSentence(sentence);
-    }
-
-    public void RemoveSpecificSequences()
-    {
-        
-        //  sequences to be removed from token dictionary
-        List<List<string>> sequencesToRemove = new List<List<string>>
-        {
-            new List<string> { "[", "BL", "ANK", "_", "AUD", "IO", "]" },
-            new List<string> { "Thank", "you", "." },
-            new List<string> { "Thank", "you", "for", "watching", "." }
-        };
-
-        foreach (var sequence in sequencesToRemove)
-        {
-            var keysToRemove = new List<int>();
-            foreach (var entry in tokenDictionary)
-            {
-                int startIndex = entry.Key;
-                bool isMatch = true;
-
-                for (int i = 0; i < sequence.Count; i++)
-                {
-                    int currentIndex = startIndex + i;
-
-                    if (!tokenDictionary.ContainsKey(currentIndex) ||
-                        tokenDictionary[currentIndex][0].ToString() != sequence[i])
-                    {
-                        isMatch = false;
-                        break;
-                    }
-                }
-
-                if (isMatch)
-                {
-                    for (int i = 0; i < sequence.Count; i++)
-                    {
-                        keysToRemove.Add(startIndex + i);
-                    }
-
-                    break; 
-                }
-            }
-
-            // Remove the keys associated with the sequence
-            foreach (int key in keysToRemove)
-            {
-                tokenDictionary.Remove(key);
-            }
-        }
-
-        Debug.Log("Specified sequences removed from token dictionary.");
-    }
+    
 
 
 // Reset the data for the current segment, clearing stored tokens and annotations
@@ -470,20 +350,12 @@ public class JSONToLLM : MonoBehaviour
         // Build the sentence before creating JSON
         if (!activateSystemRecording)
         {
-            keyboard.explanation = BuildSentenceFromTokens(tokenDictionary);
-            Debug.Log("Constructed Sentence: " + keyboard.explanation);
+            
+            Debug.Log("Constructed Sentence: ");
         } else if (activateSystemRecording)
         {
-            // keyboard.explanation = GameObject.FindGameObjectWithTag("human").GetComponent<HumanInterface>().explanation;
-            // foreach (var clickTime in keyboard.annotationTimes)
-            // {
-            //     int annotationKey = clickTime.Key;
-            //     keyboard.explanation += $" [{annotationKey}]";
-            // }
         }
         
-
-        // Proceed to serialize the scene data into JSON
         var settings = new JsonSerializerSettings
         {
             ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
@@ -530,54 +402,11 @@ public class JSONToLLM : MonoBehaviour
     }
 
     
-    // adjust token times based on whether or not the first token was NOT said within the 0-1 seconds.
-    public void AdjustTokenTimes()
-    {
-        if (tokenDictionary.Count == 0)
-        {
-            Debug.LogWarning("Token dictionary is empty. No adjustments made.");
-            return;
-        }
-        
-        int firstKey = tokenDictionary.Keys.First();
-        float firstTimestamp = (float)tokenDictionary[firstKey][1];
-        
-        if (firstTimestamp < 0 || firstTimestamp > 1)
-        {
-            float targetTimestamp = 0.1f;
-            
-            float adjustment = targetTimestamp - firstTimestamp;
-            
-            Dictionary<int, List<object>> adjustedTokenDictionary = new Dictionary<int, List<object>>();
-
-            foreach (var entry in tokenDictionary)
-            {
-                int key = entry.Key;
-                List<object> value = entry.Value;
-                float adjustedTime = (float)value[1] + adjustment;
-                adjustedTokenDictionary[key] = new List<object> { value[0], adjustedTime };
-            }
-
-            tokenDictionary = adjustedTokenDictionary;
-            Debug.Log($"Token times adjusted to align the first token between 0-1 second with adjustment of {adjustment:F2} seconds.");
-        }
-        else
-        {
-            Debug.Log("First token already within the 0-1 second range. No adjustment needed.");
-        }
-
-        isAdjusted = true;
-    }
-    
 
     // Write the JSON data to a file
     public void WriteFile()
-    {
-        AdjustTokenTimes();
-        if (isAdjusted)
-        {
-            CreateJSONString();
-        }
+    { 
+        CreateJSONString();
     }
 
     // Update the scene data on a fixed time interval
@@ -585,12 +414,6 @@ public class JSONToLLM : MonoBehaviour
     {
         if (!activateSystemRecording)
         {
-            if (streamingSampleMic.isSpeechDetected)
-            {
-                voiceActivated = true;
-                keyboard.activationConditionMet = true; 
-                // Debug.Log("voice check activated");
-            }
         }
         else if (activateSystemRecording && keyboard.segmentStarted) // if system recording and segment started, we want to start logging
         {
@@ -623,8 +446,5 @@ public class JSONToLLM : MonoBehaviour
             //     videoIsRecording = recorderManager.RecorderController.IsRecording();
             // }
         }
-
-        var color = streamingSampleMic.isSpeechDetected ? Color.green : Color.red;
-        streamingSampleMic.microphoneRecord.vadIndicatorImage.color = color;
     }
 }

@@ -16,7 +16,6 @@ public class KeyboardInput : MonoBehaviour
     public ExitScenario exitScenario;
     public Rigidbody rb;
     private ChatBehaviour chatBehaviour;
-    private StreamingSampleMic streamingSampleMic;
 
     public TimelineManager timelineManager;
     // private RecorderManager recorderManager;
@@ -53,7 +52,6 @@ public class KeyboardInput : MonoBehaviour
         jsonToLLM = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<JSONToLLM>();
         countdownText = GameObject.FindGameObjectWithTag("countdown").GetComponent<TextMeshProUGUI>();
         chatBehaviour = GameObject.FindGameObjectWithTag("Character").GetComponent<ChatBehaviour>();
-        streamingSampleMic = GameObject.FindGameObjectWithTag("stream").GetComponent<StreamingSampleMic>();
         // synthConnect = GameObject.FindGameObjectWithTag("connect").GetComponent<SynthConnect>();
         jsonDirectory = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<JSONDirectory>();
         Debug.Log("KeyboardInput script initialized");
@@ -133,7 +131,6 @@ public class KeyboardInput : MonoBehaviour
         objectToKey.Clear();
         annotationTimes.Clear();
         clickOrder = 0;
-        streamingSampleMic.ResetTranscriptionData();
         jsonToLLM.ResetSegmentData();
     }
 
@@ -260,7 +257,6 @@ public class KeyboardInput : MonoBehaviour
             jsonDirectory.InstantiateDemoFolders();
             if (!jsonToLLM.activateSystemRecording)
             {
-                streamingSampleMic.OnButtonPressed();
                 Debug.Log("recording started");
             }
         }
@@ -269,7 +265,6 @@ public class KeyboardInput : MonoBehaviour
             Debug.Log("Started new segment recording");
             if (!jsonToLLM.activateSystemRecording)
             {
-                streamingSampleMic.OnButtonPressed();
             }
         }
     }
@@ -282,7 +277,6 @@ public class KeyboardInput : MonoBehaviour
         }
 
         jsonToLLM.voiceActivated = false;
-        streamingSampleMic.microphoneRecord.StopRecord();
         Debug.Log("Stopped segment recording");
         timelineManager.isRecordingSegment = false;
         jsonToLLM.isLogging = false;
