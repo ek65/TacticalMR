@@ -188,8 +188,7 @@ public class KeyboardInput : MonoBehaviour
             }
         }
     }
-
-    // Start the segment + audio + video
+    
     public void StartSegment()
     {
         if (segmentStarted) return;

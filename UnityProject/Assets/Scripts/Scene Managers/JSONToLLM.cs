@@ -29,8 +29,7 @@ public class JSONToLLM : MonoBehaviour
 
     [Tooltip("Used to record system jsons/videos")]
     public bool activateSystemRecording = false;
-
-    // ---------------- TRAJECTORY DATA CLASSES ----------------
+    
     [System.Serializable]
     public class Position
     {
