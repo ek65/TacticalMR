@@ -350,15 +350,13 @@ public class JSONToLLM : MonoBehaviour
     public void CreateJSONString()
     {
         recordingNum++;
-        JSONDirectory jsonDirectory = GameObject
-            .FindGameObjectWithTag("ScenicManager")
-            .GetComponent<JSONDirectory>();
-
-        // Sort the tokens
+        JSONDirectory jsonDirectory = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<JSONDirectory>();
+        
         var sortedTokens = tokenDictionary
             .OrderBy(kvp => kvp.Key)
             .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
-
+        keyboard.explanation = BuildSentenceFromTokens();
+    
         object finalScene;
         if (activateSystemRecording)
         {
@@ -397,12 +395,33 @@ public class JSONToLLM : MonoBehaviour
         };
 
         jsonString = JsonConvert.SerializeObject(finalScene, settings);
-
         filename = jsonDirectory.InstantiateJSONSegmentFilePath(recordingNum) + ".json";
         File.WriteAllText(filename, jsonString);
 
         Debug.Log($"Segment written to {filename}");
     }
+
+    
+    private string BuildSentenceFromTokens()
+    {
+        // Sort the tokenDictionary by timestamp (key) ascending
+        var sortedTokens = tokenDictionary.OrderBy(kvp => kvp.Key);
+    
+        StringBuilder sb = new StringBuilder();
+
+        // Loop through each sorted token list and append each token
+        foreach (var kvp in sortedTokens)
+        {
+            foreach (var tokenObj in kvp.Value)
+            {
+                sb.Append(tokenObj.ToString());
+            }
+        }
+    
+        // Optionally, trim any extra whitespace
+        return sb.ToString().Trim();
+    }
+
 
     public void ResetSegmentData()
     {
@@ -428,10 +447,8 @@ public class JSONToLLM : MonoBehaviour
             Debug.Log("Started logging in JSONToLLM");
         }
 
-        // While isLogging, capture scene data in PopulateSegment
         if (isLogging)
         {
-            // If not capturing already, start video
             if (!recorderManager.RecorderController.IsRecording())
             {
                 recorderManager.StartRecording();
@@ -444,7 +461,6 @@ public class JSONToLLM : MonoBehaviour
         }
         else
         {
-            // If we were logging but not anymore, stop video if still running
             if (recorderManager.RecorderController.IsRecording())
             {
                 recorderManager.StopRecording();

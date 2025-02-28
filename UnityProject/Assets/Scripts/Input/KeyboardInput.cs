@@ -253,8 +253,7 @@ public class KeyboardInput : MonoBehaviour
             recordAudio.StopRecording();
             Debug.Log("Audio recording stopped with the segment.");
         }
-
-        // DO NOT call recorderManager.StopRecording() here, JSONToLLM will do it in FixedUpdate
+        
         // if (recorderManager.RecorderController.IsRecording())
         // {
         //     recorderManager.StopRecording();
