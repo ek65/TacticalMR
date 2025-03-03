@@ -65,12 +65,20 @@ public class KeyboardInput : MonoBehaviour
         Debug.Log("KeyboardInput script initialized");
         
         StartCoroutine(StartSegmentAfterDelay(15f));
+        StartCoroutine(StopSegmentAfterDelay(20f));
     }
     private IEnumerator StartSegmentAfterDelay(float delay)
     {
         yield return new WaitForSeconds(delay);
         Debug.Log("Auto-starting segment after delay for VR debugging.");
         StartSegment();
+    }
+    
+    private IEnumerator StopSegmentAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        Debug.Log("Auto-stopping segment after delay for VR debugging.");
+        StopSegment();
     }
 
     void Update()
