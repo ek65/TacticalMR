@@ -262,7 +262,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2b17b6698a5ee46368b3fbb02161ad07, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  elevenLabsApiKey: sk_797a951628e48b5963eaf3856ed9e49cdf3215adccade011
+  elevenLabsApiKey: sk_a50b1b797f2785ec74937b9a94f6e1845d7364565beb06f3
   transcriptionText: 
 --- !u!4 &17325050
 Transform:
