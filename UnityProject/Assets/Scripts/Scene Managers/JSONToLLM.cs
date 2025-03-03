@@ -449,24 +449,30 @@ public class JSONToLLM : MonoBehaviour
 
         if (isLogging)
         {
-            if (!recorderManager.RecorderController.IsRecording())
+#if UNITY_EDITOR
+            // Only start recording in Unity Editor, not in VR builds
+            if (recorderManager != null && !recorderManager.RecorderController.IsRecording())
             {
                 recorderManager.StartRecording();
                 videoIsRecording = recorderManager.RecorderController.IsRecording();
                 Debug.Log("Video recording started in JSONToLLM.FixedUpdate()");
             }
-
+#endif
             time += 0.02f;
             PopulateSegment();
         }
         else
         {
-            if (recorderManager.RecorderController.IsRecording())
+#if UNITY_EDITOR
+            // Stop recording only in Unity Editor
+            if (recorderManager != null && recorderManager.RecorderController.IsRecording())
             {
                 recorderManager.StopRecording();
                 videoIsRecording = recorderManager.RecorderController.IsRecording();
                 Debug.Log("Video recording stopped in JSONToLLM.FixedUpdate()");
             }
+#endif
         }
     }
+
 }

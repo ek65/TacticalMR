@@ -19,7 +19,9 @@ public class KeyboardInput : MonoBehaviour
     private JSONToLLM jsonToLLM;
     private ChatBehaviour chatBehaviour;
     private JSONDirectory jsonDirectory;
+#if UNITY_EDITOR
     private RecorderManager recorderManager;
+#endif
 
     [Header("UI / Output")]
     public TextMeshProUGUI countdownText;
@@ -56,9 +58,19 @@ public class KeyboardInput : MonoBehaviour
         countdownText = GameObject.FindGameObjectWithTag("countdown").GetComponent<TextMeshProUGUI>();
         chatBehaviour = GameObject.FindGameObjectWithTag("Character").GetComponent<ChatBehaviour>();
         jsonDirectory = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<JSONDirectory>();
+#if UNITY_EDITOR
         recorderManager = GameObject.FindGameObjectWithTag("RecorderManager").GetComponent<RecorderManager>();
+#endif        
 
         Debug.Log("KeyboardInput script initialized");
+        
+        StartCoroutine(StartSegmentAfterDelay(15f));
+    }
+    private IEnumerator StartSegmentAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        Debug.Log("Auto-starting segment after delay for VR debugging.");
+        StartSegment();
     }
 
     void Update()
@@ -418,11 +430,13 @@ public class KeyboardInput : MonoBehaviour
     }
 
     private void ResetJsonData()
-    {
+    {   
+#if UNITY_EDITOR
         if (recorderManager.RecorderController.IsRecording())
         {
             recorderManager.StopRecording();
         }
+#endif
 
         annotation.Clear();
         annotationDescriptions.Clear();
