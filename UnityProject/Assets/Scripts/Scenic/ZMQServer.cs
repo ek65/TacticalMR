@@ -143,7 +143,7 @@ public class ZMQServer : MonoBehaviour
         TimelineManager tlManager = FindObjectOfType<TimelineManager>();
         foreach (ScenicMovementData s in movementData)
         {
-            if (s.model.modelType == "Player")
+            if (s.model.modelType == "Player" || s.model.modelType == "Robot")
             {
                 listOfScenicPlayerIndices[currScenicPlayerListIdx] = currMovementDataIndex;
                 currScenicPlayerListIdx += 1;

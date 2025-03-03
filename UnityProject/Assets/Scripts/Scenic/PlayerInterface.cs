@@ -39,6 +39,14 @@ public class PlayerInterface : MonoBehaviour
     public string behavior = "Idle";
     public string currAction = "No Action"; // just for debugging to see what actions function is being called
     
+    [Space(10)] 
+    [Header("For robot only")]
+    
+    public bool isRobot;
+    public Transform objectPosition;
+    public bool objectPossession;
+    public GameObject grabbedObject;
+    
     private void Start()
     {
         if (enemy)
@@ -82,11 +90,14 @@ public class PlayerInterface : MonoBehaviour
             goal = GameObject.FindGameObjectWithTag("goal");
         }
 
-        ballOnTheGround.x = ball.transform.position.x;
-        ballOnTheGround.y = ball.transform.position.y;
-        ballOnTheGround.z = ball.transform.position.z;
-        distToBall = Vector3.Distance(transform.position, ballOnTheGround);
-        
+        if (ball)
+        {
+            ballOnTheGround.x = ball.transform.position.x;
+            ballOnTheGround.y = ball.transform.position.y;
+            ballOnTheGround.z = ball.transform.position.z;
+            distToBall = Vector3.Distance(transform.position, ballOnTheGround);
+        }
+
         if (actionAPI.stopMovement == true)
         {
             actionAPI.Idle();

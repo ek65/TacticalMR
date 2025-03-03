@@ -86,7 +86,7 @@ public class ActionAPI : MonoBehaviour
         //StartCoroutine(MovementLerp(destinationPosition, lookAt));
     }
     
-    public void FactoryMoveToPos(Vector3 destinationPosition, float speed = 2f, bool lookAt = false)
+    public void FactoryMoveToPos(Vector3 destinationPosition, float speed = 1f, bool lookAt = false)
     {
         // TODO: replace this anim controller with movement, need to merge humanoid AI movement with the movement controller
         //SetAnimController("Humanoid");
@@ -225,17 +225,66 @@ public class ActionAPI : MonoBehaviour
     // }
     
     // factory setting 
-    public void PickUp(Vector3 lookAtPosition)
+    public void PickUp()
     {
         SetAnimController("FactoryMovement");
         stopMovement = true;
-        StartCoroutine(LookTowards(lookAtPosition, "PickUp"));
+        PlayerInterface pI = this.GetComponent<PlayerInterface>();
+        Vector3 lookAtPosition = pI.objectPosition.position;
+        
+        
+        // get closest object with tag "Grabbable" within 2 meters
+        // Find all objects with the "Grabbable" tag
+        GameObject[] grabbableObjects = GameObject.FindGameObjectsWithTag("Grabbable");
+        for (int i = 0; i < grabbableObjects.Length; i++)
+        {
+            Debug.Log("grabbableObjects:" + grabbableObjects[i]);
+        }
+    
+        // Filter objects within the specified distance and sort by distance
+        Vector3 originPosition = pI.gameObject.transform.position;
+    
+        // Use LINQ to filter and find the closest object
+        GameObject closestObject = grabbableObjects
+            .Where(obj => Vector3.Distance(obj.transform.position, originPosition) <= 2f)
+            .OrderBy(obj => Vector3.Distance(obj.transform.position, originPosition))
+            .FirstOrDefault();
+        
+        // Debug.Log("closest object: " + closestObject);
+
+        if (closestObject != null)
+        {
+            int layerIgnoreBallCollision = LayerMask.NameToLayer("PlayerBall");
+            pI.gameObject.layer = layerIgnoreBallCollision;
+        
+            closestObject.transform.position = pI.objectPosition.position;
+            closestObject.transform.SetParent(pI.objectPosition);
+            
+            pI.objectPossession = true;
+            pI.grabbedObject = closestObject;
+            
+            StartCoroutine(LookTowards(lookAtPosition, "PickUp"));
+        }
+
     }
-    public void PutDown(Vector3 lookAtPosition)
+    public void PutDown(Vector3 putDownPosition)
     {
         SetAnimController("FactoryMovement");
         stopMovement = true;
-        StartCoroutine(LookTowards(lookAtPosition, "PutDown"));
+        
+        PlayerInterface pI = this.GetComponent<PlayerInterface>();
+        if (pI.objectPossession == false)
+        {
+            return;
+        }
+        
+        this.gameObject.layer = LayerMask.NameToLayer("Default");
+        pI.grabbedObject.transform.SetParent(null);
+        pI.grabbedObject.transform.position = putDownPosition;
+        pI.grabbedObject = null;
+        pI.objectPossession = false;
+        
+        StartCoroutine(LookTowards(putDownPosition, "PutDown"));
     }
     // soccer
     public void ReceiveBall(Vector3 receiveFrom)
@@ -546,7 +595,7 @@ public class ActionAPI : MonoBehaviour
         
         if (stopMovement)
         {
-            Debug.Log("in here123");
+            // Debug.Log("in here123");
             dest.target.localPosition = Vector3.zero;
             stopMovement = false;
             selfPlayer.GetComponent<Animator>().SetFloat("VelZ", 0);
