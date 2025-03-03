@@ -7,6 +7,7 @@ using System.Linq; // For .OrderBy(...)
 using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using Unity.VisualScripting.Antlr3.Runtime;
 using Whisper.Samples;
 
 public class JSONToLLM : MonoBehaviour
@@ -16,9 +17,11 @@ public class JSONToLLM : MonoBehaviour
     private string filename;
     public string jsonString;
     public TimelineManager timelineManager;
-    private RecorderManager recorderManager;
+    
+    // So we can start/stop the video in FixedUpdate
+    public RecorderManager recorderManager;
 
-    public float time;  // Current timeline time for logging
+    public float time;  // Time index for capturing scene data
     public bool isTranscriptionComplete = false;
     public bool isLogging = false;
 
@@ -28,9 +31,8 @@ public class JSONToLLM : MonoBehaviour
     public bool loggingStartedByUnpause = false;
 
     [Tooltip("Used to record system jsons/videos")]
-    public bool activateSystemRecording = false;
+    public bool activateSystemRecording = false; 
 
-    // ---------------- TRAJECTORY DATA CLASSES ----------------
     [System.Serializable]
     public class Position
     {
@@ -46,7 +48,7 @@ public class JSONToLLM : MonoBehaviour
     [System.Serializable]
     public class Orientation
     {
-        public float angle;
+        public float angle; 
         public Orientation(Transform transform)
         {
             angle = transform.rotation.eulerAngles.y;
@@ -114,23 +116,20 @@ public class JSONToLLM : MonoBehaviour
         public List<object> objects = new List<object>();
     }
 
-    // ---------------------------------------------------------
-    // The root segment to store per-frame data
     public RootSegment myRootSegment = new RootSegment();
     private List<RootSegment> segmentsList = new List<RootSegment>();
 
-    // The dictionary for transcribed words + annotation placeholders
-    // Key = timestamp (float), Value = list of tokens (strings or placeholders)
+    // Key = timestamp float, Value = list of tokens (strings or placeholders)
     public Dictionary<float, List<object>> tokenDictionary = new Dictionary<float, List<object>>();
 
-    // We'll subscribe to Scribe’s event for transcription
     private Scribe scribe;
 
     void Start()
     {
-        // Find references
         keyboard = GameObject.FindGameObjectWithTag("keyboard").GetComponent<KeyboardInput>();
         timelineManager = GameObject.FindGameObjectWithTag("TimelineManager").GetComponent<TimelineManager>();
+        
+        // The RecorderManager is presumably on a GameObject tagged "RecorderManager"
         recorderManager = GameObject.FindGameObjectWithTag("RecorderManager").GetComponent<RecorderManager>();
 
         scribe = FindObjectOfType<Scribe>();
@@ -154,10 +153,10 @@ public class JSONToLLM : MonoBehaviour
 
     void Update()
     {
-        // If needed, do real-time logic here
+        // any per-frame logic here
     }
 
-    // This is called from FixedUpdate if isLogging=true, to capture each frame’s data
+    // Called in FixedUpdate if isLogging = true
     public void PopulateSegment()
     {
         PopulateSceneObjects();
@@ -166,15 +165,18 @@ public class JSONToLLM : MonoBehaviour
     
     public void PopulateSceneObjects()
     {
-        if (objectsList == null || objectsList.ballObject == null) return;
-
-        // 1) corners
+        if (objectsList == null || objectsList.ballObject == null)
+        {
+            return;
+        }
+        
+        // corners
         for (int i = 1; i <= 4; i++)
         {
             GameObject cornerGO = GameObject.Find("corner" + i);
             if (cornerGO != null)
             {
-                Corner cornerData = (Corner)myRootSegment.objects
+                var cornerData = (Corner)myRootSegment.objects
                     .Find(obj => obj is Corner c && c.id == "corner" + i);
 
                 if (cornerData == null)
@@ -182,33 +184,32 @@ public class JSONToLLM : MonoBehaviour
                     cornerData = new Corner { id = "corner" + i };
                     myRootSegment.objects.Add(cornerData);
                 }
+
                 cornerData.position.Add(new Position(cornerGO.transform.position));
                 cornerData.velocity.Add(new Velocity(Vector3.zero));
                 cornerData.orientation.Add(new Orientation(cornerGO.transform));
             }
         }
-
-        // 2) defense players
+        
+        // defense players
         foreach (GameObject currPlayer in objectsList.defensePlayers)
         {
             AddOrUpdatePlayer(currPlayer, "Teammate");
         }
-
-        // 3) offense players
+        // offense players
         foreach (GameObject currPlayer in objectsList.offensePlayers)
         {
             AddOrUpdatePlayer(currPlayer, "Opponent");
         }
-
-        // 4) coach/human players
+        // coach/human players
         foreach (GameObject humanPlayer in objectsList.humanPlayers)
         {
             AddOrUpdatePlayer(humanPlayer, "Coach", "expert");
         }
 
-        // 5) ball
-        GameObject ballGO = objectsList.ballObject;
-        Ball ballData = (Ball)myRootSegment.objects.Find(obj => obj is Ball);
+        // ball
+        var ballGO = objectsList.ballObject;
+        var ballData = (Ball)myRootSegment.objects.Find(obj => obj is Ball);
         if (ballData == null)
         {
             ballData = new Ball { id = "ball" };
@@ -219,58 +220,52 @@ public class JSONToLLM : MonoBehaviour
         Rigidbody ballRB = ballGO.GetComponent<Rigidbody>();
         ballData.velocity.Add(new Velocity(ballRB.velocity));
 
-        // 6) goal
-        GameObject goalGO = objectsList.goalObject;
+        // goal
+        var goalGO = objectsList.goalObject;
+        Goal goalData2 = (Goal)myRootSegment.objects.Find(obj => obj is Goal g && g.id == "goal");
+        if (goalData2 == null)
+        {
+            goalData2 = new Goal { id = "goal" };
+            myRootSegment.objects.Add(goalData2);
+        }
+
         if (goalGO != null)
         {
-            Goal goalData = (Goal)myRootSegment.objects
-                .Find(obj => obj is Goal g && g.id == "goal");
-            if (goalData == null)
-            {
-                goalData = new Goal { id = "goal" };
-                myRootSegment.objects.Add(goalData);
-            }
-            goalData.position.Add(new Position(goalGO.transform.position));
-            goalData.velocity.Add(new Velocity(Vector3.zero));
-            goalData.orientation.Add(new Orientation(goalGO.transform));
-
-            // left post
+            Vector3 zeroVector = Vector3.zero;
+            goalData2.velocity.Add(new Velocity(zeroVector));
+            goalData2.position.Add(new Position(goalGO.transform.position));
+            goalData2.orientation.Add(new Orientation(goalGO.transform));
+            
             Transform leftPost = goalGO.transform.Find("goal_leftpost");
-            if (leftPost != null)
-            {
-                Goal leftGoalPost = (Goal)myRootSegment.objects
-                    .Find(obj => obj is Goal g && g.id == "goal_leftpost");
-                if (leftGoalPost == null)
-                {
-                    leftGoalPost = new Goal { id = "goal_leftpost", type = "Goal" };
-                    myRootSegment.objects.Add(leftGoalPost);
-                }
-                leftGoalPost.position.Add(new Position(leftPost.position));
-                leftGoalPost.velocity.Add(new Velocity(Vector3.zero));
-                leftGoalPost.orientation.Add(new Orientation(leftPost));
-            }
-
-            // right post
             Transform rightPost = goalGO.transform.Find("goal_rightpost");
-            if (rightPost != null)
+            
+            Goal leftGoalPost = (Goal)myRootSegment.objects
+                .Find(obj => obj is Goal g && g.id == "goal_leftpost");
+            if (leftGoalPost == null)
             {
-                Goal rightGoalPost = (Goal)myRootSegment.objects
-                    .Find(obj => obj is Goal g && g.id == "goal_rightpost");
-                if (rightGoalPost == null)
-                {
-                    rightGoalPost = new Goal { id = "goal_rightpost", type = "Goal" };
-                    myRootSegment.objects.Add(rightGoalPost);
-                }
-                rightGoalPost.position.Add(new Position(rightPost.position));
-                rightGoalPost.velocity.Add(new Velocity(Vector3.zero));
-                rightGoalPost.orientation.Add(new Orientation(rightPost));
+                leftGoalPost = new Goal { id = "goal_leftpost", type = "Goal" };
+                myRootSegment.objects.Add(leftGoalPost);
             }
+            leftGoalPost.position.Add(new Position(leftPost.position));
+            leftGoalPost.velocity.Add(new Velocity(Vector3.zero));
+            leftGoalPost.orientation.Add(new Orientation(leftPost));
+
+            Goal rightGoalPost = (Goal)myRootSegment.objects
+                .Find(obj => obj is Goal g && g.id == "goal_rightpost");
+            if (rightGoalPost == null)
+            {
+                rightGoalPost = new Goal { id = "goal_rightpost", type = "Goal" };
+                myRootSegment.objects.Add(rightGoalPost);
+            }
+            rightGoalPost.position.Add(new Position(rightPost.position));
+            rightGoalPost.velocity.Add(new Velocity(Vector3.zero));
+            rightGoalPost.orientation.Add(new Orientation(rightPost));
         }
     }
 
     private void AddOrUpdatePlayer(GameObject playerGO, string type, string behaviorOverride = null)
     {
-        Player existingPlayer = (Player)myRootSegment.objects
+        var existingPlayer = (Player)myRootSegment.objects
             .Find(obj => obj is Player p && p.id == playerGO.name);
 
         if (existingPlayer == null)
@@ -278,12 +273,14 @@ public class JSONToLLM : MonoBehaviour
             existingPlayer = new Player
             {
                 id = playerGO.name,
-                behavior = (behaviorOverride != null) ? behaviorOverride : playerGO.GetComponent<PlayerInterface>().behavior,
+                behavior = (behaviorOverride != null) 
+                    ? behaviorOverride
+                    : playerGO.GetComponent<PlayerInterface>().behavior,
                 type = type
             };
             myRootSegment.objects.Add(existingPlayer);
         }
-        
+
         existingPlayer.position.Add(new Position(playerGO.transform.position));
         Vector3 velocity = (type == "Coach")
             ? keyboard.movement
@@ -292,7 +289,6 @@ public class JSONToLLM : MonoBehaviour
         existingPlayer.velocity.Add(new Velocity(velocity));
         existingPlayer.orientation.Add(new Orientation(playerGO.transform));
 
-        // ballPossession
         bool hasBall = false;
         if (type == "Coach")
         {
@@ -304,10 +300,11 @@ public class JSONToLLM : MonoBehaviour
         }
         existingPlayer.ballPossession.Add(hasBall);
     }
-    
+
+    // Called when ElevenLabs transcription is done
     private void HandleTranscriptionComplete(Scribe.ElevenLabsResponse response)
     {
-        Debug.Log("JSONToLLM: Received transcription from Scribe. Merging placeholders...");
+        Debug.Log("JSONToLLM: Received transcription. Merging placeholders...");
 
         tokenDictionary.Clear();
         if (response.words != null)
@@ -316,24 +313,21 @@ public class JSONToLLM : MonoBehaviour
             {
                 float timeKey = w.start;
                 if (!tokenDictionary.ContainsKey(timeKey))
-                {
                     tokenDictionary[timeKey] = new List<object>();
-                }
                 tokenDictionary[timeKey].Add(w.text);
             }
         }
-        
+
         if (keyboard != null)
         {
+            // Insert bracket placeholders
             foreach (var pair in keyboard.annotationTimes)
             {
                 float annotationTime = pair.Value;
                 int annotationIndex = pair.Key;
 
                 if (!tokenDictionary.ContainsKey(annotationTime))
-                {
                     tokenDictionary[annotationTime] = new List<object>();
-                }
 
                 tokenDictionary[annotationTime].Add($"[{annotationIndex}]");
             }
@@ -341,12 +335,13 @@ public class JSONToLLM : MonoBehaviour
 
         isTranscriptionComplete = true;
 
+        Debug.Log("Merged words + placeholders. Token dictionary:");
         foreach (var kvp in tokenDictionary.OrderBy(k => k.Key))
         {
             Debug.Log($"Time={kvp.Key:F2} => {string.Join(", ", kvp.Value)}");
         }
     }
-    
+
     public void WriteFile()
     {
         CreateJSONString();
@@ -356,15 +351,13 @@ public class JSONToLLM : MonoBehaviour
     {
         recordingNum++;
         JSONDirectory jsonDirectory = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<JSONDirectory>();
-
-        // Sort tokens if needed
+        
         var sortedTokens = tokenDictionary
             .OrderBy(kvp => kvp.Key)
             .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
-
-        // We'll store our anonymous JSON structure in a plain `object`.
+        keyboard.explanation = BuildSentenceFromTokens();
+    
         object finalScene;
-
         if (activateSystemRecording)
         {
             finalScene = new
@@ -402,12 +395,33 @@ public class JSONToLLM : MonoBehaviour
         };
 
         jsonString = JsonConvert.SerializeObject(finalScene, settings);
-
         filename = jsonDirectory.InstantiateJSONSegmentFilePath(recordingNum) + ".json";
         File.WriteAllText(filename, jsonString);
 
         Debug.Log($"Segment written to {filename}");
     }
+
+    
+    private string BuildSentenceFromTokens()
+    {
+        // Sort the tokenDictionary by timestamp (key) ascending
+        var sortedTokens = tokenDictionary.OrderBy(kvp => kvp.Key);
+    
+        StringBuilder sb = new StringBuilder();
+
+        // Loop through each sorted token list and append each token
+        foreach (var kvp in sortedTokens)
+        {
+            foreach (var tokenObj in kvp.Value)
+            {
+                sb.Append(tokenObj.ToString());
+            }
+        }
+    
+        // Optionally, trim any extra whitespace
+        return sb.ToString().Trim();
+    }
+
 
     public void ResetSegmentData()
     {
@@ -418,23 +432,47 @@ public class JSONToLLM : MonoBehaviour
         Debug.Log("Segment data has been reset.");
     }
 
-    // For debugging tokens in console
-    public void ProcessTokens()
+    void FixedUpdate()
     {
-        foreach (var kvp in tokenDictionary.OrderBy(k => k.Key))
+        // If user wants "system recording" and segment started, log automatically
+        if (activateSystemRecording && keyboard.segmentStarted)
         {
-            Debug.Log($"Time {kvp.Key:F2} => {string.Join(", ", kvp.Value)}");
+            isLogging = true;
         }
-        isTranscriptionComplete = true;
-    }
 
-    private void FixedUpdate()
-    {
-   
+        // If user started a segment + there's voice or unpause, set isLogging
+        if (keyboard.segmentStarted && keyboard.activationConditionMet && !isLogging)
+        {
+            isLogging = true;
+            Debug.Log("Started logging in JSONToLLM");
+        }
+
         if (isLogging)
         {
+#if UNITY_EDITOR
+            // Only start recording in Unity Editor, not in VR builds
+            if (recorderManager != null && !recorderManager.RecorderController.IsRecording())
+            {
+                recorderManager.StartRecording();
+                videoIsRecording = recorderManager.RecorderController.IsRecording();
+                Debug.Log("Video recording started in JSONToLLM.FixedUpdate()");
+            }
+#endif
             time += 0.02f;
             PopulateSegment();
         }
+        else
+        {
+#if UNITY_EDITOR
+            // Stop recording only in Unity Editor
+            if (recorderManager != null && recorderManager.RecorderController.IsRecording())
+            {
+                recorderManager.StopRecording();
+                videoIsRecording = recorderManager.RecorderController.IsRecording();
+                Debug.Log("Video recording stopped in JSONToLLM.FixedUpdate()");
+            }
+#endif
+        }
     }
+
 }

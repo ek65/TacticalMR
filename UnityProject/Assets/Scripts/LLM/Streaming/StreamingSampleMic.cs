@@ -176,7 +176,6 @@ namespace Whisper.Samples
                     }
                 }
             }
-            jsonToLLM.ProcessTokens();
             
         }
 

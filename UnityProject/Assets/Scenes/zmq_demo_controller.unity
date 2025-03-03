@@ -710,7 +710,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &318410347
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1031,7 +1031,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &447918368
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2174,9 +2174,9 @@ RectTransform:
   m_Father: {fileID: 756420435}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_SizeDelta: {x: -17, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &572336111
 MonoBehaviour:
@@ -3443,8 +3443,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.05, y: 1}
   m_AnchorMax: {x: 0.95, y: 1}
-  m_AnchoredPosition: {x: -7917.638, y: 23934.588}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchoredPosition: {x: -7917.638, y: 24369.762}
+  m_SizeDelta: {x: 0, y: 90}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &775949359
 MonoBehaviour:
@@ -4221,7 +4221,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1007643067
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4326,7 +4326,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1082029747
 RectTransform:
   m_ObjectHideFlags: 0
@@ -4821,7 +4821,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1192298003
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4902,17 +4902,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   moveSpeed: 4
   exitScenario: {fileID: 0}
-  rb: {fileID: 0}
-  timelineManager: {fileID: 0}
+  timelineManager: {fileID: 82555165}
   countdownText: {fileID: 0}
   saveDemoCanvas: {fileID: 1676098600}
-  restarting: 0
+  recordAudio: {fileID: 0}
   clickOrder: 0
-  explanation: 
   segmentStarted: 0
   activationConditionMet: 0
-  movement: {x: 0, y: 0, z: 0}
+  restarting: 0
   canClick: 1
+  segmentStartTime: 0
+  rb: {fileID: 0}
+  movement: {x: 0, y: 0, z: 0}
+  explanation: 
 --- !u!4 &1297644842
 Transform:
   m_ObjectHideFlags: 0
@@ -6952,7 +6954,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1818258848
 Transform:
   m_ObjectHideFlags: 0
@@ -6980,6 +6982,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5fe17b121467d452a8a4d3724e4fafc5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_RecordAudio: 0
+  recordingNum: -1
 --- !u!1 &1820837602
 GameObject:
   m_ObjectHideFlags: 0
@@ -7288,7 +7292,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   audioSource: {fileID: 1869078692}
-  scribe: {fileID: 0}
+  scribe: {fileID: 17325049}
 --- !u!4 &1869078694
 Transform:
   m_ObjectHideFlags: 0
@@ -8727,7 +8731,7 @@ RectTransform:
   m_Father: {fileID: 532814021}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}
