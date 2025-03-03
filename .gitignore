@@ -127,3 +127,5 @@ UnityProject/Assets/sanjit.json
 output/
 
 UnityProject/SampleJsons/
+
+*.wav

@@ -262,7 +262,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2b17b6698a5ee46368b3fbb02161ad07, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  elevenLabsApiKey: sk_44bd6072c9e2077215e84635e8de0b661cccf7717a34d5f4
+  elevenLabsApiKey: sk_797a951628e48b5963eaf3856ed9e49cdf3215adccade011
   transcriptionText: 
 --- !u!4 &17325050
 Transform:
@@ -4905,7 +4905,7 @@ MonoBehaviour:
   timelineManager: {fileID: 82555165}
   countdownText: {fileID: 0}
   saveDemoCanvas: {fileID: 1676098600}
-  recordAudio: {fileID: 0}
+  recordAudio: {fileID: 1869078693}
   clickOrder: 0
   segmentStarted: 0
   activationConditionMet: 0

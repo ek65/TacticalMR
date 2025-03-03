@@ -64,7 +64,6 @@ public class KeyboardInput : MonoBehaviour
 
         Debug.Log("KeyboardInput script initialized");
         
-        StartCoroutine(StartSegmentAfterDelay(15f));
     }
     private IEnumerator StartSegmentAfterDelay(float delay)
     {
