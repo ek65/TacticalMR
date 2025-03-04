@@ -29,7 +29,6 @@ public class Scribe : MonoBehaviour
 
     private IEnumerator TranscribeAudioCoroutine(string filePath)
     {
-        // 1. Check API key
         if (string.IsNullOrEmpty(elevenLabsApiKey))
         {
             Debug.LogError("Scribe: ElevenLabs API key is not set!");

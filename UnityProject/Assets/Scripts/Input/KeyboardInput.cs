@@ -244,12 +244,14 @@ public class KeyboardInput : MonoBehaviour
         jsonToLLM.isLogging = true;
 
         // Folder setup if needed
+        #if UNITY_EDITOR
         if (jsonDirectory.InitialDemo)
         {
             jsonDirectory.InstantiateInitialFolders();
             jsonDirectory.InitialDemo = false;
         }
         jsonDirectory.InstantiateDemoFolders();
+        #endif
 
         Debug.Log("Started new segment recording (audio). JSONToLLM will auto-start video in FixedUpdate.");
     }
@@ -266,7 +268,6 @@ public class KeyboardInput : MonoBehaviour
         jsonToLLM.isLogging = false; // triggers video stop in JSONToLLM
         segmentStarted = false;
         activationConditionMet = false;
-
         // Stop audio
         if (recordAudio != null && Microphone.IsRecording(null))
         {
@@ -279,10 +280,11 @@ public class KeyboardInput : MonoBehaviour
         //     recorderManager.StopRecording();
         //     Debug.Log("Video recording stopped with the segment.");
         // }
-
+        #if UNITY_EDITOR
         GroundSelection groundSelection = GameObject.FindGameObjectWithTag("Ground")
             .GetComponent<GroundSelection>();
         groundSelection.ClearGroundHighlights();
+        #endif
 
         StartCoroutine(ChainedCoroutines());
     }
@@ -387,7 +389,9 @@ public class KeyboardInput : MonoBehaviour
     {
         Debug.Log("Started File Coroutine at timestamp : " + Time.time);
         yield return ProcessingTranscript();
+        #if UNITY_EDITOR
         jsonToLLM.WriteFile();
+        #endif
         ResetJsonData();
     }
 
