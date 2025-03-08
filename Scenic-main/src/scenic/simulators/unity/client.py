@@ -161,7 +161,7 @@ class UnityMessageServer:
             self.ScenicPlayers.append(game_object)
             game_object.tag = len(self.ScenicPlayers) - 1
             return game_object
-        elif obj.gameObjectType == "human":
+        elif obj.gameObjectType == "human" or obj.gameObjectType == "RobotCoach": 
             #I will just use indices to mark players. This will only work for one human player
             #position and rotation should not do anything
             tag = "ego"
@@ -175,6 +175,7 @@ class UnityMessageServer:
                 obj.gameObject.model = Model(1,1, (255,255,0,1), "Coach")
             else:
                 obj.gameObject.model = Model(1,1, (255,255,0,1), "Human")
+                
             if obj.team == "blue":
                 game_object.ChangeColor((0,0,255,1))
             game_object.name = obj.name
@@ -271,7 +272,7 @@ class UnityMessageServer:
             )
 
             return values
-        elif obj.gameObjectType == "human":
+        elif obj.gameObjectType == "human" or obj.gameObjectType == "RobotCoach":
             prevPosition = obj.position
             game_object = obj.gameObject
             #change when we implement more human players

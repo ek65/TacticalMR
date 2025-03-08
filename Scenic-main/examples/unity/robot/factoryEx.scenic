@@ -18,12 +18,11 @@ behavior humanBehavior():
         pass
 
 
+ego = new RobotCoach at (18.122, -50.207, 3)
 
-ego = new Player at (17.122, -50.207, 0)
-
-worker1 = new Player at (9, -58, 0),
+worker1 = new Robot at (9, -58, 0),
         facing ego
 
-worker2 = new Player at (9, -67, 0),
+worker2 = new Robot at (9, -67, 0),
         facing ego 
 

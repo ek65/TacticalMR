@@ -64,8 +64,8 @@ public class KeyboardInput : MonoBehaviour
 
         Debug.Log("KeyboardInput script initialized");
         
-        StartCoroutine(StartSegmentAfterDelay(15f));
-        StartCoroutine(StopSegmentAfterDelay(20f));
+        // StartCoroutine(StartSegmentAfterDelay(15f));
+        // StartCoroutine(StopSegmentAfterDelay(20f));
     }
     private IEnumerator StartSegmentAfterDelay(float delay)
     {
@@ -218,6 +218,7 @@ public class KeyboardInput : MonoBehaviour
     // (Video is started automatically in JSONToLLM.FixedUpdate if isLogging==true)
     public void StartSegment()
     {
+    
         if (segmentStarted) return;
 
         timelineManager.isRecordingSegment = true;
@@ -427,6 +428,7 @@ public class KeyboardInput : MonoBehaviour
             if (coachObject != null)
             {
                 rb = coachObject.GetComponent<Rigidbody>();
+                Debug.Log("found human rigidbody");
             }
         }
         if (rb == null) return;
@@ -439,6 +441,7 @@ public class KeyboardInput : MonoBehaviour
         movement = (forwardDirection * verticalInput + transform.right * horizontalInput).normalized * moveSpeed;
         
         rb.MovePosition(rb.position + movement * Time.fixedDeltaTime);
+        Debug.Log("moved");
     }
 
     private void ResetJsonData()

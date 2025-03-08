@@ -47,6 +47,10 @@ public class HumanInterface : MonoBehaviour
     public bool canKickBall = true;
     BallOwnership ballOwnership;
     public GameObject closestPlayerInDirection;
+    public bool objectPossession;
+    public GameObject grabbedObject;
+    public Transform objectPosition;
+
     
     public string behavior = "Idle";
     public string currAction = "No Action"; // just for debugging to see what actions function is being called
@@ -244,6 +248,52 @@ public class HumanInterface : MonoBehaviour
         keyboardInput.annotationTimes.Add(passID, passTime);
         Debug.Log($"Pass action recorded with ID {passID}, from: {this.name} to: {targetPlayer.name} at time: {passTime}");
         keyboardInput.clickOrder++; 
+    }
+    
+    public void PickUp()
+    {
+        actionAPI.PickUp();
+        Debug.Log("Picking up");
+        LogPickUp();
+    }
+
+    public void PutDown()
+    {
+        actionAPI.PutDown(transform.position + transform.forward * 1f + Vector3.up * 1f);
+        Debug.Log("Putting down");
+        LogPutDown();
+    }
+
+    private void LogPickUp()
+    {
+        int eventID = keyboardInput.clickOrder;
+        float eventTime = jsonToLLM.time;
+    
+        keyboardInput.annotation.Add(eventID, new Dictionary<string, object>
+        {
+            { "type", "PickUp" },
+            { "player", this.name }
+        });
+    
+        keyboardInput.annotationDescriptions.Add(eventID, $"({this.name} picked up an object)");
+        keyboardInput.annotationTimes.Add(eventID, eventTime);
+        keyboardInput.clickOrder++;
+    }
+
+    private void LogPutDown()
+    {
+        int eventID = keyboardInput.clickOrder;
+        float eventTime = jsonToLLM.time;
+    
+        keyboardInput.annotation.Add(eventID, new Dictionary<string, object>
+        {
+            { "type", "PutDown" },
+            { "player", this.name }
+        });
+    
+        keyboardInput.annotationDescriptions.Add(eventID, $"({this.name} put down an object)");
+        keyboardInput.annotationTimes.Add(eventID, eventTime);
+        keyboardInput.clickOrder++;
     }
 
     private void LogThroughPass(Vector3 pos)

@@ -434,6 +434,7 @@ public class JSONToLLM : MonoBehaviour
 
     void FixedUpdate()
     {
+        
         // If user wants "system recording" and segment started, log automatically
         if (activateSystemRecording && keyboard.segmentStarted)
         {
