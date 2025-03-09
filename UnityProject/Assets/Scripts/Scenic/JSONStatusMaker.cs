@@ -29,7 +29,7 @@ public class JSONStatusMaker : MonoBehaviour
         snapTurnedLastTimestep = false;
         return JsonConvert.SerializeObject(root);
     }
-    void Update()
+    void LateUpdate()
     {
         lastTick = server.lastTick;
         //pull the ball and the players from objects list and get their data.

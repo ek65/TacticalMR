@@ -20,6 +20,8 @@ behavior humanBehavior():
 
 ego = new Human at (9, -58, 0)
 
-robot = new Robot at (17.122, -50.207, 0),
-        with behavior robotBehavior()
+# robot = new Robot at (17.122, -50.207, 0)
+
+# robot = new Robot at (17.122, -50.207, 0),
+#         with behavior robotBehavior()
 

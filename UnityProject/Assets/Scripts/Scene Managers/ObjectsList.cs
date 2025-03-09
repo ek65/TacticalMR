@@ -19,7 +19,7 @@ public class ObjectsList : MonoBehaviour
     
     public Dictionary<string, GameObject> modelList;
 
-    void Start()
+    void Awake()
     {
         // bluePlayers = new List<ulong>();
         // orangePlayers = new List<ulong>();

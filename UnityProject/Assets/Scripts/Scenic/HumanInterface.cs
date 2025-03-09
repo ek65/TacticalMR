@@ -7,10 +7,11 @@ using UnityEngine.UIElements;
 using System.Reflection;
 using System;
 using System.Linq;
+using Fusion;
 using OpenAI.Samples.Chat;
 using UnityEngine.InputSystem;
 
-public class HumanInterface : MonoBehaviour
+public class HumanInterface : NetworkBehaviour
 {
     private int localTick;  // NOTE: This is not the true tick and is what we will use to internally record a timestep.
 
@@ -287,12 +288,15 @@ public class HumanInterface : MonoBehaviour
     
     public void LosePossession()
     {
-        StartCoroutine(PossessionDebounce());
-        ball.transform.SetParent(null);
-        ball.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
-        ballPossession = false;
-        ballOwnership.SetHumanOwnership(false);
-        ballOwnership.SetBallOwner(null);
+        if (ball)
+        {
+            StartCoroutine(PossessionDebounce());
+            ball.transform.SetParent(null);
+            ball.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
+            ballPossession = false;
+            ballOwnership.SetHumanOwnership(false);
+            ballOwnership.SetBallOwner(null);
+        }
     }
 
     public void PassToPlayer()
@@ -402,7 +406,22 @@ public class HumanInterface : MonoBehaviour
     {
         Debug.LogError("In SetTransform: " + pos);
         source.PlayOneShot(source.clip);
+        // this.GetComponent<Rigidbody>().isKinematic = false;
         this.transform.position = pos;
+        // this.GetComponent<Rigidbody>().isKinematic = true;
+
+        Debug.LogWarning("Local: I am transforming to: " + pos.ToString());
+
+        ResetHuman();
+    }
+    
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)] 
+    public void RPC_SetTransform(Vector3 pos)
+    {
+        Debug.LogError("In SetTransform: " + pos);
+        source.PlayOneShot(source.clip);
+        this.transform.position = pos;
+
         Debug.LogWarning("Local: I am transforming to: " + pos.ToString());
 
         ResetHuman();
@@ -418,9 +437,15 @@ public class HumanInterface : MonoBehaviour
     public void ResetHuman()
     {
         LosePossession();
-        ballPossession = false;
-        actionAPI.alreadyInAnimation = false;
-        forwardArrow.SetActive(false);
+        if (actionAPI)
+        {
+            actionAPI.alreadyInAnimation = false;
+        }
+
+        if (forwardArrow)
+        {
+            forwardArrow.SetActive(false);
+        }
     }
     
     public void SpawnCircle(Vector3 pos)

@@ -2,13 +2,16 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Fusion;
+using Fusion.Sockets;
+
 public class ScenicObectAddEventArg : EventArgs { public GameObject gameObject { get; set; } }
-public class InstantiateScenicObject 
+public class InstantiateScenicObject : NetworkBehaviour
 {
     ObjectsList objectList;
-    public delegate void PublishScenicAddObjectEvent(ScenicObectAddEventArg arg);
-    //timeline manager will subscribe to this event
-    public static event PublishScenicAddObjectEvent Publish;
+    // public delegate void PublishScenicAddObjectEvent(ScenicObectAddEventArg arg);
+    // //timeline manager will subscribe to this event
+    // public static event PublishScenicAddObjectEvent Publish;
 
     public InstantiateScenicObject(Vector3 pos, Quaternion rot, string modelType, Color color, string name)
     {
@@ -24,7 +27,9 @@ public class InstantiateScenicObject
         GameObject addedGameObject = null;
         if (modelType == "Ball")
         {
-            addedGameObject = MonoBehaviour.Instantiate(objectList.modelList["soccer_ball"], pos, Quaternion.identity);
+            // addedGameObject = MonoBehaviour.Instantiate(objectList.modelList["soccer_ball"], pos, Quaternion.identity);
+            var temp = Runner.Spawn(objectList.modelList["soccer_ball"], pos, Quaternion.identity);
+            addedGameObject = temp.gameObject;
             addedGameObject.name = "Ball";
             // disc.GetComponent<NetworkObject>().Spawn();
             objectList.ballObject = addedGameObject;
@@ -95,46 +100,21 @@ public class InstantiateScenicObject
             }
             else
             {
-                try
+                if (GameObject.FindGameObjectWithTag("human") != null)
                 {
-                    // // for the case of observer vr
-                    // if (GameObject.FindGameObjectWithTag("human") != null)
-                    // {
-                    //     addedGameObject = GameObject.FindGameObjectWithTag("human");
-                    //     Fade f = addedGameObject.GetComponent<Fade>();
-                    //     ExitScenario e = addedGameObject.GetComponent<ExitScenario>();
-                    //     e.endScenario = false;
-                    //     f.StartFadeAndMove2(objectList.humanPlayers[0], pos);
-                    // }
-                    // else
-                    // {
-                    //     addedGameObject = objectList.humanPlayers[0];
-                    //     Fade f = objectList.humanPlayers[0].GetComponent<Fade>();
-                    //     ExitScenario e = objectList.humanPlayers[0].GetComponent<ExitScenario>();
-                    //     e.endScenario = false;
-                    //     f.StartFadeAndMove(pos);
-                    // }
-
-                    if (GameObject.FindGameObjectWithTag("human") != null)
-                    {
-                        addedGameObject = objectList.humanPlayers[0];
-                        Fade f = objectList.humanPlayers[0].GetComponent<Fade>();
-                        ExitScenario e = objectList.humanPlayers[0].GetComponent<ExitScenario>();
-                        e.endScenario = false;
-                        f.StartFadeAndMove(pos);
-                    }
-                }
-                catch
-                {
-                    Debug.LogError("Human not spawned in yet");
+                    addedGameObject = objectList.humanPlayers[0];
+                    Fade f = objectList.humanPlayers[0].GetComponent<Fade>();
+                    ExitScenario e = objectList.humanPlayers[0].GetComponent<ExitScenario>();
+                    e.endScenario = false;
+                    f.StartFadeAndMove(pos);
                 }
             }
             
         }
-        if (Publish != null)
-        {
-            Publish(new ScenicObectAddEventArg() { gameObject = addedGameObject });
-        }
+        // if (Publish != null)
+        // {
+        //     Publish(new ScenicObectAddEventArg() { gameObject = addedGameObject });
+        // }
 
     }
 }

@@ -7,6 +7,7 @@ using Assert = UnityEngine.Assertions.Assert;
 
 public class Player : NetworkBehaviour
 {
+	public Transform parentTransform;
 	public Transform mirrorHip;
 
 	[System.Serializable]
@@ -61,6 +62,8 @@ public class Player : NetworkBehaviour
 	private void Awake()
 	{
 		_mirroredTransformDict = new Dictionary<string, Transform>();
+
+		parentTransform = FindObjectOfType<GameManager>()._ParentTransform;
 		
 		_transformToCopy = FindObjectOfType<GameManager>()._OriginalTransform;
 		
@@ -77,6 +80,10 @@ public class Player : NetworkBehaviour
 
 	private void Start()
 	{
+		if (parentTransform == null)
+		{
+			parentTransform = FindObjectOfType<GameManager>()._ParentTransform;
+		}
 		if (_transformToCopy == null)
 		{
 			_transformToCopy = FindObjectOfType<GameManager>()._OriginalTransform;
@@ -85,6 +92,10 @@ public class Player : NetworkBehaviour
 	
 	public void Update()
 	{
+		if (_transformToCopy == null)
+		{
+			parentTransform = FindObjectOfType<GameManager>()._ParentTransform;
+		}
 		if (_transformToCopy == null)
 		{
 			_transformToCopy = FindObjectOfType<GameManager>()._OriginalTransform;
@@ -142,10 +153,13 @@ public class Player : NetworkBehaviour
 
 	public void LateUpdate()
 	{
-		if (HasInputAuthority) // only the client that owns the player can send input
+		if (HasStateAuthority) 
 		{
 			_myTransform.localPosition = _transformToCopy.localPosition;
 			_myTransform.localRotation = _transformToCopy.localRotation;
+			
+			// this.gameObject.transform.position = parentTransform.position;
+			// this.gameObject.transform.rotation = parentTransform.rotation;
 			
 			//starttimer 
 			foreach (var transformPair in _mirroredTransformPairs)
@@ -153,7 +167,10 @@ public class Player : NetworkBehaviour
 				var pos = transformPair.OriginalTransform.localPosition;
 				var rot = transformPair.OriginalTransform.localRotation;
 				var name = transformPair.OriginalTransform.gameObject.name;
-				RPC_Mirror(name, pos, rot);
+				// RPC_Mirror(name, pos, rot);
+				
+				// _mirroredTransformDict[name].localPosition = pos;
+				// _mirroredTransformDict[name].localRotation = rot;
 			}
 			
 			//end timer
@@ -166,7 +183,7 @@ public class Player : NetworkBehaviour
 	}
 	
 	
-	[Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority)] // the RPC is called by a client, and is executed on server only
+	[Rpc(RpcSources.StateAuthority, RpcTargets.All)] 
 	public void RPC_Mirror(String name, Vector3 position, Quaternion rotation, RpcInfo info = default)
 	{
 		Debug.Log("RPC_Mirror called from " + info.Source);

@@ -12,7 +12,7 @@ public class GameManager : NetworkBehaviour, INetworkRunnerCallbacks
 {
 	#region Generic
 
-	[Tooltip("If this is checked, and the game is running in the Unity Editor, then isHost will be checked.")]
+	[Tooltip("Automatically decide host. Host should be headset, client should be laptop.")]
 	public bool autoIsHost;
 
 	[Tooltip("If this is checked, then the game will start as a host.")]
@@ -24,6 +24,8 @@ public class GameManager : NetworkBehaviour, INetworkRunnerCallbacks
 	public GameObject _OVRCR;
 
 	public Transform _OriginalTransform;
+
+	public Transform _ParentTransform;
 	
 	public GameObject ball;
 
@@ -34,9 +36,10 @@ public class GameManager : NetworkBehaviour, INetworkRunnerCallbacks
 
 		if (autoIsHost)
 		{
+			isHost = true;
 			// if we're running in the Unity Editor
 			#if UNITY_EDITOR
-				isHost = true;
+				isHost = false;
 			#endif
 		}
 
@@ -46,20 +49,25 @@ public class GameManager : NetworkBehaviour, INetworkRunnerCallbacks
 		{
 			// enable `ZMQManager` to listen to Scenic
 			ZMQManagerObject.SetActive(true);
-
-			// disable the local player OVRCameraRig
-			_OVRCR.SetActive(false);
-			// switch to the Observer Camera
-			_ObserverCamera.SetActive(true);
+			
+			// enable the local player OVRCameraRig
+			// _OVRCR.SetActive(true);
+			// disable the Observer Camera
+			_ObserverCamera.SetActive(false);
 
 			// make a photon fusion room
 			if (_runner == null)
 			{
-				StartGame(GameMode.Server);
+				StartGame(GameMode.Host);
 			}
 		}
 		else // client
 		{
+			// disable the local player OVRCameraRig
+			// _OVRCR.SetActive(false);
+			// switch to the Observer Camera
+			_ObserverCamera.SetActive(true);
+			
 			// Connect to photon fusion room
 			if (_runner == null)
 			{
@@ -80,7 +88,8 @@ public class GameManager : NetworkBehaviour, INetworkRunnerCallbacks
 
 	#region Networking with Photon Fusion
 
-	private NetworkRunner _runner;
+	[HideInInspector]
+	public NetworkRunner _runner;
 
 
 	async void StartGame(GameMode mode)
@@ -88,8 +97,8 @@ public class GameManager : NetworkBehaviour, INetworkRunnerCallbacks
 		// Create the Fusion runner and let it know that we will be providing user input
 		Debug.Log("in StartGame");
 		_runner = gameObject.AddComponent<NetworkRunner>();
-		_runner.ProvideInput = !isHost; // server doesn't provide input
-		Debug.Log("we provide input: " + !isHost);
+		_runner.ProvideInput = isHost; // server does provide input
+		Debug.Log("we provide input: " + isHost);
 
 		// Start or join (depends on gamemode) a session with a specific name
 		await _runner.StartGame(new StartGameArgs()
@@ -106,19 +115,57 @@ public class GameManager : NetworkBehaviour, INetworkRunnerCallbacks
 
 	public void OnPlayerJoined(NetworkRunner runner, PlayerRef player)
 	{
-		// The user's prefab has to be spawned by host
+		// // The user's prefab has to be spawned by host
+		// if (runner.IsServer)
+		// {
+		// 	Debug.Log($"OnPlayerJoined. PlayerId: {player.PlayerId}");
+		// 	// Create a unique position for the player
+		// 	Vector3 spawnPosition =
+		// 		new Vector3((player.RawEncoded % runner.Config.Simulation.DefaultPlayers) * 3, 1, 5);
+		// 	// Vector3 spawnPosition =
+		// 	// 	new Vector3(0,0,0);
+		// 	// We make sure to give the input authority to the connecting player for their user's object
+		// 	NetworkObject networkPlayerObject = runner.Spawn(_playerPrefab, spawnPosition, Quaternion.identity, player);
+		// 	// Keep track of the player avatars so we can remove it when they disconnect
+		// 	_spawnedCharacters.Add(player, networkPlayerObject);
+		// }
+
 		if (runner.IsServer)
 		{
-			Debug.Log($"OnPlayerJoined. PlayerId: {player.PlayerId}");
-			// Create a unique position for the player
-			Vector3 spawnPosition =
-				new Vector3((player.RawEncoded % runner.Config.Simulation.DefaultPlayers) * 3, 1, 5);
-			// Vector3 spawnPosition =
-			// 	new Vector3(0,0,0);
-			// We make sure to give the input authority to the connecting player for their user's object
-			NetworkObject networkPlayerObject = runner.Spawn(_playerPrefab, spawnPosition, Quaternion.identity, player);
-			// Keep track of the player avatars so we can remove it when they disconnect
-			_spawnedCharacters.Add(player, networkPlayerObject);
+			Debug.Log($"Player joined: {player.PlayerId}");
+		
+			// Spawn only the host’s network representation
+			if (player == runner.LocalPlayer && isHost)
+			{
+				Vector3 spawnPosition = new Vector3(11.527f, 0, -55f);
+				NetworkObject hostNetworkPlayer = runner.Spawn(_playerPrefab, spawnPosition, Quaternion.identity, player);
+				
+				// Hide host's own networked player mesh locally
+				// // hostNetworkPlayer.gameObject.SetActive(false);
+				// Transform hostTransform = hostNetworkPlayer.gameObject.transform;
+				// Transform childWithTag = null;
+				// for (int i = 0; i < hostTransform.childCount; i++)
+				// {
+				// 	if (hostTransform.GetChild(i).CompareTag("NetworkedPlayerMesh"))
+				// 	{
+				// 		childWithTag = hostTransform.GetChild(i);
+				// 		break;
+				// 	}
+				// }
+				//
+				// if (childWithTag != null)
+				// {
+				// 	childWithTag.gameObject.SetActive(false);
+				// }
+				
+				
+				_spawnedCharacters.Add(player, hostNetworkPlayer);
+			}
+			else if (player != runner.LocalPlayer)
+			{
+				// Clients are not allowed their own avatars, only viewing host
+				Debug.Log("Client joined, no local avatar spawned, only observer mode active.");
+			}
 		}
 	}
 
