@@ -19,9 +19,7 @@ public class KeyboardInput : MonoBehaviour
     private JSONToLLM jsonToLLM;
     private ChatBehaviour chatBehaviour;
     private JSONDirectory jsonDirectory;
-#if UNITY_EDITOR
     private RecorderManager recorderManager;
-#endif
 
     [Header("UI / Output")]
     public TextMeshProUGUI countdownText;
@@ -237,22 +235,20 @@ public class KeyboardInput : MonoBehaviour
         {
             Debug.LogWarning("No RecordAudio reference set in KeyboardInput!");
         }
-
-        // Instead of calling recorderManager.StartRecording(), we rely on JSONToLLM
-        // to do that in its FixedUpdate when isLogging==true.
+        
 
         // Force JSONToLLM to start logging so video can start in FixedUpdate
         jsonToLLM.isLogging = true;
 
         // Folder setup if needed
-        #if UNITY_EDITOR
+      
         if (jsonDirectory.InitialDemo)
         {
             jsonDirectory.InstantiateInitialFolders();
             jsonDirectory.InitialDemo = false;
+            Debug.Log("Directory created");
         }
         jsonDirectory.InstantiateDemoFolders();
-        #endif
 
         Debug.Log("Started new segment recording (audio). JSONToLLM will auto-start video in FixedUpdate.");
     }
@@ -268,7 +264,7 @@ public class KeyboardInput : MonoBehaviour
         timelineManager.isRecordingSegment = false;
         jsonToLLM.isLogging = false; // triggers video stop in JSONToLLM
         segmentStarted = false;
-        activationConditionMet = false;
+        jsonToLLM.activateSystemRecording = true;
         // Stop audio
         if (recordAudio != null && Microphone.IsRecording(null))
         {
@@ -276,16 +272,14 @@ public class KeyboardInput : MonoBehaviour
             Debug.Log("Audio recording stopped with the segment.");
         }
         
-        // if (recorderManager.RecorderController.IsRecording())
-        // {
-        //     recorderManager.StopRecording();
-        //     Debug.Log("Video recording stopped with the segment.");
-        // }
-        #if UNITY_EDITOR
+        
+
         GroundSelection groundSelection = GameObject.FindGameObjectWithTag("Ground")
             .GetComponent<GroundSelection>();
-        groundSelection.ClearGroundHighlights();
-        #endif
+        if (groundSelection != null)
+        {
+            groundSelection.ClearGroundHighlights();
+        }
 
         StartCoroutine(ChainedCoroutines());
     }
@@ -390,9 +384,7 @@ public class KeyboardInput : MonoBehaviour
     {
         Debug.Log("Started File Coroutine at timestamp : " + Time.time);
         yield return ProcessingTranscript();
-        #if UNITY_EDITOR
         jsonToLLM.WriteFile();
-        #endif
         ResetJsonData();
     }
 
@@ -441,17 +433,14 @@ public class KeyboardInput : MonoBehaviour
         movement = (forwardDirection * verticalInput + transform.right * horizontalInput).normalized * moveSpeed;
         
         rb.MovePosition(rb.position + movement * Time.fixedDeltaTime);
-        Debug.Log("moved");
     }
 
     private void ResetJsonData()
     {   
-#if UNITY_EDITOR
         if (recorderManager.RecorderController.IsRecording())
         {
             recorderManager.StopRecording();
         }
-#endif
 
         annotation.Clear();
         annotationDescriptions.Clear();

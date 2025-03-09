@@ -49,11 +49,11 @@ public class RecorderManager : MonoBehaviour
         m_Settings.OutputFormat = MovieRecorderSettings.VideoRecorderOutputFormat.MP4;
         m_Settings.VideoBitRateMode = VideoBitrateMode.High;
 
-        m_Settings.ImageInputSettings = new GameViewInputSettings
-        {
-            OutputWidth = 1080,
-            OutputHeight = 1920
-        };
+        // m_Settings.ImageInputSettings = new GameViewInputSettings
+        // {
+        //     OutputWidth = 1080,
+        //     OutputHeight = 1920
+        // };
 
         m_Settings.AudioInputSettings.PreserveAudio = m_RecordAudio;
 

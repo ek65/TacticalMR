@@ -18,7 +18,7 @@ behavior humanBehavior():
         pass
 
 
-ego = new RobotCoach at (18.122, -50.207, 3)
+ego = new RobotCoach at (18.122, -50.207, 0)
 
 worker1 = new Robot at (9, -58, 0),
         facing ego

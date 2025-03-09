@@ -160,12 +160,10 @@ public class ControllerInput : MonoBehaviour
             animator.SetFloat("VelX", horizontalInput * 2);
             animator.SetFloat("VelZ", verticalInput * 2);
         }
-        Debug.Log("moving");
         
         forceDirection += (cam.transform.up * verticalInput + cam.transform.right * horizontalInput).normalized;
         
         rb.AddForce(forceDirection * movementForce, ForceMode.Impulse);
-        Debug.Log("direction: " + forceDirection);
         forceDirection = Vector3.zero;
     }
 

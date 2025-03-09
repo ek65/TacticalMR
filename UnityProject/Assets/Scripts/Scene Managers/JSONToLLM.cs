@@ -163,144 +163,156 @@ public class JSONToLLM : MonoBehaviour
         myRootSegment.timestep = timelineManager.TimeIndex;
     }
     
-    public void PopulateSceneObjects()
+  public void PopulateSceneObjects()
     {
-        if (objectsList == null || objectsList.ballObject == null)
-        {
-            return;
-        }
+        // if (objectsList.ballObject == null)
+        // {
+        //     return;
+        // }
         
-        // corners
+        // Process each corner in the scene
         for (int i = 1; i <= 4; i++)
         {
-            GameObject cornerGO = GameObject.Find("corner" + i);
-            if (cornerGO != null)
+            GameObject corner = GameObject.Find("corner" + i);
+            if (corner != null)
             {
-                var cornerData = (Corner)myRootSegment.objects
-                    .Find(obj => obj is Corner c && c.id == "corner" + i);
-
-                if (cornerData == null)
+                Corner cornerObject = (Corner)myRootSegment.objects.Find(obj => obj is Corner c && c.id == "corner" + i);
+                if (cornerObject == null)
                 {
-                    cornerData = new Corner { id = "corner" + i };
-                    myRootSegment.objects.Add(cornerData);
+                    cornerObject = new Corner { id = "corner" + i , type = "Bound"};
+                    myRootSegment.objects.Add(cornerObject);
                 }
 
-                cornerData.position.Add(new Position(cornerGO.transform.position));
-                cornerData.velocity.Add(new Velocity(Vector3.zero));
-                cornerData.orientation.Add(new Orientation(cornerGO.transform));
+                cornerObject.position.Add(new Position(corner.transform.position));
+                cornerObject.velocity.Add(new Velocity(Vector3.zero));
+                cornerObject.orientation.Add(new Orientation(corner.transform));
             }
         }
         
-        // defense players
+        // Process each player in the scene
         foreach (GameObject currPlayer in objectsList.defensePlayers)
         {
-            AddOrUpdatePlayer(currPlayer, "Teammate");
+            Player player = (Player)myRootSegment.objects.Find(obj => obj is Player p && p.id == currPlayer.name);
+            if (player == null)
+            {
+                player = new Player
+                {
+                    id = currPlayer.name,
+                    behavior = currPlayer.GetComponent<PlayerInterface>().behavior,
+                    type = "Teammate"
+                };
+                myRootSegment.objects.Add(player);
+            }
+
+            player.position.Add(new Position(currPlayer.transform.position));
+            player.velocity.Add(new Velocity(currPlayer.GetComponent<PlayerInterface>().currVelocity));
+            player.orientation.Add(new Orientation(currPlayer.transform));
+            // player.ballPossession.Add(currPlayer.GetComponent<PlayerInterface>().ballPossession);
         }
-        // offense players
-        foreach (GameObject currPlayer in objectsList.offensePlayers)
+        
+        foreach (GameObject currPlayer in objectsList.scenicPlayers)
         {
-            AddOrUpdatePlayer(currPlayer, "Opponent");
+            Player player = (Player)myRootSegment.objects.Find(obj => obj is Player p && p.id == currPlayer.name);
+            if (player == null)
+            {
+                player = new Player
+                {
+                    id = currPlayer.name,
+                    behavior = currPlayer.GetComponent<PlayerInterface>().behavior,
+                    type = "Worker"
+                };
+                myRootSegment.objects.Add(player);
+            }
+
+            player.position.Add(new Position(currPlayer.transform.position));
+            player.velocity.Add(new Velocity(currPlayer.GetComponent<PlayerInterface>().currVelocity));
+            player.orientation.Add(new Orientation(currPlayer.transform));
+            // player.ballPossession.Add(currPlayer.GetComponent<PlayerInterface>().ballPossession);
         }
-        // coach/human players
+
+        // Process the human players (coach)
         foreach (GameObject humanPlayer in objectsList.humanPlayers)
         {
-            AddOrUpdatePlayer(humanPlayer, "Coach", "expert");
-        }
-
-        // ball
-        var ballGO = objectsList.ballObject;
-        var ballData = (Ball)myRootSegment.objects.Find(obj => obj is Ball);
-        if (ballData == null)
-        {
-            ballData = new Ball { id = "ball" };
-            myRootSegment.objects.Add(ballData);
-        }
-        ballData.position.Add(new Position(ballGO.transform.position));
-        ballData.orientation.Add(new Orientation(ballGO.transform));
-        Rigidbody ballRB = ballGO.GetComponent<Rigidbody>();
-        ballData.velocity.Add(new Velocity(ballRB.velocity));
-
-        // goal
-        var goalGO = objectsList.goalObject;
-        Goal goalData2 = (Goal)myRootSegment.objects.Find(obj => obj is Goal g && g.id == "goal");
-        if (goalData2 == null)
-        {
-            goalData2 = new Goal { id = "goal" };
-            myRootSegment.objects.Add(goalData2);
-        }
-
-        if (goalGO != null)
-        {
-            Vector3 zeroVector = Vector3.zero;
-            goalData2.velocity.Add(new Velocity(zeroVector));
-            goalData2.position.Add(new Position(goalGO.transform.position));
-            goalData2.orientation.Add(new Orientation(goalGO.transform));
-            
-            Transform leftPost = goalGO.transform.Find("goal_leftpost");
-            Transform rightPost = goalGO.transform.Find("goal_rightpost");
-            
-            Goal leftGoalPost = (Goal)myRootSegment.objects
-                .Find(obj => obj is Goal g && g.id == "goal_leftpost");
-            if (leftGoalPost == null)
+            Player coach = (Player)myRootSegment.objects.Find(obj => obj is Player p && p.id == humanPlayer.name);
+            if (coach == null)
             {
-                leftGoalPost = new Goal { id = "goal_leftpost", type = "Goal" };
-                myRootSegment.objects.Add(leftGoalPost);
+                coach = new Player
+                {
+                    id = humanPlayer.name,
+                    behavior = "expert",
+                    type = "Coach" 
+                };
+                myRootSegment.objects.Add(coach);
             }
-            leftGoalPost.position.Add(new Position(leftPost.position));
-            leftGoalPost.velocity.Add(new Velocity(Vector3.zero));
-            leftGoalPost.orientation.Add(new Orientation(leftPost));
 
-            Goal rightGoalPost = (Goal)myRootSegment.objects
-                .Find(obj => obj is Goal g && g.id == "goal_rightpost");
-            if (rightGoalPost == null)
-            {
-                rightGoalPost = new Goal { id = "goal_rightpost", type = "Goal" };
-                myRootSegment.objects.Add(rightGoalPost);
-            }
-            rightGoalPost.position.Add(new Position(rightPost.position));
-            rightGoalPost.velocity.Add(new Velocity(Vector3.zero));
-            rightGoalPost.orientation.Add(new Orientation(rightPost));
+            coach.position.Add(new Position(humanPlayer.transform.position));
+            Vector3 coachVelocity = keyboard.movement;
+            coach.velocity.Add(new Velocity(coachVelocity));
+            coach.orientation.Add(new Orientation(humanPlayer.transform));
+            coach.ballPossession.Add(humanPlayer.GetComponent<HumanInterface>().ballPossession);
         }
+
+        // Process the ball in the scene
+        // GameObject ball = objectsList.ballObject;
+        // Ball ballObject = (Ball)myRootSegment.objects.Find(obj => obj is Ball);
+        // if (ballObject == null)
+        // {
+        //     ballObject = new Ball { id = "ball" };
+        //     myRootSegment.objects.Add(ballObject);
+        // }
+        //
+        // ballObject.position.Add(new Position(ball.transform.position));
+        // ballObject.orientation.Add(new Orientation(ball.transform));
+        // Rigidbody ballRB = ball.GetComponent<Rigidbody>();
+        // ballObject.velocity.Add(new Velocity(ballRB.velocity));
+
+        // Process the goal in the scene
+        // GameObject goal = objectsList.goalObject;
+        // Goal goalObject = (Goal)myRootSegment.objects.Find(obj => obj is Goal);
+        // if (goalObject == null)
+        // {
+        //     goalObject = new Goal { id = "goal" };
+        //     myRootSegment.objects.Add(goalObject);
+        // }
+
+        // if goal still null, skip this
+        // if (goal == null)
+        // {
+        //     return;
+        // }
+        // Vector3 zeroVector = Vector3.zero;
+        // goalObject.velocity.Add(new Velocity(zeroVector));
+        // goalObject.position.Add(new Position(goal.transform.position));
+        // goalObject.orientation.Add(new Orientation(goal.transform));
+        //
+        // Transform leftPost = goal.transform.Find("goal_leftpost");
+        // Transform rightPost = goal.transform.Find("goal_rightpost");
+
+        // Goal leftGoalPost = (Goal)myRootSegment.objects.Find(obj => obj is Goal g && g.id == "goal_leftpost");
+        // if (leftGoalPost == null)
+        // {
+        //     leftGoalPost = new Goal { id = "goal_leftpost", type = "Goal" };
+        //     myRootSegment.objects.Add(leftGoalPost);
+        // }
+        //
+        // leftGoalPost.position.Add(new Position(leftPost.position));
+        // leftGoalPost.velocity.Add(new Velocity(Vector3.zero));
+        // leftGoalPost.orientation.Add(new Orientation(leftPost));
+        //
+        // Goal rightGoalPost = (Goal)myRootSegment.objects.Find(obj => obj is Goal g && g.id == "goal_rightpost");
+        // if (rightGoalPost == null)
+        // {
+        //     rightGoalPost = new Goal { id =  "goal_rightpost", type = "Goal" };
+        //     myRootSegment.objects.Add(rightGoalPost);
+        // }
+        //
+        // rightGoalPost.position.Add(new Position(rightPost.position));
+        // rightGoalPost.velocity.Add(new Velocity(Vector3.zero));
+        // rightGoalPost.orientation.Add(new Orientation(rightPost));
+       
+        
     }
-
-    private void AddOrUpdatePlayer(GameObject playerGO, string type, string behaviorOverride = null)
-    {
-        var existingPlayer = (Player)myRootSegment.objects
-            .Find(obj => obj is Player p && p.id == playerGO.name);
-
-        if (existingPlayer == null)
-        {
-            existingPlayer = new Player
-            {
-                id = playerGO.name,
-                behavior = (behaviorOverride != null) 
-                    ? behaviorOverride
-                    : playerGO.GetComponent<PlayerInterface>().behavior,
-                type = type
-            };
-            myRootSegment.objects.Add(existingPlayer);
-        }
-
-        existingPlayer.position.Add(new Position(playerGO.transform.position));
-        Vector3 velocity = (type == "Coach")
-            ? keyboard.movement
-            : playerGO.GetComponent<PlayerInterface>().currVelocity;
-
-        existingPlayer.velocity.Add(new Velocity(velocity));
-        existingPlayer.orientation.Add(new Orientation(playerGO.transform));
-
-        bool hasBall = false;
-        if (type == "Coach")
-        {
-            hasBall = playerGO.GetComponent<HumanInterface>().ballPossession;
-        }
-        else
-        {
-            hasBall = playerGO.GetComponent<PlayerInterface>().ballPossession;
-        }
-        existingPlayer.ballPossession.Add(hasBall);
-    }
-
+   
     // Called when ElevenLabs transcription is done
     private void HandleTranscriptionComplete(Scribe.ElevenLabsResponse response)
     {
@@ -358,20 +370,7 @@ public class JSONToLLM : MonoBehaviour
         keyboard.explanation = BuildSentenceFromTokens();
     
         object finalScene;
-        if (activateSystemRecording)
-        {
-            finalScene = new
-            {
-                scene = new
-                {
-                    id = jsonDirectory.drillID,
-                    step = 0.02,
-                    objects = myRootSegment.objects
-                }
-            };
-        }
-        else
-        {
+      
             finalScene = new
             {
                 scene = new
@@ -385,7 +384,6 @@ public class JSONToLLM : MonoBehaviour
                     clickTimes = keyboard.annotationTimes
                 }
             };
-        }
 
         var settings = new JsonSerializerSettings
         {
@@ -434,45 +432,32 @@ public class JSONToLLM : MonoBehaviour
 
     void FixedUpdate()
     {
+      
+        if (activateSystemRecording && keyboard.segmentStarted) // if system recording and segment started, we want to start logging
+        {
+            isLogging = true;
+            Debug.Log("started logging");
+        }
         
-        // If user wants "system recording" and segment started, log automatically
-        if (activateSystemRecording && keyboard.segmentStarted)
-        {
-            isLogging = true;
-        }
-
-        // If user started a segment + there's voice or unpause, set isLogging
-        if (keyboard.segmentStarted && keyboard.activationConditionMet && !isLogging)
-        {
-            isLogging = true;
-            Debug.Log("Started logging in JSONToLLM");
-        }
 
         if (isLogging)
         {
-#if UNITY_EDITOR
-            // Only start recording in Unity Editor, not in VR builds
-            if (recorderManager != null && !recorderManager.RecorderController.IsRecording())
-            {
-                recorderManager.StartRecording();
-                videoIsRecording = recorderManager.RecorderController.IsRecording();
-                Debug.Log("Video recording started in JSONToLLM.FixedUpdate()");
-            }
-#endif
+            // Debug.Log("JSON LOGGING");
             time += 0.02f;
             PopulateSegment();
+            // if (!recorderManager.RecorderController.IsRecording())
+            // {
+            //     recorderManager.StartRecording();
+            //     videoIsRecording = recorderManager.RecorderController.IsRecording();
+            // }
         }
-        else
+        else if (!isLogging)
         {
-#if UNITY_EDITOR
-            // Stop recording only in Unity Editor
-            if (recorderManager != null && recorderManager.RecorderController.IsRecording())
-            {
-                recorderManager.StopRecording();
-                videoIsRecording = recorderManager.RecorderController.IsRecording();
-                Debug.Log("Video recording stopped in JSONToLLM.FixedUpdate()");
-            }
-#endif
+            // if (recorderManager.RecorderController.IsRecording())
+            // {
+            //     recorderManager.StopRecording();
+            //     videoIsRecording = recorderManager.RecorderController.IsRecording();
+            // }
         }
     }
 
