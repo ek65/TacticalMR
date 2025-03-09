@@ -346,6 +346,7 @@ public class KeyboardInput : MonoBehaviour
         {
             int id = entry.Key;
             object value = entry.Value;
+
             if (value is GameObject go)
             {
                 annotationsList.Add(new Dictionary<string, object>
@@ -361,12 +362,31 @@ public class KeyboardInput : MonoBehaviour
                 {
                     { "id", id.ToString() },
                     { "type", "Point" },
-                    { "point", new { x = vector.x, y = vector.z } },
+                    { "point", new { x = vector.x, y = vector.z } }
                 });
             }
+            // NEW: handle dictionary-based annotations (e.g. "PickUp", "Pass", etc.)
+            else if (value is Dictionary<string, object> dictValue)
+            {
+                // Start by creating a fresh dictionary for the JSON entry
+                var annotationDict = new Dictionary<string, object>
+                {
+                    ["id"] = id.ToString()
+                };
+
+                // Merge user-defined fields from your log calls
+                foreach (var kvp in dictValue)
+                {
+                    annotationDict[kvp.Key] = kvp.Value;
+                }
+
+                annotationsList.Add(annotationDict);
+            }
         }
+
         return annotationsList;
     }
+
 
     IEnumerator JSONCoroutine()
     {

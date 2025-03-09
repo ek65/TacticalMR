@@ -268,14 +268,17 @@ public class HumanInterface : MonoBehaviour
     {
         int eventID = keyboardInput.clickOrder;
         float eventTime = jsonToLLM.time;
+        Debug.Log("test");
     
         keyboardInput.annotation.Add(eventID, new Dictionary<string, object>
         {
             { "type", "PickUp" },
             { "player", this.name }
         });
+        Debug.Log(keyboardInput.annotation);
     
         keyboardInput.annotationDescriptions.Add(eventID, $"({this.name} picked up an object)");
+        Debug.Log($"Added pick up to annotations at {eventTime:F2}s, key {eventTime}");
         keyboardInput.annotationTimes.Add(eventID, eventTime);
         keyboardInput.clickOrder++;
     }
@@ -284,12 +287,14 @@ public class HumanInterface : MonoBehaviour
     {
         int eventID = keyboardInput.clickOrder;
         float eventTime = jsonToLLM.time;
+        Debug.Log("test put down");
     
         keyboardInput.annotation.Add(eventID, new Dictionary<string, object>
         {
             { "type", "PutDown" },
             { "player", this.name }
         });
+        Debug.Log(keyboardInput.annotation);
     
         keyboardInput.annotationDescriptions.Add(eventID, $"({this.name} put down an object)");
         keyboardInput.annotationTimes.Add(eventID, eventTime);

@@ -31,9 +31,7 @@ public class RecorderManager : MonoBehaviour
 
     void OnEnable()
     {
-#if UNITY_EDITOR
         Initialize();
-#endif
     }
 
 #if UNITY_EDITOR
