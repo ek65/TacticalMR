@@ -43,7 +43,7 @@ public class JSONStatusMaker : MonoBehaviour
             Player p = new Player();
             // p.leftController = new ControllerInputData();
             // p.rightController = new ControllerInputData();
-            // AddPlayerData(humanPlayer, p, true);
+            AddPlayerData(humanPlayer, p, true);
             // Rigidbody rb = humanPlayer.GetComponentInChildren<Rigidbody>();
             // GameObject rig = rb.gameObject;
             // ObjectList xrRigObjects = rig.GetComponent<ObjectList>();
