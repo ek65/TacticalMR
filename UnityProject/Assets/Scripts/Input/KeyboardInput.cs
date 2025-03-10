@@ -276,10 +276,7 @@ public class KeyboardInput : MonoBehaviour
 
         GroundSelection groundSelection = GameObject.FindGameObjectWithTag("Ground")
             .GetComponent<GroundSelection>();
-        if (groundSelection != null)
-        {
             groundSelection.ClearGroundHighlights();
-        }
 
         StartCoroutine(ChainedCoroutines());
     }

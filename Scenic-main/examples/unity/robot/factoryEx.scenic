@@ -6,7 +6,7 @@ from scenic.core.regions import MeshVolumeRegion
 import random
 
 behavior worker1Behavior():
-        do Idle() for 15 seconds
+        do Idle() until (distance from self to ego < 2)
         take PickUpAction()
         do Idle() for 4 seconds
         do MoveToRobot(Vector(10.67, -65, 0))
