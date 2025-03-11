@@ -45,7 +45,7 @@ public class InstantiateScenicObject
         //     addedGameObject.transform.parent = GameObject.Find("AI Interface").transform;
         //     objectList.AIAgent = addedGameObject;
         // }
-        else if (modelType == "Player" || modelType == "Robot")
+        else if (modelType == "Player" || modelType == "Robot" )
         {
             if (modelType == "Player")
             {
@@ -84,7 +84,7 @@ public class InstantiateScenicObject
                     addedGameObject = MonoBehaviour.Instantiate(objectList.modelList["player.human VR"], pos, rot);
                 } else if (modelType == "Coach")
                 {
-                    addedGameObject = MonoBehaviour.Instantiate(objectList.modelList["player.robot"], pos, rot);
+                    addedGameObject = MonoBehaviour.Instantiate(objectList.modelList["player.coach"], pos, rot);
                 }
                 else if (modelType == "RobotCoach")
                 {

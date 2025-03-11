@@ -913,7 +913,7 @@ def checkIfString(target):
 # MARK: Robot Scenario Actions
 # --------------------
 class MoveToRobotAction(Action):
-    def __init__(self, obj, behavior = None):
+    def __init__(self, obj, behavior = "Move To"):
         self.actionName = "FactoryMoveToPos"
         self.behavior = behavior
 
@@ -932,7 +932,7 @@ class MoveToRobotAction(Action):
         obj.gameObject.DoAction(self.actionName, self.position)
 
 class PickUpAction(Action):
-    def __init__(self, behavior = None):
+    def __init__(self, behavior = "Pick Up"):
         self.actionName = "PickUp"
         self.behavior = behavior
     
@@ -941,7 +941,7 @@ class PickUpAction(Action):
         obj.gameObject.DoAction(self.actionName)
 
 class PutDownAction(Action):
-    def __init__(self, obj, behavior = None):
+    def __init__(self, obj, behavior = "Put Down"):
         self.actionName = "PutDown"
         self.behavior = behavior
     
