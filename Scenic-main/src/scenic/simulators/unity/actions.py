@@ -958,3 +958,13 @@ class PutDownAction(Action):
     def applyTo(self, obj, sim):
         obj.gameObject.SetBehavior(self.behavior)
         obj.gameObject.DoAction(self.actionName, self.position)
+
+
+class PackagingAction(Action):
+    def __init__(self, behavior = "Packaging"):
+        self.actionName = "Packaging"
+        self.behavior = behavior
+    
+    def applyTo(self, obj, sim):
+        obj.gameObject.SetBehavior(self.behavior)
+        obj.gameObject.DoAction(self.actionName)

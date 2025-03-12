@@ -52,6 +52,7 @@ public class ControllerInput : MonoBehaviour
         // factory actions
             inputSystem.PlayerControls.PickUp.performed += ControllerPickUp; // Left Trigger 
             inputSystem.PlayerControls.PutDown.performed += ControllerPutDown; // Right Trigger
+            inputSystem.PlayerControls.Packaging.performed += ControllerPackaging; // Right Shoulder
             inputSystem.PlayerControls.Enable();
     }
     
@@ -67,6 +68,7 @@ public class ControllerInput : MonoBehaviour
         // factory actions
         inputSystem.PlayerControls.PickUp.performed -= ControllerPickUp;
         inputSystem.PlayerControls.PutDown.performed -= ControllerPutDown;
+        inputSystem.PlayerControls.Packaging.performed -= ControllerPackaging;
         inputSystem.PlayerControls.Disable();
     }
 
@@ -126,6 +128,12 @@ public class ControllerInput : MonoBehaviour
         humanInterface.ThroughPass();
     }
     
+    private void ControllerPackaging(InputAction.CallbackContext ctx)
+    {
+        if (tlManager.Paused) return;
+        HumanInterface humanInterface = this.GetComponent<HumanInterface>();
+        humanInterface.Packaging();
+    }
     private void ControllerPickUp(InputAction.CallbackContext ctx)
     {
         Debug.Log("in Controller pickup");

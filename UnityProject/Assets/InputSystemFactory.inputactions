@@ -94,6 +94,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "Packaging",
+                    "type": "Button",
+                    "id": "67c8509e-5336-45c2-90d7-f4503d3e0a33",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -155,7 +164,7 @@
                 {
                     "name": "",
                     "id": "0fc58a0f-1be7-45c8-ba21-0d49b1ea09f6",
-                    "path": "<XRController>{LeftHand}/isTracked",
+                    "path": "<Gamepad>/leftTrigger",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -166,7 +175,7 @@
                 {
                     "name": "",
                     "id": "4c7b5862-eb56-43b1-96fd-bbdb9411fa4d",
-                    "path": "<Keyboard>/equals",
+                    "path": "<Gamepad>/rightTrigger",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -177,7 +186,7 @@
                 {
                     "name": "",
                     "id": "83c1b921-57f7-4ca3-a748-8426246a3fcb",
-                    "path": "<Keyboard>/minus",
+                    "path": "<Gamepad>/rightShoulder",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -204,6 +213,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "PutDown",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "88f9c8aa-1bbc-4db1-a71a-55e94e271477",
+                    "path": "",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Packaging",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

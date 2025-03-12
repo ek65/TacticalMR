@@ -361,6 +361,53 @@ public void PutDown(Vector3 putDownPosition)
     StartCoroutine(LookTowards(putDownPosition, "PutDown"));
 }
 
+
+    public void Packaging()
+    {
+        SetAnimController("FactoryMovement");
+        stopMovement = true;
+
+        GameObject closestObject = FindNearestObject();
+
+        if (closestObject != null)
+        {
+            StartCoroutine(ChangeObjectColorAfterDelay(closestObject, Color.magenta, 3f));
+            Debug.Log("Finished packaging the object");
+            StartCoroutine(LookTowards(closestObject.transform.position, "Packaging"));
+        }
+        else
+        {
+            Debug.LogError("No object found for Packaging.");
+        }
+    }
+
+    private IEnumerator ChangeObjectColorAfterDelay(GameObject targetObject, Color color, float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        Renderer objRenderer = targetObject.GetComponent<Renderer>();
+
+        if (objRenderer != null)
+        {
+            objRenderer.material.color = color;
+        }
+        else
+        {
+            Debug.LogError("Target object does not have a Renderer component.");
+        }
+    }
+
+    private GameObject FindNearestObject()
+    {
+        GameObject[] grabbableObjects = GameObject.FindGameObjectsWithTag("Grabbable");
+        Vector3 originPosition = this.gameObject.transform.position;
+
+        return grabbableObjects
+            .Where(obj => Vector3.Distance(obj.transform.position, originPosition) <= 5f)
+            .OrderBy(obj => Vector3.Distance(obj.transform.position, originPosition))
+            .FirstOrDefault();
+    }
+
+
     // soccer
     public void ReceiveBall(Vector3 receiveFrom)
     {

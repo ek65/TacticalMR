@@ -116,6 +116,15 @@ public partial class @InputSystemFactory: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Packaging"",
+                    ""type"": ""Button"",
+                    ""id"": ""67c8509e-5336-45c2-90d7-f4503d3e0a33"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -177,7 +186,7 @@ public partial class @InputSystemFactory: IInputActionCollection2, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""0fc58a0f-1be7-45c8-ba21-0d49b1ea09f6"",
-                    ""path"": ""<XRController>{LeftHand}/isTracked"",
+                    ""path"": ""<Gamepad>/leftTrigger"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
@@ -188,7 +197,7 @@ public partial class @InputSystemFactory: IInputActionCollection2, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""4c7b5862-eb56-43b1-96fd-bbdb9411fa4d"",
-                    ""path"": ""<Keyboard>/equals"",
+                    ""path"": ""<Gamepad>/rightTrigger"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
@@ -199,7 +208,7 @@ public partial class @InputSystemFactory: IInputActionCollection2, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""83c1b921-57f7-4ca3-a748-8426246a3fcb"",
-                    ""path"": ""<Keyboard>/minus"",
+                    ""path"": ""<Gamepad>/rightShoulder"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
@@ -228,6 +237,17 @@ public partial class @InputSystemFactory: IInputActionCollection2, IDisposable
                     ""action"": ""PutDown"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""88f9c8aa-1bbc-4db1-a71a-55e94e271477"",
+                    ""path"": """",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Packaging"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -246,6 +266,7 @@ public partial class @InputSystemFactory: IInputActionCollection2, IDisposable
         m_PlayerControls_ThroughPass = m_PlayerControls.FindAction("ThroughPass", throwIfNotFound: true);
         m_PlayerControls_PickUp = m_PlayerControls.FindAction("PickUp", throwIfNotFound: true);
         m_PlayerControls_PutDown = m_PlayerControls.FindAction("PutDown", throwIfNotFound: true);
+        m_PlayerControls_Packaging = m_PlayerControls.FindAction("Packaging", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -317,6 +338,7 @@ public partial class @InputSystemFactory: IInputActionCollection2, IDisposable
     private readonly InputAction m_PlayerControls_ThroughPass;
     private readonly InputAction m_PlayerControls_PickUp;
     private readonly InputAction m_PlayerControls_PutDown;
+    private readonly InputAction m_PlayerControls_Packaging;
     public struct PlayerControlsActions
     {
         private @InputSystemFactory m_Wrapper;
@@ -331,6 +353,7 @@ public partial class @InputSystemFactory: IInputActionCollection2, IDisposable
         public InputAction @ThroughPass => m_Wrapper.m_PlayerControls_ThroughPass;
         public InputAction @PickUp => m_Wrapper.m_PlayerControls_PickUp;
         public InputAction @PutDown => m_Wrapper.m_PlayerControls_PutDown;
+        public InputAction @Packaging => m_Wrapper.m_PlayerControls_Packaging;
         public InputActionMap Get() { return m_Wrapper.m_PlayerControls; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -370,6 +393,9 @@ public partial class @InputSystemFactory: IInputActionCollection2, IDisposable
             @PutDown.started += instance.OnPutDown;
             @PutDown.performed += instance.OnPutDown;
             @PutDown.canceled += instance.OnPutDown;
+            @Packaging.started += instance.OnPackaging;
+            @Packaging.performed += instance.OnPackaging;
+            @Packaging.canceled += instance.OnPackaging;
         }
 
         private void UnregisterCallbacks(IPlayerControlsActions instance)
@@ -404,6 +430,9 @@ public partial class @InputSystemFactory: IInputActionCollection2, IDisposable
             @PutDown.started -= instance.OnPutDown;
             @PutDown.performed -= instance.OnPutDown;
             @PutDown.canceled -= instance.OnPutDown;
+            @Packaging.started -= instance.OnPackaging;
+            @Packaging.performed -= instance.OnPackaging;
+            @Packaging.canceled -= instance.OnPackaging;
         }
 
         public void RemoveCallbacks(IPlayerControlsActions instance)
@@ -433,5 +462,6 @@ public partial class @InputSystemFactory: IInputActionCollection2, IDisposable
         void OnThroughPass(InputAction.CallbackContext context);
         void OnPickUp(InputAction.CallbackContext context);
         void OnPutDown(InputAction.CallbackContext context);
+        void OnPackaging(InputAction.CallbackContext context);
     }
 }

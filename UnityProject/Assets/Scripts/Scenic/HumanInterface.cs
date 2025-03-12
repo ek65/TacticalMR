@@ -300,6 +300,7 @@ public class HumanInterface : MonoBehaviour
         keyboardInput.annotationTimes.Add(eventID, eventTime);
         keyboardInput.clickOrder++;
     }
+    
 
     private void LogThroughPass(Vector3 pos)
     {
@@ -323,6 +324,49 @@ public class HumanInterface : MonoBehaviour
         keyboardInput.annotationTimes.Add(passID, passTime);
         Debug.Log($"Through Pass action recorded with ID {passID} at time: {passTime}");
         keyboardInput.clickOrder++; 
+    }
+    
+    public void Packaging()
+    {
+        actionAPI.Packaging();
+        Debug.Log("Packaging action triggered.");
+        LogPackaging();
+    }
+
+    private void LogPackaging()
+    {
+        int eventID = keyboardInput.clickOrder;
+        float eventTime = jsonToLLM.time;
+    
+        GameObject targetObject = FindNearestObject();
+        if (targetObject == null)
+        {
+            Debug.LogError("No object found for Packaging.");
+            return;
+        }
+
+        keyboardInput.annotation.Add(eventID, new Dictionary<string, object>
+        {
+            { "type", "Packaging" },
+            { "player", this.name },
+            { "object", targetObject.name }
+        });
+
+        keyboardInput.annotationDescriptions.Add(eventID, $"({this.name} packaged {targetObject.name})");
+
+        keyboardInput.annotationTimes.Add(eventID, eventTime);
+        keyboardInput.clickOrder++;
+    }
+
+    private GameObject FindNearestObject()
+    {
+        GameObject[] grabbableObjects = GameObject.FindGameObjectsWithTag("Grabbable");
+        Vector3 originPosition = this.gameObject.transform.position;
+
+        return grabbableObjects
+            .Where(obj => Vector3.Distance(obj.transform.position, originPosition) <= 5f)
+            .OrderBy(obj => Vector3.Distance(obj.transform.position, originPosition))
+            .FirstOrDefault();
     }
     
     private void GainPossession(GameObject other)

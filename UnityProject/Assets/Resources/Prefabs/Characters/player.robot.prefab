@@ -2535,6 +2535,7 @@ GameObject:
   - component: {fileID: 6636505798836516186}
   - component: {fileID: 5258423594824916337}
   - component: {fileID: 2363807978607189299}
+  - component: {fileID: 4003989586829683350}
   m_Layer: 0
   m_Name: player.robot
   m_TagString: human
@@ -3262,7 +3263,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 62899f850307741f2a39c98a8b639597, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Actions: {fileID: -944628639613478452, guid: c838986902b1c40359d2943bf0c5d549, type: 3}
+  m_Actions: {fileID: -944628639613478452, guid: b277640baaf59410a972a670edd870f9, type: 3}
   m_NotificationBehavior: 0
   m_UIInputModule: {fileID: 0}
   m_DeviceLostEvent:
@@ -3296,6 +3297,24 @@ MonoBehaviour:
   movementForce: 4
   cam: {fileID: 0}
   playerDirection: {x: 0, y: 0, z: 0}
+--- !u!114 &4003989586829683350
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4578892383467444653}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9fd25f0d51b674e35bb058c5b8ee2d47, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  indexTrigger: 0
+  controllerRight: 0
+  controllerLeft: 0
+  buttonX: 0
+  buttonY: 0
+  endScenario: 0
 --- !u!1 &4626526408514675885
 GameObject:
   m_ObjectHideFlags: 0

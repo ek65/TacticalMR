@@ -8,6 +8,8 @@ import random
 behavior worker1Behavior():
         do Idle() until (distance from self to ego < 2)
         do Idle() for 3 seconds
+        take PackagingAction()
+        do Idle() for 4 seconds
         take PickUpAction()
         do Idle() for 4 seconds
         do MoveToRobot(Vector(10.67, -65, 0))
