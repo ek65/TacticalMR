@@ -281,19 +281,6 @@ public void PutDown(Vector3 putDownPosition)
     {
         SetAnimController("FactoryMovement");
         stopMovement = true;
-
-        GameObject closestObject = FindNearestObject();
-
-        if (closestObject != null)
-        {
-            StartCoroutine(ChangeObjectColorAfterDelay(closestObject, Color.magenta, 3f));
-            Debug.Log("Finished packaging the object");
-            StartCoroutine(LookTowards(closestObject.transform.position, "Packaging"));
-        }
-        else
-        {
-            Debug.LogError("No object found for Packaging.");
-        }
     }
 
     private IEnumerator ChangeObjectColorAfterDelay(GameObject targetObject, Color color, float delay)
@@ -1064,7 +1051,21 @@ public void PutDown(Vector3 putDownPosition)
     }
 
     // called from animation event
+    public void WrapPackage()
+    {
+        GameObject closestObject = FindNearestObject();
 
+        if (closestObject != null)
+        {
+            StartCoroutine(ChangeObjectColorAfterDelay(closestObject, Color.magenta, 3f));
+            Debug.Log("Finished packaging the object");
+            StartCoroutine(LookTowards(closestObject.transform.position, "Packaging"));
+        }
+        else
+        {
+            Debug.LogError("No object found for Packaging.");
+        }
+    }
     public void DetachBox()
     {
         if (this.GetComponent<PlayerInterface>() == true)
