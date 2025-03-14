@@ -245,23 +245,6 @@ public class ActionAPI : MonoBehaviour
 
         if (closestObject != null)
         {
-            int layerIgnoreBallCollision = LayerMask.NameToLayer("PlayerBall");
-            pI.gameObject.layer = layerIgnoreBallCollision;
-
-            closestObject.transform.position = pI.objectPosition.position;
-            closestObject.transform.SetParent(pI.objectPosition);
-
-            // Disable gravity when picked up
-            Rigidbody rb = closestObject.GetComponent<Rigidbody>();
-            if (rb != null)
-            {
-                rb.useGravity = false;
-                rb.isKinematic = true; // Optional: Prevent physics interactions
-            }
-
-            pI.objectPossession = true;
-            pI.grabbedObject = closestObject;
-
             StartCoroutine(LookTowards(lookAtPosition, "PickUp"));
         }
     }
@@ -280,23 +263,6 @@ public class ActionAPI : MonoBehaviour
 
         if (closestObject != null)
         {
-            int layerIgnoreBallCollision = LayerMask.NameToLayer("PlayerBall");
-            hI.gameObject.layer = layerIgnoreBallCollision;
-
-            closestObject.transform.position = hI.objectPosition.position;
-            closestObject.transform.SetParent(hI.objectPosition);
-
-            // Disable gravity when picked up
-            Rigidbody rb = closestObject.GetComponent<Rigidbody>();
-            if (rb != null)
-            {
-                rb.useGravity = false;
-                rb.isKinematic = true; // Optional: Prevent physics interactions
-            }
-
-            hI.objectPossession = true;
-            hI.grabbedObject = closestObject;
-
             StartCoroutine(LookTowards(lookAtPosition, "PickUp"));
         }
     }
@@ -304,60 +270,9 @@ public class ActionAPI : MonoBehaviour
 
 public void PutDown(Vector3 putDownPosition)
 {
+    finalPos = putDownPosition;
     SetAnimController("FactoryMovement");
     stopMovement = true;
-
-    if (this.GetComponent<PlayerInterface>() == true)
-    {
-        PlayerInterface pI = this.GetComponent<PlayerInterface>();
-
-        if (pI.objectPossession == false)
-        {
-            return;
-        }
-
-        this.gameObject.layer = LayerMask.NameToLayer("Default");
-        GameObject droppedObject = pI.grabbedObject;
-        droppedObject.transform.SetParent(null);
-        droppedObject.transform.position = putDownPosition;
-
-        // Re-enable gravity after putting it down
-        Rigidbody rb = droppedObject.GetComponent<Rigidbody>();
-        if (rb != null)
-        {
-            rb.useGravity = true;
-            rb.isKinematic = false; // Optional: Restore physics interactions
-        }
-
-        pI.grabbedObject = null;
-        pI.objectPossession = false;
-    }
-    else if (this.GetComponent<HumanInterface>() == true)
-    {
-        HumanInterface hI = this.GetComponent<HumanInterface>();
-
-        if (hI.objectPossession == false)
-        {
-            return;
-        }
-
-        this.gameObject.layer = LayerMask.NameToLayer("Default");
-        GameObject droppedObject = hI.grabbedObject;
-        droppedObject.transform.SetParent(null);
-        droppedObject.transform.position = putDownPosition;
-
-        // Re-enable gravity after putting it down
-        Rigidbody rb = droppedObject.GetComponent<Rigidbody>();
-        if (rb != null)
-        {
-            rb.useGravity = true;
-            rb.isKinematic = false; // Optional: Restore physics interactions
-        }
-
-        hI.grabbedObject = null;
-        hI.objectPossession = false;
-    }
-
     StartCoroutine(LookTowards(putDownPosition, "PutDown"));
 }
 
@@ -1149,6 +1064,122 @@ public void PutDown(Vector3 putDownPosition)
     }
 
     // called from animation event
+
+    public void DetachBox()
+    {
+        if (this.GetComponent<PlayerInterface>() == true)
+        {
+            PlayerInterface pI = this.GetComponent<PlayerInterface>();
+
+            if (pI.objectPossession == false)
+            {
+                return;
+            }
+
+            this.gameObject.layer = LayerMask.NameToLayer("Default");
+            GameObject droppedObject = pI.grabbedObject;
+            droppedObject.transform.SetParent(null);
+            droppedObject.transform.position = finalPos;
+            
+            Rigidbody rb = droppedObject.GetComponent<Rigidbody>();
+            if (rb != null)
+            {
+                rb.useGravity = true;
+                rb.isKinematic = false; 
+            }
+
+            pI.grabbedObject = null;
+            pI.objectPossession = false;
+        }
+        else if (this.GetComponent<HumanInterface>() == true)
+        {
+            HumanInterface hI = this.GetComponent<HumanInterface>();
+
+            if (hI.objectPossession == false)
+            {
+                return;
+            }
+
+            this.gameObject.layer = LayerMask.NameToLayer("Default");
+            GameObject droppedObject = hI.grabbedObject;
+            droppedObject.transform.SetParent(null);
+            droppedObject.transform.position = finalPos;
+            Rigidbody rb = droppedObject.GetComponent<Rigidbody>();
+            if (rb != null)
+            {
+                rb.useGravity = true;
+                rb.isKinematic = false; 
+            }
+
+            hI.grabbedObject = null;
+            hI.objectPossession = false;
+        }
+    }
+    public void MoveBox()
+    {
+        if (this.GetComponent<PlayerInterface>() == true) {
+            PlayerInterface pI = this.GetComponent<PlayerInterface>();
+            GameObject[] grabbableObjects = GameObject.FindGameObjectsWithTag("Grabbable");
+            Vector3 originPosition = pI.gameObject.transform.position;
+
+            GameObject closestObject = grabbableObjects
+                .Where(obj => Vector3.Distance(obj.transform.position, originPosition) <= 2f)
+                .OrderBy(obj => Vector3.Distance(obj.transform.position, originPosition))
+                .FirstOrDefault();
+
+            if (closestObject != null)
+            {
+                int layerIgnoreBallCollision = LayerMask.NameToLayer("PlayerBall");
+                pI.gameObject.layer = layerIgnoreBallCollision;
+
+                closestObject.transform.position = pI.objectPosition.position;
+                closestObject.transform.SetParent(pI.objectPosition);
+
+                // Disable gravity when picked up
+                Rigidbody rb = closestObject.GetComponent<Rigidbody>();
+                if (rb != null)
+                {
+                    rb.useGravity = false;
+                    rb.isKinematic = true; // Optional: Prevent physics interactions
+                }
+
+                pI.objectPossession = true;
+                pI.grabbedObject = closestObject;
+            }
+        }
+        else if (this.GetComponent<HumanInterface>() == true)
+        {
+            HumanInterface hI = this.GetComponent<HumanInterface>();
+
+            GameObject[] grabbableObjects = GameObject.FindGameObjectsWithTag("Grabbable");
+            Vector3 originPosition = hI.gameObject.transform.position;
+
+            GameObject closestObject = grabbableObjects
+                .Where(obj => Vector3.Distance(obj.transform.position, originPosition) <= 2f)
+                .OrderBy(obj => Vector3.Distance(obj.transform.position, originPosition))
+                .FirstOrDefault();
+
+            if (closestObject != null)
+            {
+                int layerIgnoreBallCollision = LayerMask.NameToLayer("PlayerBall");
+                hI.gameObject.layer = layerIgnoreBallCollision;
+
+                closestObject.transform.position = hI.objectPosition.position;
+                closestObject.transform.SetParent(hI.objectPosition);
+
+                // Disable gravity when picked up
+                Rigidbody rb = closestObject.GetComponent<Rigidbody>();
+                if (rb != null)
+                {
+                    rb.useGravity = false;
+                    rb.isKinematic = true; // Optional: Prevent physics interactions
+                }
+
+                hI.objectPossession = true;
+                hI.grabbedObject = closestObject;
+            }
+        }
+    }
     public void MoveBall()
     {
         PlayerInterface pI = GetComponent<PlayerInterface>();
