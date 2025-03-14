@@ -48,6 +48,10 @@ public class HumanInterface : NetworkBehaviour
     public bool canKickBall = true;
     BallOwnership ballOwnership;
     public GameObject closestPlayerInDirection;
+    public bool objectPossession;
+    public GameObject grabbedObject;
+    public Transform objectPosition;
+
     
     public string behavior = "Idle";
     public string currAction = "No Action"; // just for debugging to see what actions function is being called
@@ -246,6 +250,58 @@ public class HumanInterface : NetworkBehaviour
         Debug.Log($"Pass action recorded with ID {passID}, from: {this.name} to: {targetPlayer.name} at time: {passTime}");
         keyboardInput.clickOrder++; 
     }
+    
+    public void PickUp()
+    {
+        actionAPI.PickUp();
+        Debug.Log("Picking up");
+        LogPickUp();
+    }
+
+    public void PutDown()
+    {
+        actionAPI.PutDown(transform.position + transform.forward * 1f + Vector3.up * 1f);
+        Debug.Log("Putting down");
+        LogPutDown();
+    }
+
+    private void LogPickUp()
+    {
+        int eventID = keyboardInput.clickOrder;
+        float eventTime = jsonToLLM.time;
+        Debug.Log("test");
+    
+        keyboardInput.annotation.Add(eventID, new Dictionary<string, object>
+        {
+            { "type", "PickUp" },
+            { "player", this.name }
+        });
+        Debug.Log(keyboardInput.annotation);
+    
+        keyboardInput.annotationDescriptions.Add(eventID, $"({this.name} picked up an object)");
+        Debug.Log($"Added pick up to annotations at {eventTime:F2}s, key {eventTime}");
+        keyboardInput.annotationTimes.Add(eventID, eventTime);
+        keyboardInput.clickOrder++;
+    }
+
+    private void LogPutDown()
+    {
+        int eventID = keyboardInput.clickOrder;
+        float eventTime = jsonToLLM.time;
+        Debug.Log("test put down");
+    
+        keyboardInput.annotation.Add(eventID, new Dictionary<string, object>
+        {
+            { "type", "PutDown" },
+            { "player", this.name }
+        });
+        Debug.Log(keyboardInput.annotation);
+    
+        keyboardInput.annotationDescriptions.Add(eventID, $"({this.name} put down an object)");
+        keyboardInput.annotationTimes.Add(eventID, eventTime);
+        keyboardInput.clickOrder++;
+    }
+    
 
     private void LogThroughPass(Vector3 pos)
     {
@@ -269,6 +325,49 @@ public class HumanInterface : NetworkBehaviour
         keyboardInput.annotationTimes.Add(passID, passTime);
         Debug.Log($"Through Pass action recorded with ID {passID} at time: {passTime}");
         keyboardInput.clickOrder++; 
+    }
+    
+    public void Packaging()
+    {
+        actionAPI.Packaging();
+        Debug.Log("Packaging action triggered.");
+        LogPackaging();
+    }
+
+    private void LogPackaging()
+    {
+        int eventID = keyboardInput.clickOrder;
+        float eventTime = jsonToLLM.time;
+    
+        GameObject targetObject = FindNearestObject();
+        if (targetObject == null)
+        {
+            Debug.LogError("No object found for Packaging.");
+            return;
+        }
+
+        keyboardInput.annotation.Add(eventID, new Dictionary<string, object>
+        {
+            { "type", "Packaging" },
+            { "player", this.name },
+            { "object", targetObject.name }
+        });
+
+        keyboardInput.annotationDescriptions.Add(eventID, $"({this.name} packaged {targetObject.name})");
+
+        keyboardInput.annotationTimes.Add(eventID, eventTime);
+        keyboardInput.clickOrder++;
+    }
+
+    private GameObject FindNearestObject()
+    {
+        GameObject[] grabbableObjects = GameObject.FindGameObjectsWithTag("Grabbable");
+        Vector3 originPosition = this.gameObject.transform.position;
+
+        return grabbableObjects
+            .Where(obj => Vector3.Distance(obj.transform.position, originPosition) <= 5f)
+            .OrderBy(obj => Vector3.Distance(obj.transform.position, originPosition))
+            .FirstOrDefault();
     }
     
     private void GainPossession(GameObject other)

@@ -3,16 +3,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
-using System.Linq;
-using System.Security.Claims;
+using System.Linq; // For .OrderBy(...)
 using System.Text;
-using System.Text.RegularExpressions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Unity.VisualScripting.Antlr3.Runtime;
 using Whisper.Samples;
 
-// This script collects all the necessary input data for ScenicSynth
 public class JSONToLLM : MonoBehaviour
 {
     public KeyboardInput keyboard;
@@ -20,31 +17,27 @@ public class JSONToLLM : MonoBehaviour
     private string filename;
     public string jsonString;
     public TimelineManager timelineManager;
-    public StreamingSampleMic streamingSampleMic;
-    public float time;
-    public Dictionary<int, List<object>> tokenDictionary = new Dictionary<int, List<object>>();
+    
+    // So we can start/stop the video in FixedUpdate
+    public RecorderManager recorderManager;
+
+    public float time;  // Time index for capturing scene data
     public bool isTranscriptionComplete = false;
-    private string sentence;
-    private Dictionary<float, string> manualTokenDictionary = new Dictionary<float, string>();
     public bool isLogging = false;
-    private bool isAdjusted = false;
-    public int recordingNum = -1; // segmentNum
+
+    public int recordingNum = -1; 
     public bool voiceActivated = false;
     public bool videoIsRecording;
-    // private RecorderManager recorderManager;
     public bool loggingStartedByUnpause = false;
+
     [Tooltip("Used to record system jsons/videos")]
-    // used in tandem with python script to run all scenic tests, records jsons and videos in ONE segment
-    // if this bool is activated, mic should not be activated 
     public bool activateSystemRecording = false; 
 
-    // Class representing the position of an object
     [System.Serializable]
     public class Position
     {
         public float x;
         public float y;
-
         public Position(Vector3 vector)
         {
             x = vector.x;
@@ -52,33 +45,28 @@ public class JSONToLLM : MonoBehaviour
         }
     }
 
-    // Class representing the orientation of an object
     [System.Serializable]
     public class Orientation
     {
-        public float angle; // Angle with respect to the origin
-
+        public float angle; 
         public Orientation(Transform transform)
         {
-            // Calculate the angle with respect to the origin of the x, y axis
             angle = transform.rotation.eulerAngles.y;
         }
     }
 
-    // Class representing the velocity of an object
     [System.Serializable]
     public class Velocity
     {
         public float x;
         public float y;
-
         public Velocity(Vector3 vector)
         {
-            float magnitude = vector.magnitude;
-            x = magnitude * vector.x;
-            y = magnitude * vector.z;
+            x = vector.x;
+            y = vector.z;
         }
     }
+
     [System.Serializable]
     public class Corner
     {
@@ -89,9 +77,8 @@ public class JSONToLLM : MonoBehaviour
         public List<Orientation> orientation = new List<Orientation>();
     }
 
-    // Class representing a player in the scene
     [System.Serializable]
-       public class Player
+    public class Player
     {
         public string id;
         public string type;
@@ -102,7 +89,6 @@ public class JSONToLLM : MonoBehaviour
         public List<Orientation> orientation = new List<Orientation>();
     }
 
-    // Class representing a ball in the scene
     [System.Serializable]
     public class Ball
     {
@@ -113,7 +99,6 @@ public class JSONToLLM : MonoBehaviour
         public List<Orientation> orientation = new List<Orientation>();
     }
 
-    // Class representing a goal in the scene
     [System.Serializable]
     public class Goal
     {
@@ -123,9 +108,7 @@ public class JSONToLLM : MonoBehaviour
         public List<Velocity> velocity = new List<Velocity>();
         public List<Orientation> orientation = new List<Orientation>();
     }
-    
 
-    // Class representing a segment of the scene, containing objects and their states
     [System.Serializable]
     public class RootSegment
     {
@@ -136,30 +119,56 @@ public class JSONToLLM : MonoBehaviour
     public RootSegment myRootSegment = new RootSegment();
     private List<RootSegment> segmentsList = new List<RootSegment>();
 
-    // Initialize necessary components and set the file path for the JSON output
+    // Key = timestamp float, Value = list of tokens (strings or placeholders)
+    public Dictionary<float, List<object>> tokenDictionary = new Dictionary<float, List<object>>();
+
+    private Scribe scribe;
+
     void Start()
     {
-        // filename = Application.dataPath + "/sanjit.json";
         keyboard = GameObject.FindGameObjectWithTag("keyboard").GetComponent<KeyboardInput>();
         timelineManager = GameObject.FindGameObjectWithTag("TimelineManager").GetComponent<TimelineManager>();
-        // TODO: RE-ADD, IMPLEMENT IsRobotScenario Bool in Scenic Manager, DISABLED FOR NOW FOR VR TESTING
-        // streamingSampleMic = GameObject.FindGameObjectWithTag("stream").GetComponent<StreamingSampleMic>();
         
-        // recorderManager = GameObject.FindGameObjectWithTag("RecorderManager").GetComponent<RecorderManager>()
+        // The RecorderManager is presumably on a GameObject tagged "RecorderManager"
+        recorderManager = GameObject.FindGameObjectWithTag("RecorderManager").GetComponent<RecorderManager>();
+
+        scribe = FindObjectOfType<Scribe>();
+        if (scribe != null)
+        {
+            scribe.OnTranscriptionComplete += HandleTranscriptionComplete;
+        }
+        else
+        {
+            Debug.LogWarning("JSONToLLM: No Scribe found—cannot subscribe to OnTranscriptionComplete.");
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if (scribe != null)
+        {
+            scribe.OnTranscriptionComplete -= HandleTranscriptionComplete;
+        }
     }
 
     void Update()
     {
-        // Placeholder for update logic, currently not implemented
+        // any per-frame logic here
     }
 
-    // Populate the scene objects (players, ball, and goal) with their current states
-    public void PopulateSceneObjects()
+    // Called in FixedUpdate if isLogging = true
+    public void PopulateSegment()
     {
-        if (objectsList.ballObject == null)
-        {
-            return;
-        }
+        PopulateSceneObjects();
+        myRootSegment.timestep = timelineManager.TimeIndex;
+    }
+    
+  public void PopulateSceneObjects()
+    {
+        // if (objectsList.ballObject == null)
+        // {
+        //     return;
+        // }
         
         // Process each corner in the scene
         for (int i = 1; i <= 4; i++)
@@ -198,10 +207,10 @@ public class JSONToLLM : MonoBehaviour
             player.position.Add(new Position(currPlayer.transform.position));
             player.velocity.Add(new Velocity(currPlayer.GetComponent<PlayerInterface>().currVelocity));
             player.orientation.Add(new Orientation(currPlayer.transform));
-            player.ballPossession.Add(currPlayer.GetComponent<PlayerInterface>().ballPossession);
+            // player.ballPossession.Add(currPlayer.GetComponent<PlayerInterface>().ballPossession);
         }
         
-        foreach (GameObject currPlayer in objectsList.offensePlayers)
+        foreach (GameObject currPlayer in objectsList.scenicPlayers)
         {
             Player player = (Player)myRootSegment.objects.Find(obj => obj is Player p && p.id == currPlayer.name);
             if (player == null)
@@ -210,7 +219,7 @@ public class JSONToLLM : MonoBehaviour
                 {
                     id = currPlayer.name,
                     behavior = currPlayer.GetComponent<PlayerInterface>().behavior,
-                    type = "Opponent"
+                    type = "Worker"
                 };
                 myRootSegment.objects.Add(player);
             }
@@ -218,7 +227,7 @@ public class JSONToLLM : MonoBehaviour
             player.position.Add(new Position(currPlayer.transform.position));
             player.velocity.Add(new Velocity(currPlayer.GetComponent<PlayerInterface>().currVelocity));
             player.orientation.Add(new Orientation(currPlayer.transform));
-            player.ballPossession.Add(currPlayer.GetComponent<PlayerInterface>().ballPossession);
+            // player.ballPossession.Add(currPlayer.GetComponent<PlayerInterface>().ballPossession);
         }
 
         // Process the human players (coach)
@@ -244,258 +253,125 @@ public class JSONToLLM : MonoBehaviour
         }
 
         // Process the ball in the scene
-        GameObject ball = objectsList.ballObject;
-        Ball ballObject = (Ball)myRootSegment.objects.Find(obj => obj is Ball);
-        if (ballObject == null)
-        {
-            ballObject = new Ball { id = "ball" };
-            myRootSegment.objects.Add(ballObject);
-        }
-
-        ballObject.position.Add(new Position(ball.transform.position));
-        ballObject.orientation.Add(new Orientation(ball.transform));
-        Rigidbody ballRB = ball.GetComponent<Rigidbody>();
-        ballObject.velocity.Add(new Velocity(ballRB.velocity));
+        // GameObject ball = objectsList.ballObject;
+        // Ball ballObject = (Ball)myRootSegment.objects.Find(obj => obj is Ball);
+        // if (ballObject == null)
+        // {
+        //     ballObject = new Ball { id = "ball" };
+        //     myRootSegment.objects.Add(ballObject);
+        // }
+        //
+        // ballObject.position.Add(new Position(ball.transform.position));
+        // ballObject.orientation.Add(new Orientation(ball.transform));
+        // Rigidbody ballRB = ball.GetComponent<Rigidbody>();
+        // ballObject.velocity.Add(new Velocity(ballRB.velocity));
 
         // Process the goal in the scene
-        GameObject goal = objectsList.goalObject;
-        Goal goalObject = (Goal)myRootSegment.objects.Find(obj => obj is Goal);
-        if (goalObject == null)
-        {
-            goalObject = new Goal { id = "goal" };
-            myRootSegment.objects.Add(goalObject);
-        }
+        // GameObject goal = objectsList.goalObject;
+        // Goal goalObject = (Goal)myRootSegment.objects.Find(obj => obj is Goal);
+        // if (goalObject == null)
+        // {
+        //     goalObject = new Goal { id = "goal" };
+        //     myRootSegment.objects.Add(goalObject);
+        // }
 
         // if goal still null, skip this
-        if (goal == null)
-        {
-            return;
-        }
-        Vector3 zeroVector = Vector3.zero;
-        goalObject.velocity.Add(new Velocity(zeroVector));
-        goalObject.position.Add(new Position(goal.transform.position));
-        goalObject.orientation.Add(new Orientation(goal.transform));
-        
-        Transform leftPost = goal.transform.Find("goal_leftpost");
-        Transform rightPost = goal.transform.Find("goal_rightpost");
+        // if (goal == null)
+        // {
+        //     return;
+        // }
+        // Vector3 zeroVector = Vector3.zero;
+        // goalObject.velocity.Add(new Velocity(zeroVector));
+        // goalObject.position.Add(new Position(goal.transform.position));
+        // goalObject.orientation.Add(new Orientation(goal.transform));
+        //
+        // Transform leftPost = goal.transform.Find("goal_leftpost");
+        // Transform rightPost = goal.transform.Find("goal_rightpost");
 
-        Goal leftGoalPost = (Goal)myRootSegment.objects.Find(obj => obj is Goal g && g.id == "goal_leftpost");
-        if (leftGoalPost == null)
-        {
-            leftGoalPost = new Goal { id = "goal_leftpost", type = "Goal" };
-            myRootSegment.objects.Add(leftGoalPost);
-        }
-
-        leftGoalPost.position.Add(new Position(leftPost.position));
-        leftGoalPost.velocity.Add(new Velocity(Vector3.zero));
-        leftGoalPost.orientation.Add(new Orientation(leftPost));
-
-        Goal rightGoalPost = (Goal)myRootSegment.objects.Find(obj => obj is Goal g && g.id == "goal_rightpost");
-        if (rightGoalPost == null)
-        {
-            rightGoalPost = new Goal { id =  "goal_rightpost", type = "Goal" };
-            myRootSegment.objects.Add(rightGoalPost);
-        }
-
-        rightGoalPost.position.Add(new Position(rightPost.position));
-        rightGoalPost.velocity.Add(new Velocity(Vector3.zero));
-        rightGoalPost.orientation.Add(new Orientation(rightPost));
+        // Goal leftGoalPost = (Goal)myRootSegment.objects.Find(obj => obj is Goal g && g.id == "goal_leftpost");
+        // if (leftGoalPost == null)
+        // {
+        //     leftGoalPost = new Goal { id = "goal_leftpost", type = "Goal" };
+        //     myRootSegment.objects.Add(leftGoalPost);
+        // }
+        //
+        // leftGoalPost.position.Add(new Position(leftPost.position));
+        // leftGoalPost.velocity.Add(new Velocity(Vector3.zero));
+        // leftGoalPost.orientation.Add(new Orientation(leftPost));
+        //
+        // Goal rightGoalPost = (Goal)myRootSegment.objects.Find(obj => obj is Goal g && g.id == "goal_rightpost");
+        // if (rightGoalPost == null)
+        // {
+        //     rightGoalPost = new Goal { id =  "goal_rightpost", type = "Goal" };
+        //     myRootSegment.objects.Add(rightGoalPost);
+        // }
+        //
+        // rightGoalPost.position.Add(new Position(rightPost.position));
+        // rightGoalPost.velocity.Add(new Velocity(Vector3.zero));
+        // rightGoalPost.orientation.Add(new Orientation(rightPost));
        
         
     }
-
-    // Populate the current segment with scene objects and their states
-    public void PopulateSegment()
+   
+    // Called when ElevenLabs transcription is done
+    private void HandleTranscriptionComplete(Scribe.ElevenLabsResponse response)
     {
-        PopulateSceneObjects();
-        myRootSegment.timestep = timelineManager.TimeIndex;
-    }
+        Debug.Log("JSONToLLM: Received transcription. Merging placeholders...");
 
-    // Process tokens collected during the scene and log them
-    public void ProcessTokens()
-    {
-        RemoveSpecificSequences();
-        foreach (var token in tokenDictionary)
-        {
-            Debug.Log($"JSONTOLLM KEY saved at time: {token.Key:F2} seconds, VALUE: {token.Value}");
-        }
-
-        var settings = new JsonSerializerSettings
-        {
-            ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
-            Formatting = Formatting.Indented,
-            ContractResolver = new CamelCasePropertyNamesContractResolver()
-        };
-
-        string tokenJsonString = JsonConvert.SerializeObject(tokenDictionary, settings);
-        isTranscriptionComplete = true;
-        Debug.Log("Created Token JSON String: " + tokenJsonString);
-    }
-
-    // Clean up the sentence by removing unwanted patterns
-    private string CleanSentence(string sentence)
-    {
-        string pattern = @"\b[tT] ?h?e?d? ?r\.com\b|\/ ?s ?port\b";
-        return Regex.Replace(sentence, pattern, string.Empty, RegexOptions.IgnoreCase).Trim();
-    }
-
-    // Build a sentence from the tokens, attaching annotations where applicable
-    private string BuildSentenceFromTokens(Dictionary<int, List<object>> dict)
-    {
-        foreach (var clickTime in keyboard.annotationTimes)
-        {
-            int annotationKey = clickTime.Key;
-            float clickTimestamp = clickTime.Value;
-
-            int closestKey = tokenDictionary
-                .Where(pair => pair.Value.Count > 1)
-                .OrderBy(pair => Mathf.Abs((float)pair.Value[1] - clickTimestamp))
-                .FirstOrDefault().Key;
-
-            if (tokenDictionary.ContainsKey(closestKey))
-            {
-                tokenDictionary[closestKey][0] = $"{tokenDictionary[closestKey][0]} [{annotationKey}]";
-                Debug.Log(
-                    $"Appended annotation key [{annotationKey}] to token at order {closestKey} with time {((float)tokenDictionary[closestKey][1]):F2} seconds");
-            }
-        }
-
-        StringBuilder sentenceBuilder = new StringBuilder();
-        bool lastWasPunctuation = false;
-
-        foreach (var tokenEntry in tokenDictionary)
-        {
-            string text = tokenEntry.Value[0] as string;
-
-            // List<string> unwantedTokens = new List<string>
-            //     { "BL", "ANK", "AUD", "IO", "_", "@", ".com" };
-            //
-            // if (unwantedTokens.Any(unwanted => text.Contains(unwanted)))
-            // {
-            //     continue;
-            // }
-
-            text = text.Trim();
-
-            if (text == "," || text == "." || text == "!" || text == "?")
-            {
-                sentenceBuilder.Append(text);
-                lastWasPunctuation = true;
-            }
-            else
-            {
-                if (sentenceBuilder.Length > 0 && !lastWasPunctuation && !text.StartsWith("'"))
-                {
-                    sentenceBuilder.Append(" ");
-                }
-
-                sentenceBuilder.Append(text);
-                lastWasPunctuation = false;
-            }
-        }
-
-        sentence = sentenceBuilder.ToString();
-        return CleanSentence(sentence);
-    }
-
-    public void RemoveSpecificSequences()
-    {
-        
-        //  sequences to be removed from token dictionary
-        List<List<string>> sequencesToRemove = new List<List<string>>
-        {
-            new List<string> { "[", "BL", "ANK", "_", "AUD", "IO", "]" },
-            new List<string> { "Thank", "you", "." },
-            new List<string> { "Thank", "you", "for", "watching", "." }
-        };
-
-        foreach (var sequence in sequencesToRemove)
-        {
-            var keysToRemove = new List<int>();
-            foreach (var entry in tokenDictionary)
-            {
-                int startIndex = entry.Key;
-                bool isMatch = true;
-
-                for (int i = 0; i < sequence.Count; i++)
-                {
-                    int currentIndex = startIndex + i;
-
-                    if (!tokenDictionary.ContainsKey(currentIndex) ||
-                        tokenDictionary[currentIndex][0].ToString() != sequence[i])
-                    {
-                        isMatch = false;
-                        break;
-                    }
-                }
-
-                if (isMatch)
-                {
-                    for (int i = 0; i < sequence.Count; i++)
-                    {
-                        keysToRemove.Add(startIndex + i);
-                    }
-
-                    break; 
-                }
-            }
-
-            // Remove the keys associated with the sequence
-            foreach (int key in keysToRemove)
-            {
-                tokenDictionary.Remove(key);
-            }
-        }
-
-        Debug.Log("Specified sequences removed from token dictionary.");
-    }
-
-
-// Reset the data for the current segment, clearing stored tokens and annotations
-    public void ResetSegmentData()
-    {
-        myRootSegment = new RootSegment();
-        time = 0;
         tokenDictionary.Clear();
-        keyboard.explanation = "";
-        Debug.Log("EXPLANATION AFTER RESET:");
-        Debug.Log(keyboard.explanation);
-        Debug.Log("Segment data has been reset.");
+        if (response.words != null)
+        {
+            foreach (var w in response.words)
+            {
+                float timeKey = w.start;
+                if (!tokenDictionary.ContainsKey(timeKey))
+                    tokenDictionary[timeKey] = new List<object>();
+                tokenDictionary[timeKey].Add(w.text);
+            }
+        }
+
+        if (keyboard != null)
+        {
+            // Insert bracket placeholders
+            foreach (var pair in keyboard.annotationTimes)
+            {
+                float annotationTime = pair.Value;
+                int annotationIndex = pair.Key;
+
+                if (!tokenDictionary.ContainsKey(annotationTime))
+                    tokenDictionary[annotationTime] = new List<object>();
+
+                tokenDictionary[annotationTime].Add($"[{annotationIndex}]");
+            }
+        }
+
+        isTranscriptionComplete = true;
+
+        Debug.Log("Merged words + placeholders. Token dictionary:");
+        foreach (var kvp in tokenDictionary.OrderBy(k => k.Key))
+        {
+            Debug.Log($"Time={kvp.Key:F2} => {string.Join(", ", kvp.Value)}");
+        }
     }
 
-    // Create the final JSON string representing the scene and its annotations
+    public void WriteFile()
+    {
+        CreateJSONString();
+    }
+
     public void CreateJSONString()
     {
         recordingNum++;
         JSONDirectory jsonDirectory = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<JSONDirectory>();
         
-        // Build the sentence before creating JSON
-        if (!activateSystemRecording)
-        {
-            keyboard.explanation = BuildSentenceFromTokens(tokenDictionary);
-            Debug.Log("Constructed Sentence: " + keyboard.explanation);
-        } else if (activateSystemRecording)
-        {
-            // keyboard.explanation = GameObject.FindGameObjectWithTag("human").GetComponent<HumanInterface>().explanation;
-            // foreach (var clickTime in keyboard.annotationTimes)
-            // {
-            //     int annotationKey = clickTime.Key;
-            //     keyboard.explanation += $" [{annotationKey}]";
-            // }
-        }
-        
-
-        // Proceed to serialize the scene data into JSON
-        var settings = new JsonSerializerSettings
-        {
-            ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
-            Formatting = Formatting.Indented,
-            ContractResolver = new CamelCasePropertyNamesContractResolver()
-        };
-
-        if (!activateSystemRecording)
-        {
-            jsonString = JsonConvert.SerializeObject(new
+        var sortedTokens = tokenDictionary
+            .OrderBy(kvp => kvp.Key)
+            .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+        keyboard.explanation = BuildSentenceFromTokens();
+    
+        object finalScene;
+      
+            finalScene = new
             {
                 scene = new
                 {
@@ -504,131 +380,85 @@ public class JSONToLLM : MonoBehaviour
                     step = 0.02,
                     objects = myRootSegment.objects,
                     annotations = keyboard.GetAnnotationsAsJson(),
-                    tokens = tokenDictionary,
+                    tokens = sortedTokens,
                     clickTimes = keyboard.annotationTimes
                 }
-            }, settings);
-        }
-        else
-        {
-            jsonString = JsonConvert.SerializeObject(new
-            {
-                scene = new
-                {
-                    id = jsonDirectory.drillID,
-                    step = 0.02,
-                    objects = myRootSegment.objects,
-                }
-            }, settings);
-        }
+            };
 
-        // DirectoryInfo jsonOutputFolder = new DirectoryInfo(Path.Combine(Application.dataPath, "..", "SampleJsons"));
+        var settings = new JsonSerializerSettings
+        {
+            ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+            Formatting = Formatting.Indented,
+            ContractResolver = new CamelCasePropertyNamesContractResolver()
+        };
+
+        jsonString = JsonConvert.SerializeObject(finalScene, settings);
         filename = jsonDirectory.InstantiateJSONSegmentFilePath(recordingNum) + ".json";
-        
         File.WriteAllText(filename, jsonString);
-        isAdjusted = false;
+
         Debug.Log($"Segment written to {filename}");
-        
     }
 
     
-    // adjust token times based on whether or not the first token was NOT said within the 0-1 seconds.
-    public void AdjustTokenTimes()
+    private string BuildSentenceFromTokens()
     {
-        if (tokenDictionary.Count == 0)
-        {
-            Debug.LogWarning("Token dictionary is empty. No adjustments made.");
-            return;
-        }
-        
-        int firstKey = tokenDictionary.Keys.First();
-        float firstTimestamp = (float)tokenDictionary[firstKey][1];
-        
-        if (firstTimestamp < 0 || firstTimestamp > 1)
-        {
-            float targetTimestamp = 0.1f;
-            
-            float adjustment = targetTimestamp - firstTimestamp;
-            
-            Dictionary<int, List<object>> adjustedTokenDictionary = new Dictionary<int, List<object>>();
+        // Sort the tokenDictionary by timestamp (key) ascending
+        var sortedTokens = tokenDictionary.OrderBy(kvp => kvp.Key);
+    
+        StringBuilder sb = new StringBuilder();
 
-            foreach (var entry in tokenDictionary)
+        // Loop through each sorted token list and append each token
+        foreach (var kvp in sortedTokens)
+        {
+            foreach (var tokenObj in kvp.Value)
             {
-                int key = entry.Key;
-                List<object> value = entry.Value;
-                float adjustedTime = (float)value[1] + adjustment;
-                adjustedTokenDictionary[key] = new List<object> { value[0], adjustedTime };
+                sb.Append(tokenObj.ToString());
             }
-
-            tokenDictionary = adjustedTokenDictionary;
-            Debug.Log($"Token times adjusted to align the first token between 0-1 second with adjustment of {adjustment:F2} seconds.");
         }
-        else
-        {
-            Debug.Log("First token already within the 0-1 second range. No adjustment needed.");
-        }
-
-        isAdjusted = true;
-    }
     
-
-    // Write the JSON data to a file
-    public void WriteFile()
-    {
-        AdjustTokenTimes();
-        if (isAdjusted)
-        {
-            CreateJSONString();
-        }
+        // Optionally, trim any extra whitespace
+        return sb.ToString().Trim();
     }
 
-    // Update the scene data on a fixed time interval
-    private void FixedUpdate()
+
+    public void ResetSegmentData()
     {
-        if (!activateSystemRecording)
-        {
-            // TODO: RE-ADD, IMPLEMENT IsRobotScenario Bool in Scenic Manager, DISABLED FOR NOW FOR VR TESTING
-            // if (streamingSampleMic.isSpeechDetected)
-            // {
-            //     voiceActivated = true;
-            //     keyboard.activationConditionMet = true; 
-            //     // Debug.Log("voice check activated");
-            // }
-        }
-        else if (activateSystemRecording && keyboard.segmentStarted) // if system recording and segment started, we want to start logging
+        myRootSegment = new RootSegment();
+        time = 0;
+        tokenDictionary.Clear();
+        keyboard.explanation = "";
+        Debug.Log("Segment data has been reset.");
+    }
+
+    void FixedUpdate()
+    {
+      
+        if (activateSystemRecording && keyboard.segmentStarted) // if system recording and segment started, we want to start logging
         {
             isLogging = true;
+            Debug.Log("started logging");
         }
         
-        // check both flags before starting logging (voice activity or unpause)
-        if (keyboard.segmentStarted && keyboard.activationConditionMet && !isLogging)
-        {
-            isLogging = true;
-            Debug.Log("Started logging");
-        }
 
         if (isLogging)
         {
             // Debug.Log("JSON LOGGING");
             time += 0.02f;
             PopulateSegment();
-            // if (!recorderManager.RecorderController.IsRecording())
-            // {
-            //     recorderManager.StartRecording();
-            //     videoIsRecording = recorderManager.RecorderController.IsRecording();
-            // }
+            if (!recorderManager.RecorderController.IsRecording())
+            {
+                recorderManager.StartRecording();
+                videoIsRecording = recorderManager.RecorderController.IsRecording();
+            }
         }
         else if (!isLogging)
         {
-            // if (recorderManager.RecorderController.IsRecording())
-            // {
-            //     recorderManager.StopRecording();
-            //     videoIsRecording = recorderManager.RecorderController.IsRecording();
-            // }
+            if (recorderManager.RecorderController.IsRecording())
+            {
+                recorderManager.StopRecording();
+                videoIsRecording = recorderManager.RecorderController.IsRecording();
+            }
         }
-
-        // TODO: RE-ADD, IMPLEMENT IsRobotScenario Bool in Scenic Manager, DISABLED FOR NOW FOR VR TESTING
-        // var color = streamingSampleMic.isSpeechDetected ? Color.green : Color.red;
-        // streamingSampleMic.microphoneRecord.vadIndicatorImage.color = color;
     }
+
 }

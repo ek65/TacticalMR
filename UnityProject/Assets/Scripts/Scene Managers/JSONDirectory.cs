@@ -186,7 +186,7 @@ public class JSONDirectory : MonoBehaviour
             {
                 drillFolder.Create();
             }
-        
+            Debug.Log(drillFolder);
             demoFolder = 
                 new DirectoryInfo(Path.Combine(drillFolder.FullName, "demonstration" + demoNum.ToString()));
             if (!demoFolder.Exists)
@@ -197,6 +197,7 @@ public class JSONDirectory : MonoBehaviour
                 demoFolder.Delete(true);
                 demoFolder.Create();
             }
+            Debug.Log(demoFolder);
         
             videoFolder = 
                 new DirectoryInfo(Path.Combine(demoFolder.FullName, "videos"));
@@ -208,6 +209,7 @@ public class JSONDirectory : MonoBehaviour
                 videoFolder.Delete(true);
                 videoFolder.Create();
             }
+            Debug.Log(videoFolder);
         
             jsonSegmentFolder = 
                 new DirectoryInfo(Path.Combine(demoFolder.FullName, "json_segments"));
@@ -278,6 +280,9 @@ public class JSONDirectory : MonoBehaviour
     
     public string InstantiateVideoFilePath(int recordingNum)
     {
+        Debug.Log(videoFolder.FullName);
+        Debug.Log(ParticipantID);
+        Debug.Log(DemoNum);
         DirectoryInfo videoFile = 
             new DirectoryInfo(Path.Combine(videoFolder.FullName, ParticipantID + "_" + DemoNum + "_" + "segment" + recordingNum.ToString()));
         if (jsonToLLM.activateSystemRecording)

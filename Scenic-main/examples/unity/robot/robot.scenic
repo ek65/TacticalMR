@@ -14,11 +14,13 @@ behavior robotBehavior():
         take PutDownAction(Vector(9.92, -55.055, 0.77))
         do Idle() for 6 seconds
 
-behavior humanBehavior():
-        pass
+behavior egoBehavior():
+        do Idle() until robot.gameObject.behavior == "Pick Up"
+        do MoveToRobot(Vector(17.122, -50.207, 0))
 
 
-ego = new Human at (9, -58, 0)
+ego = new Robot at (9, -58, 0),
+        with behavior egoBehavior()
 
 # robot = new Robot at (17.122, -50.207, 0)
 

@@ -254,7 +254,7 @@ behavior idle(player: Player):
 # --------------------
 # MARK: Robot Scenario Behaviors
 # --------------------
-behavior MoveToRobot(v, lookAtTarget = None, distance = 2, status=""):
+behavior MoveToRobot(v, lookAtTarget = None, distance = 2, status="Move To"):
     dist = 1000
     while not (dist < distance):
         if isinstance(v, Vector):

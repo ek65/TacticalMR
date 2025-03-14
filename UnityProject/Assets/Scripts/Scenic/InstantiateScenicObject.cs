@@ -50,7 +50,7 @@ public class InstantiateScenicObject : NetworkBehaviour
         //     addedGameObject.transform.parent = GameObject.Find("AI Interface").transform;
         //     objectList.AIAgent = addedGameObject;
         // }
-        else if (modelType == "Player" || modelType == "Robot")
+        else if (modelType == "Player" || modelType == "Robot" )
         {
             if (modelType == "Player")
             {
@@ -89,7 +89,11 @@ public class InstantiateScenicObject : NetworkBehaviour
                     addedGameObject = MonoBehaviour.Instantiate(objectList.modelList["player.human VR"], pos, rot);
                 } else if (modelType == "Coach")
                 {
-                    addedGameObject = MonoBehaviour.Instantiate(objectList.modelList["player.coach"], pos, rot);
+                    addedGameObject = MonoBehaviour.Instantiate(objectList.modelList["player.robot"], pos, rot);
+                }
+                else if (modelType == "RobotCoach")
+                {
+                    addedGameObject = MonoBehaviour.Instantiate(objectList.modelList["player.robot"], pos, rot);
                 }
                 //scenicPlayer.GetComponent<NetworkObject>().Spawn();
                 addedGameObject.name = "Coach";
