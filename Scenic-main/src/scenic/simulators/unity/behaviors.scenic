@@ -10,15 +10,13 @@ timestep = 0.1 # sec per timestep
 
 behavior IdleSpecial():
     while True:
-        prev = ego.prevPosition
-        pos = ego.position
-        print(f"ego.prevPosition = {(prev.x, prev.y, prev.z)}")
-        print(f"ego.currPosition = {(pos.x, pos.y, pos.z)}")
         take IdleAction()
+        # print(f"opp.x: {self.position.x}, opp.y: {self.position.y}, opp.z: {self.position.z}")
 
 behavior Idle():
     while True:
         take IdleAction()
+        # print(f"ego.x: {ego.position.x}, ego.y: {ego.position.y}, ego.z: {ego.position.z}")
 
 behavior ShootBall(vec : Vector, string : str):
     take ShootAction(vec, string, "Shoot Ball")
@@ -30,7 +28,7 @@ behavior InterceptBall(ball):
         take MoveToAction(ball.position, "Intercept Ball")
     take StopAction()
 
-behavior PassTo(target):
+behavior PassTo(target, slow=False):
     # if the target is moving, then pass in front of the target
     # target_pass_pos = target
     # if isinstance(target, UnityObject):
@@ -54,7 +52,10 @@ behavior PassTo(target):
 
     print(f"Passing to {target}")
 
-    take GroundPassFastAction(target, "Pass Ball")
+    if slow:
+        take GroundPassSlowAction(target)
+    else:
+        take GroundPassFastAction(target, "Pass Ball")
     do Idle() for 1 seconds
     take StopAction()
 
@@ -80,11 +81,10 @@ behavior MoveTo(v, lookAtTarget = None, distance = 0.5, status=""):
             # take LookAtAction(v)
         dist = distance from self to v
     
-    if lookAtTarget is None:
-        lookAtTarget = Vector(0, -13, 0)
+    if lookAtTarget is not None:
+        do LookAt(lookAtTarget)
     else:
-        lookAtTarget = lookAtTarget.position
-    do LookAt(lookAtTarget)
+        do LookAt(v)
     
 
 behavior ApproachGoal(v):
