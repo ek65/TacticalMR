@@ -19,9 +19,7 @@ public class KeyboardInput : MonoBehaviour
     private JSONToLLM jsonToLLM;
     private ChatBehaviour chatBehaviour;
     private JSONDirectory jsonDirectory;
-#if UNITY_EDITOR
     private RecorderManager recorderManager;
-#endif
 
     [Header("UI / Output")]
     public TextMeshProUGUI countdownText;
@@ -64,12 +62,21 @@ public class KeyboardInput : MonoBehaviour
 
         Debug.Log("KeyboardInput script initialized");
         
+        // StartCoroutine(StartSegmentAfterDelay(15f));
+        // StartCoroutine(StopSegmentAfterDelay(20f));
     }
     private IEnumerator StartSegmentAfterDelay(float delay)
     {
         yield return new WaitForSeconds(delay);
         Debug.Log("Auto-starting segment after delay for VR debugging.");
         StartSegment();
+    }
+    
+    private IEnumerator StopSegmentAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        Debug.Log("Auto-stopping segment after delay for VR debugging.");
+        StopSegment();
     }
 
     void Update()
@@ -209,6 +216,7 @@ public class KeyboardInput : MonoBehaviour
     // (Video is started automatically in JSONToLLM.FixedUpdate if isLogging==true)
     public void StartSegment()
     {
+    
         if (segmentStarted) return;
 
         timelineManager.isRecordingSegment = true;
@@ -227,18 +235,18 @@ public class KeyboardInput : MonoBehaviour
         {
             Debug.LogWarning("No RecordAudio reference set in KeyboardInput!");
         }
-
-        // Instead of calling recorderManager.StartRecording(), we rely on JSONToLLM
-        // to do that in its FixedUpdate when isLogging==true.
+        
 
         // Force JSONToLLM to start logging so video can start in FixedUpdate
         jsonToLLM.isLogging = true;
 
         // Folder setup if needed
+      
         if (jsonDirectory.InitialDemo)
         {
             jsonDirectory.InstantiateInitialFolders();
             jsonDirectory.InitialDemo = false;
+            Debug.Log("Directory created");
         }
         jsonDirectory.InstantiateDemoFolders();
 
@@ -256,8 +264,7 @@ public class KeyboardInput : MonoBehaviour
         timelineManager.isRecordingSegment = false;
         jsonToLLM.isLogging = false; // triggers video stop in JSONToLLM
         segmentStarted = false;
-        activationConditionMet = false;
-
+        jsonToLLM.activateSystemRecording = true;
         // Stop audio
         if (recordAudio != null && Microphone.IsRecording(null))
         {
@@ -265,15 +272,11 @@ public class KeyboardInput : MonoBehaviour
             Debug.Log("Audio recording stopped with the segment.");
         }
         
-        // if (recorderManager.RecorderController.IsRecording())
-        // {
-        //     recorderManager.StopRecording();
-        //     Debug.Log("Video recording stopped with the segment.");
-        // }
+        
 
         GroundSelection groundSelection = GameObject.FindGameObjectWithTag("Ground")
             .GetComponent<GroundSelection>();
-        groundSelection.ClearGroundHighlights();
+            groundSelection.ClearGroundHighlights();
 
         StartCoroutine(ChainedCoroutines());
     }
@@ -340,6 +343,7 @@ public class KeyboardInput : MonoBehaviour
         {
             int id = entry.Key;
             object value = entry.Value;
+
             if (value is GameObject go)
             {
                 annotationsList.Add(new Dictionary<string, object>
@@ -355,12 +359,31 @@ public class KeyboardInput : MonoBehaviour
                 {
                     { "id", id.ToString() },
                     { "type", "Point" },
-                    { "point", new { x = vector.x, y = vector.z } },
+                    { "point", new { x = vector.x, y = vector.z } }
                 });
             }
+            // NEW: handle dictionary-based annotations (e.g. "PickUp", "Pass", etc.)
+            else if (value is Dictionary<string, object> dictValue)
+            {
+                // Start by creating a fresh dictionary for the JSON entry
+                var annotationDict = new Dictionary<string, object>
+                {
+                    ["id"] = id.ToString()
+                };
+
+                // Merge user-defined fields from your log calls
+                foreach (var kvp in dictValue)
+                {
+                    annotationDict[kvp.Key] = kvp.Value;
+                }
+
+                annotationsList.Add(annotationDict);
+            }
         }
+
         return annotationsList;
     }
+
 
     IEnumerator JSONCoroutine()
     {
@@ -414,6 +437,7 @@ public class KeyboardInput : MonoBehaviour
             if (coachObject != null)
             {
                 rb = coachObject.GetComponent<Rigidbody>();
+                Debug.Log("found human rigidbody");
             }
         }
         if (rb == null) return;
@@ -430,12 +454,10 @@ public class KeyboardInput : MonoBehaviour
 
     private void ResetJsonData()
     {   
-#if UNITY_EDITOR
         if (recorderManager.RecorderController.IsRecording())
         {
             recorderManager.StopRecording();
         }
-#endif
 
         annotation.Clear();
         annotationDescriptions.Clear();

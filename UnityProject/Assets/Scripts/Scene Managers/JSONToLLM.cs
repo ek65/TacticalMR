@@ -300,7 +300,8 @@ public class JSONToLLM : MonoBehaviour
         }
         existingPlayer.ballPossession.Add(hasBall);
     }
-
+    
+    
     // Called when ElevenLabs transcription is done
     private void HandleTranscriptionComplete(Scribe.ElevenLabsResponse response)
     {
@@ -358,20 +359,7 @@ public class JSONToLLM : MonoBehaviour
         keyboard.explanation = BuildSentenceFromTokens();
     
         object finalScene;
-        if (activateSystemRecording)
-        {
-            finalScene = new
-            {
-                scene = new
-                {
-                    id = jsonDirectory.drillID,
-                    step = 0.02,
-                    objects = myRootSegment.objects
-                }
-            };
-        }
-        else
-        {
+      
             finalScene = new
             {
                 scene = new
@@ -385,7 +373,6 @@ public class JSONToLLM : MonoBehaviour
                     clickTimes = keyboard.annotationTimes
                 }
             };
-        }
 
         var settings = new JsonSerializerSettings
         {
@@ -404,12 +391,9 @@ public class JSONToLLM : MonoBehaviour
     
     private string BuildSentenceFromTokens()
     {
-        // Sort the tokenDictionary by timestamp (key) ascending
         var sortedTokens = tokenDictionary.OrderBy(kvp => kvp.Key);
     
         StringBuilder sb = new StringBuilder();
-
-        // Loop through each sorted token list and append each token
         foreach (var kvp in sortedTokens)
         {
             foreach (var tokenObj in kvp.Value)
@@ -434,44 +418,32 @@ public class JSONToLLM : MonoBehaviour
 
     void FixedUpdate()
     {
-        // If user wants "system recording" and segment started, log automatically
-        if (activateSystemRecording && keyboard.segmentStarted)
+      
+        if (activateSystemRecording && keyboard.segmentStarted) // if system recording and segment started, we want to start logging
         {
             isLogging = true;
+            Debug.Log("started logging");
         }
-
-        // If user started a segment + there's voice or unpause, set isLogging
-        if (keyboard.segmentStarted && keyboard.activationConditionMet && !isLogging)
-        {
-            isLogging = true;
-            Debug.Log("Started logging in JSONToLLM");
-        }
+        
 
         if (isLogging)
         {
-#if UNITY_EDITOR
-            // Only start recording in Unity Editor, not in VR builds
-            if (recorderManager != null && !recorderManager.RecorderController.IsRecording())
+            // Debug.Log("JSON LOGGING");
+            time += 0.02f;
+            PopulateSegment();
+            if (!recorderManager.RecorderController.IsRecording())
             {
                 recorderManager.StartRecording();
                 videoIsRecording = recorderManager.RecorderController.IsRecording();
-                Debug.Log("Video recording started in JSONToLLM.FixedUpdate()");
             }
-#endif
-            time += 0.02f;
-            PopulateSegment();
         }
-        else
+        else if (!isLogging)
         {
-#if UNITY_EDITOR
-            // Stop recording only in Unity Editor
-            if (recorderManager != null && recorderManager.RecorderController.IsRecording())
+            if (recorderManager.RecorderController.IsRecording())
             {
                 recorderManager.StopRecording();
                 videoIsRecording = recorderManager.RecorderController.IsRecording();
-                Debug.Log("Video recording stopped in JSONToLLM.FixedUpdate()");
             }
-#endif
         }
     }
 
