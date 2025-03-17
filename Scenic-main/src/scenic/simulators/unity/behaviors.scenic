@@ -50,7 +50,7 @@ behavior PassTo(target, slow=False):
     elif checkIfString(target):
         target = [obj for obj in scene.objects if obj.name.lower() == target][0].position # converts string into object reference
 
-    print(f"Passing to {target}")
+    # print(f"Passing to {target}")
 
     if slow:
         take GroundPassSlowAction(target)

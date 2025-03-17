@@ -260,6 +260,7 @@ class GroundPassFastAction(Action):
             self.position = (obj.x, obj.y, obj.z)
         else:
             self.position = obj.position
+
     def applyTo(self, obj, sim):
         obj.gameObject.SetBehavior(self.behavior)
         obj.gameObject.DoAction(self.actionName, self.position)
