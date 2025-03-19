@@ -1,6 +1,8 @@
 from scenic.simulators.unity.actions import *
 from enum import Enum
 model scenic.simulators.unity.model
+from scenic.core.vectors import Orientation, Vector
+from scenic.core.object_types import Point
 
 # Language: scenic (python)
 # This file defines all shared scenic behaviors. In order to use any behavior defined
@@ -45,12 +47,14 @@ behavior PassTo(target, slow=False):
         # print(f"target_pass_pos: {(target_pass_pos.x, target_pass_pos.y, target_pass_pos.z)}")
     scene = simulation()
 
-    if isinstance(target, UnityObject):
+    if isinstance(target, UnityObject) or isinstance(target,Point):
         target = target.position
+        print("UnityObj")
     elif checkIfString(target):
         target = [obj for obj in scene.objects if obj.name.lower() == target][0].position # converts string into object reference
-
-    # print(f"Passing to {target}")
+        print("elif case")
+    print(f"Passing to {target}")
+    print(f"type: {type(target)}")
 
     if slow:
         take GroundPassSlowAction(target)

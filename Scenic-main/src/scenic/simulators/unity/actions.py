@@ -249,13 +249,12 @@ class GroundPassFastAction(Action):
     def __init__(self, obj, behavior = None):
         self.actionName = "GroundPassFast"
         self.behavior = behavior
-    
+
         if isinstance(obj, tuple) or type(obj) is tuple:
             self.position = obj
-        elif isinstance(obj, OrientedPoint):
-            self.position = obj.position
-        elif isinstance(obj, Point):
-            self.position = obj.position
+        elif isinstance(obj, OrientedPoint) or isinstance(obj, Point):
+            pos = obj.position
+            self.position = (pos.x, pos.y, pos.z)
         elif isinstance(obj, Vector):
             self.position = (obj.x, obj.y, obj.z)
         else:
