@@ -50,7 +50,7 @@ public class KeyboardInput : MonoBehaviour
 
     void Start()
     {
-        // Basic references
+        // Basic referencespl
         timelineManager = GameObject.FindGameObjectWithTag("TimelineManager").GetComponent<TimelineManager>();
         jsonToLLM = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<JSONToLLM>();
         countdownText = GameObject.FindGameObjectWithTag("countdown").GetComponent<TextMeshProUGUI>();

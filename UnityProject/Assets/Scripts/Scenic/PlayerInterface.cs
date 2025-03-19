@@ -24,6 +24,8 @@ public class PlayerInterface : MonoBehaviour
     public GameObject goal;
     public bool ballPossession;
     public Transform ballPosition;
+    private KeyboardInput keyboardInput;
+    private JSONToLLM jsonToLLM;
 
     public Vector3 currVelocity => this.GetComponent<RichAI>().velocity;
 
@@ -73,6 +75,8 @@ public class PlayerInterface : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        keyboardInput = GameObject.FindGameObjectWithTag("keyboard").GetComponent<KeyboardInput>();
+        jsonToLLM = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<JSONToLLM>();
         if (ball == null)
         {
             ball = GameObject.FindGameObjectWithTag("ball");
@@ -104,6 +108,7 @@ public class PlayerInterface : MonoBehaviour
     
     private void GainPossession(Collision other)
     {
+        LogReceiveBall();
         int layerIgnoreBallCollision = LayerMask.NameToLayer("PlayerBall");
         this.gameObject.layer = layerIgnoreBallCollision;
         
@@ -117,6 +122,22 @@ public class PlayerInterface : MonoBehaviour
         this.GetComponentInParent<ActionAPI>().ReceiveBall(other.transform.position);
     }
     
+    private void LogReceiveBall()
+    {
+        int receiveBallID = keyboardInput.clickOrder;
+        float receiveBallTime = jsonToLLM.time;
+        keyboardInput.annotation.Add(receiveBallID, new Dictionary<string, object>
+        {
+            { "type", "ReceiveBall" },
+            { "player", this.gameObject.name }
+        });
+        keyboardInput.annotationDescriptions.Add(receiveBallID, $"({this.gameObject.name} received the ball)");
+        
+        keyboardInput.annotationTimes.Add(receiveBallID, receiveBallTime);
+        Debug.Log($"ReceiveBall action recorded with ID {receiveBallID} at time: {receiveBallTime}");
+        
+        keyboardInput.clickOrder++;
+    }
     public void LosePossession()
     {
         StartCoroutine(PossessionDebounce());
