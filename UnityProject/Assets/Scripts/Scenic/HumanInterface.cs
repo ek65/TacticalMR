@@ -262,8 +262,10 @@ public class HumanInterface : MonoBehaviour
         keyboardInput.clickOrder++; 
     }
     
-    private void GainPossession(GameObject other)
+    private void GainPossession(GameObject other) 
     {
+        LogReceiveBall();
+        
         int layerIgnoreBallCollision = LayerMask.NameToLayer("PlayerBall");
         this.gameObject.layer = layerIgnoreBallCollision;
         
@@ -276,6 +278,24 @@ public class HumanInterface : MonoBehaviour
         ballOwnership.SetBallOwner(this.gameObject);
         actionAPI.ReceiveBall(other.transform.position);
     }
+    private void LogReceiveBall()
+    {
+        int receiveBallID = keyboardInput.clickOrder;
+        float receiveBallTime = jsonToLLM.time;
+
+        keyboardInput.annotation.Add(receiveBallID, new Dictionary<string, object>
+        {
+            { "type", "ReceiveBall" },
+            { "player", this.gameObject.name }
+        });
+
+        keyboardInput.annotationDescriptions.Add(receiveBallID, $"({this.gameObject.name} received the ball)");
+        keyboardInput.annotationTimes.Add(receiveBallID, receiveBallTime);
+
+        Debug.Log($"ReceiveBall action recorded with ID {receiveBallID} at time: {receiveBallTime}");
+        keyboardInput.clickOrder++;
+    }
+
     
     public void LosePossession()
     {
