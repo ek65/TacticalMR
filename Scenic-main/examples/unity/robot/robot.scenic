@@ -19,11 +19,13 @@ behavior egoBehavior():
         do MoveToRobot(Vector(17.122, -50.207, 0))
 
 
-ego = new Robot at (9, -58, 0),
-        with behavior egoBehavior()
+ego = new Human at (9, -58, 0)
+
+# ego = new Robot at (9, -58, 0),
+#         with behavior egoBehavior()
 
 # robot = new Robot at (17.122, -50.207, 0)
 
-# robot = new Robot at (17.122, -50.207, 0),
-#         with behavior robotBehavior()
+robot = new Robot at (17.122, -50.207, 0),
+        with behavior robotBehavior()
 

@@ -27,14 +27,11 @@ public class RecorderManager : MonoBehaviour
             return new FileInfo(fileName);
         }
     }
-#endif
 
     void OnEnable()
     {
         Initialize();
     }
-
-#if UNITY_EDITOR
     public void Initialize()
     {
         var controllerSettings = ScriptableObject.CreateInstance<RecorderControllerSettings>();

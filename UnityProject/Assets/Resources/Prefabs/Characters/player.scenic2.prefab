@@ -4074,6 +4074,9 @@ GameObject:
   - component: {fileID: 2247349048034004288}
   - component: {fileID: -992256610573881265}
   - component: {fileID: -7229297900890908662}
+  - component: {fileID: 5161890820525004896}
+  - component: {fileID: -7974981195372803498}
+  - component: {fileID: 7696055529042246766}
   m_Layer: 0
   m_Name: player.scenic2
   m_TagString: player
@@ -4138,6 +4141,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 35bcac9dd1874c44d9e8101253d74932, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _interpolationDataSource: 0
   playerRunningSpeed: 5
   timeDuration: 5
   goalWidth: 0
@@ -4157,6 +4161,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 189b4c9bf1f341f428485e3ed904fd74, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _interpolationDataSource: 0
+  _ObjName: 
   enemy: 0
   ally: 0
   self: 0
@@ -4179,6 +4185,7 @@ MonoBehaviour:
   isRobot: 1
   objectPosition: {fileID: 8665160898920370539}
   objectPossession: 0
+  grabbedObject: {fileID: 0}
 --- !u!114 &6020389869188668907
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4353,7 +4360,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   replayIdentity:
-    id: 52905
+    id: 52216
   replayObject:
     reference: {fileID: 5886457986238108556}
   replayBodyPosition: 6
@@ -4378,7 +4385,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   instantiateIdentity: 1
   replayIdentity:
-    id: 62575
+    id: 7379
   prefabIdentity:
     id: 16648
   observedComponents:
@@ -4402,7 +4409,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   replayIdentity:
-    id: 34274
+    id: 65448
   replayObject:
     reference: {fileID: 5886457986238108556}
   replayPosition: 23
@@ -4426,7 +4433,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   replayIdentity:
-    id: 22569
+    id: 3177
   replayObject:
     reference: {fileID: 5886457986238108556}
   replayRootBonePosition: 23
@@ -4755,6 +4762,91 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &5161890820525004896
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8665160898893140854}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1552182283, guid: e725a070cec140c4caffb81624c8c787, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ObjectInterest: 1
+  DefaultInterestGroups: []
+  DestroyWhenStateAuthorityLeaves: 0
+  AllowStateAuthorityOverride: 1
+  AoiPositionSource: {fileID: 0}
+  Flags: 2305
+  NetworkGuid:
+    RawGuidValue: 9b7ebeaeea5254df0997d044f8222fa2
+  NestedObjects: []
+  NetworkedBehaviours:
+  - {fileID: 8665160898893140851}
+  - {fileID: 8029724646137382559}
+  - {fileID: -7974981195372803498}
+  - {fileID: 7696055529042246766}
+  SimulationBehaviours: []
+--- !u!114 &-7974981195372803498
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8665160898893140854}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 158639473, guid: e725a070cec140c4caffb81624c8c787, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _interpolationDataSource: 0
+  InterpolationSpace: 0
+  InterpolationTarget: {fileID: 0}
+  InterpolateErrorCorrection: 1
+  InterpolatedErrorCorrectionSettings:
+    MinRate: 3.3
+    MaxRate: 10
+    PosBlendStart: 0.25
+    PosBlendEnd: 1
+    PosMinCorrection: 0.025
+    PosTeleportDistance: 2
+    RotBlendStart: 0.1
+    RotBlendEnd: 0.5
+    RotTeleportRadians: 1.5
+  UseLegacySharedModeInterpolation: 0
+  TargetInterpolationDelay: 0.03
+--- !u!114 &7696055529042246766
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8665160898893140854}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 506319458, guid: e725a070cec140c4caffb81624c8c787, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _interpolationDataSource: 0
+  Animator: {fileID: 0}
+  TotalWords: 3
+  SyncSettings: 79
+  FloatAccuracy:
+    _value: 0
+    _inverse: 0
+    _hash: -814817977
+  TimeAccuracy:
+    _value: 0
+    _inverse: 0
+    _hash: 1061325578
+  WeightAccuracy:
+    _value: 0
+    _inverse: 0
+    _hash: -814817977
+  StateHashes: 00000000a1f7ab0dbb6691e7c98ef3a5797f4cfb784389a081da73e6570a8b144d9bb1fe25e1b6c2165293f5
+  TriggerHashes: 00000000ad08cea09c6d112e94ef7c71
 --- !u!1 &8665160898920370538
 GameObject:
   m_ObjectHideFlags: 0

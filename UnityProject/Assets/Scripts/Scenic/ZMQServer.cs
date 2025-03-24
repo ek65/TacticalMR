@@ -69,9 +69,8 @@ public class ZMQServer : MonoBehaviour
         {
             return;
         }
-        Debug.Log(newData);
-        try
-        {
+        // Debug.Log(newData);
+        
             ScenicParser.ScenicJson jsonResult = parser.ParseData(newData);
             int scenicTick = GetTickFromData(jsonResult);
             int newTick = -1;
@@ -91,11 +90,6 @@ public class ZMQServer : MonoBehaviour
             lastTick = newTick;
             List<ScenicMovementData> mvData = ParseMovementData(jsonResult);
             ApplyMovement(mvData);
-        }
-        catch (NullReferenceException e)
-        {
-            Debug.LogError("json failed " + e);
-        }
     }
 
     private void OnDestroy()

@@ -130,7 +130,9 @@ public class JSONToLLM : MonoBehaviour
         timelineManager = GameObject.FindGameObjectWithTag("TimelineManager").GetComponent<TimelineManager>();
         
         // The RecorderManager is presumably on a GameObject tagged "RecorderManager"
+#if UNITY_EDITOR
         recorderManager = GameObject.FindGameObjectWithTag("RecorderManager").GetComponent<RecorderManager>();
+#endif
 
         scribe = FindObjectOfType<Scribe>();
         if (scribe != null)
@@ -430,6 +432,7 @@ public class JSONToLLM : MonoBehaviour
         Debug.Log("Segment data has been reset.");
     }
 
+#if UNITY_EDITOR
     void FixedUpdate()
     {
       
@@ -460,5 +463,6 @@ public class JSONToLLM : MonoBehaviour
             }
         }
     }
+#endif
 
 }

@@ -6,12 +6,12 @@ using Fusion;
 using Fusion.Sockets;
 
 public class ScenicObectAddEventArg : EventArgs { public GameObject gameObject { get; set; } }
-public class InstantiateScenicObject : NetworkBehaviour
+public class InstantiateScenicObject
 {
     ObjectsList objectList;
-    // public delegate void PublishScenicAddObjectEvent(ScenicObectAddEventArg arg);
+    public delegate void PublishScenicAddObjectEvent(ScenicObectAddEventArg arg);
     // //timeline manager will subscribe to this event
-    // public static event PublishScenicAddObjectEvent Publish;
+    public static event PublishScenicAddObjectEvent Publish;
 
     public InstantiateScenicObject(Vector3 pos, Quaternion rot, string modelType, Color color, string name)
     {
@@ -28,7 +28,8 @@ public class InstantiateScenicObject : NetworkBehaviour
         if (modelType == "Ball")
         {
             // addedGameObject = MonoBehaviour.Instantiate(objectList.modelList["soccer_ball"], pos, Quaternion.identity);
-            var temp = Runner.Spawn(objectList.modelList["soccer_ball"], pos, Quaternion.identity);
+            NetworkRunner runner = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>()._runner;
+            NetworkObject temp = runner.Spawn(objectList.modelList["soccer_ball"], pos, Quaternion.identity);
             addedGameObject = temp.gameObject;
             addedGameObject.name = "Ball";
             // disc.GetComponent<NetworkObject>().Spawn();
@@ -54,16 +55,11 @@ public class InstantiateScenicObject : NetworkBehaviour
         {
             if (modelType == "Player")
             {
-                addedGameObject = MonoBehaviour.Instantiate(objectList.modelList["player.scenic"], pos, rot);
-            } else if (modelType == "Robot")
-            {
-                addedGameObject = MonoBehaviour.Instantiate(objectList.modelList["player.scenic2"], pos, rot);
-            }
-            addedGameObject.name = name;
-            //scenicPlayer.GetComponent<NetworkObject>().Spawn();
-            objectList.scenicPlayers.Add(addedGameObject);
-            if (modelType == "Player")
-            {
+                // addedGameObject = MonoBehaviour.Instantiate(objectList.modelList["player.scenic"], pos, rot);
+                NetworkRunner runner = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>()._runner;
+                NetworkObject temp = runner.Spawn(objectList.modelList["player.scenic"], pos, rot);
+                addedGameObject = temp.gameObject;
+                
                 if (color == new Color(0f, 0f, 255f, 1f)) // defense team
                 {
                     addedGameObject.GetComponentInChildren<PlayerInterface>().ally = true;
@@ -74,6 +70,23 @@ public class InstantiateScenicObject : NetworkBehaviour
                     addedGameObject.GetComponentInChildren<PlayerInterface>().enemy = true;
                     objectList.offensePlayers.Add(addedGameObject);
                 }
+                
+                addedGameObject.name = name;
+                objectList.scenicPlayers.Add(addedGameObject);
+            } else if (modelType == "Robot")
+            {
+                // addedGameObject = MonoBehaviour.Instantiate(objectList.modelList["player.scenic2"], pos, rot);
+                NetworkRunner runner = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>()._runner;
+                NetworkObject temp = runner.Spawn(objectList.modelList["player.scenic2"], pos, rot);
+                addedGameObject = temp.gameObject;
+                
+                // addedGameObject.name = name;
+                PlayerInterface pI = addedGameObject.GetComponent<PlayerInterface>();
+                pI.SetObjectName(name);
+                
+                // objects are added to objectlist in their respective spawn/interface scripts
+                // objectList.scenicPlayers.Add(addedGameObject);
+
             }
 
             //objectList.orangePlayers.Add(scenicPlayer.GetComponent<NetworkObject>().NetworkInstanceId);
@@ -107,6 +120,9 @@ public class InstantiateScenicObject : NetworkBehaviour
                 if (GameObject.FindGameObjectWithTag("human") != null)
                 {
                     addedGameObject = objectList.humanPlayers[0];
+                    HumanInterface hI = addedGameObject.GetComponent<HumanInterface>();
+                    hI.SetObjectName(name);
+                    
                     Fade f = objectList.humanPlayers[0].GetComponent<Fade>();
                     ExitScenario e = objectList.humanPlayers[0].GetComponent<ExitScenario>();
                     e.endScenario = false;
@@ -115,10 +131,10 @@ public class InstantiateScenicObject : NetworkBehaviour
             }
             
         }
-        // if (Publish != null)
-        // {
-        //     Publish(new ScenicObectAddEventArg() { gameObject = addedGameObject });
-        // }
+        if (Publish != null)
+        {
+            Publish(new ScenicObectAddEventArg() { gameObject = addedGameObject });
+        }
 
     }
 }

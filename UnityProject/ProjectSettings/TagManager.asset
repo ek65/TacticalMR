@@ -30,6 +30,7 @@ TagManager:
   - Grabbable
   - NetworkedPlayer
   - NetworkedPlayerMesh
+  - GameManager
   layers:
   - Default
   - TransparentFX

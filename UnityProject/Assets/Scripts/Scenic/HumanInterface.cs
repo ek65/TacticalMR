@@ -13,6 +13,9 @@ using UnityEngine.InputSystem;
 
 public class HumanInterface : NetworkBehaviour
 {
+    [Networked(OnChanged = nameof(OnNameChanged))] public NetworkString<_16> ObjName { get; set; }
+    public bool isVR = false;
+
     private int localTick;  // NOTE: This is not the true tick and is what we will use to internally record a timestep.
 
     private ExitScenario exitScene;
@@ -48,6 +51,7 @@ public class HumanInterface : NetworkBehaviour
     public bool canKickBall = true;
     BallOwnership ballOwnership;
     public GameObject closestPlayerInDirection;
+    
     public bool objectPossession;
     public GameObject grabbedObject;
     public Transform objectPosition;
@@ -191,11 +195,33 @@ public class HumanInterface : NetworkBehaviour
 
     }
     
+    static void OnNameChanged(Changed<HumanInterface> changed)
+    {
+        changed.Behaviour.UpdateGameObjectName();
+    }
+    
+    private void UpdateGameObjectName()
+    {
+        gameObject.name = ObjName.ToString();
+    }
+    
+    public void SetObjectName(string newName)
+    {
+        if (Object.HasStateAuthority) // Only the host or owner should update this
+        {
+            ObjName = newName; // This will trigger OnNameChanged() on all clients
+        }
+    }
+    
     private void OnCollisionEnter(Collision other)
     {
-        if (other.collider.CompareTag("ball") && canPossessBall && ballOwnership.heldByScenic == false)
+        GameManager gm = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
+        if (gm.isHost)
         {
-            GainPossession(other.gameObject);
+            if (other.collider.CompareTag("ball") && canPossessBall && ballOwnership.heldByScenic == false)
+            {
+                GainPossession(other.gameObject);
+            }
         }
     }
     
@@ -513,19 +539,7 @@ public class HumanInterface : NetworkBehaviour
 
         ResetHuman();
     }
-    
-    [Rpc(RpcSources.StateAuthority, RpcTargets.All)] 
-    public void RPC_SetTransform(Vector3 pos)
-    {
-        Debug.LogError("In SetTransform: " + pos);
-        source.PlayOneShot(source.clip);
-        this.transform.position = pos;
 
-        Debug.LogWarning("Local: I am transforming to: " + pos.ToString());
-
-        ResetHuman();
-    }
-    
     public void SetTransform2(GameObject go, Vector3 pos)
     {
         source.PlayOneShot(source.clip);

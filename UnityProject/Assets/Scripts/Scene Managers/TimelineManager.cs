@@ -56,7 +56,7 @@ public class TimelineManager : MonoBehaviour
     {
         Timeseries = new Dictionary<GameObject, RewindableTimeSeries>();
         rewindables = new List<Rewindable>();
-        // InstantiateScenicObject.Publish += InitializeOnScenicAdd;
+        InstantiateScenicObject.Publish += InitializeOnScenicAdd;
         camera = Camera.main;
     }
     public void NotifyPauseStatus(bool pause)
@@ -138,7 +138,8 @@ public void InitializeTimeline()
         // reset time index on unpause
         TimeIndex = 0;
         RewindTimeIndex = 0;
-        pauseTxt.text = "Unpaused";
+        // TODO: RE-ADD, IMPLEMENT IsRobotScenario Bool in Scenic Manager, DISABLED FOR NOW FOR VR TESTING
+        // pauseTxt.text = "Unpaused";
         Paused = false;
     }
     public void RaycastClick()

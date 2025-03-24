@@ -74,15 +74,23 @@ public class ControllerInput : MonoBehaviour
 
     private void FixedUpdate()
     {
+#if UNITY_EDITOR
         // if (tlManager.Paused)
         // {
         //     return;
         // }
         Movement();
         Rotate();
+#endif
     }
 
-    private void ControllerPause(InputAction.CallbackContext ctx)
+    public void ControllerPause(InputAction.CallbackContext ctx)
+    {
+        HandleControllerPause();
+    }
+
+    // Creating these public handle functions so that Meta controller mapping component can also call them
+    public void HandleControllerPause()
     {
         keyboardInput.HandlePause();
     }
@@ -93,6 +101,11 @@ public class ControllerInput : MonoBehaviour
     }
     
     private void ControllerSegment(InputAction.CallbackContext ctx)
+    {
+        HandleControllerSegment();
+    }
+    
+    public void HandleControllerSegment()
     {
         keyboardInput.HandleSegment();
     }
@@ -136,7 +149,13 @@ public class ControllerInput : MonoBehaviour
     }
     private void ControllerPickUp(InputAction.CallbackContext ctx)
     {
+        HandleControllerPickUp();
+    }
+    
+    public void HandleControllerPickUp()
+    {
         Debug.Log("in Controller pickup");
+        
         if (tlManager.Paused)
         {
             return;
@@ -146,6 +165,11 @@ public class ControllerInput : MonoBehaviour
     }
     
     private void ControllerPutDown(InputAction.CallbackContext ctx)
+    {
+        HandleControllerPutDown();
+    }
+    
+    public void HandleControllerPutDown()
     {
         Debug.Log("in Controller putdown");
 

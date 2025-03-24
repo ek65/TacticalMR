@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.ConstrainedExecution;
+using Fusion;
 using OpenAI.Samples.Chat;
 using Pathfinding;
 using Unity.VisualScripting;
@@ -14,7 +15,7 @@ using UnityEngine.AI;
 // parabola Equation if used (x-(d/2))^2 = -4((d/2)^2/8)(y-2)) => y = (8 (d x - x^2))/d^2
 #endregion
 
-public class ActionAPI : MonoBehaviour
+public class ActionAPI : NetworkBehaviour
 {
     [SerializeField] float playerRunningSpeed = 1f;
     [SerializeField] float timeDuration = 5f;
@@ -90,7 +91,12 @@ public class ActionAPI : MonoBehaviour
     {
         // TODO: replace this anim controller with movement, need to merge humanoid AI movement with the movement controller
         //SetAnimController("Humanoid");
-        SetAnimController("FactoryMovement");
+        GameManager gm = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
+        if (gm.isHost)
+        {
+            RPC_SetAnimController("FactoryMovement");
+        }
+        // SetAnimController("FactoryMovement");
         StartCoroutine(MoveToPosHelper(destinationPosition, lookAt));
         //StartCoroutine(MovementLerp(destinationPosition, lookAt));
     }
@@ -225,147 +231,166 @@ public class ActionAPI : MonoBehaviour
     // }
     
     // factory setting 
-    public void PickUp()
-{
-    SetAnimController("FactoryMovement");
-    stopMovement = true;
-
-    if (this.GetComponent<PlayerInterface>() == true)
+    public void PickUp() 
     {
-        PlayerInterface pI = this.GetComponent<PlayerInterface>();
-        Vector3 lookAtPosition = pI.objectPosition.position;
-
-        GameObject[] grabbableObjects = GameObject.FindGameObjectsWithTag("Grabbable");
-        Vector3 originPosition = pI.gameObject.transform.position;
-
-        GameObject closestObject = grabbableObjects
-            .Where(obj => Vector3.Distance(obj.transform.position, originPosition) <= 2f)
-            .OrderBy(obj => Vector3.Distance(obj.transform.position, originPosition))
-            .FirstOrDefault();
-
-        if (closestObject != null)
+        if (this.GetComponent<Animator>().isActiveAndEnabled == true)
         {
-            int layerIgnoreBallCollision = LayerMask.NameToLayer("PlayerBall");
-            pI.gameObject.layer = layerIgnoreBallCollision;
+            SetAnimController("FactoryMovement");
+            stopMovement = true;
+        }
 
-            closestObject.transform.position = pI.objectPosition.position;
-            closestObject.transform.SetParent(pI.objectPosition);
+        if (this.GetComponent<PlayerInterface>() == true)
+        {
+            PlayerInterface pI = this.GetComponent<PlayerInterface>();
+            Vector3 lookAtPosition = pI.objectPosition.position;
 
-            // Disable gravity when picked up
-            Rigidbody rb = closestObject.GetComponent<Rigidbody>();
-            if (rb != null)
+            GameObject[] grabbableObjects = GameObject.FindGameObjectsWithTag("Grabbable");
+            Vector3 originPosition = pI.gameObject.transform.position;
+
+            GameObject closestObject = grabbableObjects
+                .Where(obj => Vector3.Distance(obj.transform.position, originPosition) <= 2f)
+                .OrderBy(obj => Vector3.Distance(obj.transform.position, originPosition))
+                .FirstOrDefault();
+
+            if (closestObject != null)
             {
-                rb.useGravity = false;
-                rb.isKinematic = true; // Optional: Prevent physics interactions
+                int layerIgnoreBallCollision = LayerMask.NameToLayer("PlayerBall");
+                pI.gameObject.layer = layerIgnoreBallCollision;
+
+                closestObject.transform.position = pI.objectPosition.position;
+                closestObject.transform.SetParent(pI.objectPosition);
+
+                // Disable gravity when picked up
+                Rigidbody rb = closestObject.GetComponent<Rigidbody>();
+                if (rb != null)
+                {
+                    rb.useGravity = false;
+                    rb.isKinematic = true; // Optional: Prevent physics interactions
+                }
+
+                pI.objectPossession = true;
+                pI.grabbedObject = closestObject;
+
+                StartCoroutine(LookTowards(lookAtPosition, "PickUp"));
+            }
+        }
+        else if (this.GetComponent<HumanInterface>() == true)
+        {
+            HumanInterface hI = this.GetComponent<HumanInterface>();
+            Vector3 lookAtPosition = hI.objectPosition.position;
+
+            GameObject[] grabbableObjects = GameObject.FindGameObjectsWithTag("Grabbable");
+            Vector3 originPosition = hI.gameObject.transform.position;
+
+            GameObject closestObject = grabbableObjects
+                .Where(obj => Vector3.Distance(obj.transform.position, originPosition) <= 2f)
+                .OrderBy(obj => Vector3.Distance(obj.transform.position, originPosition))
+                .FirstOrDefault();
+
+            if (closestObject != null)
+            {
+                int layerIgnoreBallCollision = LayerMask.NameToLayer("PlayerBall");
+                hI.gameObject.layer = layerIgnoreBallCollision;
+
+                closestObject.transform.position = hI.objectPosition.position;
+                closestObject.transform.SetParent(hI.objectPosition);
+
+                // Disable gravity when picked up
+                Rigidbody rb = closestObject.GetComponent<Rigidbody>();
+                if (rb != null)
+                {
+                    rb.useGravity = false;
+                    rb.isKinematic = true; // Optional: Prevent physics interactions
+                }
+
+                hI.objectPossession = true;
+                hI.grabbedObject = closestObject;
+
+                if (!hI.isVR)
+                {
+                    StartCoroutine(LookTowards(lookAtPosition, "PickUp"));
+                }
+            }
+        }
+    }
+
+    public void PutDown(Vector3 putDownPosition)
+    {
+        if (this.GetComponent<Animator>().isActiveAndEnabled == true)
+        {
+            SetAnimController("FactoryMovement");
+            stopMovement = true;
+        }
+
+        if (this.GetComponent<PlayerInterface>() == true)
+        {
+            PlayerInterface pI = this.GetComponent<PlayerInterface>();
+
+            if (pI.objectPossession == false)
+            {
+                return;
             }
 
-            pI.objectPossession = true;
-            pI.grabbedObject = closestObject;
+            this.gameObject.layer = LayerMask.NameToLayer("Default");
+            GameObject droppedObject = pI.grabbedObject;
+            droppedObject.transform.SetParent(null);
+            droppedObject.transform.position = putDownPosition;
 
-            StartCoroutine(LookTowards(lookAtPosition, "PickUp"));
-        }
-    }
-    else if (this.GetComponent<HumanInterface>() == true)
-    {
-        HumanInterface hI = this.GetComponent<HumanInterface>();
-        Vector3 lookAtPosition = hI.objectPosition.position;
-
-        GameObject[] grabbableObjects = GameObject.FindGameObjectsWithTag("Grabbable");
-        Vector3 originPosition = hI.gameObject.transform.position;
-
-        GameObject closestObject = grabbableObjects
-            .Where(obj => Vector3.Distance(obj.transform.position, originPosition) <= 2f)
-            .OrderBy(obj => Vector3.Distance(obj.transform.position, originPosition))
-            .FirstOrDefault();
-
-        if (closestObject != null)
-        {
-            int layerIgnoreBallCollision = LayerMask.NameToLayer("PlayerBall");
-            hI.gameObject.layer = layerIgnoreBallCollision;
-
-            closestObject.transform.position = hI.objectPosition.position;
-            closestObject.transform.SetParent(hI.objectPosition);
-
-            // Disable gravity when picked up
-            Rigidbody rb = closestObject.GetComponent<Rigidbody>();
+            // Re-enable gravity after putting it down
+            Rigidbody rb = droppedObject.GetComponent<Rigidbody>();
             if (rb != null)
             {
-                rb.useGravity = false;
-                rb.isKinematic = true; // Optional: Prevent physics interactions
+                rb.useGravity = true;
+                rb.isKinematic = false; // Optional: Restore physics interactions
             }
 
-            hI.objectPossession = true;
-            hI.grabbedObject = closestObject;
-
-            StartCoroutine(LookTowards(lookAtPosition, "PickUp"));
+            pI.grabbedObject = null;
+            pI.objectPossession = false;
+            
+            StartCoroutine(LookTowards(putDownPosition, "PutDown"));
         }
+        else if (this.GetComponent<HumanInterface>() == true)
+        {
+            HumanInterface hI = this.GetComponent<HumanInterface>();
+
+            if (hI.objectPossession == false)
+            {
+                return;
+            }
+
+            this.gameObject.layer = LayerMask.NameToLayer("Default");
+            GameObject droppedObject = hI.grabbedObject;
+            droppedObject.transform.SetParent(null);
+            droppedObject.transform.position = putDownPosition;
+
+            // Re-enable gravity after putting it down
+            Rigidbody rb = droppedObject.GetComponent<Rigidbody>();
+            if (rb != null)
+            {
+                rb.useGravity = true;
+                rb.isKinematic = false; // Optional: Restore physics interactions
+            }
+
+            hI.grabbedObject = null;
+            hI.objectPossession = false;
+
+            if (!hI.isVR)
+            {
+                StartCoroutine(LookTowards(putDownPosition, "PutDown"));
+            }
+        }
+
+        
     }
-}
-
-public void PutDown(Vector3 putDownPosition)
-{
-    SetAnimController("FactoryMovement");
-    stopMovement = true;
-
-    if (this.GetComponent<PlayerInterface>() == true)
-    {
-        PlayerInterface pI = this.GetComponent<PlayerInterface>();
-
-        if (pI.objectPossession == false)
-        {
-            return;
-        }
-
-        this.gameObject.layer = LayerMask.NameToLayer("Default");
-        GameObject droppedObject = pI.grabbedObject;
-        droppedObject.transform.SetParent(null);
-        droppedObject.transform.position = putDownPosition;
-
-        // Re-enable gravity after putting it down
-        Rigidbody rb = droppedObject.GetComponent<Rigidbody>();
-        if (rb != null)
-        {
-            rb.useGravity = true;
-            rb.isKinematic = false; // Optional: Restore physics interactions
-        }
-
-        pI.grabbedObject = null;
-        pI.objectPossession = false;
-    }
-    else if (this.GetComponent<HumanInterface>() == true)
-    {
-        HumanInterface hI = this.GetComponent<HumanInterface>();
-
-        if (hI.objectPossession == false)
-        {
-            return;
-        }
-
-        this.gameObject.layer = LayerMask.NameToLayer("Default");
-        GameObject droppedObject = hI.grabbedObject;
-        droppedObject.transform.SetParent(null);
-        droppedObject.transform.position = putDownPosition;
-
-        // Re-enable gravity after putting it down
-        Rigidbody rb = droppedObject.GetComponent<Rigidbody>();
-        if (rb != null)
-        {
-            rb.useGravity = true;
-            rb.isKinematic = false; // Optional: Restore physics interactions
-        }
-
-        hI.grabbedObject = null;
-        hI.objectPossession = false;
-    }
-
-    StartCoroutine(LookTowards(putDownPosition, "PutDown"));
-}
 
 
     public void Packaging()
     {
-        SetAnimController("FactoryMovement");
-        stopMovement = true;
+        if (this.GetComponent<Animator>() == true)
+        {
+            SetAnimController("FactoryMovement");
+            stopMovement = true;
+        }
 
         GameObject closestObject = FindNearestObject();
 
@@ -1100,8 +1125,7 @@ public void PutDown(Vector3 putDownPosition)
         yield return new WaitForSeconds(WaitTime());
     }
 
-    public void 
-        SetAnimController(string controllerHashCode)
+    public void SetAnimController(string controllerHashCode)
     {
         GameObject selfPlayer = this.gameObject;
         string currAnimationController = selfPlayer.GetComponent<Animator>().runtimeAnimatorController.name;
@@ -1109,6 +1133,22 @@ public void PutDown(Vector3 putDownPosition)
         {
             RuntimeAnimatorController newController = Resources.Load("Animation/" + controllerHashCode, typeof(RuntimeAnimatorController)) as RuntimeAnimatorController;
             selfPlayer.GetComponent<Animator>().runtimeAnimatorController = newController;
+        }
+    }
+
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    public void RPC_SetAnimController(string controllerHashCode)
+    {
+        GameManager gm = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
+        if (!gm.isHost)
+        {
+            GameObject selfPlayer = this.gameObject;
+            string currAnimationController = selfPlayer.GetComponent<Animator>().runtimeAnimatorController.name;
+            if (currAnimationController != controllerHashCode)
+            {
+                RuntimeAnimatorController newController = Resources.Load("Animation/" + controllerHashCode, typeof(RuntimeAnimatorController)) as RuntimeAnimatorController;
+                selfPlayer.GetComponent<Animator>().runtimeAnimatorController = newController;
+            }
         }
     }
 

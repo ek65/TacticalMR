@@ -23,7 +23,7 @@ public class JSONStatusMaker : MonoBehaviour
     }
     public string getUnityData()
     {
-        var test = root.TickData.Ball.movementData.transform;
+        // var test = root.TickData.Ball.movementData.transform;
         //lets set this to false so that we do not re-send if not true
         // Debug.LogError("test: " + test.x +"," + test.y +","+ test.z);
         snapTurnedLastTimestep = false;

@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Numerics;
+using Fusion;
 using OpenAI.Samples.Chat;
 using TMPro;
 using UnityEngine;
@@ -9,7 +10,7 @@ using UnityEngine.InputSystem;
 using Whisper.Samples;
 using Vector3 = UnityEngine.Vector3;
 
-public class KeyboardInput : MonoBehaviour
+public class KeyboardInput : NetworkBehaviour
 {
     [Header("Movement / Speed")]
     [SerializeField] public float moveSpeed = 4f;
@@ -280,6 +281,12 @@ public class KeyboardInput : MonoBehaviour
 
         StartCoroutine(ChainedCoroutines());
     }
+    
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    public void RPC_SetIsLogging(bool isLogging)
+    {
+        jsonToLLM.isLogging = isLogging;
+    }
 
     private IEnumerator HandleClickWithDelay(Action handleClickAction)
     {
@@ -431,6 +438,7 @@ public class KeyboardInput : MonoBehaviour
 
     void FixedUpdate()
     {
+#if UNITY_EDITOR
         if (rb == null)
         {
             GameObject coachObject = GameObject.FindGameObjectWithTag("human");
@@ -450,14 +458,17 @@ public class KeyboardInput : MonoBehaviour
         movement = (forwardDirection * verticalInput + transform.right * horizontalInput).normalized * moveSpeed;
         
         rb.MovePosition(rb.position + movement * Time.fixedDeltaTime);
+#endif
     }
 
     private void ResetJsonData()
     {   
+#if UNITY_EDITOR
         if (recorderManager.RecorderController.IsRecording())
         {
             recorderManager.StopRecording();
         }
+#endif
 
         annotation.Clear();
         annotationDescriptions.Clear();
