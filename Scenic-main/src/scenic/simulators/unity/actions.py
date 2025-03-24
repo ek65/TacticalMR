@@ -914,8 +914,8 @@ def checkIfString(target):
 # MARK: Robot Scenario Actions
 # --------------------
 class MoveToRobotAction(Action):
-    def __init__(self, obj, behavior = None):
-        self.actionName = "MoveToPosRobot"
+    def __init__(self, obj, behavior = "Move To"):
+        self.actionName = "FactoryMoveToPos"
         self.behavior = behavior
 
         if isinstance(obj, tuple) or type(obj) is tuple:
@@ -931,3 +931,41 @@ class MoveToRobotAction(Action):
     def applyTo(self, obj, sim):
         obj.gameObject.SetBehavior(self.behavior)
         obj.gameObject.DoAction(self.actionName, self.position)
+
+class PickUpAction(Action):
+    def __init__(self, behavior = "Pick Up"):
+        self.actionName = "PickUp"
+        self.behavior = behavior
+    
+    def applyTo(self, obj, sim):
+        obj.gameObject.SetBehavior(self.behavior)
+        obj.gameObject.DoAction(self.actionName)
+
+class PutDownAction(Action):
+    def __init__(self, obj, behavior = "Put Down"):
+        self.actionName = "PutDown"
+        self.behavior = behavior
+    
+        if isinstance(obj, tuple) or type(obj) is tuple:
+            self.position = obj
+        elif isinstance(obj, OrientedPoint):
+            self.position = obj.position
+        elif isinstance(obj, Point):
+            self.position = obj.position
+        elif isinstance(obj, Vector):
+            self.position = (obj.x, obj.y, obj.z)
+        else:
+            self.position = obj.position
+    def applyTo(self, obj, sim):
+        obj.gameObject.SetBehavior(self.behavior)
+        obj.gameObject.DoAction(self.actionName, self.position)
+
+
+class PackagingAction(Action):
+    def __init__(self, behavior = "Packaging"):
+        self.actionName = "Packaging"
+        self.behavior = behavior
+    
+    def applyTo(self, obj, sim):
+        obj.gameObject.SetBehavior(self.behavior)
+        obj.gameObject.DoAction(self.actionName)

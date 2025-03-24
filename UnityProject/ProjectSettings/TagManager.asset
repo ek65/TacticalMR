@@ -27,6 +27,10 @@ TagManager:
   - RightRay
   - GroundHover
   - RecorderManager
+  - Grabbable
+  - NetworkedPlayer
+  - NetworkedPlayerMesh
+  - GameManager
   layers:
   - Default
   - TransparentFX

@@ -16,12 +16,13 @@ public class ControllerInput : MonoBehaviour
 
     private float controllerDeadzone = 0.1f;
     private float gamepadRotateSmoothing = 250f;
-    private Camera cam;
+    public Camera cam;
     private Animator animator;
     private KeyboardInput keyboardInput;
     private ExitScenario exitScenario;
     private JSONToLLM jsonToLLM; 
     private TimelineManager tlManager;
+    // private ScenarioManager scenarioManager;
 
     public Vector3 playerDirection;
 
@@ -34,6 +35,7 @@ public class ControllerInput : MonoBehaviour
         keyboardInput = GameObject.FindGameObjectWithTag("keyboard").GetComponent<KeyboardInput>();
         exitScenario = this.GetComponent<ExitScenario>();
         tlManager = GameObject.FindGameObjectWithTag("TimelineManager").GetComponent<TimelineManager>();
+        // scenarioManager = GameObject.FindGameObjectWithTag("ScenarioManager").GetComponent<ScenarioManager>();
     }
 
     private void OnEnable()
@@ -43,10 +45,15 @@ public class ControllerInput : MonoBehaviour
         inputSystem.PlayerControls.Pause.performed += ControllerPause; // A Button
         inputSystem.PlayerControls.Restart.performed += ControllerRestart; // Y Button
         inputSystem.PlayerControls.Segment.performed += ControllerSegment; // X Button
-        inputSystem.PlayerControls.Intercept.performed += ControllerIntercept; // Left Trigger
-        inputSystem.PlayerControls.Pass.performed += ControllerPass; // Right Trigger
-        inputSystem.PlayerControls.ThroughPass.performed += ControllerThroughPass; // Right Bumper
-        inputSystem.PlayerControls.Enable();
+        // soccer actions
+            inputSystem.PlayerControls.Intercept.performed += ControllerIntercept; // Left Trigger
+            inputSystem.PlayerControls.Pass.performed += ControllerPass; // Right Trigger
+            inputSystem.PlayerControls.ThroughPass.performed += ControllerThroughPass; // Right Bumper 
+        // factory actions
+            inputSystem.PlayerControls.PickUp.performed += ControllerPickUp; // Left Trigger 
+            inputSystem.PlayerControls.PutDown.performed += ControllerPutDown; // Right Trigger
+            inputSystem.PlayerControls.Packaging.performed += ControllerPackaging; // Right Shoulder
+            inputSystem.PlayerControls.Enable();
     }
     
     private void OnDisable()
@@ -54,23 +61,36 @@ public class ControllerInput : MonoBehaviour
         inputSystem.PlayerControls.Pause.performed -= ControllerPause;
         inputSystem.PlayerControls.Restart.performed -= ControllerRestart;
         inputSystem.PlayerControls.Segment.performed -= ControllerSegment;
+        // soccer actions
         inputSystem.PlayerControls.Intercept.performed -= ControllerIntercept;
         inputSystem.PlayerControls.Pass.performed -= ControllerPass;
         inputSystem.PlayerControls.ThroughPass.performed -= ControllerThroughPass;
+        // factory actions
+        inputSystem.PlayerControls.PickUp.performed -= ControllerPickUp;
+        inputSystem.PlayerControls.PutDown.performed -= ControllerPutDown;
+        inputSystem.PlayerControls.Packaging.performed -= ControllerPackaging;
         inputSystem.PlayerControls.Disable();
     }
 
     private void FixedUpdate()
     {
+#if UNITY_EDITOR
         // if (tlManager.Paused)
         // {
         //     return;
         // }
         Movement();
         Rotate();
+#endif
     }
 
-    private void ControllerPause(InputAction.CallbackContext ctx)
+    public void ControllerPause(InputAction.CallbackContext ctx)
+    {
+        HandleControllerPause();
+    }
+
+    // Creating these public handle functions so that Meta controller mapping component can also call them
+    public void HandleControllerPause()
     {
         keyboardInput.HandlePause();
     }
@@ -81,6 +101,11 @@ public class ControllerInput : MonoBehaviour
     }
     
     private void ControllerSegment(InputAction.CallbackContext ctx)
+    {
+        HandleControllerSegment();
+    }
+    
+    public void HandleControllerSegment()
     {
         keyboardInput.HandleSegment();
     }
@@ -114,6 +139,46 @@ public class ControllerInput : MonoBehaviour
         }
         HumanInterface humanInterface = this.GetComponent<HumanInterface>();
         humanInterface.ThroughPass();
+    }
+    
+    private void ControllerPackaging(InputAction.CallbackContext ctx)
+    {
+        if (tlManager.Paused) return;
+        HumanInterface humanInterface = this.GetComponent<HumanInterface>();
+        humanInterface.Packaging();
+    }
+    private void ControllerPickUp(InputAction.CallbackContext ctx)
+    {
+        HandleControllerPickUp();
+    }
+    
+    public void HandleControllerPickUp()
+    {
+        Debug.Log("in Controller pickup");
+        
+        if (tlManager.Paused)
+        {
+            return;
+        }
+        HumanInterface humanInterface = this.GetComponent<HumanInterface>();
+        humanInterface.PickUp();
+    }
+    
+    private void ControllerPutDown(InputAction.CallbackContext ctx)
+    {
+        HandleControllerPutDown();
+    }
+    
+    public void HandleControllerPutDown()
+    {
+        Debug.Log("in Controller putdown");
+
+        if (tlManager.Paused)
+        {
+            return;
+        }
+        HumanInterface humanInterface = this.GetComponent<HumanInterface>();
+        humanInterface.PutDown();
     }
     
     private void Movement()

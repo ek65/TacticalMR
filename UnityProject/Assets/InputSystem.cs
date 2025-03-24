@@ -98,6 +98,33 @@ public partial class @InputSystem: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""PickUp"",
+                    ""type"": ""Button"",
+                    ""id"": ""610b5b06-f743-4111-be3a-47e0c383fd19"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""PutDown"",
+                    ""type"": ""Button"",
+                    ""id"": ""c2af0e11-c159-4542-8564-766925f895c0"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Packaging"",
+                    ""type"": ""Button"",
+                    ""id"": ""db9f244e-3333-408e-a921-56428460630c"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -188,6 +215,39 @@ public partial class @InputSystem: IInputActionCollection2, IDisposable
                     ""action"": ""ThroughPass"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""dee891cb-e467-4f96-a5e3-f1e6090a5abe"",
+                    ""path"": ""<Gamepad>/leftTrigger"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""PickUp"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""d71c56bd-f389-4610-aa63-7cf25aa7f574"",
+                    ""path"": ""<Gamepad>/rightTrigger"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""PutDown"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""65dc3690-000e-426a-abc0-dd8a2c5ead0b"",
+                    ""path"": ""<Gamepad>/rightShoulder"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Packaging"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -204,6 +264,9 @@ public partial class @InputSystem: IInputActionCollection2, IDisposable
         m_PlayerControls_Intercept = m_PlayerControls.FindAction("Intercept", throwIfNotFound: true);
         m_PlayerControls_Pass = m_PlayerControls.FindAction("Pass", throwIfNotFound: true);
         m_PlayerControls_ThroughPass = m_PlayerControls.FindAction("ThroughPass", throwIfNotFound: true);
+        m_PlayerControls_PickUp = m_PlayerControls.FindAction("PickUp", throwIfNotFound: true);
+        m_PlayerControls_PutDown = m_PlayerControls.FindAction("PutDown", throwIfNotFound: true);
+        m_PlayerControls_Packaging = m_PlayerControls.FindAction("Packaging", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -273,6 +336,9 @@ public partial class @InputSystem: IInputActionCollection2, IDisposable
     private readonly InputAction m_PlayerControls_Intercept;
     private readonly InputAction m_PlayerControls_Pass;
     private readonly InputAction m_PlayerControls_ThroughPass;
+    private readonly InputAction m_PlayerControls_PickUp;
+    private readonly InputAction m_PlayerControls_PutDown;
+    private readonly InputAction m_PlayerControls_Packaging;
     public struct PlayerControlsActions
     {
         private @InputSystem m_Wrapper;
@@ -285,6 +351,9 @@ public partial class @InputSystem: IInputActionCollection2, IDisposable
         public InputAction @Intercept => m_Wrapper.m_PlayerControls_Intercept;
         public InputAction @Pass => m_Wrapper.m_PlayerControls_Pass;
         public InputAction @ThroughPass => m_Wrapper.m_PlayerControls_ThroughPass;
+        public InputAction @PickUp => m_Wrapper.m_PlayerControls_PickUp;
+        public InputAction @PutDown => m_Wrapper.m_PlayerControls_PutDown;
+        public InputAction @Packaging => m_Wrapper.m_PlayerControls_Packaging;
         public InputActionMap Get() { return m_Wrapper.m_PlayerControls; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -318,6 +387,15 @@ public partial class @InputSystem: IInputActionCollection2, IDisposable
             @ThroughPass.started += instance.OnThroughPass;
             @ThroughPass.performed += instance.OnThroughPass;
             @ThroughPass.canceled += instance.OnThroughPass;
+            @PickUp.started += instance.OnPickUp;
+            @PickUp.performed += instance.OnPickUp;
+            @PickUp.canceled += instance.OnPickUp;
+            @PutDown.started += instance.OnPutDown;
+            @PutDown.performed += instance.OnPutDown;
+            @PutDown.canceled += instance.OnPutDown;
+            @Packaging.started += instance.OnPackaging;
+            @Packaging.performed += instance.OnPackaging;
+            @Packaging.canceled += instance.OnPackaging;
         }
 
         private void UnregisterCallbacks(IPlayerControlsActions instance)
@@ -346,6 +424,15 @@ public partial class @InputSystem: IInputActionCollection2, IDisposable
             @ThroughPass.started -= instance.OnThroughPass;
             @ThroughPass.performed -= instance.OnThroughPass;
             @ThroughPass.canceled -= instance.OnThroughPass;
+            @PickUp.started -= instance.OnPickUp;
+            @PickUp.performed -= instance.OnPickUp;
+            @PickUp.canceled -= instance.OnPickUp;
+            @PutDown.started -= instance.OnPutDown;
+            @PutDown.performed -= instance.OnPutDown;
+            @PutDown.canceled -= instance.OnPutDown;
+            @Packaging.started -= instance.OnPackaging;
+            @Packaging.performed -= instance.OnPackaging;
+            @Packaging.canceled -= instance.OnPackaging;
         }
 
         public void RemoveCallbacks(IPlayerControlsActions instance)
@@ -373,5 +460,8 @@ public partial class @InputSystem: IInputActionCollection2, IDisposable
         void OnIntercept(InputAction.CallbackContext context);
         void OnPass(InputAction.CallbackContext context);
         void OnThroughPass(InputAction.CallbackContext context);
+        void OnPickUp(InputAction.CallbackContext context);
+        void OnPutDown(InputAction.CallbackContext context);
+        void OnPackaging(InputAction.CallbackContext context);
     }
 }

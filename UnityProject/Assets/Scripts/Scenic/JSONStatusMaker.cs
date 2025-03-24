@@ -23,13 +23,13 @@ public class JSONStatusMaker : MonoBehaviour
     }
     public string getUnityData()
     {
-        var test = root.TickData.Ball.movementData.transform;
+        // var test = root.TickData.Ball.movementData.transform;
         //lets set this to false so that we do not re-send if not true
         // Debug.LogError("test: " + test.x +"," + test.y +","+ test.z);
         snapTurnedLastTimestep = false;
         return JsonConvert.SerializeObject(root);
     }
-    void Update()
+    void LateUpdate()
     {
         lastTick = server.lastTick;
         //pull the ball and the players from objects list and get their data.

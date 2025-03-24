@@ -7,11 +7,15 @@ using UnityEngine.UIElements;
 using System.Reflection;
 using System;
 using System.Linq;
+using Fusion;
 using OpenAI.Samples.Chat;
 using UnityEngine.InputSystem;
 
-public class HumanInterface : MonoBehaviour
+public class HumanInterface : NetworkBehaviour
 {
+    [Networked(OnChanged = nameof(OnNameChanged))] public NetworkString<_16> ObjName { get; set; }
+    public bool isVR = false;
+
     private int localTick;  // NOTE: This is not the true tick and is what we will use to internally record a timestep.
 
     private ExitScenario exitScene;
@@ -48,13 +52,19 @@ public class HumanInterface : MonoBehaviour
     BallOwnership ballOwnership;
     public GameObject closestPlayerInDirection;
     
+    public bool objectPossession;
+    public GameObject grabbedObject;
+    public Transform objectPosition;
+
+    
     public string behavior = "Idle";
     public string currAction = "No Action"; // just for debugging to see what actions function is being called
     private KeyboardInput keyboardInput;
     private JSONToLLM jsonToLLM;
     
-    public FloatingText floatingBehaviorText;
-    public FloatingText floatingNameText;
+    // TODO: RE-ADD, IMPLEMENT IsRobotScenario Bool in Scenic Manager, DISABLED FOR NOW FOR VR TESTING
+    // public FloatingText floatingBehaviorText;
+    // public FloatingText floatingNameText;
     
     public bool ally;
     public Renderer shirt;
@@ -66,7 +76,9 @@ public class HumanInterface : MonoBehaviour
         source = GetComponent<AudioSource>();
         tlManager = GameObject.FindGameObjectWithTag("TimelineManager").GetComponent<TimelineManager>();
         // npc = GameObject.FindGameObjectWithTag("Character").GetComponent<ConvaiNPC>();
-        chatBehaviour = GameObject.FindGameObjectWithTag("Character").GetComponentInChildren<ChatBehaviour>();
+        
+        // TODO: RE-ADD, IMPLEMENT IsRobotScenario Bool in Scenic Manager, DISABLED FOR NOW FOR VR TESTING
+        // chatBehaviour = GameObject.FindGameObjectWithTag("Character").GetComponentInChildren<ChatBehaviour>();
         objectList = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<ObjectsList>();
         keyboardInput = GameObject.FindGameObjectWithTag("keyboard").GetComponent<KeyboardInput>();
         jsonToLLM = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<JSONToLLM>();
@@ -86,10 +98,15 @@ public class HumanInterface : MonoBehaviour
             ball = GameObject.FindGameObjectWithTag("ball");
         }
         
-        floatingNameText.SetText2(this.gameObject.name);
+        // TODO: RE-ADD, IMPLEMENT IsRobotScenario Bool in Scenic Manager, DISABLED FOR NOW FOR VR TESTING
+        // floatingNameText.SetText2(this.gameObject.name);
+        // forwardArrow = SpawnArrow(this.transform.position, transform.forward * 8.5f);
+        // forwardArrow.SetActive(false);
         
-        forwardArrow = SpawnArrow(this.transform.position, transform.forward * 8.5f);
-        forwardArrow.SetActive(false);
+        if (objectList.humanPlayers.Count == 0)
+        {
+            objectList.humanPlayers.Add(this.gameObject);
+        }
     }
 
     // Update is called once per frame
@@ -108,19 +125,19 @@ public class HumanInterface : MonoBehaviour
             distToBall = Vector3.Distance(transform.position, ballOnTheGround);
         }
         
-        closestPlayerInDirection = GetClosestToLinePoint(objectList.defensePlayers);
-
-        if (ballPossession)
-        {
-            forwardArrow.SetActive(true);
-            ArrowGenerator arrow = forwardArrow.GetComponentInChildren<ArrowGenerator>();
-            arrow.SetOrigin(this.transform.position);
-            arrow.SetTarget(transform.position + transform.forward * 8.5f);
-        }
-        else
-        {
-            forwardArrow.SetActive(false);
-        }
+        // TODO: RE-ADD, IMPLEMENT IsRobotScenario Bool in Scenic Manager, DISABLED FOR NOW FOR VR TESTING
+        // closestPlayerInDirection = GetClosestToLinePoint(objectList.defensePlayers);
+        // if (ballPossession)
+        // {
+        //     forwardArrow.SetActive(true);
+        //     ArrowGenerator arrow = forwardArrow.GetComponentInChildren<ArrowGenerator>();
+        //     arrow.SetOrigin(this.transform.position);
+        //     arrow.SetTarget(transform.position + transform.forward * 8.5f);
+        // }
+        // else
+        // {
+        //     forwardArrow.SetActive(false);
+        // }
 
         // string currResponse = "";
         // // if (chatBehaviour.sentences.Length > 0)
@@ -178,11 +195,33 @@ public class HumanInterface : MonoBehaviour
 
     }
     
+    static void OnNameChanged(Changed<HumanInterface> changed)
+    {
+        changed.Behaviour.UpdateGameObjectName();
+    }
+    
+    private void UpdateGameObjectName()
+    {
+        gameObject.name = ObjName.ToString();
+    }
+    
+    public void SetObjectName(string newName)
+    {
+        if (Object.HasStateAuthority) // Only the host or owner should update this
+        {
+            ObjName = newName; // This will trigger OnNameChanged() on all clients
+        }
+    }
+    
     private void OnCollisionEnter(Collision other)
     {
-        if (other.collider.CompareTag("ball") && canPossessBall && ballOwnership.heldByScenic == false)
+        GameManager gm = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
+        if (gm.isHost)
         {
-            GainPossession(other.gameObject);
+            if (other.collider.CompareTag("ball") && canPossessBall && ballOwnership.heldByScenic == false)
+            {
+                GainPossession(other.gameObject);
+            }
         }
     }
     
@@ -237,6 +276,58 @@ public class HumanInterface : MonoBehaviour
         Debug.Log($"Pass action recorded with ID {passID}, from: {this.name} to: {targetPlayer.name} at time: {passTime}");
         keyboardInput.clickOrder++; 
     }
+    
+    public void PickUp()
+    {
+        actionAPI.PickUp();
+        Debug.Log("Picking up");
+        LogPickUp();
+    }
+
+    public void PutDown()
+    {
+        actionAPI.PutDown(transform.position + transform.forward * 1f + Vector3.up * 1f);
+        Debug.Log("Putting down");
+        LogPutDown();
+    }
+
+    private void LogPickUp()
+    {
+        int eventID = keyboardInput.clickOrder;
+        float eventTime = jsonToLLM.time;
+        Debug.Log("test");
+    
+        keyboardInput.annotation.Add(eventID, new Dictionary<string, object>
+        {
+            { "type", "PickUp" },
+            { "player", this.name }
+        });
+        Debug.Log(keyboardInput.annotation);
+    
+        keyboardInput.annotationDescriptions.Add(eventID, $"({this.name} picked up an object)");
+        Debug.Log($"Added pick up to annotations at {eventTime:F2}s, key {eventTime}");
+        keyboardInput.annotationTimes.Add(eventID, eventTime);
+        keyboardInput.clickOrder++;
+    }
+
+    private void LogPutDown()
+    {
+        int eventID = keyboardInput.clickOrder;
+        float eventTime = jsonToLLM.time;
+        Debug.Log("test put down");
+    
+        keyboardInput.annotation.Add(eventID, new Dictionary<string, object>
+        {
+            { "type", "PutDown" },
+            { "player", this.name }
+        });
+        Debug.Log(keyboardInput.annotation);
+    
+        keyboardInput.annotationDescriptions.Add(eventID, $"({this.name} put down an object)");
+        keyboardInput.annotationTimes.Add(eventID, eventTime);
+        keyboardInput.clickOrder++;
+    }
+    
 
     private void LogThroughPass(Vector3 pos)
     {
@@ -262,10 +353,51 @@ public class HumanInterface : MonoBehaviour
         keyboardInput.clickOrder++; 
     }
     
-    private void GainPossession(GameObject other) 
+    public void Packaging()
     {
-        LogReceiveBall();
-        
+        actionAPI.Packaging();
+        Debug.Log("Packaging action triggered.");
+        LogPackaging();
+    }
+
+    private void LogPackaging()
+    {
+        int eventID = keyboardInput.clickOrder;
+        float eventTime = jsonToLLM.time;
+    
+        GameObject targetObject = FindNearestObject();
+        if (targetObject == null)
+        {
+            Debug.LogError("No object found for Packaging.");
+            return;
+        }
+
+        keyboardInput.annotation.Add(eventID, new Dictionary<string, object>
+        {
+            { "type", "Packaging" },
+            { "player", this.name },
+            { "object", targetObject.name }
+        });
+
+        keyboardInput.annotationDescriptions.Add(eventID, $"({this.name} packaged {targetObject.name})");
+
+        keyboardInput.annotationTimes.Add(eventID, eventTime);
+        keyboardInput.clickOrder++;
+    }
+
+    private GameObject FindNearestObject()
+    {
+        GameObject[] grabbableObjects = GameObject.FindGameObjectsWithTag("Grabbable");
+        Vector3 originPosition = this.gameObject.transform.position;
+
+        return grabbableObjects
+            .Where(obj => Vector3.Distance(obj.transform.position, originPosition) <= 5f)
+            .OrderBy(obj => Vector3.Distance(obj.transform.position, originPosition))
+            .FirstOrDefault();
+    }
+    
+    private void GainPossession(GameObject other)
+    {
         int layerIgnoreBallCollision = LayerMask.NameToLayer("PlayerBall");
         this.gameObject.layer = layerIgnoreBallCollision;
         
@@ -278,33 +410,18 @@ public class HumanInterface : MonoBehaviour
         ballOwnership.SetBallOwner(this.gameObject);
         actionAPI.ReceiveBall(other.transform.position);
     }
-    private void LogReceiveBall()
-    {
-        int receiveBallID = keyboardInput.clickOrder;
-        float receiveBallTime = jsonToLLM.time;
-
-        keyboardInput.annotation.Add(receiveBallID, new Dictionary<string, object>
-        {
-            { "type", "ReceiveBall" },
-            { "player", this.gameObject.name }
-        });
-
-        keyboardInput.annotationDescriptions.Add(receiveBallID, $"({this.gameObject.name} received the ball)");
-        keyboardInput.annotationTimes.Add(receiveBallID, receiveBallTime);
-
-        Debug.Log($"ReceiveBall action recorded with ID {receiveBallID} at time: {receiveBallTime}");
-        keyboardInput.clickOrder++;
-    }
-
     
     public void LosePossession()
     {
-        StartCoroutine(PossessionDebounce());
-        ball.transform.SetParent(null);
-        ball.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
-        ballPossession = false;
-        ballOwnership.SetHumanOwnership(false);
-        ballOwnership.SetBallOwner(null);
+        if (ball)
+        {
+            StartCoroutine(PossessionDebounce());
+            ball.transform.SetParent(null);
+            ball.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
+            ballPossession = false;
+            ballOwnership.SetHumanOwnership(false);
+            ballOwnership.SetBallOwner(null);
+        }
     }
 
     public void PassToPlayer()
@@ -414,12 +531,15 @@ public class HumanInterface : MonoBehaviour
     {
         Debug.LogError("In SetTransform: " + pos);
         source.PlayOneShot(source.clip);
+        // this.GetComponent<Rigidbody>().isKinematic = false;
         this.transform.position = pos;
+        // this.GetComponent<Rigidbody>().isKinematic = true;
+
         Debug.LogWarning("Local: I am transforming to: " + pos.ToString());
 
         ResetHuman();
     }
-    
+
     public void SetTransform2(GameObject go, Vector3 pos)
     {
         source.PlayOneShot(source.clip);
@@ -430,9 +550,15 @@ public class HumanInterface : MonoBehaviour
     public void ResetHuman()
     {
         LosePossession();
-        ballPossession = false;
-        actionAPI.alreadyInAnimation = false;
-        forwardArrow.SetActive(false);
+        if (actionAPI)
+        {
+            actionAPI.alreadyInAnimation = false;
+        }
+
+        if (forwardArrow)
+        {
+            forwardArrow.SetActive(false);
+        }
     }
     
     public void SpawnCircle(Vector3 pos)
@@ -470,26 +596,27 @@ public class HumanInterface : MonoBehaviour
         {
             return;
         }
-
-        // if player is already in kick animation, dont update behavior text yet
-        if (!actionAPI.alreadyInAnimation)
-        {
-            if (data.behavior == " " || data.behavior == "" || data.behavior == "Idle")
-            {
-                behavior = "Idle";
-                floatingBehaviorText.SetText("Idle");
-            }
-            else if (data.behavior != "" || data.behavior != null)
-            {
-                behavior = data.behavior;
-                floatingBehaviorText.SetText(data.behavior);
-            }
-            else
-            {
-                behavior = "Idle";
-                floatingBehaviorText.SetText("Idle");
-            }
-        }
+        
+        // TODO: RE-ADD, IMPLEMENT IsRobotScenario Bool in Scenic Manager, DISABLED FOR NOW FOR VR TESTING
+        // // if player is already in kick animation, dont update behavior text yet
+        // if (!actionAPI.alreadyInAnimation)
+        // {
+        //     if (data.behavior == " " || data.behavior == "" || data.behavior == "Idle")
+        //     {
+        //         behavior = "Idle";
+        //         floatingBehaviorText.SetText("Idle");
+        //     }
+        //     else if (data.behavior != "" || data.behavior != null)
+        //     {
+        //         behavior = data.behavior;
+        //         floatingBehaviorText.SetText(data.behavior);
+        //     }
+        //     else
+        //     {
+        //         behavior = "Idle";
+        //         floatingBehaviorText.SetText("Idle");
+        //     }
+        // }
         
         if (behavior == "Idle")
         {

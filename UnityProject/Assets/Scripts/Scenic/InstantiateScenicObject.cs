@@ -2,12 +2,15 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Fusion;
+using Fusion.Sockets;
+
 public class ScenicObectAddEventArg : EventArgs { public GameObject gameObject { get; set; } }
-public class InstantiateScenicObject 
+public class InstantiateScenicObject
 {
     ObjectsList objectList;
     public delegate void PublishScenicAddObjectEvent(ScenicObectAddEventArg arg);
-    //timeline manager will subscribe to this event
+    // //timeline manager will subscribe to this event
     public static event PublishScenicAddObjectEvent Publish;
 
     public InstantiateScenicObject(Vector3 pos, Quaternion rot, string modelType, Color color, string name)
@@ -24,7 +27,10 @@ public class InstantiateScenicObject
         GameObject addedGameObject = null;
         if (modelType == "Ball")
         {
-            addedGameObject = MonoBehaviour.Instantiate(objectList.modelList["soccer_ball"], pos, Quaternion.identity);
+            // addedGameObject = MonoBehaviour.Instantiate(objectList.modelList["soccer_ball"], pos, Quaternion.identity);
+            NetworkRunner runner = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>()._runner;
+            NetworkObject temp = runner.Spawn(objectList.modelList["soccer_ball"], pos, Quaternion.identity);
+            addedGameObject = temp.gameObject;
             addedGameObject.name = "Ball";
             // disc.GetComponent<NetworkObject>().Spawn();
             objectList.ballObject = addedGameObject;
@@ -45,23 +51,44 @@ public class InstantiateScenicObject
         //     addedGameObject.transform.parent = GameObject.Find("AI Interface").transform;
         //     objectList.AIAgent = addedGameObject;
         // }
-        else if (modelType == "Player")
+        else if (modelType == "Player" || modelType == "Robot" )
         {
-            addedGameObject = MonoBehaviour.Instantiate(objectList.modelList["player.scenic"], pos, rot);
-            addedGameObject.name = name;
-            //scenicPlayer.GetComponent<NetworkObject>().Spawn();
-            objectList.scenicPlayers.Add(addedGameObject);
-            if (color == new Color(0f, 0f, 255f, 1f)) // defense team
+            if (modelType == "Player")
             {
-                addedGameObject.GetComponentInChildren<PlayerInterface>().ally = true;
-                objectList.defensePlayers.Add(addedGameObject);
-            }
-            else if (color == new Color(255f, 0f, 0f, 1f)) // offense team
+                // addedGameObject = MonoBehaviour.Instantiate(objectList.modelList["player.scenic"], pos, rot);
+                NetworkRunner runner = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>()._runner;
+                NetworkObject temp = runner.Spawn(objectList.modelList["player.scenic"], pos, rot);
+                addedGameObject = temp.gameObject;
+                
+                if (color == new Color(0f, 0f, 255f, 1f)) // defense team
+                {
+                    addedGameObject.GetComponentInChildren<PlayerInterface>().ally = true;
+                    objectList.defensePlayers.Add(addedGameObject);
+                }
+                else if (color == new Color(255f, 0f, 0f, 1f)) // offense team
+                {
+                    addedGameObject.GetComponentInChildren<PlayerInterface>().enemy = true;
+                    objectList.offensePlayers.Add(addedGameObject);
+                }
+                
+                addedGameObject.name = name;
+                objectList.scenicPlayers.Add(addedGameObject);
+            } else if (modelType == "Robot")
             {
-                addedGameObject.GetComponentInChildren<PlayerInterface>().enemy = true;
-                objectList.offensePlayers.Add(addedGameObject);
+                // addedGameObject = MonoBehaviour.Instantiate(objectList.modelList["player.scenic2"], pos, rot);
+                NetworkRunner runner = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>()._runner;
+                NetworkObject temp = runner.Spawn(objectList.modelList["player.scenic2"], pos, rot);
+                addedGameObject = temp.gameObject;
+                
+                // addedGameObject.name = name;
+                PlayerInterface pI = addedGameObject.GetComponent<PlayerInterface>();
+                pI.SetObjectName(name);
+                
+                // objects are added to objectlist in their respective spawn/interface scripts
+                // objectList.scenicPlayers.Add(addedGameObject);
+
             }
-            
+
             //objectList.orangePlayers.Add(scenicPlayer.GetComponent<NetworkObject>().NetworkInstanceId);
             Debug.Log("Added Scenic Player");
         }
@@ -71,10 +98,15 @@ public class InstantiateScenicObject
             {
                 if (modelType == "Human")
                 {
-                    addedGameObject = MonoBehaviour.Instantiate(objectList.modelList["player.human"], pos, rot);
+                    // Change to "player.human VR" for VR human, otherwise "player.human"
+                    addedGameObject = MonoBehaviour.Instantiate(objectList.modelList["player.human VR"], pos, rot);
                 } else if (modelType == "Coach")
                 {
-                    addedGameObject = MonoBehaviour.Instantiate(objectList.modelList["player.coach"], pos, rot);
+                    addedGameObject = MonoBehaviour.Instantiate(objectList.modelList["player.robot"], pos, rot);
+                }
+                else if (modelType == "RobotCoach")
+                {
+                    addedGameObject = MonoBehaviour.Instantiate(objectList.modelList["player.robot"], pos, rot);
                 }
                 //scenicPlayer.GetComponent<NetworkObject>().Spawn();
                 addedGameObject.name = "Coach";
@@ -85,38 +117,16 @@ public class InstantiateScenicObject
             }
             else
             {
-                try
+                if (GameObject.FindGameObjectWithTag("human") != null)
                 {
-                    // // for the case of observer vr
-                    // if (GameObject.FindGameObjectWithTag("human") != null)
-                    // {
-                    //     addedGameObject = GameObject.FindGameObjectWithTag("human");
-                    //     Fade f = addedGameObject.GetComponent<Fade>();
-                    //     ExitScenario e = addedGameObject.GetComponent<ExitScenario>();
-                    //     e.endScenario = false;
-                    //     f.StartFadeAndMove2(objectList.humanPlayers[0], pos);
-                    // }
-                    // else
-                    // {
-                    //     addedGameObject = objectList.humanPlayers[0];
-                    //     Fade f = objectList.humanPlayers[0].GetComponent<Fade>();
-                    //     ExitScenario e = objectList.humanPlayers[0].GetComponent<ExitScenario>();
-                    //     e.endScenario = false;
-                    //     f.StartFadeAndMove(pos);
-                    // }
-
-                    if (GameObject.FindGameObjectWithTag("human") != null)
-                    {
-                        addedGameObject = objectList.humanPlayers[0];
-                        Fade f = objectList.humanPlayers[0].GetComponent<Fade>();
-                        ExitScenario e = objectList.humanPlayers[0].GetComponent<ExitScenario>();
-                        e.endScenario = false;
-                        f.StartFadeAndMove(pos);
-                    }
-                }
-                catch
-                {
-                    Debug.LogError("Human not spawned in yet");
+                    addedGameObject = objectList.humanPlayers[0];
+                    HumanInterface hI = addedGameObject.GetComponent<HumanInterface>();
+                    hI.SetObjectName(name);
+                    
+                    Fade f = objectList.humanPlayers[0].GetComponent<Fade>();
+                    ExitScenario e = objectList.humanPlayers[0].GetComponent<ExitScenario>();
+                    e.endScenario = false;
+                    f.StartFadeAndMove(pos);
                 }
             }
             

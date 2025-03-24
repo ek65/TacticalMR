@@ -70,8 +70,7 @@ public class ZMQServer : MonoBehaviour
             return;
         }
         // Debug.Log(newData);
-        try
-        {
+        
             ScenicParser.ScenicJson jsonResult = parser.ParseData(newData);
             int scenicTick = GetTickFromData(jsonResult);
             int newTick = -1;
@@ -91,11 +90,6 @@ public class ZMQServer : MonoBehaviour
             lastTick = newTick;
             List<ScenicMovementData> mvData = ParseMovementData(jsonResult);
             ApplyMovement(mvData);
-        }
-        catch (NullReferenceException e)
-        {
-            Debug.LogError("json failed " + e);
-        }
     }
 
     private void OnDestroy()
@@ -143,7 +137,7 @@ public class ZMQServer : MonoBehaviour
         TimelineManager tlManager = FindObjectOfType<TimelineManager>();
         foreach (ScenicMovementData s in movementData)
         {
-            if (s.model.modelType == "Player")
+            if (s.model.modelType == "Player" || s.model.modelType == "Robot")
             {
                 listOfScenicPlayerIndices[currScenicPlayerListIdx] = currMovementDataIndex;
                 currScenicPlayerListIdx += 1;

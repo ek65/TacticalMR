@@ -6,11 +6,14 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using System.Reflection;
 using System;
+using Fusion;
 using Pathfinding;
 
 // TODO: Rename script, this is the player logic script
-public class PlayerInterface : MonoBehaviour
+public class PlayerInterface : NetworkBehaviour
 {
+    [Networked(OnChanged = nameof(OnNameChanged))] public NetworkString<_16> ObjName { get; set; }
+    
     public bool enemy;
     public bool ally;
     public bool self;
@@ -41,6 +44,14 @@ public class PlayerInterface : MonoBehaviour
     public string behavior = "Idle";
     public string currAction = "No Action"; // just for debugging to see what actions function is being called
     
+    [Space(10)] 
+    [Header("For robot only")]
+    
+    public bool isRobot;
+    public Transform objectPosition;
+    public bool objectPossession;
+    public GameObject grabbedObject;
+    
     private void Start()
     {
         if (enemy)
@@ -70,6 +81,9 @@ public class PlayerInterface : MonoBehaviour
         ballOwnership = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<BallOwnership>();
         
         floatingNameText.SetText2(this.gameObject.name);
+        
+        ObjectsList objectList = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<ObjectsList>();
+        objectList.scenicPlayers.Add(this.gameObject);
     }
 
     // Update is called once per frame
@@ -86,23 +100,48 @@ public class PlayerInterface : MonoBehaviour
             goal = GameObject.FindGameObjectWithTag("goal");
         }
 
-        ballOnTheGround.x = ball.transform.position.x;
-        ballOnTheGround.y = ball.transform.position.y;
-        ballOnTheGround.z = ball.transform.position.z;
-        distToBall = Vector3.Distance(transform.position, ballOnTheGround);
-        
+        if (ball)
+        {
+            ballOnTheGround.x = ball.transform.position.x;
+            ballOnTheGround.y = ball.transform.position.y;
+            ballOnTheGround.z = ball.transform.position.z;
+            distToBall = Vector3.Distance(transform.position, ballOnTheGround);
+        }
+
         if (actionAPI.stopMovement == true)
         {
             actionAPI.Idle();
         }
     }
     
+    static void OnNameChanged(Changed<PlayerInterface> changed)
+    {
+        changed.Behaviour.UpdateGameObjectName();
+    }
+    
+    private void UpdateGameObjectName()
+    {
+        gameObject.name = ObjName.ToString();
+    }
+    
+    public void SetObjectName(string newName)
+    {
+        if (Object.HasStateAuthority) // Only the host or owner should update this
+        {
+            ObjName = newName; // This will trigger OnNameChanged() on all clients
+        }
+    }
+    
     // For ball possession
     private void OnCollisionEnter(Collision other)
     {
-        if (other.collider.CompareTag("ball") && canPossessBall)
+        GameManager gm = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
+        if (gm.isHost)
         {
-            GainPossession(other);
+            if (other.collider.CompareTag("ball") && canPossessBall)
+            {
+                GainPossession(other);
+            }
         }
     }
     
