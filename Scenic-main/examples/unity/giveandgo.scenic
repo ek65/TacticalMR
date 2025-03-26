@@ -21,7 +21,8 @@ behavior TeammateBehavior():
     interrupt when (self.gameObject.ballPossession):
         print("ego ahead of opponent")
         point = new Point at (0, 11, 0)
-        do PassTo(point, slow=False)
+        do Idle() for 1.5 seconds
+        do PassTo(ego, slow=False)
         do Idle() for 0.5 seconds
         take StopAction()
 
@@ -35,8 +36,8 @@ def teammateHasBallPossession():
             return True
     return False
 
-behavior GetBehindAndReceiveBall(player): # similar logic as inzone
-    point = new Point behind player by 5
+behavior GetBehindAndReceiveBall(player, zone): # similar logic as inzone
+    
     do MoveTo(point) until self.position.y > player.position.y + 2
     while teammateHasBallPossession():
         take IdleAction()
@@ -48,19 +49,15 @@ behavior ReceiveBall():
     do GetBall()
 
 behavior CoachBehavior():
-    print("coach behavior")
     do GetBall() until hasBallPosession(ego)
-    print("getBall")
     do Idle() until movesToward(opponent, ego)
-    print("Idle")
     do PassTo(teammate)
-    print("pass To teammate")
-    do GetBehindAndReceiveBall(opponent)
-    print("get behind opponent")
+    # do GetBehindAndReceiveBall(opponent)
+    do MoveToAndReceiveBall(InZone(['A1','A2','A3']))
 
-
-ego = new Coach at (0,0),
-        with behavior CoachBehavior()
+ego = new Human at (0,0)
+# ego = new Coach at (0,0),
+#         with behavior CoachBehavior()
 
 ball = new Ball ahead of ego by 1
 
