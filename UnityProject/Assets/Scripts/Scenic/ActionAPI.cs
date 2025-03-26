@@ -1150,7 +1150,7 @@ public class ActionAPI : MonoBehaviour
         // Debug.LogError(angle);
         // Debug.LogError(rotationDirection);
         // yield return StartCoroutine(RotateCoroutine2(angle, rotationDuration));
-        yield return StartCoroutine(RotateCoroutine(angle, rotationDirection, rotationDuration));
+        yield return StartCoroutine(RotateCoroutine(angle, rotationDirection, rotationDuration / 2f));
 
         // play animation after rotating
         if (keyCode != null)
