@@ -49,16 +49,15 @@ sample = None
 behavior CoachBehavior():
     scene = simulation()
     scene.egoObject = ego
-    print('[MoveTo] the ball')
-    do MoveToWrapper(target_1) until termination_1(scene, sample)
-    print("getBall")
-    do Idle() until movesToward(opponent, ego)
-    print("Idle")
+    print('[MoveTo] the opponent (terminate if has ball)')
+    do MoveToWrapper(target_1) until termination_1(scene)
+    # do GetBall()
+    print("[Pass] to the teammate")
     do PassTo(teammate)
-    print("pass To teammate")
-    do MoveTo(GetBehind(opponent))
-    print("get behind opponent")
-    do ReceiveBall()
+    print("[MoveTo] behind the opponent")
+    do MoveToWrapper(target_2) until termination_2(scene)
+    print("[Idle] behind the opponent")
+    do Idle()
     print("receiveball")
 
 # test = False
@@ -106,6 +105,7 @@ behavior MoveToWrapper(λ_dest):
     sample = Vector(0, 0)
     sample = sample_target(scene, sample, λ_dest)
     while (distance from self to sample > 0.5):
+        print('moving to', sample)
         do MoveTo(sample) for timestep seconds
         sample = sample_target(scene, sample, λ_dest)
     do Idle() for 1 seconds
@@ -128,10 +128,25 @@ B = HasBallPossession({
     'player': 'coach'
 })
 
+C = HeightRelation({
+    'obj': 'coach',
+    'ref': 'opponent',
+    'relation': 'ahead',
+    'height_threshold': {
+        'avg': 3.3
+    }
+})
+
 def target_1(scene, sample):
     return A(scene, sample)
 
-def termination_1(scene, sample):
-    return B(scene, sample)
+def termination_1(scene):
+    return B(scene, None)
+
+def target_2(scene, sample):
+    return C(scene, sample)
+
+def termination_2(scene):
+    return C(scene, None)
 
     
