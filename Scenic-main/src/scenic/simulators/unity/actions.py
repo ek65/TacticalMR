@@ -840,14 +840,12 @@ class Constraint:
         pass
 
 # MARK: HasBallPossession 
-
 class HasBallPossession(Constraint):
 
     def __init__(self, args):
         self.playerID = args.get('player', None)
 
     def __call__(self, scene, sample):
-        
         player_objs = findObj(self.playerID, scene.objects)
 
         if not player_objs:
@@ -1007,8 +1005,14 @@ class HasAngleOfPass(Constraint):
         
         return distance
     
+# MARK: CloseTo
+class CloseTo(Constraint):
+    def __init__(self, args):
+        self.obj = args.get('obj', None)
+        self.ref = args.get('ref', None)
+        self.max = args.get('max', None)
+
 # MARK: DistanceTo
-    
 class DistanceTo(Constraint):
 
     def __init__(self, args):

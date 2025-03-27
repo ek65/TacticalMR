@@ -18,6 +18,7 @@ behavior IdleSpecial():
 behavior Idle():
     while True:
         take IdleAction()
+        take StopAction()
         # print(f"ego.x: {ego.position.x}, ego.y: {ego.position.y}, ego.z: {ego.position.z}")
 
 behavior ShootBall(vec : Vector, string : str):
