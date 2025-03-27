@@ -852,7 +852,6 @@ class HasBallPossession(Constraint):
             print(f"Player '{self.player}' not found in the scene.")
             return False
 
-        print('check ball', player_objs[0].name, player_objs[0].gameObject.ballPossession)
         return player_objs[0].gameObject.ballPossession
     
 # MARK: InZone
@@ -1027,7 +1026,7 @@ class DistanceTo(Constraint):
 
     def __call__(self, scene, sample):
 
-        if isEgo(self.fromID, scene):
+        if sample and isEgo(self.fromID, scene):
             pos1 = Vector(sample[0], sample[1], 0)
         else:
             from_objs = findObj(self.fromID, scene.objects)
@@ -1045,8 +1044,6 @@ class DistanceTo(Constraint):
         pos2 = to_obj.position
 
         dist = np.sqrt((pos1.x - pos2.x) ** 2 + (pos1.y - pos2.y) ** 2)
-
-        print(f'{dist} from {pos1} to {to_obj.name} [{pos2}]')
 
         min_threshold = self.minAvg
         max_threshold = self.maxAvg
@@ -1073,7 +1070,7 @@ class HeightRelation(Constraint):
 
     def __call__(self, scene, sample):
 
-        if self.objID == scene.egoObject.name:
+        if sample and isEgo(self.objID, scene):
             player_y = sample[1]
         else:
             player_objs = findObj(self.objID, scene.objects)
@@ -1093,6 +1090,8 @@ class HeightRelation(Constraint):
             value = player_y - ref_y
         else:
             value = player_y
+
+        print(player_y, ref_y, value, sample)
 
         if self.threshold_avg is None:
             print("No height threshold provided for HeightRelation.")
