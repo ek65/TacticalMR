@@ -33,24 +33,28 @@ behavior opponent2Behavior():
         do MoveTo(Vector(self.position.x - 1.8 , self.position.y + 2, 0)) for 2 seconds 
         do Idle()
 
+behavior opponent1BehaviorTest():
+    do Idle() for 3 seconds
+    do MoveTo(Vector(0, 0, 0))
+    do Idle() 
 
-oppGoal= new Goal at (0,-16,0), 
-    with name "oppGoal",
-    facing away from pt
+# oppGoal= new Goal at (0,-16,0), 
+#     with name "oppGoal",
+#     facing away from pt
 
-teammate = new Player at (-6.5, -9, 0),
-          with team 'blue',
-          with name 'teammate',
-          with behavior teammateBehavior()
+# teammate = new Player at (-6.5, -9, 0),
+#           with team 'blue',
+#           with name 'teammate',
+#           with behavior teammateBehavior()
 
 
-opponent1 = new Player at (-4, -6, 0),
-        with name 'opponent1',
-        with behavior opponent1Behavior()
+# opponent1 = new Player at (-4, -6, 0),
+#         with name 'opponent1',
+#         with behavior opponent1Behavior()
 
-opponent2 = new Player at (4, -12, 0),
-        with name 'opponent2',
-        with behavior opponent2Behavior()
+# opponent2 = new Player at (4, -12, 0),
+#         with name 'opponent2',
+#         with behavior opponent2Behavior()
 
 ego = new Human at (3.5, 2, 0), 
         with name 'coach',

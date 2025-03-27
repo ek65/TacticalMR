@@ -20,14 +20,14 @@ public class GameManager : NetworkBehaviour, INetworkRunnerCallbacks
 
 	public GameObject _ObserverCamera;
 
-	[Tooltip("The sole OVRCameraRig in the scene. Multiple OVRCameraRigs will cause problems.")]
-	public GameObject _OVRCR;
-
-	public Transform _OriginalTransform;
-
-	public Transform _ParentTransform;
-	
-	public GameObject ball;
+	// [Tooltip("The sole OVRCameraRig in the scene. Multiple OVRCameraRigs will cause problems.")]
+	// public GameObject _OVRCR;
+	//
+	// public Transform _OriginalTransform;
+	//
+	// public Transform _ParentTransform;
+	//
+	// public GameObject ball;
 
 	void Start()
 	{
@@ -50,8 +50,6 @@ public class GameManager : NetworkBehaviour, INetworkRunnerCallbacks
 			// enable `ZMQManager` to listen to Scenic
 			ZMQManagerObject.SetActive(true);
 			
-			// enable the local player OVRCameraRig
-			// _OVRCR.SetActive(true);
 			// disable the Observer Camera
 			_ObserverCamera.SetActive(false);
 
@@ -63,8 +61,6 @@ public class GameManager : NetworkBehaviour, INetworkRunnerCallbacks
 		}
 		else // client
 		{
-			// disable the local player OVRCameraRig
-			// _OVRCR.SetActive(false);
 			// switch to the Observer Camera
 			_ObserverCamera.SetActive(true);
 			
@@ -80,7 +76,7 @@ public class GameManager : NetworkBehaviour, INetworkRunnerCallbacks
 	{
 		if (isHost && Input.GetKeyDown(KeyCode.R))
 		{
-			ball.transform.position = new Vector3(0, 1, 1);
+			// ball.transform.position = new Vector3(0, 1, 1);
 		}
 	}
 
@@ -137,7 +133,7 @@ public class GameManager : NetworkBehaviour, INetworkRunnerCallbacks
 			// Spawn only the host’s network representation
 			if (player == runner.LocalPlayer && isHost)
 			{
-				Vector3 spawnPosition = new Vector3(11.527f, 0, -55f);
+				Vector3 spawnPosition = new Vector3(0, 0, 0);
 				NetworkObject hostNetworkPlayer = runner.Spawn(_playerPrefab, spawnPosition, Quaternion.identity, player);
 				
 				// Hide host's own networked player mesh locally
@@ -181,32 +177,37 @@ public class GameManager : NetworkBehaviour, INetworkRunnerCallbacks
 
 	public void OnInput(NetworkRunner runner, NetworkInput input)
 	{
-		var data = new NetworkInputData();
-
-		// player movement
-		if (Input.GetKey(KeyCode.W))
-			data.Direction += Vector3.forward;
-
-		if (Input.GetKey(KeyCode.S))
-			data.Direction += Vector3.back;
-
-		if (Input.GetKey(KeyCode.A))
-			data.Direction += Vector3.left;
-
-		if (Input.GetKey(KeyCode.D))
-			data.Direction += Vector3.right;
-
-		// player tries to intercept the ball
-		data.TryIntercept = Input.GetKey(KeyCode.I);
-
-		input.Set(data);
+		// var data = new NetworkInputData();
+		//
+		// // player movement
+		// if (Input.GetKey(KeyCode.W))
+		// 	data.Direction += Vector3.forward;
+		//
+		// if (Input.GetKey(KeyCode.S))
+		// 	data.Direction += Vector3.back;
+		//
+		// if (Input.GetKey(KeyCode.A))
+		// 	data.Direction += Vector3.left;
+		//
+		// if (Input.GetKey(KeyCode.D))
+		// 	data.Direction += Vector3.right;
+		//
+		// // player tries to intercept the ball
+		// data.TryIntercept = Input.GetKey(KeyCode.I);
+		//
+		// input.Set(data);
+		return;
 	}
 
 	#endregion
 
 	#region Unused INetworkRunnerCallbacks with debug logs
 
-	public void OnInputMissing(NetworkRunner runner, PlayerRef player, NetworkInput input) => Debug.Log("OnInputMissing");
+
+	public void OnInputMissing(NetworkRunner runner, PlayerRef player, NetworkInput input)
+	{
+		return;
+	}
 
 	public void OnShutdown(NetworkRunner runner, ShutdownReason shutdownReason) => Debug.Log("Shutdown: " + shutdownReason);
 

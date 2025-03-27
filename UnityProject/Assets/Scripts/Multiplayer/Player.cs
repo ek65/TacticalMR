@@ -63,9 +63,9 @@ public class Player : NetworkBehaviour
 	{
 		_mirroredTransformDict = new Dictionary<string, Transform>();
 
-		parentTransform = FindObjectOfType<GameManager>()._ParentTransform;
-		
-		_transformToCopy = FindObjectOfType<GameManager>()._OriginalTransform;
+		// parentTransform = FindObjectOfType<GameManager>()._ParentTransform;
+		//
+		// _transformToCopy = FindObjectOfType<GameManager>()._OriginalTransform;
 		
 		PopulateMirror();
             
@@ -82,11 +82,11 @@ public class Player : NetworkBehaviour
 	{
 		if (parentTransform == null)
 		{
-			parentTransform = FindObjectOfType<GameManager>()._ParentTransform;
+			// parentTransform = FindObjectOfType<GameManager>()._ParentTransform;
 		}
 		if (_transformToCopy == null)
 		{
-			_transformToCopy = FindObjectOfType<GameManager>()._OriginalTransform;
+			// _transformToCopy = FindObjectOfType<GameManager>()._OriginalTransform;
 		}
 	}
 	
@@ -94,11 +94,11 @@ public class Player : NetworkBehaviour
 	{
 		if (_transformToCopy == null)
 		{
-			parentTransform = FindObjectOfType<GameManager>()._ParentTransform;
+			// parentTransform = FindObjectOfType<GameManager>()._ParentTransform;
 		}
 		if (_transformToCopy == null)
 		{
-			_transformToCopy = FindObjectOfType<GameManager>()._OriginalTransform;
+			// _transformToCopy = FindObjectOfType<GameManager>()._OriginalTransform;
 		}
 		
 		// if (HasInputAuthority) // only the client that owns the player can send input

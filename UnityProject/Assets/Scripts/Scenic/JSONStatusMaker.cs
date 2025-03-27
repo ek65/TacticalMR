@@ -109,9 +109,7 @@ public class JSONStatusMaker : MonoBehaviour
         }
     }*/
     void AddPlayerData(GameObject player, Player pData, bool isHuman) {
-        //NOTE: We go from (x,y,z) to (x,z,y) because that is how scenic handles the coordinate system.
-        Vector3ToJsonClass(player.transform.position, pData.movementData.transform);
-        QuaternionToJsonClass(player.transform.rotation, pData.movementData.rotation);
+        
         
         // Unused for now
         // pData.clientID = ((int)player.GetComponent<NetworkObject>().NetworkObjectId);
@@ -125,6 +123,22 @@ public class JSONStatusMaker : MonoBehaviour
         
         if (isHuman)
         {
+            HumanInterface hI = player.GetComponent<HumanInterface>();
+            
+            //NOTE: We go from (x,y,z) to (x,z,y) because that is how scenic handles the coordinate system.
+            Vector3 pos = player.transform.position;
+            if (hI.isVR)
+            {
+                pos = hI.vrTransform.position;
+            }
+            Vector3ToJsonClass(pos, pData.movementData.transform);
+
+            Quaternion rot = player.transform.rotation;
+            if (hI.isVR)
+            {
+                rot = hI.vrTransform.rotation;
+            }
+            QuaternionToJsonClass(rot, pData.movementData.rotation);
             
             pData.movementData.stopButton = player.GetComponent<ExitScenario>().endScenario;
             
@@ -140,19 +154,22 @@ public class JSONStatusMaker : MonoBehaviour
 
             // TODO: should change this when we have better movement system for human
             Vector3 velo = GameObject.FindGameObjectWithTag("keyboard").GetComponent<KeyboardInput>().movement;
+            if (hI.isVR)
+            {
+                velo = hI.velocity;
+            }
             Vector3ToJsonClass(velo, pData.movementData.velocity);
             pData.movementData.speed = velo.magnitude;
-            HumanInterface hI = player.GetComponent<HumanInterface>();
             pData.movementData.ballPossession = hI.ballPossession;
             pData.movementData.behavior = hI.behavior;
             
-            // rotation stuff for VR camera, not needed for now
-            // GameObject camera = GameObject.FindGameObjectWithTag("MainCamera");
-            // Quaternion realRotation = camera.transform.rotation;
-            // QuaternionToJsonClass(realRotation, pData.movementData.rotation);
         }
         else // non-human player
         {
+            //NOTE: We go from (x,y,z) to (x,z,y) because that is how scenic handles the coordinate system.
+            Vector3ToJsonClass(player.transform.position, pData.movementData.transform);
+            QuaternionToJsonClass(player.transform.rotation, pData.movementData.rotation);
+            
             PlayerInterface pI = player.GetComponent<PlayerInterface>();
             pData.movementData.ballPossession = pI.ballPossession;
             pData.movementData.behavior = pI.behavior;

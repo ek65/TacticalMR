@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Numerics;
 using Fusion;
+using Oculus.Interaction;
 using OpenAI.Samples.Chat;
 using TMPro;
 using UnityEngine;
@@ -217,63 +218,86 @@ public class KeyboardInput : NetworkBehaviour
     // (Video is started automatically in JSONToLLM.FixedUpdate if isLogging==true)
     public void StartSegment()
     {
-    
-        if (segmentStarted) return;
+        RPC_StartSegment();
+    }
 
-        timelineManager.isRecordingSegment = true;
-        segmentStarted = true;
-        timelineManager.segmentCount++;
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    public void RPC_StartSegment()
+    {
+        GameManager gm = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
+        // if (!gm.isHost)
+        // {
+            if (segmentStarted) return;
 
-        segmentStartTime = Time.time;
+            timelineManager.isRecordingSegment = true;
+            segmentStarted = true;
+            timelineManager.segmentCount++;
 
-        // Start audio only
-        if (recordAudio != null)
-        {
-            recordAudio.StartRecording();
-            Debug.Log("Audio recording started with the segment.");
-        }
-        else
-        {
-            Debug.LogWarning("No RecordAudio reference set in KeyboardInput!");
-        }
-        
+            segmentStartTime = Time.time;
+
+            if (gm.isHost)
+            {
+                // Start audio only
+                if (recordAudio != null)
+                {
+                    recordAudio.StartRecording();
+                    Debug.Log("Audio recording started with the segment.");
+                }
+                else
+                {
+                    Debug.LogWarning("No RecordAudio reference set in KeyboardInput!");
+                }
+            }
 
         // Force JSONToLLM to start logging so video can start in FixedUpdate
-        jsonToLLM.isLogging = true;
+            jsonToLLM.isLogging = true;
 
-        // Folder setup if needed
+#if UNITY_EDITOR
+            // Folder setup if needed
       
-        if (jsonDirectory.InitialDemo)
-        {
-            jsonDirectory.InstantiateInitialFolders();
-            jsonDirectory.InitialDemo = false;
-            Debug.Log("Directory created");
-        }
-        jsonDirectory.InstantiateDemoFolders();
+            if (jsonDirectory.InitialDemo)
+            {
+                jsonDirectory.InstantiateInitialFolders();
+                jsonDirectory.InitialDemo = false;
+                Debug.Log("Directory created");
+            }
+            jsonDirectory.InstantiateDemoFolders();
+            
+            Debug.Log("Started new segment recording (audio). JSONToLLM will auto-start video in FixedUpdate.");
+#endif
 
-        Debug.Log("Started new segment recording (audio). JSONToLLM will auto-start video in FixedUpdate.");
+        // }
     }
 
     // Stop the segment + audio
     // (Video is stopped automatically in JSONToLLM.FixedUpdate if isLogging==false)
     public void StopSegment()
     {
+        RPC_StopSegment();
+    }
+    
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    public void RPC_StopSegment()
+    {
         if (!segmentStarted) return;
 
-        jsonToLLM.voiceActivated = false;
+        // jsonToLLM.voiceActivated = false;
         Debug.Log("Stopped segment recording");
         timelineManager.isRecordingSegment = false;
         jsonToLLM.isLogging = false; // triggers video stop in JSONToLLM
         segmentStarted = false;
-        jsonToLLM.activateSystemRecording = true;
+        // jsonToLLM.activateSystemRecording = true;
         // Stop audio
-        if (recordAudio != null && Microphone.IsRecording(null))
+        
+        GameManager gm = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
+        if (gm.isHost)
         {
-            recordAudio.StopRecording();
-            Debug.Log("Audio recording stopped with the segment.");
+            if (recordAudio != null && Microphone.IsRecording(null))
+            {
+                recordAudio.StopRecording();
+                Debug.Log("Audio recording stopped with the segment.");
+            }
         }
-        
-        
 
         GroundSelection groundSelection = GameObject.FindGameObjectWithTag("Ground")
             .GetComponent<GroundSelection>();
@@ -298,7 +322,18 @@ public class KeyboardInput : NetworkBehaviour
 
     private void HandleAnnotationMode()
     {
+        RPC_HandleAnnotationMode();
+    }
+
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    private void RPC_HandleAnnotationMode()
+    {
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        
+        GameManager gm = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
+#if UNITY_ANDROID && !UNITY_EDITOR
+        ray = GameObject.FindGameObjectWithTag("RightRay").GetComponent<RayInteractor>().Ray;
+#endif
         if (Physics.Raycast(ray, out RaycastHit hit))
         {
             GameObject clickedObject = hit.collider.gameObject;
@@ -316,7 +351,16 @@ public class KeyboardInput : NetworkBehaviour
 
     private void HandlePositionMode()
     {
+        RPC_HandlePositionMode();
+    }
+
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    private void RPC_HandlePositionMode()
+    {
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+#if UNITY_ANDROID && !UNITY_EDITOR
+        ray = GameObject.FindGameObjectWithTag("RightRay").GetComponent<RayInteractor>().Ray;
+#endif
         if (Physics.Raycast(ray, out RaycastHit hit))
         {
             Vector3 clickedPosition = hit.point;
@@ -408,37 +452,43 @@ public class KeyboardInput : NetworkBehaviour
     {
         Debug.Log("Started File Coroutine at timestamp : " + Time.time);
         yield return ProcessingTranscript();
+#if UNITY_EDITOR
         jsonToLLM.WriteFile();
+#endif
         ResetJsonData();
     }
 
     private IEnumerator ProcessingTranscript()
     {
-        jsonToLLM.isTranscriptionComplete = false;
-        countdownText.gameObject.SetActive(true);
-        countdownText.color = Color.red;
-
-        string baseText = "TRANSCRIPTION PROCESSING";
-        int dotCount = 0;
-        countdownText.fontSize = 100;
-
-        while (!jsonToLLM.isTranscriptionComplete)
+        GameManager gm = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
+        if (gm.isHost)
         {
-            countdownText.text = $"{baseText}{new string('.', dotCount % 4)}";
-            dotCount++;
-            yield return new WaitForSeconds(1f);
-        }
+            jsonToLLM.isTranscriptionComplete = false;
+            countdownText.gameObject.SetActive(true);
+            countdownText.color = Color.red;
 
-        countdownText.gameObject.SetActive(false);
-        countdownText.color = Color.red;
+            string baseText = "TRANSCRIPTION PROCESSING";
+            int dotCount = 0;
+            countdownText.fontSize = 100;
+
+            while (!jsonToLLM.isTranscriptionComplete)
+            {
+                countdownText.text = $"{baseText}{new string('.', dotCount % 4)}";
+                dotCount++;
+                yield return new WaitForSeconds(1f);
+            }
+
+            countdownText.gameObject.SetActive(false);
+            countdownText.color = Color.red;
         
-        // If you don’t want to auto-restart the segment, comment the next line:
-        // StartSegment();
+            // If you don’t want to auto-restart the segment, comment the next line:
+            // StartSegment();
+        }
     }
 
     void FixedUpdate()
     {
-#if UNITY_EDITOR
+// #if UNITY_EDITOR
         if (rb == null)
         {
             GameObject coachObject = GameObject.FindGameObjectWithTag("human");
@@ -458,15 +508,17 @@ public class KeyboardInput : NetworkBehaviour
         movement = (forwardDirection * verticalInput + transform.right * horizontalInput).normalized * moveSpeed;
         
         rb.MovePosition(rb.position + movement * Time.fixedDeltaTime);
-#endif
+// #endif
     }
 
     private void ResetJsonData()
     {   
+#if UNITY_EDITOR
         if (recorderManager.RecorderController.IsRecording())
         {
             recorderManager.StopRecording();
         }
+#endif
 
         annotation.Clear();
         annotationDescriptions.Clear();

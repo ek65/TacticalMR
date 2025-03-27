@@ -5,12 +5,13 @@ using UnityEngine;
 using System.IO;
 using System.Linq; // For .OrderBy(...)
 using System.Text;
+using Fusion;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Unity.VisualScripting.Antlr3.Runtime;
 using Whisper.Samples;
 
-public class JSONToLLM : MonoBehaviour
+public class JSONToLLM : NetworkBehaviour
 {
     public KeyboardInput keyboard;
     public ObjectsList objectsList;
@@ -129,8 +130,10 @@ public class JSONToLLM : MonoBehaviour
         keyboard = GameObject.FindGameObjectWithTag("keyboard").GetComponent<KeyboardInput>();
         timelineManager = GameObject.FindGameObjectWithTag("TimelineManager").GetComponent<TimelineManager>();
         
+#if UNITY_EDITOR
         // The RecorderManager is presumably on a GameObject tagged "RecorderManager"
         recorderManager = GameObject.FindGameObjectWithTag("RecorderManager").GetComponent<RecorderManager>();
+#endif
 
         scribe = FindObjectOfType<Scribe>();
         if (scribe != null)
@@ -159,13 +162,15 @@ public class JSONToLLM : MonoBehaviour
     // Called in FixedUpdate if isLogging = true
     public void PopulateSegment()
     {
+        Debug.LogError("in populate segment");
         PopulateSceneObjects();
         myRootSegment.timestep = timelineManager.TimeIndex;
     }
     
     public void PopulateSceneObjects()
     {
-        if (objectsList == null || objectsList.ballObject == null)
+        Debug.LogError("in populate scene objects");
+        if (objectsList == null)
         {
             return;
         }
@@ -208,20 +213,24 @@ public class JSONToLLM : MonoBehaviour
         }
 
         // ball
-        var ballGO = objectsList.ballObject;
         var ballData = (Ball)myRootSegment.objects.Find(obj => obj is Ball);
         if (ballData == null)
         {
             ballData = new Ball { id = "ball" };
             myRootSegment.objects.Add(ballData);
         }
-        ballData.position.Add(new Position(ballGO.transform.position));
-        ballData.orientation.Add(new Orientation(ballGO.transform));
-        Rigidbody ballRB = ballGO.GetComponent<Rigidbody>();
-        ballData.velocity.Add(new Velocity(ballRB.velocity));
+        
+        if (objectsList.ballObject != null)
+        {
+            var ballGO = objectsList.ballObject;
+
+            ballData.position.Add(new Position(ballGO.transform.position));
+            ballData.orientation.Add(new Orientation(ballGO.transform));
+            Rigidbody ballRB = ballGO.GetComponent<Rigidbody>();
+            ballData.velocity.Add(new Velocity(ballRB.velocity));
+        }
 
         // goal
-        var goalGO = objectsList.goalObject;
         Goal goalData2 = (Goal)myRootSegment.objects.Find(obj => obj is Goal g && g.id == "goal");
         if (goalData2 == null)
         {
@@ -229,8 +238,10 @@ public class JSONToLLM : MonoBehaviour
             myRootSegment.objects.Add(goalData2);
         }
 
-        if (goalGO != null)
+        if (objectsList.goalObject != null)
         {
+            var goalGO = objectsList.goalObject;
+            
             Vector3 zeroVector = Vector3.zero;
             goalData2.velocity.Add(new Velocity(zeroVector));
             goalData2.position.Add(new Position(goalGO.transform.position));
@@ -280,14 +291,21 @@ public class JSONToLLM : MonoBehaviour
             };
             myRootSegment.objects.Add(existingPlayer);
         }
+        
+        Transform _transform = playerGO.transform;
+        if (type == "Coach" && playerGO.GetComponent<HumanInterface>().isVR)
+        {
+            _transform = playerGO.GetComponent<HumanInterface>().vrTransform;
+        }
 
-        existingPlayer.position.Add(new Position(playerGO.transform.position));
+        existingPlayer.position.Add(new Position(_transform.position));
+        
         Vector3 velocity = (type == "Coach")
-            ? keyboard.movement
+            ? playerGO.GetComponent<HumanInterface>().velocity
             : playerGO.GetComponent<PlayerInterface>().currVelocity;
 
         existingPlayer.velocity.Add(new Velocity(velocity));
-        existingPlayer.orientation.Add(new Orientation(playerGO.transform));
+        existingPlayer.orientation.Add(new Orientation(_transform));
 
         bool hasBall = false;
         if (type == "Coach")
@@ -305,41 +323,167 @@ public class JSONToLLM : MonoBehaviour
     // Called when ElevenLabs transcription is done
     private void HandleTranscriptionComplete(Scribe.ElevenLabsResponse response)
     {
-        Debug.Log("JSONToLLM: Received transcription. Merging placeholders...");
-
-        tokenDictionary.Clear();
-        if (response.words != null)
+        if (Runner.IsServer)
         {
-            foreach (var w in response.words)
+            Debug.Log("JSONToLLM: Received transcription. Merging placeholders...");
+
+            tokenDictionary.Clear();
+            if (response.words != null)
             {
-                float timeKey = w.start;
-                if (!tokenDictionary.ContainsKey(timeKey))
-                    tokenDictionary[timeKey] = new List<object>();
-                tokenDictionary[timeKey].Add(w.text);
+                foreach (var w in response.words)
+                {
+                    float timeKey = w.start;
+                    if (!tokenDictionary.ContainsKey(timeKey))
+                        tokenDictionary[timeKey] = new List<object>();
+                    tokenDictionary[timeKey].Add(w.text);
+                }
+            }
+
+            if (keyboard != null)
+            {
+                // Insert bracket placeholders
+                foreach (var pair in keyboard.annotationTimes)
+                {
+                    float annotationTime = pair.Value;
+                    int annotationIndex = pair.Key;
+
+                    if (!tokenDictionary.ContainsKey(annotationTime))
+                        tokenDictionary[annotationTime] = new List<object>();
+
+                    tokenDictionary[annotationTime].Add($"[{annotationIndex}]");
+                }
+            }
+
+            isTranscriptionComplete = true;
+
+            Debug.Log("Merged words + placeholders. Token dictionary:");
+            foreach (var kvp in tokenDictionary.OrderBy(k => k.Key))
+            {
+                Debug.Log($"Time={kvp.Key:F2} => {string.Join(", ", kvp.Value)}");
+            }
+            
+            SyncDictionaryToClients();
+        }
+    }
+    
+    private void SyncDictionaryToClients()
+    {
+        // First, clear the clients' dictionaries
+        RPC_ClearDictionary();
+        
+        // Convert dictionary to a format we can send
+        List<KeyValueData> allData = new List<KeyValueData>();
+        
+        foreach (var kvp in tokenDictionary)
+        {
+            foreach (var token in kvp.Value)
+            {
+                KeyValueData data = new KeyValueData();
+                data.TimeKey = kvp.Key;
+                
+                if (token.ToString().StartsWith("[") && token.ToString().EndsWith("]"))
+                {
+                    // It's a placeholder
+                    string indexStr = token.ToString().Trim('[', ']');
+                    if (int.TryParse(indexStr, out int index))
+                    {
+                        data.IsPlaceholder = 1;
+                        data.PlaceholderIndex = index;
+                    }
+                }
+                else
+                {
+                    // It's a text token
+                    data.IsPlaceholder = 0;
+                    data.TextToken = token.ToString();
+                }
+                
+                allData.Add(data);
             }
         }
-
-        if (keyboard != null)
+        
+        // Now actually chunk the data and send it
+        const int CHUNK_SIZE = 20; // Adjust based on token size
+        for (int i = 0; i < allData.Count; i += CHUNK_SIZE)
         {
-            // Insert bracket placeholders
-            foreach (var pair in keyboard.annotationTimes)
+            // Get the current chunk
+            int currentChunkSize = Mathf.Min(CHUNK_SIZE, allData.Count - i);
+            KeyValueData[] chunk = new KeyValueData[currentChunkSize];
+            
+            for (int j = 0; j < currentChunkSize; j++)
             {
-                float annotationTime = pair.Value;
-                int annotationIndex = pair.Key;
-
-                if (!tokenDictionary.ContainsKey(annotationTime))
-                    tokenDictionary[annotationTime] = new List<object>();
-
-                tokenDictionary[annotationTime].Add($"[{annotationIndex}]");
+                chunk[j] = allData[i + j];
+            }
+            
+            // Send this chunk
+            RPC_ReceiveDictionaryChunk(chunk);
+        }
+        
+        // Signal that all data has been sent
+        RPC_FinishDictionarySync();
+    }
+    
+    // Struct to hold key-value data that Fusion can serialize
+    public struct KeyValueData : INetworkStruct
+    {
+        public float TimeKey;
+        public byte IsPlaceholder; // 0 = text, 1 = placeholder
+        
+        // For text tokens
+        [Networked, Capacity(64)]
+        public NetworkString<_64> TextToken { get; set; }
+        
+        // For placeholder tokens
+        public int PlaceholderIndex;
+    }
+    
+    // RPC to clear the dictionary
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    private void RPC_ClearDictionary()
+    {
+        if (Runner.IsClient)
+        {
+            tokenDictionary.Clear();
+        }
+    }
+    
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    private void RPC_ReceiveDictionaryChunk(KeyValueData[] chunk)
+    {
+        foreach (var data in chunk)
+        {
+            float timeKey = data.TimeKey;
+            
+            if (!tokenDictionary.ContainsKey(timeKey))
+            {
+                tokenDictionary[timeKey] = new List<object>();
+            }
+            
+            if (data.IsPlaceholder == 1)
+            {
+                // It's a placeholder
+                tokenDictionary[timeKey].Add($"[{data.PlaceholderIndex}]");
+            }
+            else
+            {
+                // It's a text token
+                tokenDictionary[timeKey].Add(data.TextToken.ToString());
             }
         }
-
-        isTranscriptionComplete = true;
-
-        Debug.Log("Merged words + placeholders. Token dictionary:");
-        foreach (var kvp in tokenDictionary.OrderBy(k => k.Key))
+    }
+    
+    // RPC to signal dictionary sync is complete
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    private void RPC_FinishDictionarySync()
+    {
+        // Log completion if we're a client
+        if (Runner.IsClient)
         {
-            Debug.Log($"Time={kvp.Key:F2} => {string.Join(", ", kvp.Value)}");
+            Debug.Log("Token dictionary sync complete. Entries:");
+            foreach (var kvp in tokenDictionary.OrderBy(k => k.Key))
+            {
+                Debug.Log($"Time={kvp.Key:F2} => {string.Join(", ", kvp.Value)}");
+            }
         }
     }
 
@@ -425,7 +569,7 @@ public class JSONToLLM : MonoBehaviour
             Debug.Log("started logging");
         }
         
-
+#if UNITY_EDITOR
         if (isLogging)
         {
             // Debug.Log("JSON LOGGING");
@@ -445,6 +589,7 @@ public class JSONToLLM : MonoBehaviour
                 videoIsRecording = recorderManager.RecorderController.IsRecording();
             }
         }
+#endif
     }
 
 }

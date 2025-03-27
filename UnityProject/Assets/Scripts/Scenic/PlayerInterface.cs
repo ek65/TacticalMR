@@ -12,7 +12,7 @@ using Pathfinding;
 // TODO: Rename script, this is the player logic script
 public class PlayerInterface : NetworkBehaviour
 {
-    [Networked(OnChanged = nameof(OnNameChanged))] public NetworkString<_16> ObjName { get; set; }
+    [Networked(OnChanged = nameof(OnNameChanged))] public NetworkString<_32> ObjName { get; set; }
     
     public bool enemy;
     public bool ally;
@@ -131,6 +131,27 @@ public class PlayerInterface : NetworkBehaviour
             ObjName = newName; // This will trigger OnNameChanged() on all clients
         }
     }
+
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    public void RPC_InstantiateValues(bool isAlly = false)
+    {
+        if (isAlly)
+        {
+            ally = true;
+            enemy = false;
+            
+            ObjectsList objectList = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<ObjectsList>();
+            objectList.defensePlayers.Add(this.gameObject);
+        }
+        else
+        {
+            ally = false;
+            enemy = true;
+            
+            ObjectsList objectList = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<ObjectsList>();
+            objectList.offensePlayers.Add(this.gameObject);
+        }
+    }
     
     // For ball possession
     private void OnCollisionEnter(Collision other)
@@ -163,6 +184,12 @@ public class PlayerInterface : NetworkBehaviour
     
     private void LogReceiveBall()
     {
+        RPC_LogReceiveBall();
+    }
+    
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    private void RPC_LogReceiveBall()
+    {
         int receiveBallID = keyboardInput.clickOrder;
         float receiveBallTime = jsonToLLM.time;
         keyboardInput.annotation.Add(receiveBallID, new Dictionary<string, object>
@@ -177,6 +204,7 @@ public class PlayerInterface : NetworkBehaviour
         
         keyboardInput.clickOrder++;
     }
+    
     public void LosePossession()
     {
         StartCoroutine(PossessionDebounce());

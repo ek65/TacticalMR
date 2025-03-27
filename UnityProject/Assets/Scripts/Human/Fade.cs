@@ -49,12 +49,12 @@ public class Fade : MonoBehaviour
         blackout.color = currentColor;
     }
     
-    public void StartFadeAndMove(Vector3 pos)
+    public void StartFadeAndMove(Vector3 pos, Quaternion rot)
     {
         fade = true;
         StartCoroutine(UpdateFade());
         HumanInterface p = GetComponent<HumanInterface>();
-        p.SetTransform(pos);
+        p.SetTransform(pos, rot);
     }
     
     public void StartFadeAndMove2(GameObject go, Vector3 pos)

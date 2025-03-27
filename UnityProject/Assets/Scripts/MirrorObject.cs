@@ -82,7 +82,7 @@ namespace Oculus.Movement.Effects
 
         private void Awake()
         {
-            _transformToCopy = FindObjectOfType<GameManager>()._OriginalTransform;
+            // _transformToCopy = FindObjectOfType<GameManager>()._OriginalTransform;
 
             PopulateMirror();
             
@@ -99,7 +99,7 @@ namespace Oculus.Movement.Effects
         {
             if (_transformToCopy == null)
             {
-                _transformToCopy = FindObjectOfType<GameManager>()._OriginalTransform;
+                // _transformToCopy = FindObjectOfType<GameManager>()._OriginalTransform;
             }
         }
 
@@ -107,7 +107,7 @@ namespace Oculus.Movement.Effects
         {
             if (_transformToCopy == null)
             {
-                _transformToCopy = FindObjectOfType<GameManager>()._OriginalTransform;
+                // _transformToCopy = FindObjectOfType<GameManager>()._OriginalTransform;
             }
         }
 

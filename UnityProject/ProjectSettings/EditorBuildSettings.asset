@@ -44,9 +44,12 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Scenes/zmq-server.unity
     guid: 995e34f33950d49b9956fde8f7ecf110
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/factory_mult.unity
     guid: d5f253efbe8d74c15b1b3c10815861f7
+  - enabled: 1
+    path: Assets/Scenes/zmq_demo_vr.unity
+    guid: e55e89e7ddf9f4617baeb309d7d4a456
   m_configObjects:
     Unity.XR.Oculus.Settings: {fileID: 11400000, guid: 1394e64b697ec4abe82e08446d44181f, type: 2}
     com.unity.input.settings: {fileID: 11400000, guid: 16a77d31129dc48808fba30c2b1714c7, type: 2}

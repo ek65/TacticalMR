@@ -4162,7 +4162,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _interpolationDataSource: 0
-  _ObjName: 
+  _ObjName:
+    _length: 0
+    _data:
+      Data: 0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
   enemy: 0
   ally: 0
   self: 0
@@ -4558,6 +4561,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6e039ec90476343b783a3a5a556e617d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _interpolationDataSource: 0
   stayOutlined: 0
 --- !u!114 &3697718909231988371
 MonoBehaviour:
@@ -4786,6 +4790,7 @@ MonoBehaviour:
   NetworkedBehaviours:
   - {fileID: 8665160898893140851}
   - {fileID: 8029724646137382559}
+  - {fileID: 8844196116925067643}
   - {fileID: -7974981195372803498}
   - {fileID: 7696055529042246766}
   SimulationBehaviours: []

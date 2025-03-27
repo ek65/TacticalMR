@@ -13,7 +13,7 @@ using UnityEngine.InputSystem;
 
 public class HumanInterface : NetworkBehaviour
 {
-    [Networked(OnChanged = nameof(OnNameChanged))] public NetworkString<_16> ObjName { get; set; }
+    [Networked(OnChanged = nameof(OnNameChanged))] public NetworkString<_32> ObjName { get; set; }
     public bool isVR = false;
 
     private int localTick;  // NOTE: This is not the true tick and is what we will use to internally record a timestep.
@@ -52,6 +52,11 @@ public class HumanInterface : NetworkBehaviour
     BallOwnership ballOwnership;
     public GameObject closestPlayerInDirection;
     
+    private Vector3 lastPosition;
+    public Vector3 velocity;
+    
+    public Transform vrTransform;
+    
     public bool objectPossession;
     public GameObject grabbedObject;
     public Transform objectPosition;
@@ -63,8 +68,8 @@ public class HumanInterface : NetworkBehaviour
     private JSONToLLM jsonToLLM;
     
     // TODO: RE-ADD, IMPLEMENT IsRobotScenario Bool in Scenic Manager, DISABLED FOR NOW FOR VR TESTING
-    // public FloatingText floatingBehaviorText;
-    // public FloatingText floatingNameText;
+    public FloatingText floatingBehaviorText;
+    public FloatingText floatingNameText;
     
     public bool ally;
     public Renderer shirt;
@@ -72,13 +77,18 @@ public class HumanInterface : NetworkBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        lastPosition = transform.position;
+        if (isVR)
+        {
+            lastPosition = vrTransform.position;
+        }
         exitScene = GetComponent<ExitScenario>();
         source = GetComponent<AudioSource>();
         tlManager = GameObject.FindGameObjectWithTag("TimelineManager").GetComponent<TimelineManager>();
         // npc = GameObject.FindGameObjectWithTag("Character").GetComponent<ConvaiNPC>();
         
         // TODO: RE-ADD, IMPLEMENT IsRobotScenario Bool in Scenic Manager, DISABLED FOR NOW FOR VR TESTING
-        // chatBehaviour = GameObject.FindGameObjectWithTag("Character").GetComponentInChildren<ChatBehaviour>();
+        chatBehaviour = GameObject.FindGameObjectWithTag("Character").GetComponentInChildren<ChatBehaviour>();
         objectList = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<ObjectsList>();
         keyboardInput = GameObject.FindGameObjectWithTag("keyboard").GetComponent<KeyboardInput>();
         jsonToLLM = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<JSONToLLM>();
@@ -99,14 +109,43 @@ public class HumanInterface : NetworkBehaviour
         }
         
         // TODO: RE-ADD, IMPLEMENT IsRobotScenario Bool in Scenic Manager, DISABLED FOR NOW FOR VR TESTING
-        // floatingNameText.SetText2(this.gameObject.name);
-        // forwardArrow = SpawnArrow(this.transform.position, transform.forward * 8.5f);
-        // forwardArrow.SetActive(false);
+        floatingNameText.SetText2(this.gameObject.name);
+        GameManager gm = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
+        if (gm.isHost)
+        {
+            Vector3 pos = this.transform.position;
+            if (isVR)
+            {
+                pos = vrTransform.position;
+            }
+            forwardArrow = SpawnArrow(pos, transform.forward * 8.5f);
+            forwardArrow.GetComponentInChildren<ArrowGenerator>().RPC_SetActiveState(false);
+            // forwardArrow.SetActive(false);
+        }
         
         if (objectList.humanPlayers.Count == 0)
         {
             objectList.humanPlayers.Add(this.gameObject);
         }
+        
+        // make sure vr cam is not enabled for client
+        Camera vrCam = GameObject.Find("CenterEyeAnchor").GetComponent<Camera>();
+        if (!gm.isHost && vrCam != null)
+        {
+            vrCam.enabled = false;
+        }
+        
+        // find gameobject with tag "InfoCanvas" and assign the canvas object to this object's camera
+        GameObject infoCanvas = GameObject.FindGameObjectWithTag("InfoCanvas");
+        if (infoCanvas != null)
+        {
+            infoCanvas.GetComponent<Canvas>().worldCamera = Camera.main;
+        }
+    }
+    
+    private void RPC_SetActive(bool active)
+    {
+        gameObject.SetActive(active);
     }
 
     // Update is called once per frame
@@ -122,22 +161,53 @@ public class HumanInterface : NetworkBehaviour
             ballOnTheGround.x = ball.transform.position.x;
             ballOnTheGround.y = ball.transform.position.y;
             ballOnTheGround.z = ball.transform.position.z;
-            distToBall = Vector3.Distance(transform.position, ballOnTheGround);
+            Vector3 pos = transform.position;
+            if (isVR)
+            {
+                pos = vrTransform.position;
+            }
+            distToBall = Vector3.Distance(pos, ballOnTheGround);
+        }
+
+        if (!isVR)
+        {
+            velocity = (transform.position - lastPosition) / Time.deltaTime;
+            lastPosition = transform.position;
+        }
+        else
+        {
+            velocity = (vrTransform.position - lastPosition) / Time.deltaTime;
+            lastPosition = vrTransform.position;
         }
         
+        GameManager gm = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
+        
         // TODO: RE-ADD, IMPLEMENT IsRobotScenario Bool in Scenic Manager, DISABLED FOR NOW FOR VR TESTING
-        // closestPlayerInDirection = GetClosestToLinePoint(objectList.defensePlayers);
-        // if (ballPossession)
-        // {
-        //     forwardArrow.SetActive(true);
-        //     ArrowGenerator arrow = forwardArrow.GetComponentInChildren<ArrowGenerator>();
-        //     arrow.SetOrigin(this.transform.position);
-        //     arrow.SetTarget(transform.position + transform.forward * 8.5f);
-        // }
-        // else
-        // {
-        //     forwardArrow.SetActive(false);
-        // }
+        closestPlayerInDirection = GetClosestToLinePoint(objectList.defensePlayers);
+        if (ballPossession)
+        {
+            if (gm.isHost)
+            {
+                forwardArrow.GetComponentInChildren<ArrowGenerator>().RPC_SetActiveState(true);
+                // forwardArrow.SetActive(true);
+                ArrowGenerator arrow = forwardArrow.GetComponentInChildren<ArrowGenerator>();
+                Vector3 pos = transform.position;
+                if (isVR)
+                {
+                    pos = vrTransform.position;
+                }
+                arrow.SetOrigin(pos);
+                arrow.SetTarget(pos + transform.forward * 8.5f);
+            }
+        }
+        else
+        {
+            if (gm.isHost)
+            {
+                // forwardArrow.SetActive(false);
+                forwardArrow.GetComponentInChildren<ArrowGenerator>().RPC_SetActiveState(false);
+            }
+        }
 
         // string currResponse = "";
         // // if (chatBehaviour.sentences.Length > 0)
@@ -238,6 +308,12 @@ public class HumanInterface : NetworkBehaviour
 
     private void LogIntercept()
     {
+        RPC_LogIntercept();
+    }
+
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    private void RPC_LogIntercept()
+    {
         int interceptID = keyboardInput.clickOrder;
         float interceptTime = jsonToLLM.time;
         
@@ -252,6 +328,12 @@ public class HumanInterface : NetworkBehaviour
     }
     
     private void LogPass()
+    {
+        RPC_LogPass();
+    }
+    
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    private void RPC_LogPass()
     {
         if (closestPlayerInDirection == null)
         {
@@ -331,6 +413,12 @@ public class HumanInterface : NetworkBehaviour
 
     private void LogThroughPass(Vector3 pos)
     {
+        RPC_LogThroughPass(pos);
+    }
+
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    private void RPC_LogThroughPass(Vector3 pos)
+    {
         int passID = keyboardInput.clickOrder;
         float passTime = jsonToLLM.time;
 
@@ -398,6 +486,7 @@ public class HumanInterface : NetworkBehaviour
     
     private void GainPossession(GameObject other)
     {
+        LogReceiveBall();
         int layerIgnoreBallCollision = LayerMask.NameToLayer("PlayerBall");
         this.gameObject.layer = layerIgnoreBallCollision;
         
@@ -411,6 +500,28 @@ public class HumanInterface : NetworkBehaviour
         actionAPI.ReceiveBall(other.transform.position);
     }
     
+    private void LogReceiveBall()
+    {
+        RPC_LogReceiveBall();
+    }
+
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    private void RPC_LogReceiveBall()
+    {
+        int receiveBallID = keyboardInput.clickOrder;
+        float receiveBallTime = jsonToLLM.time;
+        keyboardInput.annotation.Add(receiveBallID, new Dictionary<string, object>
+        {
+            { "type", "ReceiveBall" },
+            { "player", this.gameObject.name }
+        });
+        keyboardInput.annotationDescriptions.Add(receiveBallID, $"({this.gameObject.name} received the ball)");
+        
+        keyboardInput.annotationTimes.Add(receiveBallID, receiveBallTime);
+        Debug.Log($"ReceiveBall action recorded with ID {receiveBallID} at time: {receiveBallTime}");
+        
+        keyboardInput.clickOrder++;
+    }
     public void LosePossession()
     {
         if (ball)
@@ -444,7 +555,13 @@ public class HumanInterface : NetworkBehaviour
             return;
         }
 
-        Vector3 passPosition = transform.position + transform.forward * 8.5f;
+        Vector3 pos = transform.position;
+        if (isVR)
+        {
+            pos = vrTransform.position;
+        }
+        
+        Vector3 passPosition = pos + transform.forward * 8.5f;
         LogThroughPass(passPosition);
         actionAPI.GroundPassFast(passPosition);
         StartCoroutine(ResetToMovementController());
@@ -466,7 +583,12 @@ public class HumanInterface : NetworkBehaviour
 
 
     private GameObject GetClosestToLinePoint(List<GameObject> points) {
-        Ray ray = new Ray(transform.position, transform.forward * 8.5f);
+        Vector3 pos = transform.position;
+        if (isVR)
+        {
+            pos = vrTransform.position;
+        }
+        Ray ray = new Ray(pos, transform.forward * 8.5f);
         
         GameObject closestPoint = null;
         float minDist = Mathf.Infinity;
@@ -527,12 +649,16 @@ public class HumanInterface : NetworkBehaviour
         source.PlayOneShot(source.clip);
     }
     
-    public void SetTransform(Vector3 pos)
+    public void SetTransform(Vector3 pos, Quaternion rot)
     {
-        Debug.LogError("In SetTransform: " + pos);
+        // Debug.LogError("In SetTransform: " + pos);
         source.PlayOneShot(source.clip);
         // this.GetComponent<Rigidbody>().isKinematic = false;
         this.transform.position = pos;
+        this.transform.rotation = rot;
+
+        vrTransform.position = pos;
+        vrTransform.rotation = rot;
         // this.GetComponent<Rigidbody>().isKinematic = true;
 
         Debug.LogWarning("Local: I am transforming to: " + pos.ToString());
@@ -557,7 +683,8 @@ public class HumanInterface : NetworkBehaviour
 
         if (forwardArrow)
         {
-            forwardArrow.SetActive(false);
+            forwardArrow.GetComponentInChildren<ArrowGenerator>().RPC_SetActiveState(false);
+            // forwardArrow.SetActive(false);
         }
     }
     
@@ -580,7 +707,10 @@ public class HumanInterface : NetworkBehaviour
     public GameObject SpawnArrow(Vector3 from, Vector3 to)
     {
         Vector3 spawnPos = new Vector3(from.x, from.y, from.z);
-        GameObject arrow = Instantiate(arrowGenerator, spawnPos, arrowGenerator.transform.rotation);
+        // GameObject arrow = Instantiate(arrowGenerator, spawnPos, arrowGenerator.transform.rotation);
+        NetworkRunner runner = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>()._runner;
+        NetworkObject temp = runner.Spawn(arrowGenerator, spawnPos, Quaternion.identity);
+        GameObject arrow = temp.gameObject;
         arrow.GetComponentInChildren<ArrowGenerator>().SetOrigin(from);
         arrow.GetComponentInChildren<ArrowGenerator>().SetTarget(to);
         arrowObjects.Add(arrow);
@@ -598,25 +728,25 @@ public class HumanInterface : NetworkBehaviour
         }
         
         // TODO: RE-ADD, IMPLEMENT IsRobotScenario Bool in Scenic Manager, DISABLED FOR NOW FOR VR TESTING
-        // // if player is already in kick animation, dont update behavior text yet
-        // if (!actionAPI.alreadyInAnimation)
-        // {
-        //     if (data.behavior == " " || data.behavior == "" || data.behavior == "Idle")
-        //     {
-        //         behavior = "Idle";
-        //         floatingBehaviorText.SetText("Idle");
-        //     }
-        //     else if (data.behavior != "" || data.behavior != null)
-        //     {
-        //         behavior = data.behavior;
-        //         floatingBehaviorText.SetText(data.behavior);
-        //     }
-        //     else
-        //     {
-        //         behavior = "Idle";
-        //         floatingBehaviorText.SetText("Idle");
-        //     }
-        // }
+        // if player is already in kick animation, dont update behavior text yet
+        if (!actionAPI.alreadyInAnimation)
+        {
+            if (data.behavior == " " || data.behavior == "" || data.behavior == "Idle")
+            {
+                behavior = "Idle";
+                floatingBehaviorText.SetText("Idle");
+            }
+            else if (data.behavior != "" || data.behavior != null)
+            {
+                behavior = data.behavior;
+                floatingBehaviorText.SetText(data.behavior);
+            }
+            else
+            {
+                behavior = "Idle";
+                floatingBehaviorText.SetText("Idle");
+            }
+        }
         
         if (behavior == "Idle")
         {

@@ -3148,6 +3148,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 35bcac9dd1874c44d9e8101253d74932, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _interpolationDataSource: 0
   playerRunningSpeed: 5
   timeDuration: 5
   goalWidth: 0
@@ -3167,6 +3168,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 96b886443f9fb44b1a0a9a2f2664eb13, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _interpolationDataSource: 0
+  _ObjName:
+    _length: 0
+    _data:
+      Data: 0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  isVR: 0
   actionAPI: {fileID: 8665160898893140851}
   arrowGenerator: {fileID: 7110823724380065530, guid: 26b12c5175ce74367855bef2c3770e55, type: 3}
   circleGenerator: {fileID: 1733937925117977002, guid: 0bbdbc210306445569ca42107d04ac14, type: 3}
@@ -3181,11 +3188,14 @@ MonoBehaviour:
   ballPosition: {fileID: 8665160898920370539}
   canKickBall: 1
   closestPlayerInDirection: {fileID: 0}
+  velocity: {x: 0, y: 0, z: 0}
   objectPossession: 0
   grabbedObject: {fileID: 0}
   objectPosition: {fileID: 0}
   behavior: Idle
   currAction: No Action
+  floatingBehaviorText: {fileID: 2924768386710636713}
+  floatingNameText: {fileID: 1904700381}
   ally: 0
   shirt: {fileID: 8665160898560163737}
 --- !u!114 &-7641071680297636533
@@ -3608,6 +3618,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rb: {fileID: 1422487927}
   movementForce: 4
+  cam: {fileID: 0}
   playerDirection: {x: 0, y: 0, z: 0}
 --- !u!114 &1614666314
 MonoBehaviour:
@@ -3639,6 +3650,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6e039ec90476343b783a3a5a556e617d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _interpolationDataSource: 0
   stayOutlined: 0
 --- !u!114 &4174554594486415199
 MonoBehaviour:

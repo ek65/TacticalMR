@@ -50,9 +50,9 @@ public class ControllerInput : MonoBehaviour
             inputSystem.PlayerControls.Pass.performed += ControllerPass; // Right Trigger
             inputSystem.PlayerControls.ThroughPass.performed += ControllerThroughPass; // Right Bumper 
         // factory actions
-            inputSystem.PlayerControls.PickUp.performed += ControllerPickUp; // Left Trigger 
-            inputSystem.PlayerControls.PutDown.performed += ControllerPutDown; // Right Trigger
-            inputSystem.PlayerControls.Packaging.performed += ControllerPackaging; // Right Shoulder
+            // inputSystem.PlayerControls.PickUp.performed += ControllerPickUp; // Left Trigger 
+            // inputSystem.PlayerControls.PutDown.performed += ControllerPutDown; // Right Trigger
+            // inputSystem.PlayerControls.Packaging.performed += ControllerPackaging; // Right Shoulder
             inputSystem.PlayerControls.Enable();
     }
     
@@ -66,9 +66,9 @@ public class ControllerInput : MonoBehaviour
         inputSystem.PlayerControls.Pass.performed -= ControllerPass;
         inputSystem.PlayerControls.ThroughPass.performed -= ControllerThroughPass;
         // factory actions
-        inputSystem.PlayerControls.PickUp.performed -= ControllerPickUp;
-        inputSystem.PlayerControls.PutDown.performed -= ControllerPutDown;
-        inputSystem.PlayerControls.Packaging.performed -= ControllerPackaging;
+        // inputSystem.PlayerControls.PickUp.performed -= ControllerPickUp;
+        // inputSystem.PlayerControls.PutDown.performed -= ControllerPutDown;
+        // inputSystem.PlayerControls.Packaging.performed -= ControllerPackaging;
         inputSystem.PlayerControls.Disable();
     }
 
@@ -113,6 +113,11 @@ public class ControllerInput : MonoBehaviour
     // Forcibly Take Possession of Ball from nearby player
     private void ControllerIntercept(InputAction.CallbackContext ctx)
     {
+        HandleControllerIntercept();
+    }
+
+    public void HandleControllerIntercept()
+    {
         if (tlManager.Paused)
         {
             return;
@@ -123,6 +128,11 @@ public class ControllerInput : MonoBehaviour
     
     private void ControllerPass(InputAction.CallbackContext ctx)
     {
+        HandleControllerPass();
+    }
+    
+    public void HandleControllerPass()
+    {
         if (tlManager.Paused)
         {
             return;
@@ -132,6 +142,11 @@ public class ControllerInput : MonoBehaviour
     }
     
     private void ControllerThroughPass(InputAction.CallbackContext ctx)
+    {
+        HandleControllerThroughPass();
+    }
+    
+    public void HandleControllerThroughPass()
     {
         if (tlManager.Paused)
         {

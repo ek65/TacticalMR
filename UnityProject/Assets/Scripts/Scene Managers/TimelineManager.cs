@@ -119,7 +119,7 @@ public void InitializeTimeline()
             }
         }
         // TODO: RE-ADD, IMPLEMENT IsRobotScenario Bool in Scenic Manager, DISABLED FOR NOW FOR VR TESTING
-        // pauseTxt.text = "Scenic Called Pause...Everything paused except ego";
+        pauseTxt.text = "Scenic Called Pause...Everything paused except ego";
         Paused = true;
         maxRewindTimeIndex = 0;
     }
@@ -139,7 +139,7 @@ public void InitializeTimeline()
         TimeIndex = 0;
         RewindTimeIndex = 0;
         // TODO: RE-ADD, IMPLEMENT IsRobotScenario Bool in Scenic Manager, DISABLED FOR NOW FOR VR TESTING
-        // pauseTxt.text = "Unpaused";
+        pauseTxt.text = "Unpaused";
         Paused = false;
     }
     public void RaycastClick()

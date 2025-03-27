@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Runtime.ConstrainedExecution;
 using Fusion;
 using OpenAI.Samples.Chat;
@@ -82,7 +83,12 @@ public class ActionAPI : NetworkBehaviour
     {
         // TODO: replace this anim controller with movement, need to merge humanoid AI movement with the movement controller
         //SetAnimController("Humanoid");
-        SetAnimController("Movement");
+        GameManager gm = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
+        if (gm.isHost)
+        {
+            RPC_SetAnimController("Movement");
+        }
+        // SetAnimController("Movement");
         StartCoroutine(MoveToPosHelper(destinationPosition, lookAt));
         //StartCoroutine(MovementLerp(destinationPosition, lookAt));
     }
@@ -105,7 +111,12 @@ public class ActionAPI : NetworkBehaviour
     {
         // TODO: replace this anim controller with movement, need to merge humanoid AI movement with the movement controller
         //SetAnimController("Humanoid");
-        SetAnimController("Movement");
+        GameManager gm = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
+        if (gm.isHost)
+        {
+            RPC_SetAnimController("Movement");
+        }
+        // SetAnimController("Movement");
         StartCoroutine(MoveToPosHelper(destinationPosition, true));
         //StartCoroutine(MovementLerp(destinationPosition, lookAt));
     }
@@ -436,7 +447,17 @@ public class ActionAPI : NetworkBehaviour
     // soccer
     public void ReceiveBall(Vector3 receiveFrom)
     {
-        SetAnimController("Movement");
+        if (this.GetComponent<HumanInterface>().isVR == true)
+        {
+            return;
+        }
+        
+        GameManager gm = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
+        if (gm.isHost)
+        {
+            RPC_SetAnimController("Movement");
+        }
+        
         stopMovement = true;
         StartCoroutine(LookTowards(receiveFrom, "Receive"));
     }
@@ -477,7 +498,12 @@ public class ActionAPI : NetworkBehaviour
         {
             return;
         }
-        SetAnimController("Dribbling");
+        GameManager gm = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
+        if (gm.isHost)
+        {
+            RPC_SetAnimController("Dribbling");
+        }
+        // SetAnimController("Dribbling");
         // Debug.LogError(this.GetComponent<Animator>().runtimeAnimatorController.name);
         // Debug.LogError(this.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0));
         // Debug.LogError("in gpf2");
@@ -1139,16 +1165,12 @@ public class ActionAPI : NetworkBehaviour
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
     public void RPC_SetAnimController(string controllerHashCode)
     {
-        GameManager gm = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
-        if (!gm.isHost)
+        GameObject selfPlayer = this.gameObject;
+        string currAnimationController = selfPlayer.GetComponent<Animator>().runtimeAnimatorController.name;
+        if (currAnimationController != controllerHashCode)
         {
-            GameObject selfPlayer = this.gameObject;
-            string currAnimationController = selfPlayer.GetComponent<Animator>().runtimeAnimatorController.name;
-            if (currAnimationController != controllerHashCode)
-            {
-                RuntimeAnimatorController newController = Resources.Load("Animation/" + controllerHashCode, typeof(RuntimeAnimatorController)) as RuntimeAnimatorController;
-                selfPlayer.GetComponent<Animator>().runtimeAnimatorController = newController;
-            }
+            RuntimeAnimatorController newController = Resources.Load("Animation/" + controllerHashCode, typeof(RuntimeAnimatorController)) as RuntimeAnimatorController;
+            selfPlayer.GetComponent<Animator>().runtimeAnimatorController = newController;
         }
     }
 
@@ -1234,53 +1256,59 @@ public class ActionAPI : NetworkBehaviour
         // find closest opponent within 0.1m of the ball. if there is an opponent, then the ball was passed to them (for non-human player only)
         if (pI)
         {
-            GameObject closestPlayer = FindClosestPlayerToFinalPos(finalPos);
-            if (closestPlayer != null)
-            {
-                KeyboardInput keyboardInput = GameObject.FindGameObjectWithTag("keyboard").GetComponent<KeyboardInput>();
-                JSONToLLM jsonToLLM = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<JSONToLLM>();
+            RPC_LogPass();
 
-                int passID = keyboardInput.clickOrder;
-                float passTime = jsonToLLM.time;
+        }
+    }
+
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    private void RPC_LogPass()
+    {
+        GameObject closestPlayer = FindClosestPlayerToFinalPos(finalPos);
+        if (closestPlayer != null)
+        {
+            KeyboardInput keyboardInput = GameObject.FindGameObjectWithTag("keyboard").GetComponent<KeyboardInput>();
+            JSONToLLM jsonToLLM = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<JSONToLLM>();
+
+            int passID = keyboardInput.clickOrder;
+            float passTime = jsonToLLM.time;
             
-                keyboardInput.annotation.Add(passID, new Dictionary<string, object>
-                {
-                    { "type", "Pass" },
-                    { "from", this.name },
-                    { "to", closestPlayer.name }
-                });
-
-                keyboardInput.annotationDescriptions.Add(passID, $"({this.name} passed to {closestPlayer.name})");
-                keyboardInput.annotationTimes.Add(passID, passTime);
-                Debug.Log($"Pass action recorded with ID {passID}, from: {this.name} to: {closestPlayer.name} at time: {passTime}");
-                keyboardInput.clickOrder++; 
-            } else if (closestPlayer == null)
+            keyboardInput.annotation.Add(passID, new Dictionary<string, object>
             {
-                KeyboardInput keyboardInput = GameObject.FindGameObjectWithTag("keyboard").GetComponent<KeyboardInput>();
-                JSONToLLM jsonToLLM = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<JSONToLLM>();
+                { "type", "Pass" },
+                { "from", this.name },
+                { "to", closestPlayer.name }
+            });
 
-                int passID = keyboardInput.clickOrder;
-                float passTime = jsonToLLM.time;
+            keyboardInput.annotationDescriptions.Add(passID, $"({this.name} passed to {closestPlayer.name})");
+            keyboardInput.annotationTimes.Add(passID, passTime);
+            Debug.Log($"Pass action recorded with ID {passID}, from: {this.name} to: {closestPlayer.name} at time: {passTime}");
+            keyboardInput.clickOrder++; 
+        } else if (closestPlayer == null)
+        {
+            KeyboardInput keyboardInput = GameObject.FindGameObjectWithTag("keyboard").GetComponent<KeyboardInput>();
+            JSONToLLM jsonToLLM = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<JSONToLLM>();
 
-                var pointDict = new Dictionary<string, float>
-                {
-                    { "x", finalPos.x },
-                    { "y", finalPos.z }
-                };
-                keyboardInput.annotation.Add(passID, new Dictionary<string, object>
-                {
-                    { "type", "Through Pass" },
-                    { "from", this.name},
-                    { "to", pointDict }
-                });
+            int passID = keyboardInput.clickOrder;
+            float passTime = jsonToLLM.time;
+
+            var pointDict = new Dictionary<string, float>
+            {
+                { "x", finalPos.x },
+                { "y", finalPos.z }
+            };
+            keyboardInput.annotation.Add(passID, new Dictionary<string, object>
+            {
+                { "type", "Through Pass" },
+                { "from", this.name},
+                { "to", pointDict }
+            });
         
-                keyboardInput.annotationDescriptions.Add(passID, $"({this.name} passed to position: {pointDict})");
+            keyboardInput.annotationDescriptions.Add(passID, $"({this.name} passed to position: {pointDict})");
     
-                keyboardInput.annotationTimes.Add(passID, passTime);
-                Debug.Log($"Through Pass action recorded with ID {passID} at time: {passTime}");
-                keyboardInput.clickOrder++; 
-            }
-
+            keyboardInput.annotationTimes.Add(passID, passTime);
+            Debug.Log($"Through Pass action recorded with ID {passID} at time: {passTime}");
+            keyboardInput.clickOrder++; 
         }
     }
 

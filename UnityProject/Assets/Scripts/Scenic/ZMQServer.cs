@@ -24,6 +24,9 @@ public class ZMQServer : MonoBehaviour
     private JSONStatusMaker sender;
 
     private TimelineManager tlManager;
+    
+    // Used in ApplyMovement to skip the first loop into the next update since objects are not correctly assigned yet
+    private bool firstApplyMovement = true;
 
     void Start()
     {
@@ -163,6 +166,11 @@ public class ZMQServer : MonoBehaviour
         }
         if (numPlayersCheck != objectList.scenicPlayers.Count)
         {
+            if (firstApplyMovement)
+            {
+                firstApplyMovement = false;
+                return;
+            }
             Debug.LogError("Scenic Players Mismatched? MovementData Received = " + movementData.Count + " Scenic Players = " + objectList.scenicPlayers.Count);
         }
 
