@@ -868,11 +868,10 @@ class InZone(Constraint):
         self.zone = args.get('zone', None)
 
     def __call__(self, scene, sample):
-
         pos = None
 
-        if self.objID != scene.egoObject.name:
-
+        if not (sample and isEgo(self.objID, scene)):
+        # if self.objID != scene.egoObject.name:
             objs = findObj(self.objID, scene.objects)
 
             if not objs:
@@ -891,21 +890,34 @@ class InZone(Constraint):
 
     def get_zone(self, point):
 
-        zone_x = int((point[0] + FIELD_WIDTH / 2) // ZONE_WIDTH)
-        zone_y = int((point[1] + FIELD_HEIGHT / 2) // ZONE_HEIGHT)
+        point_x = point[0]
+        point_y = point[1]
 
-        zone_x_labels = ['A', 'B', 'C', 'D', 'E']
-        zone_y_labels = ['1', '2', '3', '4', '5', '6', '7', '8']
+        x_zone, y_zone = "", ""
 
-        if 0 <= zone_x < NUM_ZONES_X and 0 <= zone_y < NUM_ZONES_Y:
-            zone_label = zone_x_labels[zone_x] + zone_y_labels[zone_y]
-            # print(zone_label)
-            return zone_label
+        if -10 <= point_x < -5:
+            x_zone = 'A'
+        elif -5 <= point_x < 0:
+            x_zone = 'B'
+        elif 0 <= point_x < 5:
+            x_zone = 'C'
         else:
-            return None
+            x_zone = 'D'
+        
+        if -17 <= point_y < -17 + ZONE_HEIGHT:
+            y_zone = '1'
+        elif -17 + ZONE_HEIGHT <= point_y < -17 + ZONE_HEIGHT*2:
+            y_zone = '2'
+        elif -17 + ZONE_HEIGHT*2 <= point_y < -17 + ZONE_HEIGHT*3:
+            y_zone = '3'
+        elif -17 + ZONE_HEIGHT*3 <= point_y < -17 + ZONE_HEIGHT*4:
+            y_zone = '4'
+        else:
+            y_zone = '5'
+
+        return x_zone + y_zone
         
 # MARK: MovingTowards
-
 class MovingTowards(Constraint):
 
     def __init__(self, args={}):
@@ -951,36 +963,47 @@ class HasAngleOfPass(Constraint):
 
     def __init__(self, args={}):
         self.passerID = args.get('passer', None)
-        self.receiverID = args.get('passer', None)
+        self.receiverID = args.get('receiver', None)
         self.radius = args.get('radius', None)
-
         self.radiusAvg = self.radius.get('avg', 0.0)
         self.radiusStd = self.radius.get('std', 1.0)
 
     def __call__(self, scene, sample):
+        print(f"HasAngleOfPass Called")
 
-        passer_list = findObj(self.passerID, scene.objects)
-        receiver_list = findObj(self.receiverID, scene.objects)
+        passer_obj, receiver_obj = None, None
+        if sample and isEgo(self.passerID, scene):
+            receiver_obj = Vector(sample[0], sample[1], 0)
+            passer_list = findObj(self.passerID, scene.objects)
+            if not passer_list :
+                print("Passer not found in the scene.")
+                return False
+            passer_obj = passer_list[0]
+
+        if sample and isEgo(self.receiverID, scene):
+            print("ego is receiver")
+            passer_obj = Vector(sample[0], sample[1], 0)
+            receiver_list = findObj(self.receiverID, scene.objects)
+            if not receiver_list:
+                print("Receiver not found in the scene.")
+                return False
+            receiver_obj = receiver_list[0]
         
-        if not passer_list or not receiver_list:
-            print("Passer or receiver not found in the scene.")
-            return False
-        
-        passer_obj = passer_list[0]
-        receiver_obj = receiver_list[0]
-        
-        start = passer_obj.position
-        end = receiver_obj.position
+        start = passer_obj if isinstance(passer_obj, Vector) else passer_obj.position
+        end = receiver_obj if isinstance(receiver_obj, Vector) else receiver_obj.position
 
         min_d = float('inf')
         for obj in scene.objects:
-            if obj.type.lower() == 'opponent':
+            if obj.name.lower() == 'opponent':
                 d = self.distance_to_line(start, end, obj.position)
                 min_d = min(min_d, d)
         
+        print(f"min_d: {min_d}, radiusAvg: {self.radiusAvg}")
+
         if self.radius is None:
             print("Warning: No radius threshold learned.")
             return False
+    
         
         return min_d >= self.radiusAvg
 

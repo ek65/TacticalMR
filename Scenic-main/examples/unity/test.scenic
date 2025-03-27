@@ -13,15 +13,14 @@ def movesToward(player1, player2):
 behavior opponent1Behavior():
     do Idle() until ego.gameObject.ballPossession
     while True:
-        do MoveTo(ball, distance = 4)
+        do MoveToBehavior(ball, distance = 4)
 
 behavior TeammateBehavior():
     try:
         do Idle()
     interrupt when (ego.position.y > opponent.position.y):
         print("ego ahead of opponent")
-        point = new Point at (0, 0, 11)
-        do PassTo(point, slow=False)
+        do PassTo(ego, slow=False)
         do Idle() for 0.5 seconds
         take StopAction()
 
@@ -50,12 +49,12 @@ behavior CoachBehavior():
     scene = simulation()
     scene.egoObject = ego
     print('[MoveTo] the opponent (terminate if has ball)')
-    do MoveToWrapper(target_1) until termination_1(scene)
+    do MoveTo(target_1) until termination_1(simulation())
     # do GetBall()
     print("[Pass] to the teammate")
     do PassTo(teammate)
     print("[MoveTo] behind the opponent")
-    do MoveToWrapper(target_2) until termination_2(scene)
+    do MoveTo(target_2) until termination_2(simulation())
     print("[Idle] behind the opponent")
     do Idle()
     print("receiveball")
@@ -100,16 +99,6 @@ def sample_target(scene, prev_target, λ_dest) -> Vector:
     sample = Vector(target[0], target[1])
     return sample
 
-behavior MoveToWrapper(λ_dest):
-    scene = simulation()
-    sample = Vector(0, 0)
-    sample = sample_target(scene, sample, λ_dest)
-    while (distance from self to sample > 0.5):
-        print('moving to', sample)
-        do MoveTo(sample) for timestep seconds
-        sample = sample_target(scene, sample, λ_dest)
-    do Idle() for 1 seconds
-
 # ----------------------
 
 A = DistanceTo({
@@ -124,17 +113,30 @@ A = DistanceTo({
     'operator': 'less_than',
 })
 
+
 B = HasBallPossession({
     'player': 'coach'
 })
 
-C = HeightRelation({
-    'obj': 'coach',
-    'ref': 'opponent',
-    'relation': 'ahead',
-    'height_threshold': {
-        'avg': 3.3
-    }
+
+C = InZone({
+    'obj': 'Coach',
+    'zone': ['B4','C4','D4']
+})
+
+# C = HeightRelation({
+#     'obj': 'coach',
+#     'ref': 'opponent',
+#     'relation': 'ahead',
+#     'height_threshold': {
+#         'avg': 3.3
+#     }
+# })
+
+D = HasAngleOfPass({
+    'passer': 'teammate',
+    'receiver': 'Coach',
+    'radius': {'avg': 1.0, 'std': 1.0}
 })
 
 def target_1(scene, sample):
@@ -144,9 +146,9 @@ def termination_1(scene):
     return B(scene, None)
 
 def target_2(scene, sample):
-    return C(scene, sample)
+    return C(scene, sample) and D(scene, sample)
 
 def termination_2(scene):
-    return C(scene, None)
+    return B(scene, None)
 
     

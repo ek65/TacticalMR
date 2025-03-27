@@ -71,7 +71,7 @@ behavior LookAt(vec):
     take LookAtAction(location, "Look At")
     take StopAction()
 
-behavior MoveTo(v, lookAtTarget = None, distance = 0.5, status=""):
+behavior MoveToBehavior(v, lookAtTarget = None, distance = 0.5, status=""):
     dist = 1000
     while not (dist < distance):
         if isinstance(v, Ball):
@@ -136,23 +136,50 @@ behavior WaitFor(timesteps):
     for i in range(timesteps):
         take StopAction()
 
+def sample_target(scene, prev_target, λ_dest) -> Vector: 
+    # global sample
+    i = 0
+    target = [prev_target.x, prev_target.y]
+    
+    while not λ_dest(scene, target):
+        x = Range(-FIELD_WIDTH / 2, FIELD_WIDTH / 2)
+        y = Range(-FIELD_HEIGHT / 2, FIELD_HEIGHT / 2)
+        target = [x,y]
+        if i > 100000:
+            raise Exception("Maximum sample depth exceeded.")
+        i += 1
 
-# MARK: moveTo
-behavior moveTo(player: Player, target: Coordinate, ref: list, speed: Speed):
-    """
-    A player will move to the specified target with a specified velocity and style.
+    sample = Vector(target[0], target[1])
+    return sample
 
-    Args:
-        targetPosition (Vector): A position of the end point of the trajectory.
-        style (MovingStyle): A moving style out of the options 'walk', 'run' and 'sprint'.
-        velocity (float): The velocity to move to the target.
-    """
-    target_position = target.predict(ref)
-    target_speed = speed.predict()
+# MARK: MoveTo
+behavior MoveTo(λ_dest):
+    scene = simulation()
+    sample = Vector(0, 0)
+    sample = sample_target(scene, sample, λ_dest)
+    while (distance from self to sample > 0.5):
+        # print('moving to', sample)
+        do MoveToBehavior(sample) for timestep seconds
+        scene = simulation()
+        sample = sample_target(scene, sample, λ_dest)
+    do Idle() for 1 seconds
 
-    while (distance from self to target_position > 0.01):
-        target_position = target.predict(ref)
-        take MoveToWithSpeed(target_position, target_speed), LookAtAction(ball)
+# # MARK: moveTo
+# behavior moveTo(player: Player, target: Coordinate, ref: list, speed: Speed):
+#     """
+#     A player will move to the specified target with a specified velocity and style.
+
+#     Args:
+#         targetPosition (Vector): A position of the end point of the trajectory.
+#         style (MovingStyle): A moving style out of the options 'walk', 'run' and 'sprint'.
+#         velocity (float): The velocity to move to the target.
+#     """
+#     target_position = target.predict(ref)
+#     target_speed = speed.predict()
+
+#     while (distance from self to target_position > 0.01):
+#         target_position = target.predict(ref)
+#         take MoveToWithSpeed(target_position, target_speed), LookAtAction(ball)
 
 behavior getTo(destination):
     while (distance from self to destination > 0.01):
