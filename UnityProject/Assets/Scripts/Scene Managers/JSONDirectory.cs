@@ -284,7 +284,7 @@ public class JSONDirectory : MonoBehaviour
     private IEnumerator UnpauseAndEndScenario()
     {
         JSONToLLM jsonToLLM = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<JSONToLLM>();
-        keyboardInput.saveDemoCanvas.SetActive(false);
+        keyboardInput.RPC_CanvasSetActive(false);
         while (!jsonToLLM.isTranscriptionComplete) // Wait until transcription is done
         {
             yield return new WaitForSeconds(0.5f);

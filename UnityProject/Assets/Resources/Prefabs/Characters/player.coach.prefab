@@ -3183,16 +3183,21 @@ MonoBehaviour:
   explanation: 
   distToBall: 0
   ballOnTheGround: {x: 0, y: 0, z: 0}
-  ballPossession: 0
+  _ballPossession:
+    _value: 0
   ball: {fileID: 0}
   ballPosition: {fileID: 8665160898920370539}
   canKickBall: 1
   closestPlayerInDirection: {fileID: 0}
   velocity: {x: 0, y: 0, z: 0}
+  vrTransform: {fileID: 0}
   objectPossession: 0
   grabbedObject: {fileID: 0}
   objectPosition: {fileID: 0}
-  behavior: Idle
+  _behavior:
+    _length: 0
+    _data:
+      Data: 0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
   currAction: No Action
   floatingBehaviorText: {fileID: 2924768386710636713}
   floatingNameText: {fileID: 1904700381}

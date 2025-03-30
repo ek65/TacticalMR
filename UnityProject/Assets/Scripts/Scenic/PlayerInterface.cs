@@ -25,12 +25,15 @@ public class PlayerInterface : NetworkBehaviour
     public float force;
     public float distToBall;
     public GameObject goal;
-    public bool ballPossession;
+    // public bool ballPossession;
+    [Networked] public NetworkBool ballPossession { get; set; }
     public Transform ballPosition;
     private KeyboardInput keyboardInput;
     private JSONToLLM jsonToLLM;
 
-    public Vector3 currVelocity => this.GetComponent<RichAI>().velocity;
+    // public Vector3 currVelocity => this.GetComponent<RichAI>().velocity;
+    [Networked] public Vector3 currVelocity { get; set; }
+    private RichAI richAI;
 
     private bool canPossessBall = true;
     public bool canKickBall = true;
@@ -41,7 +44,8 @@ public class PlayerInterface : NetworkBehaviour
     public ActionAPI actionAPI;
     public FloatingText floatingBehaviorText;
     public FloatingText floatingNameText;
-    public string behavior = "Idle";
+    // public string behavior = "Idle";
+    [Networked] public NetworkString<_32> behavior { get; set; }
     public string currAction = "No Action"; // just for debugging to see what actions function is being called
     
     [Space(10)] 
@@ -114,6 +118,20 @@ public class PlayerInterface : NetworkBehaviour
         }
     }
     
+    public override void Spawned() {
+        if (Object.HasStateAuthority) {
+            behavior = "Idle";
+            richAI = GetComponent<RichAI>();
+        }
+    }
+    
+    public override void FixedUpdateNetwork() {
+        // Only update the velocity on the state-authoritative instance.
+        if (Object.HasStateAuthority && richAI != null) {
+            currVelocity = richAI.velocity;
+        }
+    }
+    
     static void OnNameChanged(Changed<PlayerInterface> changed)
     {
         changed.Behaviour.UpdateGameObjectName();
@@ -179,7 +197,7 @@ public class PlayerInterface : NetworkBehaviour
         ballOwnership.SetScenicOwnership(true);
         ballOwnership.SetHumanOwnership(false);
         ballOwnership.SetBallOwner(this.gameObject);
-        this.GetComponentInParent<ActionAPI>().ReceiveBall(other.transform.position);
+        actionAPI.ReceiveBall(other.transform.position);
     }
     
     private void LogReceiveBall()

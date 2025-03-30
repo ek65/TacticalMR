@@ -4048,7 +4048,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8246176068772558329}
-  - component: {fileID: 5322627621366649058}
   m_Layer: 0
   m_Name: Ball Position
   m_TagString: Untagged
@@ -4064,25 +4063,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1284925914330780079}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: -1}
   m_LocalPosition: {x: 0, y: 0.18, z: 0.34}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 8122399492539441747}
+  m_Father: {fileID: 8589663238157637001}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &5322627621366649058
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1284925914330780079}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 85fb7054871174f8eb169024743f1852, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1287792570444167121
 GameObject:
   m_ObjectHideFlags: 0
@@ -7584,8 +7571,8 @@ GameObject:
   - component: {fileID: -495734267399706489}
   - component: {fileID: -597261438230882058}
   m_Layer: 0
-  m_Name: player.human VR
-  m_TagString: human
+  m_Name: viewer
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -7606,7 +7593,6 @@ Transform:
   - {fileID: 3760908649755696688}
   - {fileID: 190868512401519746}
   - {fileID: 7268947062247442647}
-  - {fileID: 8246176068772558329}
   - {fileID: 1294154310826926240}
   - {fileID: 7117329023596907185}
   - {fileID: 2079074668920830977}
@@ -7666,7 +7652,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2387709620973680648}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 35bcac9dd1874c44d9e8101253d74932, type: 3}
   m_Name: 
@@ -7925,7 +7911,7 @@ MonoBehaviour:
   AoiPositionSource: {fileID: 0}
   Flags: 2305
   NetworkGuid:
-    RawGuidValue: b3a53b9f699dd4beebd53d0802fbc75b
+    RawGuidValue: 18f8c9fb7de7b46649e844db67081e42
   NestedObjects:
   - {fileID: 988642398001820529}
   NetworkedBehaviours:
@@ -9848,6 +9834,7 @@ Transform:
   - {fileID: 5734192255287332891}
   - {fileID: 8634539836627541262}
   - {fileID: 3687826519202755410}
+  - {fileID: 8246176068772558329}
   m_Father: {fileID: 1040250876492138611}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!81 &4507701482210394392
@@ -15535,26 +15522,14 @@ MonoBehaviour:
             m_BoolArgument: 0
           m_CallState: 2
   - Title: Pass
-    Button: 8192
+    Button: 2097152
     ButtonMode: 0
     InputActionReference: {fileID: -7222465138875598189, guid: b277640baaf59410a972a670edd870f9, type: 3}
     Callback:
       m_PersistentCalls:
-        m_Calls:
-        - m_Target: {fileID: -597261438230882058}
-          m_TargetAssemblyTypeName: ControllerInput, Assembly-CSharp
-          m_MethodName: HandleControllerPass
-          m_Mode: 1
-          m_Arguments:
-            m_ObjectArgument: {fileID: 0}
-            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-            m_IntArgument: 0
-            m_FloatArgument: 0
-            m_StringArgument: 
-            m_BoolArgument: 0
-          m_CallState: 2
+        m_Calls: []
   - Title: ThroughPass
-    Button: 16384
+    Button: 4194304
     ButtonMode: 0
     InputActionReference: {fileID: -7222465138875598189, guid: b277640baaf59410a972a670edd870f9, type: 3}
     Callback:
@@ -19006,7 +18981,7 @@ MonoBehaviour:
   _rayInteractor: {fileID: 1070116705340765863}
   _renderer: {fileID: 5409097745901895776}
   _materialPropertyBlockEditor: {fileID: 5234293799070529395}
-  _maxRayVisualLength: 15
+  _maxRayVisualLength: 0
   _hoverColor0: {r: 0.9921569, g: 0.9921569, b: 0.9921569, a: 1}
   _hoverColor1: {r: 1, g: 1, b: 1, a: 0}
   _selectColor0: {r: 0, g: 0.3413641, b: 0.7924528, a: 0.19607843}
@@ -26305,7 +26280,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7381810436546335624}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4733c5f009d26ad49b3685117b8d3eb4, type: 3}
   m_Name: 
@@ -26317,7 +26292,7 @@ MonoBehaviour:
   _data: {fileID: 0}
   _selector: {fileID: 1680047344434170298}
   _rayOrigin: {fileID: 4508967999969167587}
-  _maxRayLength: 15
+  _maxRayLength: 0
   _equalDistanceThreshold: 0.001
 --- !u!114 &6392026488820455777
 MonoBehaviour:
@@ -27975,7 +27950,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   replayIdentity:
-    id: 1436
+    id: 21590
   replayObject:
     reference: {fileID: 2433544687417556146}
   replayBodyPosition: 6
@@ -28000,7 +27975,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   instantiateIdentity: 1
   replayIdentity:
-    id: 25755
+    id: 61513
   prefabIdentity:
     id: 16648
   observedComponents:
@@ -28024,7 +27999,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   replayIdentity:
-    id: 49700
+    id: 48047
   replayObject:
     reference: {fileID: 2433544687417556146}
   replayPosition: 23
@@ -28048,7 +28023,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   replayIdentity:
-    id: 36252
+    id: 6496
   replayObject:
     reference: {fileID: 2433544687417556146}
   replayRootBonePosition: 23
@@ -30315,7 +30290,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   replayIdentity:
-    id: 32938
+    id: 61218
   replayObject:
     reference: {fileID: 3432044319954464094}
   replayRootBonePosition: 23
@@ -30409,7 +30384,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   replayIdentity:
-    id: 17248
+    id: 63373
   replayObject:
     reference: {fileID: 3432044319954464094}
   replayPosition: 23
@@ -30434,7 +30409,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   instantiateIdentity: 1
   replayIdentity:
-    id: 3938
+    id: 8461
   prefabIdentity:
     id: 65519
   observedComponents:
@@ -30458,7 +30433,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   replayIdentity:
-    id: 44581
+    id: 23730
   replayObject:
     reference: {fileID: 3432044319954464094}
   replayBodyPosition: 6
@@ -32332,7 +32307,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8800415723382898166}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1

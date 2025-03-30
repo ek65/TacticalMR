@@ -1,11 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
+using Fusion;
 using UnityEngine;
 
-public class BallOwnership : MonoBehaviour
+public class BallOwnership : NetworkBehaviour
 {
-    public bool heldByScenic = false;
-    public bool heldByHuman = false;
+    public NetworkBool heldByScenic = false;
+    public NetworkBool heldByHuman = false;
     public GameObject ballOwner = null;
     
     // Start is called before the first frame update

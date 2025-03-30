@@ -61,13 +61,16 @@ public class ActionAPI : NetworkBehaviour
         {
             soccerBall = GameObject.FindGameObjectWithTag("ball");
         }
-        
-        string currAnimationController = this.GetComponent<Animator>().runtimeAnimatorController.name;
-        if (currAnimationController == "Movement")
+
+        if (this.GetComponent<Animator>().isActiveAndEnabled && this.GetComponent<Animator>().runtimeAnimatorController != null)
         {
-            alreadyInAnimation = false;
+            string currAnimationController = this.GetComponent<Animator>().runtimeAnimatorController.name;
+            if (currAnimationController == "Movement")
+            {
+                alreadyInAnimation = false;
+            }
         }
-        
+
         // Debug.LogError(this.GetComponent<Animator>().runtimeAnimatorController.name);
     }
 
@@ -447,19 +450,35 @@ public class ActionAPI : NetworkBehaviour
     // soccer
     public void ReceiveBall(Vector3 receiveFrom)
     {
-        if (this.GetComponent<HumanInterface>().isVR == true)
+        HumanInterface hI = this.GetComponent<HumanInterface>();
+        PlayerInterface pI = this.GetComponent<PlayerInterface>();
+        if (pI)
         {
-            return;
-        }
-        
-        GameManager gm = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
-        if (gm.isHost)
+            GameManager gm = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
+            if (gm.isHost)
+            {
+                RPC_SetAnimController("Movement");
+            }
+            stopMovement = true;
+            StartCoroutine(LookTowards(receiveFrom, "Receive"));
+        } else if (hI)
         {
-            RPC_SetAnimController("Movement");
+            if (hI.isVR)
+            {
+                return;
+            }
+            GameManager gm = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
+            if (gm.isHost && !hI.isVR)
+            {
+                RPC_SetAnimController("Movement");
+            }
+            stopMovement = true;
+
+            if (!hI.isVR)
+            {
+                StartCoroutine(LookTowards(receiveFrom, "Receive"));
+            }
         }
-        
-        stopMovement = true;
-        StartCoroutine(LookTowards(receiveFrom, "Receive"));
     }
 
     public void LookAt(Vector3 lookAtPosition)
@@ -498,26 +517,50 @@ public class ActionAPI : NetworkBehaviour
         {
             return;
         }
-        GameManager gm = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
-        if (gm.isHost)
+        HumanInterface hI = this.GetComponent<HumanInterface>();
+        PlayerInterface pI = this.GetComponent<PlayerInterface>();
+        if (pI)
         {
-            RPC_SetAnimController("Dribbling");
-        }
-        // SetAnimController("Dribbling");
-        // Debug.LogError(this.GetComponent<Animator>().runtimeAnimatorController.name);
-        // Debug.LogError(this.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0));
-        // Debug.LogError("in gpf2");
-        StartCoroutine(LookTowards(destinationPosition, "GroundPassFast"));
-        if (this.GetComponent<PlayerInterface>() == true)
-        {
+            GameManager gm = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
+            if (gm.isHost)
+            {
+                RPC_SetAnimController("Dribbling");
+            }
+            // SetAnimController("Dribbling");
+            // Debug.LogError(this.GetComponent<Animator>().runtimeAnimatorController.name);
+            // Debug.LogError(this.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0));
+            // Debug.LogError("in gpf2");
+            StartCoroutine(LookTowards(destinationPosition, "GroundPassFast"));
+
             StartCoroutine(this.GetComponent<PlayerInterface>().KickDebounce());
-        }
-        else if (this.GetComponent<HumanInterface>() == true)
+            
+            SetMoveBallValues(destinationPosition, 0, strongPassForce);
+        } else if (hI)
         {
-            StartCoroutine(this.GetComponent<HumanInterface>().KickDebounce());
+            GameManager gm = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
+            if (gm.isHost && !hI.isVR)
+            {
+                RPC_SetAnimController("Dribbling");
+            }
+            // SetAnimController("Dribbling");
+            // Debug.LogError(this.GetComponent<Animator>().runtimeAnimatorController.name);
+            // Debug.LogError(this.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0));
+            // Debug.LogError("in gpf2");
+            if (!hI.isVR)
+            {
+                StartCoroutine(LookTowards(destinationPosition, "GroundPassFast"));
+                
+                StartCoroutine(this.GetComponent<HumanInterface>().KickDebounce());
+            }
+
+            SetMoveBallValues(destinationPosition, 0, strongPassForce);
+        
+            if (hI.isVR)
+            {
+                MoveBall();
+            }
         }
         
-        SetMoveBallValues(destinationPosition, 0, strongPassForce);
     }
 
     public void AirPass(Vector3 destinationPosition, string ballProjectileHeight)
@@ -1165,6 +1208,14 @@ public class ActionAPI : NetworkBehaviour
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
     public void RPC_SetAnimController(string controllerHashCode)
     {
+        if (this.GetComponent<HumanInterface>() == true)
+        {
+            HumanInterface hI = this.GetComponent<HumanInterface>();
+            if (hI.isVR == true)
+            {
+                return;
+            }
+        }
         GameObject selfPlayer = this.gameObject;
         string currAnimationController = selfPlayer.GetComponent<Animator>().runtimeAnimatorController.name;
         if (currAnimationController != controllerHashCode)

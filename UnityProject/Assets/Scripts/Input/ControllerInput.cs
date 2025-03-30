@@ -97,6 +97,10 @@ public class ControllerInput : MonoBehaviour
 
     private void ControllerRestart(InputAction.CallbackContext ctx)
     {
+        HandleControllerRestart();
+    }
+    public void HandleControllerRestart()
+    {
         keyboardInput.HandleRestart();
     }
     

@@ -124,18 +124,23 @@ class UnityMessageServer:
 
         self.HumanPlayers["ego"].destroyObj()
         self.ball.destroyObj()
+        print("1")
         self.step()
         self.objects = []
         self.ScenicPlayers = []
         self.HumanPlayers = dict()
         self.ball = None
         self.sendData.clearObjects()
+        print("2")
         self.step()
         self.sendData.clearControl()
-        # self.resetData()
+        self.resetData()
+        print("3")
         self.step()
         self.socket.close()
         self.context.destroy()
+        print(self.HumanPlayers["ego"].position)
+        print("4")
     def resetData(self):
         self.timestepNumber = 0
         self.sendData = SendData()

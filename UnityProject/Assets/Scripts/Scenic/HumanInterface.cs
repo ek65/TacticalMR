@@ -44,7 +44,8 @@ public class HumanInterface : NetworkBehaviour
     public float distToBall;
     public Vector3 ballOnTheGround;
     
-    public bool ballPossession;
+    // public bool ballPossession;
+    [Networked] public NetworkBool ballPossession { get; set; }
     public GameObject ball;
     public Transform ballPosition;
     private bool canPossessBall = true;
@@ -62,7 +63,8 @@ public class HumanInterface : NetworkBehaviour
     public Transform objectPosition;
 
     
-    public string behavior = "Idle";
+    // public string behavior = "Idle";
+    [Networked] public NetworkString<_32> behavior { get; set; }
     public string currAction = "No Action"; // just for debugging to see what actions function is being called
     private KeyboardInput keyboardInput;
     private JSONToLLM jsonToLLM;
@@ -114,11 +116,16 @@ public class HumanInterface : NetworkBehaviour
         if (gm.isHost)
         {
             Vector3 pos = this.transform.position;
+            Vector3 forward = transform.forward;
             if (isVR)
             {
                 pos = vrTransform.position;
+                pos.y = 0.1f;
+                forward = vrTransform.forward;
+                forward.y = 0;
+                forward.Normalize();
             }
-            forwardArrow = SpawnArrow(pos, transform.forward * 8.5f);
+            forwardArrow = SpawnArrow(pos, forward * 8.5f);
             forwardArrow.GetComponentInChildren<ArrowGenerator>().RPC_SetActiveState(false);
             // forwardArrow.SetActive(false);
         }
@@ -140,6 +147,9 @@ public class HumanInterface : NetworkBehaviour
         if (infoCanvas != null)
         {
             infoCanvas.GetComponent<Canvas>().worldCamera = Camera.main;
+            // set the parent of the canvas to the vr camera and scale it down
+            infoCanvas.transform.SetParent(vrCam.gameObject.transform);
+            // infoCanvas.transform.localScale = new Vector3(0.001f, 0.001f, 0.001f);
         }
     }
     
@@ -192,12 +202,18 @@ public class HumanInterface : NetworkBehaviour
                 // forwardArrow.SetActive(true);
                 ArrowGenerator arrow = forwardArrow.GetComponentInChildren<ArrowGenerator>();
                 Vector3 pos = transform.position;
+                Vector3 forward = transform.forward;
                 if (isVR)
                 {
                     pos = vrTransform.position;
+                    pos.y = 0.1f;
+                    // Flatten the forward vector to only rotate around Y-axis
+                    forward = vrTransform.forward;
+                    forward.y = 0;
+                    forward.Normalize();
                 }
                 arrow.SetOrigin(pos);
-                arrow.SetTarget(pos + transform.forward * 8.5f);
+                arrow.SetTarget(pos + forward * 8.5f);
             }
         }
         else
@@ -265,6 +281,12 @@ public class HumanInterface : NetworkBehaviour
 
     }
     
+    public override void Spawned() {
+        if (Object.HasStateAuthority) {
+            behavior = "Idle";
+        }
+    }
+    
     static void OnNameChanged(Changed<HumanInterface> changed)
     {
         changed.Behaviour.UpdateGameObjectName();
@@ -274,6 +296,16 @@ public class HumanInterface : NetworkBehaviour
     {
         gameObject.name = ObjName.ToString();
     }
+    
+    // static void OnBallPossessionChanged(Changed<HumanInterface> changed)
+    // {
+    //     changed.Behaviour.UpdateBallPossession();
+    // }
+    //
+    // private void UpdateBallPossession()
+    // {
+    //     ballPossession = networkedBallPossession;
+    // }
     
     public void SetObjectName(string newName)
     {
@@ -556,12 +588,17 @@ public class HumanInterface : NetworkBehaviour
         }
 
         Vector3 pos = transform.position;
+        Vector3 forward = transform.forward;
         if (isVR)
         {
             pos = vrTransform.position;
+            pos.y = 0.1f;
+            forward = vrTransform.forward;
+            forward.y = 0;
+            forward.Normalize();
         }
         
-        Vector3 passPosition = pos + transform.forward * 8.5f;
+        Vector3 passPosition = pos + forward * 8.5f;
         LogThroughPass(passPosition);
         actionAPI.GroundPassFast(passPosition);
         StartCoroutine(ResetToMovementController());
@@ -574,7 +611,7 @@ public class HumanInterface : NetworkBehaviour
             yield return null;
         }
         yield return new WaitForSeconds(1.0f);
-        actionAPI.SetAnimController("Movement");
+        actionAPI.RPC_SetAnimController("Movement");
         // actionAPI.alreadyInAnimation = true;
         // yield return new WaitForSeconds(1.0f);
         // actionAPI.SetAnimController("Movement");
@@ -584,11 +621,16 @@ public class HumanInterface : NetworkBehaviour
 
     private GameObject GetClosestToLinePoint(List<GameObject> points) {
         Vector3 pos = transform.position;
+        Vector3 forward = transform.forward;
         if (isVR)
         {
             pos = vrTransform.position;
+            pos.y = 0.1f;
+            forward = vrTransform.forward;
+            forward.y = 0;
+            forward.Normalize();
         }
-        Ray ray = new Ray(pos, transform.forward * 8.5f);
+        Ray ray = new Ray(pos, forward * 8.5f);
         
         GameObject closestPoint = null;
         float minDist = Mathf.Infinity;
@@ -653,13 +695,13 @@ public class HumanInterface : NetworkBehaviour
     {
         // Debug.LogError("In SetTransform: " + pos);
         source.PlayOneShot(source.clip);
-        // this.GetComponent<Rigidbody>().isKinematic = false;
+        this.GetComponent<Rigidbody>().isKinematic = false;
         this.transform.position = pos;
         this.transform.rotation = rot;
 
         vrTransform.position = pos;
         vrTransform.rotation = rot;
-        // this.GetComponent<Rigidbody>().isKinematic = true;
+        this.GetComponent<Rigidbody>().isKinematic = true;
 
         Debug.LogWarning("Local: I am transforming to: " + pos.ToString());
 

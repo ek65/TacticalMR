@@ -23,7 +23,7 @@ public class JSONToLLM : NetworkBehaviour
     public RecorderManager recorderManager;
 
     public float time;  // Time index for capturing scene data
-    public bool isTranscriptionComplete = false;
+    public NetworkBool isTranscriptionComplete = false;
     public bool isLogging = false;
 
     public int recordingNum = -1; 
@@ -286,7 +286,7 @@ public class JSONToLLM : NetworkBehaviour
                 id = playerGO.name,
                 behavior = (behaviorOverride != null) 
                     ? behaviorOverride
-                    : playerGO.GetComponent<PlayerInterface>().behavior,
+                    : playerGO.GetComponent<PlayerInterface>().behavior.Value,
                 type = type
             };
             myRootSegment.objects.Add(existingPlayer);
@@ -301,9 +301,14 @@ public class JSONToLLM : NetworkBehaviour
         existingPlayer.position.Add(new Position(_transform.position));
         
         Vector3 velocity = (type == "Coach")
-            ? playerGO.GetComponent<HumanInterface>().velocity
+            ? keyboard.movement
             : playerGO.GetComponent<PlayerInterface>().currVelocity;
 
+        if (type == "Coach" && playerGO.GetComponent<HumanInterface>().isVR)
+        {
+            velocity = playerGO.GetComponent<HumanInterface>().velocity;
+        }
+        
         existingPlayer.velocity.Add(new Velocity(velocity));
         existingPlayer.orientation.Add(new Orientation(_transform));
 
@@ -354,7 +359,7 @@ public class JSONToLLM : NetworkBehaviour
                 }
             }
 
-            isTranscriptionComplete = true;
+            // isTranscriptionComplete = true;
 
             Debug.Log("Merged words + placeholders. Token dictionary:");
             foreach (var kvp in tokenDictionary.OrderBy(k => k.Key))
@@ -485,6 +490,8 @@ public class JSONToLLM : NetworkBehaviour
                 Debug.Log($"Time={kvp.Key:F2} => {string.Join(", ", kvp.Value)}");
             }
         }
+        
+        isTranscriptionComplete = true;
     }
 
     public void WriteFile()

@@ -173,15 +173,30 @@ public class KeyboardInput : NetworkBehaviour
     public void HandleRestart()
     {
         restarting = true;
-        StopSegment();
+        // StopSegment();
 
-        if (!timelineManager.Paused)
-        {
-            timelineManager.Pause();
-        }
+        // if (!timelineManager.Paused)
+        // {
+        //     timelineManager.Pause();
+        // }
 
         canClick = false;
-        saveDemoCanvas.SetActive(true);
+
+        // saveDemoCanvas.GetComponent<Canvas>().worldCamera = GameObject.Find("CenterEyeAnchor").GetComponent<Camera>();
+        RPC_CanvasSetActive(true);
+        Transform vrTrans = GameObject.FindGameObjectWithTag("human").GetComponent<HumanInterface>().vrTransform;
+        
+        Vector3 canvasPos = vrTrans.position + vrTrans.forward * 5f;
+        canvasPos.y = Mathf.Max(canvasPos.y, 3f);
+        saveDemoCanvas.transform.position = canvasPos;
+        
+        saveDemoCanvas.transform.rotation = UnityEngine.Quaternion.LookRotation(saveDemoCanvas.transform.position - vrTrans.position);
+    }
+    
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    public void RPC_CanvasSetActive(bool active)
+    {
+        saveDemoCanvas.SetActive(active);
     }
 
     // Press B: toggle segment (start/stop)
@@ -469,7 +484,7 @@ public class KeyboardInput : NetworkBehaviour
 
             string baseText = "TRANSCRIPTION PROCESSING";
             int dotCount = 0;
-            countdownText.fontSize = 100;
+            countdownText.fontSize = 40;
 
             while (!jsonToLLM.isTranscriptionComplete)
             {

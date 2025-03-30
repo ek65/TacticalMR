@@ -161,7 +161,7 @@ public class JSONStatusMaker : MonoBehaviour
             Vector3ToJsonClass(velo, pData.movementData.velocity);
             pData.movementData.speed = velo.magnitude;
             pData.movementData.ballPossession = hI.ballPossession;
-            pData.movementData.behavior = hI.behavior;
+            pData.movementData.behavior = hI.behavior.Value;
             
         }
         else // non-human player
@@ -172,7 +172,7 @@ public class JSONStatusMaker : MonoBehaviour
             
             PlayerInterface pI = player.GetComponent<PlayerInterface>();
             pData.movementData.ballPossession = pI.ballPossession;
-            pData.movementData.behavior = pI.behavior;
+            pData.movementData.behavior = pI.behavior.Value;
             Vector3 velo = pI.currVelocity;
             Vector3ToJsonClass(velo, pData.movementData.velocity);
             pData.movementData.speed = velo.magnitude;
