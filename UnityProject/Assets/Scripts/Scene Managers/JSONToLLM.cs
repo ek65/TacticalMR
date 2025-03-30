@@ -176,25 +176,25 @@ public class JSONToLLM : NetworkBehaviour
         }
         
         // corners
-        for (int i = 1; i <= 4; i++)
-        {
-            GameObject cornerGO = GameObject.Find("corner" + i);
-            if (cornerGO != null)
-            {
-                var cornerData = (Corner)myRootSegment.objects
-                    .Find(obj => obj is Corner c && c.id == "corner" + i);
-
-                if (cornerData == null)
-                {
-                    cornerData = new Corner { id = "corner" + i };
-                    myRootSegment.objects.Add(cornerData);
-                }
-
-                cornerData.position.Add(new Position(cornerGO.transform.position));
-                cornerData.velocity.Add(new Velocity(Vector3.zero));
-                cornerData.orientation.Add(new Orientation(cornerGO.transform));
-            }
-        }
+        // for (int i = 1; i <= 4; i++)
+        // {
+        //     GameObject cornerGO = GameObject.Find("corner" + i);
+        //     if (cornerGO != null)
+        //     {
+        //         var cornerData = (Corner)myRootSegment.objects
+        //             .Find(obj => obj is Corner c && c.id == "corner" + i);
+        //
+        //         if (cornerData == null)
+        //         {
+        //             cornerData = new Corner { id = "corner" + i };
+        //             myRootSegment.objects.Add(cornerData);
+        //         }
+        //
+        //         cornerData.position.Add(new Position(cornerGO.transform.position));
+        //         cornerData.velocity.Add(new Velocity(Vector3.zero));
+        //         cornerData.orientation.Add(new Orientation(cornerGO.transform));
+        //     }
+        // }
         
         // defense players
         foreach (GameObject currPlayer in objectsList.defensePlayers)

@@ -16,6 +16,8 @@ public class HumanInterface : NetworkBehaviour
     [Networked(OnChanged = nameof(OnNameChanged))] public NetworkString<_32> ObjName { get; set; }
     public bool isVR = false;
 
+    public bool isViewer = false;
+    
     private int localTick;  // NOTE: This is not the true tick and is what we will use to internally record a timestep.
 
     private ExitScenario exitScene;
@@ -73,7 +75,7 @@ public class HumanInterface : NetworkBehaviour
     public FloatingText floatingBehaviorText;
     public FloatingText floatingNameText;
     
-    public bool ally;
+    public bool ally = true;
     public Renderer shirt;
     
     // Start is called before the first frame update
@@ -130,7 +132,7 @@ public class HumanInterface : NetworkBehaviour
             // forwardArrow.SetActive(false);
         }
         
-        if (objectList.humanPlayers.Count == 0)
+        if (objectList.humanPlayers.Count == 0 && !isViewer)
         {
             objectList.humanPlayers.Add(this.gameObject);
         }
@@ -144,12 +146,16 @@ public class HumanInterface : NetworkBehaviour
         
         // find gameobject with tag "InfoCanvas" and assign the canvas object to this object's camera
         GameObject infoCanvas = GameObject.FindGameObjectWithTag("InfoCanvas");
-        if (infoCanvas != null)
+        if (gm.isHost && isVR && infoCanvas != null && !isViewer)
         {
             infoCanvas.GetComponent<Canvas>().worldCamera = Camera.main;
+
             // set the parent of the canvas to the vr camera and scale it down
             infoCanvas.transform.SetParent(vrCam.gameObject.transform);
             // infoCanvas.transform.localScale = new Vector3(0.001f, 0.001f, 0.001f);
+            
+            RectTransform t = GameObject.Find("Paused Text").GetComponent<RectTransform>();
+            t.anchoredPosition = new Vector3(t.position.x, 100);
         }
     }
     
@@ -193,7 +199,7 @@ public class HumanInterface : NetworkBehaviour
         GameManager gm = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
         
         // TODO: RE-ADD, IMPLEMENT IsRobotScenario Bool in Scenic Manager, DISABLED FOR NOW FOR VR TESTING
-        closestPlayerInDirection = GetClosestToLinePoint(objectList.defensePlayers);
+        // closestPlayerInDirection = GetClosestToLinePoint(objectList.defensePlayers);
         if (ballPossession)
         {
             if (gm.isHost)
@@ -312,6 +318,18 @@ public class HumanInterface : NetworkBehaviour
         if (Object.HasStateAuthority) // Only the host or owner should update this
         {
             ObjName = newName; // This will trigger OnNameChanged() on all clients
+        }
+    }
+    
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    public void RPC_InstantiateValues(bool isAlly = false)
+    {
+        if (isAlly)
+        {
+            ally = true;
+            
+            ObjectsList objectList = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<ObjectsList>();
+            objectList.humanPlayers.Add(this.gameObject);
         }
     }
     
@@ -575,9 +593,14 @@ public class HumanInterface : NetworkBehaviour
         }
 
         closestPlayerInDirection = GetClosestToLinePoint(objectList.defensePlayers);
+        if (closestPlayerInDirection == null)
+        {
+            return;
+        }
         LogPass();
         actionAPI.GroundPassFast(closestPlayerInDirection.transform.position);
         StartCoroutine(ResetToMovementController());
+        closestPlayerInDirection = null;
     }
     
     public void ThroughPass()
@@ -635,14 +658,29 @@ public class HumanInterface : NetworkBehaviour
         GameObject closestPoint = null;
         float minDist = Mathf.Infinity;
         
+        float maxDistanceFromRay = 1.0f; // ← How far off the ray a player can be
+        float maxForwardDotThreshold = 0.5f; // ← Between -1 (behind) to 1 (fully ahead)
+        
         foreach (var obj in points)
         {
-            Vector3 closestPointOnRay = GetClosestPointOnRay(ray, obj.transform.position);
-            float distance = Vector3.Distance(closestPointOnRay, obj.transform.position);
+            Vector3 toPlayer = obj.transform.position - pos;
+            toPlayer.y = 0;
 
-            if (distance < minDist)
+            // Ignore if behind
+            float dot = Vector3.Dot(forward, toPlayer.normalized);
+            if (dot < maxForwardDotThreshold) continue;
+
+            // Closest point on the ray
+            Vector3 closestPointOnRay = GetClosestPointOnRay(ray, obj.transform.position);
+            float distanceFromRay = Vector3.Distance(closestPointOnRay, obj.transform.position);
+
+            // Ignore if too far from ray
+            if (distanceFromRay > maxDistanceFromRay) continue;
+
+            float distanceAlongRay = Vector3.Distance(pos, closestPointOnRay);
+            if (distanceAlongRay < minDist)
             {
-                minDist = distance;
+                minDist = distanceAlongRay;
                 closestPoint = obj;
             }
         }

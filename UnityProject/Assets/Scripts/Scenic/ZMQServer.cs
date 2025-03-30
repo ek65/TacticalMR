@@ -72,7 +72,7 @@ public class ZMQServer : MonoBehaviour
         {
             return;
         }
-        // Debug.Log(newData);
+        Debug.Log(newData);
         
             ScenicParser.ScenicJson jsonResult = parser.ParseData(newData);
             int scenicTick = GetTickFromData(jsonResult);

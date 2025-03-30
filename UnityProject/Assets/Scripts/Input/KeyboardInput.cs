@@ -507,6 +507,10 @@ public class KeyboardInput : NetworkBehaviour
         if (rb == null)
         {
             GameObject coachObject = GameObject.FindGameObjectWithTag("human");
+            if (coachObject == null)
+            {
+                return;
+            }
             if (coachObject != null)
             {
                 rb = coachObject.GetComponent<Rigidbody>();

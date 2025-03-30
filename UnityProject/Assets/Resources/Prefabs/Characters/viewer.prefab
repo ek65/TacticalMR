@@ -3657,7 +3657,7 @@ GameObject:
   - component: {fileID: 5137664034948751200}
   m_Layer: 0
   m_Name: Collider
-  m_TagString: human
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -3694,7 +3694,7 @@ CapsuleCollider:
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 2
   m_Radius: 0.3
   m_Height: 4
@@ -7616,6 +7616,7 @@ MonoBehaviour:
     _data:
       Data: 0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
   isVR: 1
+  isViewer: 1
   actionAPI: {fileID: 7931071149889132123}
   arrowGenerator: {fileID: 7110823724380065530, guid: 26b12c5175ce74367855bef2c3770e55, type: 3}
   circleGenerator: {fileID: 1733937925117977002, guid: 0bbdbc210306445569ca42107d04ac14, type: 3}
@@ -13943,7 +13944,7 @@ GameObject:
   - component: {fileID: 2942633683847998349}
   m_Layer: 0
   m_Name: Hips
-  m_TagString: human
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -27739,7 +27740,7 @@ GameObject:
   - component: {fileID: 576754057853132569}
   m_Layer: 0
   m_Name: player.human
-  m_TagString: player
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -30290,7 +30291,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   replayIdentity:
-    id: 61218
+    id: 8160
   replayObject:
     reference: {fileID: 3432044319954464094}
   replayRootBonePosition: 23
@@ -30384,7 +30385,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   replayIdentity:
-    id: 63373
+    id: 61388
   replayObject:
     reference: {fileID: 3432044319954464094}
   replayPosition: 23
@@ -30409,7 +30410,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   instantiateIdentity: 1
   replayIdentity:
-    id: 8461
+    id: 55783
   prefabIdentity:
     id: 65519
   observedComponents:
@@ -30433,7 +30434,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   replayIdentity:
-    id: 23730
+    id: 31472
   replayObject:
     reference: {fileID: 3432044319954464094}
   replayBodyPosition: 6

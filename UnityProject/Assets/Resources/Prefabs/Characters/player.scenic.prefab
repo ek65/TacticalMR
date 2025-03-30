@@ -3185,13 +3185,18 @@ MonoBehaviour:
   force: 18
   distToBall: 0
   goal: {fileID: 0}
-  ballPossession: 0
+  _ballPossession:
+    _value: 0
   ballPosition: {fileID: 8665160898920370539}
+  _currVelocity: {x: 0, y: 0, z: 0}
   canKickBall: 1
   actionAPI: {fileID: 8665160898893140851}
   floatingBehaviorText: {fileID: 2924768386710636713}
   floatingNameText: {fileID: 1178881000}
-  behavior: Idle
+  _behavior:
+    _length: 0
+    _data:
+      Data: 0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
   currAction: No Action
   isRobot: 0
   objectPosition: {fileID: 0}
@@ -3842,7 +3847,7 @@ MonoBehaviour:
   m_Script: {fileID: 506319458, guid: e725a070cec140c4caffb81624c8c787, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _interpolationDataSource: 3
+  _interpolationDataSource: 0
   Animator: {fileID: 0}
   TotalWords: 3
   SyncSettings: 79

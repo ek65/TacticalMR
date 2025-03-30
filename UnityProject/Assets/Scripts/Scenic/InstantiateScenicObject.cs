@@ -117,24 +117,30 @@ public class InstantiateScenicObject
         {
             if (objectList.humanPlayers.Count == 0)
             {
-                Debug.LogError("in here: " + objectList.humanPlayers.Count);
+                // Debug.LogError("in here: " + objectList.humanPlayers.Count);
                 if (modelType == "Human")
                 {
-                    Debug.LogError("in here2 ");
                     // Change to "player.human VR" for VR human, otherwise "player.human"
                     addedGameObject = MonoBehaviour.Instantiate(objectList.modelList["player.human VR"], pos, rot);
                 } else if (modelType == "Coach")
                 {
-                    addedGameObject = MonoBehaviour.Instantiate(objectList.modelList["player.coach"], pos, rot);
+                    // addedGameObject = MonoBehaviour.Instantiate(objectList.modelList["player.coach"], pos, rot);
+                    NetworkRunner runner = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>()._runner;
+                    NetworkObject temp = runner.Spawn(objectList.modelList["player.coach"], pos, rot);
+                    addedGameObject = temp.gameObject;
                 }
                 else if (modelType == "RobotCoach")
                 {
                     addedGameObject = MonoBehaviour.Instantiate(objectList.modelList["player.robot"], pos, rot);
                 }
                 //scenicPlayer.GetComponent<NetworkObject>().Spawn();
-                addedGameObject.name = "Coach";
-                objectList.humanPlayers.Add(addedGameObject);
-                addedGameObject.GetComponentInChildren<HumanInterface>().ally = true;
+                HumanInterface hI = addedGameObject.GetComponent<HumanInterface>();
+                hI.RPC_InstantiateValues();
+                hI.SetObjectName("Coach");
+                // addedGameObject.name = "Coach";
+                
+                // objectList.humanPlayers.Add(addedGameObject);
+                // addedGameObject.GetComponentInChildren<HumanInterface>().ally = true;
                 //objectList.orangePlayers.Add(scenicPlayer.GetComponent<NetworkObject>().NetworkInstanceId);
                 Debug.Log("Added Human Player");
             }

@@ -50,7 +50,11 @@ public class GroundSelection : MonoBehaviour, IPointerClickHandler, IPointerEnte
 #if UNITY_ANDROID
         // android raycast
         GameObject human = GameObject.FindGameObjectWithTag("human");
-        if (human != null && human.GetComponent<HumanInterface>().isVR)
+        if (human == null)
+        {
+            return;
+        }
+        if (human != null && human.GetComponent<HumanInterface>().isVR && !human.GetComponent<HumanInterface>().isViewer)
         {
             Ray ray = GameObject.FindGameObjectWithTag("RightRay").GetComponent<RayInteractor>().Ray;
             if (Physics.Raycast(ray, out raycastHit))
