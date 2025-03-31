@@ -15501,7 +15501,7 @@ MonoBehaviour:
             m_BoolArgument: 0
           m_CallState: 2
   - Title: Segment
-    Button: 4
+    Button: 2
     ButtonMode: 0
     InputActionReference: {fileID: -7222465138875598189, guid: b277640baaf59410a972a670edd870f9, type: 3}
     Callback:
@@ -15520,7 +15520,7 @@ MonoBehaviour:
             m_BoolArgument: 0
           m_CallState: 2
   - Title: Restart
-    Button: 8
+    Button: 8421376
     ButtonMode: 0
     InputActionReference: {fileID: -7222465138875598189, guid: b277640baaf59410a972a670edd870f9, type: 3}
     Callback:
@@ -15539,7 +15539,7 @@ MonoBehaviour:
             m_BoolArgument: 0
           m_CallState: 2
   - Title: Pass
-    Button: 8192
+    Button: 4
     ButtonMode: 0
     InputActionReference: {fileID: -7222465138875598189, guid: b277640baaf59410a972a670edd870f9, type: 3}
     Callback:
@@ -15558,7 +15558,7 @@ MonoBehaviour:
             m_BoolArgument: 0
           m_CallState: 2
   - Title: ThroughPass
-    Button: 16384
+    Button: 8
     ButtonMode: 0
     InputActionReference: {fileID: -7222465138875598189, guid: b277640baaf59410a972a670edd870f9, type: 3}
     Callback:
