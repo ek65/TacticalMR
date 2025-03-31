@@ -78,6 +78,15 @@ public class GameManager : NetworkBehaviour, INetworkRunnerCallbacks
 		{
 			// ball.transform.position = new Vector3(0, 1, 1);
 		}
+
+		if (isHost)
+		{
+			GameObject ground = GameObject.FindGameObjectWithTag("Ground");
+			ground.GetComponent<MeshRenderer>().enabled = false;
+			
+			GameObject soccerField = GameObject.Find("Soccer Field");
+			soccerField.GetComponent<MeshRenderer>().enabled = false;
+		}
 	}
 
 	#endregion
