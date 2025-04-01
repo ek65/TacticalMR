@@ -277,6 +277,7 @@ public class JSONDirectory : MonoBehaviour
 
     public void DoNotSaveDemonstrationButton()
     {
+        Debug.LogError("in DoNotSaveDemonstrationButton()");
         // when finished prompting the user, unpause then restart the scenario
         StartCoroutine(UnpauseAndEndScenario());
     }
@@ -285,10 +286,10 @@ public class JSONDirectory : MonoBehaviour
     {
         JSONToLLM jsonToLLM = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<JSONToLLM>();
         keyboardInput.RPC_CanvasSetActive(false);
-        while (!jsonToLLM.isTranscriptionComplete) // Wait until transcription is done
-        {
-            yield return new WaitForSeconds(0.5f);
-        }
+        // while (!jsonToLLM.isTranscriptionComplete) // Wait until transcription is done
+        // {
+        //     yield return new WaitForSeconds(0.5f);
+        // }
         yield return new WaitForSeconds(0.5f);
         // adding this reset here in case, it also resets in ObjectsList.cs in Reset()
         keyboardInput.timelineManager.Unpause();

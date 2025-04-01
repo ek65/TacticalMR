@@ -615,11 +615,27 @@ public class JSONToLLM : NetworkBehaviour
 
     public void ResetSegmentData()
     {
+        // Reset segment data
         myRootSegment = new RootSegment();
         time = 0;
         tokenDictionary.Clear();
         keyboard.explanation = "";
+    
+        // Reset network synchronization state
+        RPC_ResetNetworkSync();
+    
+        // Reset recording state
+        videoIsRecording = false;
+        isLogging = false;
         Debug.Log("Segment data has been reset.");
+    }
+    
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    public void RPC_ResetNetworkSync()
+    {
+        totalChunksSent = 0;
+        totalChunksReceived = 0;
+        isTranscriptionComplete = false;
     }
 
     void FixedUpdate()

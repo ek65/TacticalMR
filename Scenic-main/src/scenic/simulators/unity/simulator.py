@@ -54,5 +54,4 @@ class UnitySimulation(Simulation):
     def destroy(self):
         print("Destroying Simulation")
         self.client.destroy_all()
-        self.objects = []
         super().destroy()

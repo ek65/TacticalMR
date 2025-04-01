@@ -3220,14 +3220,14 @@ MonoBehaviour:
   centerBackingField: 1
   locked: 0
   lockWhenNotMoving: 1
-  agentTimeHorizon: 5
-  obstacleTimeHorizon: 2
+  agentTimeHorizon: 10
+  obstacleTimeHorizon: 5
   maxNeighbours: 10
   layer: 1
-  collidesWith: -1
+  collidesWith: 2147483646
   wallAvoidForce: 1
   wallAvoidFalloff: 1
-  priority: 0.5
+  priority: 1
   debug: 0
 --- !u!114 &3935114081019006077
 MonoBehaviour:
@@ -3270,7 +3270,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   version: 5
-  radius: 0.1
+  radius: 0.5
   height: 2
   canMove: 1
   maxSpeed: 7

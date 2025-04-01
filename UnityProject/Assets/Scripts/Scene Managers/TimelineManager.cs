@@ -34,7 +34,7 @@ public class TimelineManager : NetworkBehaviour
 {
     public List<Rewindable> rewindables;
     
-    public Dictionary<GameObject, RewindableTimeSeries> Timeseries;
+    // public Dictionary<GameObject, RewindableTimeSeries> Timeseries;
     public bool rewinding = false;
     public bool advancing = false;
     public bool Paused = false;
@@ -55,7 +55,7 @@ public class TimelineManager : NetworkBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        Timeseries = new Dictionary<GameObject, RewindableTimeSeries>();
+        // Timeseries = new Dictionary<GameObject, RewindableTimeSeries>();
         rewindables = new List<Rewindable>();
         InstantiateScenicObject.Publish += InitializeOnScenicAdd;
         camera = Camera.main;
@@ -79,7 +79,7 @@ public void InitializeTimeline()
   
         foreach (Rewindable r in rewindables)
         {
-            Timeseries.Add(r.gameObject, new RewindableTimeSeries());
+            // Timeseries.Add(r.gameObject, new RewindableTimeSeries());
         }
         // InstantiateScenicObject.Pub(this.gameObject);
   
@@ -92,7 +92,7 @@ public void InitializeTimeline()
             rewindables.Add(rewindable);
         }
  
-        Timeseries.Add(eventArg.gameObject, new RewindableTimeSeries());
+        // Timeseries.Add(eventArg.gameObject, new RewindableTimeSeries());
         
     }
     public void ClickPause()
@@ -135,7 +135,7 @@ public void InitializeTimeline()
             }
         }
         // reset timeseries
-        Timeseries = new Dictionary<GameObject, RewindableTimeSeries>();
+        // Timeseries = new Dictionary<GameObject, RewindableTimeSeries>();
         InitializeTimeline();
         // reset time index on unpause
         TimeIndex = 0;
@@ -210,7 +210,7 @@ public void InitializeTimeline()
             RewindTimeIndex -= 1;
             foreach(Rewindable r in rewindables)
             {
-                r.ApplySnippet(Timeseries[r.gameObject].GetMomentSnippet(RewindTimeIndex));
+                // r.ApplySnippet(Timeseries[r.gameObject].GetMomentSnippet(RewindTimeIndex));
             }
         }
         else if (Paused && advancing)
@@ -224,7 +224,7 @@ public void InitializeTimeline()
             RewindTimeIndex += 1;
             foreach(Rewindable r in rewindables)
             {
-                r.ApplySnippet(Timeseries[r.gameObject].GetMomentSnippet(RewindTimeIndex));
+                // r.ApplySnippet(Timeseries[r.gameObject].GetMomentSnippet(RewindTimeIndex));
             }
             
         }
@@ -239,7 +239,7 @@ public void InitializeTimeline()
     {
        foreach(Rewindable r in rewindables)
         {
-            Timeseries[r.gameObject].RecordTransform(r.transform);
+            // Timeseries[r.gameObject].RecordTransform(r.transform);
         }
 
     }
@@ -258,7 +258,7 @@ public void InitializeTimeline()
 
     public void Reset()
     {
-        Timeseries = new Dictionary<GameObject, RewindableTimeSeries>();
+        // Timeseries = new Dictionary<GameObject, RewindableTimeSeries>();
         rewindables = new List<Rewindable>();
         segmentCount = -1;
         JSONDirectory jsonDirectory = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<JSONDirectory>();

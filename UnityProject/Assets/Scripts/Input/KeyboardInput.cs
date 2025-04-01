@@ -8,6 +8,8 @@ using OpenAI.Samples.Chat;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
+using Utilities.Extensions;
 using Whisper.Samples;
 using Vector3 = UnityEngine.Vector3;
 
@@ -49,6 +51,8 @@ public class KeyboardInput : NetworkBehaviour
     private bool isPositionMode = false;
     private bool isReferenceMode = false;
     public string explanation;
+
+    public GameObject recordingDot;
 
     void Start()
     {
@@ -93,7 +97,8 @@ public class KeyboardInput : NetworkBehaviour
         // Press E to restart
         if (Input.GetKeyDown(KeyCode.E) && gameObject.CompareTag("keyboard"))
         {
-            HandleRestart();
+            jsonDirectory.DoNotSaveDemonstrationButton();
+            // HandleRestart();
         }
 
         // Press B to toggle segment
@@ -172,6 +177,15 @@ public class KeyboardInput : NetworkBehaviour
     // Restart scenario
     public void HandleRestart()
     {
+        if (jsonToLLM.isLogging)
+        {
+            return;
+        }
+        if (saveDemoCanvas.activeSelf)
+        {
+            saveDemoCanvas.SetActive(false);
+            return;
+        }
         restarting = true;
         // StopSegment();
 
@@ -184,7 +198,14 @@ public class KeyboardInput : NetworkBehaviour
 
         // saveDemoCanvas.GetComponent<Canvas>().worldCamera = GameObject.Find("CenterEyeAnchor").GetComponent<Camera>();
         RPC_CanvasSetActive(true);
+        ObjectsList objectsList = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<ObjectsList>();
+        
         Transform vrTrans = GameObject.FindGameObjectWithTag("human").GetComponent<HumanInterface>().vrTransform;
+        
+        if (objectsList.viewerPlayer != null)
+        {
+            vrTrans = objectsList.viewerPlayer.GetComponent<HumanInterface>().vrTransform;
+        }
         
         Vector3 canvasPos = vrTrans.position + vrTrans.forward * 5f;
         canvasPos.y = Mathf.Max(canvasPos.y, 3f);
@@ -248,6 +269,8 @@ public class KeyboardInput : NetworkBehaviour
             segmentStarted = true;
             timelineManager.segmentCount++;
 
+            recordingDot.GetComponent<Image>().SetActive(true);
+
             segmentStartTime = Time.time;
 
             if (gm.isHost)
@@ -301,6 +324,8 @@ public class KeyboardInput : NetworkBehaviour
         timelineManager.isRecordingSegment = false;
         jsonToLLM.isLogging = false; // triggers video stop in JSONToLLM - NOT ANYMORE, now done in FileCoroutine
         segmentStarted = false;
+        
+        recordingDot.GetComponent<Image>().SetActive(false);
         // jsonToLLM.activateSystemRecording = true;
         // Stop audio
         

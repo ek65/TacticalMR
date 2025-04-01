@@ -9,6 +9,7 @@ using System;
 using System.Linq;
 using Fusion;
 using OpenAI.Samples.Chat;
+using Pathfinding;
 using UnityEngine.InputSystem;
 
 public class HumanInterface : NetworkBehaviour
@@ -136,6 +137,11 @@ public class HumanInterface : NetworkBehaviour
         {
             objectList.humanPlayers.Add(this.gameObject);
         }
+
+        if (isViewer)
+        {
+            objectList.viewerPlayer = this.gameObject;
+        }
         
         // make sure vr cam is not enabled for client
         Camera vrCam = GameObject.Find("CenterEyeAnchor").GetComponent<Camera>();
@@ -146,7 +152,7 @@ public class HumanInterface : NetworkBehaviour
         
         // find gameobject with tag "InfoCanvas" and assign the canvas object to this object's camera
         GameObject infoCanvas = GameObject.FindGameObjectWithTag("InfoCanvas");
-        if (gm.isHost && isVR && infoCanvas != null && !isViewer)
+        if (gm.isHost && isVR && infoCanvas != null)
         {
             infoCanvas.GetComponent<Canvas>().worldCamera = Camera.main;
 
@@ -156,6 +162,9 @@ public class HumanInterface : NetworkBehaviour
             
             RectTransform t = GameObject.Find("Paused Text").GetComponent<RectTransform>();
             t.anchoredPosition = new Vector3(t.position.x, 100);
+            
+            RectTransform t2 = GameObject.Find("Recording Dot").GetComponent<RectTransform>();
+            t2.anchoredPosition = new Vector3(300, 150);
         }
     }
     
@@ -339,7 +348,7 @@ public class HumanInterface : NetworkBehaviour
         GameManager gm = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
         if (gm.isHost)
         {
-            if (other.collider.CompareTag("ball") && canPossessBall && ballOwnership.heldByScenic == false)
+            if (other.collider.CompareTag("ball") && canPossessBall && ballOwnership.heldByScenic == false && !ballPossession)
             {
                 GainPossession(other.gameObject);
             }
@@ -804,8 +813,12 @@ public class HumanInterface : NetworkBehaviour
         this.transform.position = pos;
         this.transform.rotation = rot;
 
-        vrTransform.position = pos;
-        vrTransform.rotation = rot;
+        if (isVR)
+        {
+            vrTransform.position = pos;
+            vrTransform.rotation = rot;
+        }
+        
         this.GetComponent<Rigidbody>().isKinematic = true;
 
         Debug.LogWarning("Local: I am transforming to: " + pos.ToString());
@@ -823,9 +836,12 @@ public class HumanInterface : NetworkBehaviour
     public void ResetHuman()
     {
         LosePossession();
+        ballPossession = false;
+        
         if (actionAPI)
         {
             actionAPI.alreadyInAnimation = false;
+            actionAPI.RPC_SetAnimController("Movement");
         }
 
         if (forwardArrow)
@@ -833,6 +849,20 @@ public class HumanInterface : NetworkBehaviour
             forwardArrow.GetComponentInChildren<ArrowGenerator>().RPC_SetActiveState(false);
             // forwardArrow.SetActive(false);
         }
+        
+        if (this.GetComponent<AIDestinationSetter>())
+        {
+            AIDestinationSetter dest = this.GetComponent<AIDestinationSetter>();
+            RichAI aiNav = this.GetComponent<RichAI>();
+            
+            dest.target.localPosition = Vector3.zero;
+            actionAPI.stopMovement = true;
+            
+            this.GetComponent<Animator>().SetFloat("VelZ", 0);
+            this.GetComponent<Animator>().SetFloat("VelX", 0);
+        }
+        
+        localTick = 0;
     }
     
     public void SpawnCircle(Vector3 pos)

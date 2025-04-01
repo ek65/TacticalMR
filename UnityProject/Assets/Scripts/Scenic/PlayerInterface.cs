@@ -177,7 +177,7 @@ public class PlayerInterface : NetworkBehaviour
         GameManager gm = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
         if (gm.isHost)
         {
-            if (other.collider.CompareTag("ball") && canPossessBall)
+            if (other.collider.CompareTag("ball") && canPossessBall && !ballPossession)
             {
                 GainPossession(other);
             }
