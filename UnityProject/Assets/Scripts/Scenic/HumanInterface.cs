@@ -301,6 +301,7 @@ public class HumanInterface : NetworkBehaviour
     private void UpdateGameObjectName()
     {
         gameObject.name = ObjName.ToString();
+        floatingNameText.SetText2(this.gameObject.name);
     }
     
     // static void OnBallPossessionChanged(Changed<HumanInterface> changed)
