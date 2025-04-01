@@ -358,7 +358,18 @@ public class HumanInterface : NetworkBehaviour
 
     private void LogIntercept()
     {
-        RPC_LogIntercept();
+        int interceptID = keyboardInput.clickOrder;
+        float interceptTime = jsonToLLM.time;
+        
+        keyboardInput.annotation.Add(keyboardInput.clickOrder, new Dictionary<string, string>
+        {
+            { "type", "Intercept" }
+        });
+
+        keyboardInput.annotationTimes.Add(interceptID, interceptTime);
+        Debug.Log($"Intercept action recorded with ID {interceptID} at time: {interceptTime}");
+        keyboardInput.clickOrder++; 
+        // RPC_LogIntercept();
     }
 
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
@@ -379,7 +390,29 @@ public class HumanInterface : NetworkBehaviour
     
     private void LogPass()
     {
-        RPC_LogPass();
+        if (closestPlayerInDirection == null)
+        {
+            Debug.LogWarning("No target player found for pass.");
+            return;
+        }
+
+        int passID = keyboardInput.clickOrder;
+        float passTime = jsonToLLM.time;
+    
+        GameObject targetPlayer = closestPlayerInDirection;
+        keyboardInput.annotation.Add(passID, new Dictionary<string, object>
+        {
+            { "type", "Pass" },
+            { "from", this.name },
+            { "to", targetPlayer.name }
+        });
+
+        keyboardInput.annotationDescriptions.Add(passID, $"({this.name} passed to {targetPlayer.name})");
+        
+        keyboardInput.annotationTimes.Add(passID, passTime);
+        Debug.Log($"Pass action recorded with ID {passID}, from: {this.name} to: {targetPlayer.name} at time: {passTime}");
+        keyboardInput.clickOrder++; 
+        // RPC_LogPass();
     }
     
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
@@ -463,7 +496,27 @@ public class HumanInterface : NetworkBehaviour
 
     private void LogThroughPass(Vector3 pos)
     {
-        RPC_LogThroughPass(pos);
+        int passID = keyboardInput.clickOrder;
+        float passTime = jsonToLLM.time;
+
+        var pointDict = new Dictionary<string, float>
+        {
+            { "x", pos.x },
+            { "y", pos.z }
+        };
+        keyboardInput.annotation.Add(passID, new Dictionary<string, object>
+        {
+            { "type", "Through Pass" },
+            { "from", this.name},
+            { "to", pointDict }
+        });
+        
+        keyboardInput.annotationDescriptions.Add(passID, $"({this.name} passed to position: {pointDict})");
+    
+        keyboardInput.annotationTimes.Add(passID, passTime);
+        Debug.Log($"Through Pass action recorded with ID {passID} at time: {passTime}");
+        keyboardInput.clickOrder++; 
+        // RPC_LogThroughPass(pos);
     }
 
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
@@ -552,7 +605,20 @@ public class HumanInterface : NetworkBehaviour
     
     private void LogReceiveBall()
     {
-        RPC_LogReceiveBall();
+        int receiveBallID = keyboardInput.clickOrder;
+        float receiveBallTime = jsonToLLM.time;
+        keyboardInput.annotation.Add(receiveBallID, new Dictionary<string, object>
+        {
+            { "type", "ReceiveBall" },
+            { "player", this.gameObject.name }
+        });
+        keyboardInput.annotationDescriptions.Add(receiveBallID, $"({this.gameObject.name} received the ball)");
+        
+        keyboardInput.annotationTimes.Add(receiveBallID, receiveBallTime);
+        Debug.Log($"ReceiveBall action recorded with ID {receiveBallID} at time: {receiveBallTime}");
+        
+        keyboardInput.clickOrder++;
+        // RPC_LogReceiveBall();
     }
 
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]

@@ -299,7 +299,7 @@ public class KeyboardInput : NetworkBehaviour
         // jsonToLLM.voiceActivated = false;
         Debug.Log("Stopped segment recording");
         timelineManager.isRecordingSegment = false;
-        jsonToLLM.isLogging = false; // triggers video stop in JSONToLLM
+        jsonToLLM.isLogging = false; // triggers video stop in JSONToLLM - NOT ANYMORE, now done in FileCoroutine
         segmentStarted = false;
         // jsonToLLM.activateSystemRecording = true;
         // Stop audio
@@ -320,12 +320,6 @@ public class KeyboardInput : NetworkBehaviour
 
         StartCoroutine(ChainedCoroutines());
     }
-    
-    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
-    public void RPC_SetIsLogging(bool isLogging)
-    {
-        jsonToLLM.isLogging = isLogging;
-    }
 
     private IEnumerator HandleClickWithDelay(Action handleClickAction)
     {
@@ -337,7 +331,26 @@ public class KeyboardInput : NetworkBehaviour
 
     private void HandleAnnotationMode()
     {
-        RPC_HandleAnnotationMode();
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        
+        GameManager gm = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
+#if UNITY_ANDROID && !UNITY_EDITOR
+        ray = GameObject.FindGameObjectWithTag("RightRay").GetComponent<RayInteractor>().Ray;
+#endif
+        if (Physics.Raycast(ray, out RaycastHit hit))
+        {
+            GameObject clickedObject = hit.collider.gameObject;
+            annotation.Add(clickOrder, clickedObject);
+            annotationDescriptions.Add(clickOrder, GetDescriptionAnnotation(clickedObject));
+            objectToKey[clickedObject] = clickOrder;
+
+            float annotationRelativeTime = Time.time - segmentStartTime;
+            annotationTimes.Add(clickOrder, annotationRelativeTime);
+
+            Debug.Log($"Added {clickedObject.name} to annotations at {annotationRelativeTime:F2}s, key {clickOrder}");
+            clickOrder++;
+        }
+        // RPC_HandleAnnotationMode();
     }
 
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
@@ -366,7 +379,23 @@ public class KeyboardInput : NetworkBehaviour
 
     private void HandlePositionMode()
     {
-        RPC_HandlePositionMode();
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+#if UNITY_ANDROID && !UNITY_EDITOR
+        ray = GameObject.FindGameObjectWithTag("RightRay").GetComponent<RayInteractor>().Ray;
+#endif
+        if (Physics.Raycast(ray, out RaycastHit hit))
+        {
+            Vector3 clickedPosition = hit.point;
+            annotation.Add(clickOrder, clickedPosition);
+            annotationDescriptions.Add(clickOrder, $"(Position at {clickedPosition})");
+
+            float annotationRelativeTime = Time.time - segmentStartTime;
+            annotationTimes.Add(clickOrder, annotationRelativeTime);
+
+            Debug.Log($"Added position {clickedPosition} to annotations at {annotationRelativeTime:F2}s, key {clickOrder}");
+            clickOrder++;
+        }
+        // RPC_HandlePositionMode();
     }
 
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
@@ -387,6 +416,235 @@ public class KeyboardInput : NetworkBehaviour
 
             Debug.Log($"Added position {clickedPosition} to annotations at {annotationRelativeTime:F2}s, key {clickOrder}");
             clickOrder++;
+        }
+    }
+    
+    private bool annotationsReady = false;
+
+    public bool AreAnnotationsSynced()
+    {
+        return annotationsReady;
+    }
+    
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    private void RPC_ClearAnnotations()
+    {
+        if (Runner.IsClient)
+        {
+            annotation.Clear();
+            annotationDescriptions.Clear();
+            annotationTimes.Clear();
+            annotationsReady = false;
+            Debug.Log("CLIENT: Cleared all annotation dictionaries");
+        }
+    }
+    
+    // Struct to hold Annotation data for RPCs
+    public struct AnnotationData : INetworkStruct
+    {
+        public int AnnotationID;
+        public byte AnnotationType; // 0 = GameObject, 1 = Vector3, 2 = Dictionary
+    
+        // For Vector3 type
+        public float PositionX;
+        public float PositionY;
+        public float PositionZ;
+    
+        // For annotation description
+        [Networked, Capacity(128)]
+        public NetworkString<_128> Description { get; set; }
+    
+        // For annotation time
+        public float AnnotationTime;
+    
+        // For GameObject and Dictionary types - Object name/type
+        [Networked, Capacity(64)]
+        public NetworkString<_64> ObjectName { get; set; }
+    
+        // For Dictionary type additional data
+        [Networked, Capacity(64)]
+        public NetworkString<_64> DictType { get; set; }
+    
+        [Networked, Capacity(64)]
+        public NetworkString<_64> DictFrom { get; set; }
+    
+        [Networked, Capacity(64)]
+        public NetworkString<_64> DictTo { get; set; }
+    
+        // For dictionary point coordinates
+        public float PointX;
+        public float PointY;
+    }
+    
+    public void SyncAnnotationsToClients()
+    {
+        if (!Runner.IsServer) return;
+        
+        // First, clear client annotations
+        RPC_ClearAnnotations();
+        
+        List<AnnotationData> allAnnotations = new List<AnnotationData>();
+        
+        // Convert all annotations to network-friendly format
+        foreach (var entry in annotation)
+        {
+            int id = entry.Key;
+            object value = entry.Value;
+            string description = annotationDescriptions.ContainsKey(id) ? annotationDescriptions[id] : "";
+            float time = annotationTimes.ContainsKey(id) ? annotationTimes[id] : 0f;
+            
+            AnnotationData data = new AnnotationData();
+            data.AnnotationID = id;
+            data.Description = description;
+            data.AnnotationTime = time;
+            
+            if (value is GameObject go)
+            {
+                data.AnnotationType = 0; // GameObject
+                data.ObjectName = go.name;
+            }
+            else if (value is Vector3 vector)
+            {
+                data.AnnotationType = 1; // Vector3
+                data.PositionX = vector.x;
+                data.PositionY = vector.y;
+                data.PositionZ = vector.z;
+            }
+            else if (value is Dictionary<string, object> dictValue)
+            {
+                data.AnnotationType = 2; // Dictionary
+                
+                // Handle common dictionary fields
+                if (dictValue.ContainsKey("type"))
+                    data.DictType = dictValue["type"].ToString();
+                    
+                if (dictValue.ContainsKey("player") || dictValue.ContainsKey("from"))
+                    data.DictFrom = dictValue.ContainsKey("player") ? dictValue["player"].ToString() : dictValue["from"].ToString();
+                    
+                if (dictValue.ContainsKey("to"))
+                {
+                    if (dictValue["to"] is Dictionary<string, float> pointDict)
+                    {
+                        data.PointX = pointDict.ContainsKey("x") ? pointDict["x"] : 0f;
+                        data.PointY = pointDict.ContainsKey("y") ? pointDict["y"] : 0f;
+                    }
+                    else
+                    {
+                        data.DictTo = dictValue["to"].ToString();
+                    }
+                }
+            }
+            
+            allAnnotations.Add(data);
+        }
+        
+        // Send annotations in chunks
+        const int CHUNK_SIZE = 5; // Adjust based on complexity
+        
+        for (int i = 0; i < allAnnotations.Count; i += CHUNK_SIZE)
+        {
+            int currentChunkSize = Mathf.Min(CHUNK_SIZE, allAnnotations.Count - i);
+            AnnotationData[] chunk = new AnnotationData[currentChunkSize];
+            
+            for (int j = 0; j < currentChunkSize; j++)
+            {
+                chunk[j] = allAnnotations[i + j];
+            }
+            
+            RPC_ReceiveAnnotationChunk(chunk);
+        }
+        
+        // Signal that all annotations have been sent
+        RPC_FinishAnnotationSync();
+        
+        Debug.Log($"SERVER: Sent {allAnnotations.Count} annotations to clients");
+    }
+    
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    private void RPC_ReceiveAnnotationChunk(AnnotationData[] chunk)
+    {
+        if (Runner.IsClient)
+        {
+            foreach (var data in chunk)
+            {
+                int id = data.AnnotationID;
+                
+                // Add to annotationTimes
+                annotationTimes[id] = data.AnnotationTime;
+                
+                // Add to annotationDescriptions
+                annotationDescriptions[id] = data.Description.ToString();
+                
+                // Add to annotation based on type
+                if (data.AnnotationType == 0) // GameObject
+                {
+                    // For GameObject references, we need to find the object by name
+                    string objectName = data.ObjectName.ToString();
+                    GameObject foundObj = GameObject.Find(objectName);
+                    
+                    if (foundObj != null)
+                    {
+                        annotation[id] = foundObj;
+                    }
+                    else
+                    {
+                        Debug.LogWarning($"CLIENT: Could not find GameObject named {objectName}");
+                        // Create a placeholder dictionary to avoid null references
+                        annotation[id] = new Dictionary<string, object> { { "type", "Reference" }, { "obj", objectName } };
+                    }
+                }
+                else if (data.AnnotationType == 1) // Vector3
+                {
+                    annotation[id] = new Vector3(data.PositionX, data.PositionY, data.PositionZ);
+                }
+                else if (data.AnnotationType == 2) // Dictionary
+                {
+                    Dictionary<string, object> dict = new Dictionary<string, object>();
+                    
+                    if (!string.IsNullOrEmpty(data.DictType.ToString()))
+                        dict["type"] = data.DictType.ToString();
+                        
+                    if (!string.IsNullOrEmpty(data.DictFrom.ToString()))
+                    {
+                        // Handle player or from
+                        if (data.DictType.ToString() == "ReceiveBall" || 
+                            data.DictType.ToString() == "PickUp" || 
+                            data.DictType.ToString() == "PutDown" || 
+                            data.DictType.ToString() == "Packaging")
+                        {
+                            dict["player"] = data.DictFrom.ToString();
+                        }
+                        else
+                        {
+                            dict["from"] = data.DictFrom.ToString();
+                        }
+                    }
+                    
+                    if (!string.IsNullOrEmpty(data.DictTo.ToString()))
+                    {
+                        dict["to"] = data.DictTo.ToString();
+                    }
+                    else if (data.PointX != 0 || data.PointY != 0)
+                    {
+                        // Point coordinates
+                        dict["to"] = new Dictionary<string, float> { { "x", data.PointX }, { "y", data.PointY } };
+                    }
+                    
+                    annotation[id] = dict;
+                }
+            }
+            
+            Debug.Log($"CLIENT: Received {chunk.Length} annotations");
+        }
+    }
+    
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    private void RPC_FinishAnnotationSync()
+    {
+        if (Runner.IsClient)
+        {
+            annotationsReady = true;
+            Debug.Log($"CLIENT: All annotations synced. Total annotations: {annotation.Count}");
         }
     }
 
@@ -467,10 +725,29 @@ public class KeyboardInput : NetworkBehaviour
     {
         Debug.Log("Started File Coroutine at timestamp : " + Time.time);
         yield return ProcessingTranscript();
+        
+        // Write the JSON file BEFORE stopping the recording
 #if UNITY_EDITOR
+        // First write the JSON file
         jsonToLLM.WriteFile();
+        Debug.Log("JSON file has been successfully written");
 #endif
+    
         ResetJsonData();
+        
+#if UNITY_EDITOR
+        // Only then stop the recording
+        if (recorderManager != null && recorderManager.RecorderController != null && 
+            recorderManager.RecorderController.IsRecording())
+        {
+            Debug.Log("Now stopping video recording...");
+            recorderManager.StopRecording();
+        
+            // Wait for the recording to be processed
+            yield return new WaitForSeconds(1.0f);
+            Debug.Log("Video recording stopped");
+        }
+#endif
     }
 
     private IEnumerator ProcessingTranscript()
@@ -490,15 +767,55 @@ public class KeyboardInput : NetworkBehaviour
             {
                 countdownText.text = $"{baseText}{new string('.', dotCount % 4)}";
                 dotCount++;
-                yield return new WaitForSeconds(1f);
+                yield return new WaitForSeconds(0.5f);
             }
-
+            
             countdownText.gameObject.SetActive(false);
-            countdownText.color = Color.red;
-        
-            // If you don’t want to auto-restart the segment, comment the next line:
-            // StartSegment();
+            Debug.Log("SERVER: Transcription processing complete");
         }
+        else
+        {
+            // Client-specific processing
+            countdownText.gameObject.SetActive(true);
+            countdownText.color = Color.red;
+            countdownText.fontSize = 40;
+        
+            string chunkText = "RECEIVING DATA CHUNKS";
+            int chunkDotCount = 0;
+        
+            float startTime = Time.time;
+            float timeout = 30f; // Increase timeout for longer recordings
+        
+            // Client waits for both dictionary chunks and annotations
+            while ((!jsonToLLM.AreAllChunksReceived() || !AreAnnotationsSynced()) && (Time.time - startTime < timeout))
+            {
+                if (!jsonToLLM.AreAllChunksReceived())
+                {
+                    countdownText.text = $"{chunkText} CHUNKS{new string('.', chunkDotCount % 4)}";
+                }
+                else if (!AreAnnotationsSynced())
+                {
+                    countdownText.text = $"{chunkText} ANNOTATIONS{new string('.', chunkDotCount % 4)}";
+                }
+            
+                chunkDotCount++;
+                yield return new WaitForSeconds(0.5f);
+            }
+        
+            countdownText.gameObject.SetActive(false);
+        
+            if (!jsonToLLM.AreAllChunksReceived() || !AreAnnotationsSynced())
+            {
+                Debug.LogWarning($"CLIENT: Timed out waiting for data! Chunks: {jsonToLLM.totalChunksReceived}/{jsonToLLM.totalChunksSent}, Annotations synced: {AreAnnotationsSynced()}");
+            }
+            else
+            {
+                Debug.Log("CLIENT: All data successfully received");
+            }
+        }
+
+        // If you don’t want to auto-restart the segment, comment the next line:
+        // StartSegment();
     }
 
     void FixedUpdate()
@@ -532,12 +849,12 @@ public class KeyboardInput : NetworkBehaviour
 
     private void ResetJsonData()
     {   
-#if UNITY_EDITOR
-        if (recorderManager.RecorderController.IsRecording())
-        {
-            recorderManager.StopRecording();
-        }
-#endif
+// #if UNITY_EDITOR
+//         if (recorderManager.RecorderController.IsRecording())
+//         {
+//             recorderManager.StopRecording();
+//         }
+// #endif
 
         annotation.Clear();
         annotationDescriptions.Clear();

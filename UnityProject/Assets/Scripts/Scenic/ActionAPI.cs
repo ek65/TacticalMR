@@ -1179,6 +1179,16 @@ public class ActionAPI : NetworkBehaviour
         this.finalPos = finalPos;
         this.aerialOffset = aerialOffset;
         this.forceMagnitude = forceMagnitude;
+        // RPC_SetMoveBallValues(finalPos, aerialOffset, forceMagnitude);
+    }
+    
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    public void RPC_SetMoveBallValues(Vector3 finalPos, float aerialOffset, float forceMagnitude)
+    {
+        // Debug.LogError(finalPos);
+        this.finalPos = finalPos;
+        this.aerialOffset = aerialOffset;
+        this.forceMagnitude = forceMagnitude;
     }
 
     private float WaitTime()
@@ -1264,6 +1274,10 @@ public class ActionAPI : NetworkBehaviour
     // called from animation event
     public void MoveBall()
     {
+        if (Runner.IsClient)
+        {
+            return;
+        }
         PlayerInterface pI = GetComponent<PlayerInterface>();
         HumanInterface hI = GetComponent<HumanInterface>();
 
@@ -1307,7 +1321,53 @@ public class ActionAPI : NetworkBehaviour
         // find closest opponent within 0.1m of the ball. if there is an opponent, then the ball was passed to them (for non-human player only)
         if (pI)
         {
-            RPC_LogPass();
+            GameObject closestPlayer = FindClosestPlayerToFinalPos(finalPos);
+        if (closestPlayer != null)
+        {
+            KeyboardInput keyboardInput = GameObject.FindGameObjectWithTag("keyboard").GetComponent<KeyboardInput>();
+            JSONToLLM jsonToLLM = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<JSONToLLM>();
+
+            int passID = keyboardInput.clickOrder;
+            float passTime = jsonToLLM.time;
+            
+            keyboardInput.annotation.Add(passID, new Dictionary<string, object>
+            {
+                { "type", "Pass" },
+                { "from", this.name },
+                { "to", closestPlayer.name }
+            });
+
+            keyboardInput.annotationDescriptions.Add(passID, $"({this.name} passed to {closestPlayer.name})");
+            keyboardInput.annotationTimes.Add(passID, passTime);
+            Debug.Log($"Pass action recorded with ID {passID}, from: {this.name} to: {closestPlayer.name} at time: {passTime}");
+            keyboardInput.clickOrder++; 
+        } else if (closestPlayer == null)
+        {
+            KeyboardInput keyboardInput = GameObject.FindGameObjectWithTag("keyboard").GetComponent<KeyboardInput>();
+            JSONToLLM jsonToLLM = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<JSONToLLM>();
+
+            int passID = keyboardInput.clickOrder;
+            float passTime = jsonToLLM.time;
+
+            var pointDict = new Dictionary<string, float>
+            {
+                { "x", finalPos.x },
+                { "y", finalPos.z }
+            };
+            keyboardInput.annotation.Add(passID, new Dictionary<string, object>
+            {
+                { "type", "Through Pass" },
+                { "from", this.name},
+                { "to", pointDict }
+            });
+        
+            keyboardInput.annotationDescriptions.Add(passID, $"({this.name} passed to position: {pointDict})");
+    
+            keyboardInput.annotationTimes.Add(passID, passTime);
+            Debug.Log($"Through Pass action recorded with ID {passID} at time: {passTime}");
+            keyboardInput.clickOrder++; 
+        }
+            // RPC_LogPass();
 
         }
     }
@@ -1371,7 +1431,14 @@ public class ActionAPI : NetworkBehaviour
         float closestDistanceSqr = Mathf.Infinity;
         foreach (GameObject player in players)
         {
-            Vector3 directionToTarget = player.transform.position - pos;
+            Vector3 playerPos = player.transform.position;
+            
+            if (player.GetComponent<HumanInterface>() && player.GetComponent<HumanInterface>().isVR)
+            {
+                playerPos = player.GetComponent<HumanInterface>().vrTransform.position;
+            }
+            
+            Vector3 directionToTarget = playerPos - pos;
             float dSqrToTarget = directionToTarget.sqrMagnitude;
             if (dSqrToTarget < closestDistanceSqr)
             {

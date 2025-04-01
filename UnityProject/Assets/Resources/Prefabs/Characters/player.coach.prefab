@@ -3407,7 +3407,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   replayIdentity:
-    id: 34121
+    id: 50915
   replayObject:
     reference: {fileID: 5886457986238108556}
   replayBodyPosition: 6
@@ -3432,7 +3432,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   instantiateIdentity: 1
   replayIdentity:
-    id: 15045
+    id: 40428
   prefabIdentity:
     id: 16648
   observedComponents:
@@ -3456,7 +3456,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   replayIdentity:
-    id: 60373
+    id: 62770
   replayObject:
     reference: {fileID: 5886457986238108556}
   replayPosition: 23
@@ -3480,7 +3480,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   replayIdentity:
-    id: 47450
+    id: 19368
   replayObject:
     reference: {fileID: 5886457986238108556}
   replayRootBonePosition: 23

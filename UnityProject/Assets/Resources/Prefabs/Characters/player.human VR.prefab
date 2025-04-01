@@ -27979,7 +27979,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   replayIdentity:
-    id: 1436
+    id: 59694
   replayObject:
     reference: {fileID: 2433544687417556146}
   replayBodyPosition: 6
@@ -28004,7 +28004,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   instantiateIdentity: 1
   replayIdentity:
-    id: 25755
+    id: 65274
   prefabIdentity:
     id: 16648
   observedComponents:
@@ -28028,7 +28028,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   replayIdentity:
-    id: 49700
+    id: 21291
   replayObject:
     reference: {fileID: 2433544687417556146}
   replayPosition: 23
@@ -28052,7 +28052,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   replayIdentity:
-    id: 36252
+    id: 48140
   replayObject:
     reference: {fileID: 2433544687417556146}
   replayRootBonePosition: 23
@@ -30319,7 +30319,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   replayIdentity:
-    id: 32938
+    id: 42649
   replayObject:
     reference: {fileID: 3432044319954464094}
   replayRootBonePosition: 23
@@ -30413,7 +30413,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   replayIdentity:
-    id: 17248
+    id: 20974
   replayObject:
     reference: {fileID: 3432044319954464094}
   replayPosition: 23
@@ -30438,7 +30438,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   instantiateIdentity: 1
   replayIdentity:
-    id: 3938
+    id: 27556
   prefabIdentity:
     id: 65519
   observedComponents:
@@ -30462,7 +30462,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   replayIdentity:
-    id: 44581
+    id: 62771
   replayObject:
     reference: {fileID: 3432044319954464094}
   replayBodyPosition: 6

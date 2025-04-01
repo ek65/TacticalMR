@@ -162,14 +162,14 @@ public class JSONToLLM : NetworkBehaviour
     // Called in FixedUpdate if isLogging = true
     public void PopulateSegment()
     {
-        Debug.LogError("in populate segment");
+        // Debug.LogError("in populate segment");
         PopulateSceneObjects();
         myRootSegment.timestep = timelineManager.TimeIndex;
     }
     
     public void PopulateSceneObjects()
     {
-        Debug.LogError("in populate scene objects");
+        // Debug.LogError("in populate scene objects");
         if (objectsList == null)
         {
             return;
@@ -371,6 +371,11 @@ public class JSONToLLM : NetworkBehaviour
         }
     }
     
+    // Add a new property to track how many chunks were sent by the server
+    public int totalChunksSent = 0;
+    // Add a property to track how many chunks were received by the client
+    public int totalChunksReceived = 0;
+    
     private void SyncDictionaryToClients()
     {
         // First, clear the clients' dictionaries
@@ -409,6 +414,11 @@ public class JSONToLLM : NetworkBehaviour
         
         // Now actually chunk the data and send it
         const int CHUNK_SIZE = 20; // Adjust based on token size
+        totalChunksSent = Mathf.CeilToInt((float)allData.Count / CHUNK_SIZE);
+        
+        // Send the total number of chunks to expect
+        RPC_SetExpectedChunkCount(totalChunksSent);
+        
         for (int i = 0; i < allData.Count; i += CHUNK_SIZE)
         {
             // Get the current chunk
@@ -424,8 +434,33 @@ public class JSONToLLM : NetworkBehaviour
             RPC_ReceiveDictionaryChunk(chunk);
         }
         
-        // Signal that all data has been sent
-        RPC_FinishDictionarySync();
+        // Now sync the annotations
+        keyboard.SyncAnnotationsToClients();
+        
+        // Mark transcription as complete only after both dictionary and annotations are synced
+        isTranscriptionComplete = true;
+        Debug.Log("SERVER: All chunks sent, marked transcription as complete");
+    }
+    
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    private void RPC_SetExpectedChunkCount(int count)
+    {
+        if (Runner.IsClient)
+        {
+            totalChunksReceived = 0;
+            totalChunksSent = count;
+            Debug.Log($"Client expecting {count} dictionary chunks");
+        }
+    }
+    
+    public bool AreAllChunksReceived()
+    {
+        if (Runner.IsServer)
+        {
+            return isTranscriptionComplete; // Server is done once it sends all chunks
+        }
+        
+        return totalChunksReceived >= totalChunksSent && totalChunksSent > 0;
     }
     
     // Struct to hold key-value data that Fusion can serialize
@@ -455,26 +490,40 @@ public class JSONToLLM : NetworkBehaviour
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
     private void RPC_ReceiveDictionaryChunk(KeyValueData[] chunk)
     {
-        foreach (var data in chunk)
+        if (Runner.IsClient)
         {
-            float timeKey = data.TimeKey;
-            
-            if (!tokenDictionary.ContainsKey(timeKey))
+            foreach (var data in chunk)
             {
-                tokenDictionary[timeKey] = new List<object>();
+                float timeKey = data.TimeKey;
+            
+                if (!tokenDictionary.ContainsKey(timeKey))
+                {
+                    tokenDictionary[timeKey] = new List<object>();
+                }
+            
+                if (data.IsPlaceholder == 1)
+                {
+                    // It's a placeholder
+                    tokenDictionary[timeKey].Add($"[{data.PlaceholderIndex}]");
+                }
+                else
+                {
+                    // It's a text token
+                    tokenDictionary[timeKey].Add(data.TextToken.ToString());
+                }
             }
             
-            if (data.IsPlaceholder == 1)
+            totalChunksReceived++;
+            Debug.Log($"Received chunk {totalChunksReceived}/{totalChunksSent}");
+            
+            // Check if all chunks have been received
+            if (totalChunksReceived >= totalChunksSent && totalChunksSent > 0)
             {
-                // It's a placeholder
-                tokenDictionary[timeKey].Add($"[{data.PlaceholderIndex}]");
-            }
-            else
-            {
-                // It's a text token
-                tokenDictionary[timeKey].Add(data.TextToken.ToString());
+                Debug.Log("CLIENT: All dictionary chunks received.");
+                isTranscriptionComplete = true;
             }
         }
+        
     }
     
     // RPC to signal dictionary sync is complete
@@ -496,6 +545,12 @@ public class JSONToLLM : NetworkBehaviour
 
     public void WriteFile()
     {
+        if (!AreAllChunksReceived())
+        {
+            Debug.LogWarning($"Warning: Writing file before all chunks received! ({totalChunksReceived}/{totalChunksSent})");
+        }
+    
+        Debug.Log($"Creating JSON with tokenDictionary containing {tokenDictionary.Count} entries");
         CreateJSONString();
     }
 
@@ -576,27 +631,30 @@ public class JSONToLLM : NetworkBehaviour
             Debug.Log("started logging");
         }
         
-#if UNITY_EDITOR
         if (isLogging)
         {
             // Debug.Log("JSON LOGGING");
             time += 0.02f;
+#if UNITY_EDITOR
             PopulateSegment();
             if (!recorderManager.RecorderController.IsRecording())
             {
                 recorderManager.StartRecording();
                 videoIsRecording = recorderManager.RecorderController.IsRecording();
             }
+#endif
         }
         else if (!isLogging)
         {
-            if (recorderManager.RecorderController.IsRecording())
-            {
-                recorderManager.StopRecording();
-                videoIsRecording = recorderManager.RecorderController.IsRecording();
-            }
-        }
+#if UNITY_EDITOR
+            // being handled in keyboardinput.FileCoroutine() now
+            // if (recorderManager.RecorderController.IsRecording())
+            // {
+            //     recorderManager.StopRecording();
+            //     videoIsRecording = recorderManager.RecorderController.IsRecording();
+            // }
 #endif
+        }
     }
 
 }

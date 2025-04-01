@@ -135,7 +135,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   replayIdentity:
-    id: 38738
+    id: 57279
   replayObject:
     reference: {fileID: -3407304534098775852}
   replayPosition: 23
@@ -160,7 +160,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   instantiateIdentity: 1
   replayIdentity:
-    id: 7177
+    id: 22834
   prefabIdentity:
     id: 29052
   observedComponents:
