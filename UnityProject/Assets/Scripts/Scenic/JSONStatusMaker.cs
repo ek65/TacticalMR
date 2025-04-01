@@ -29,6 +29,7 @@ public class JSONStatusMaker : MonoBehaviour
         snapTurnedLastTimestep = false;
         return JsonConvert.SerializeObject(root);
     }
+    
     void Update()
     {
         lastTick = server.lastTick;
@@ -125,13 +126,10 @@ public class JSONStatusMaker : MonoBehaviour
         
         if (isHuman)
         {
-            
-            pData.movementData.stopButton = player.GetComponent<ExitScenario>().endScenario;
-            
             // dont need to set endScenario back to false here because it is set to false in InstantiateScenicObject on the next simulation
-            if (pData.movementData.stopButton == true)
+            if (player.GetComponent<ExitScenario>() != null && lastTick > 5)
             {
-                Debug.LogError("stopbutton: " + pData.movementData.stopButton);
+                pData.movementData.stopButton = player.GetComponent<ExitScenario>().endScenario;
             }
 
             TimelineManager tlManager =

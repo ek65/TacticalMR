@@ -109,9 +109,17 @@ public class ObjectsList : MonoBehaviour
         goalObject = null;
         TimelineManager tlManager = GameObject.FindGameObjectWithTag("TimelineManager").GetComponent<TimelineManager>();
         tlManager.Reset();
+        
+        BallOwnership ballOwnership = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<BallOwnership>();
+        ballOwnership.heldByHuman = false;
+        ballOwnership.heldByScenic = false;
+        ballOwnership.ballOwner = null;
 
-        HumanInterface humanInterface = humanPlayers[0].GetComponent<HumanInterface>();
-        humanInterface.ResetHuman();
+        if (GameObject.FindGameObjectWithTag("human") != null)
+        {
+            HumanInterface humanInterface = GameObject.FindGameObjectWithTag("human").GetComponent<HumanInterface>();
+            humanInterface.ResetHuman();
+        }
         //call reset function on the ready boolean for human and index
         // humanPlayers[0].GetComponentInChildren<HumanInterface>().ResetValues();
     }
