@@ -55,20 +55,6 @@ public class ZMQServer : MonoBehaviour
             // zmqRequester.SetReady(false);
             zmqRequester.SetSendData(null);
         }
-        else if (lastTick == -1 || lastTick == 0 || lastTick == 1) // If we're at timestep 0
-        {
-            // Send a minimal reset state instead of actual state
-            JSONStatusMaker.Root emptyRoot = new JSONStatusMaker.Root();
-            // Ensure all players have default values
-            foreach (var player in emptyRoot.TickData.HumanPlayers)
-            {
-                player.movementData.ballPossession = false;
-                player.movementData.stopButton = false;
-            }
-
-            string resetStateData = JsonConvert.SerializeObject(emptyRoot);
-            zmqRequester.SetSendData(resetStateData);
-        }
         else
         {
             string newSendData = sender.getUnityData();
@@ -84,7 +70,7 @@ public class ZMQServer : MonoBehaviour
             return;
         }
 
-        Debug.Log(newData);
+        // Debug.Log(newData);
         try
         {
             ScenicParser.ScenicJson jsonResult = parser.ParseData(newData);
