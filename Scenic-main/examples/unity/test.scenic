@@ -13,7 +13,7 @@ def movesToward(player1, player2):
 behavior opponent1Behavior():
     do Idle() until ego.gameObject.ballPossession
     while True:
-        do MoveToBehavior(ball, distance = 4)
+        do MoveToBehavior(ball, distance = 3)
 
 behavior TeammateBehavior():
     try:
@@ -52,6 +52,7 @@ behavior CoachBehavior():
     do MoveTo(target_1) until termination_1(simulation())
     # do GetBall()
     print("[Pass] to the teammate")
+    do Idle() until termination_3(simulation())
     do PassTo(teammate)
     print("[MoveTo] behind the opponent")
     do MoveTo(target_2) until termination_2(simulation())
@@ -61,12 +62,12 @@ behavior CoachBehavior():
 
 # test = False
 # ego = new Human at (0, 0)
-ego = new Coach at (0,0),
+ego = new Coach at (0,-3,0),
         with behavior CoachBehavior()
 
-ball = new Ball at (0, 3)
+ball = new Ball ahead of ego by 5
 
-opponent = new Player ahead of ego by 5,
+opponent = new Player ahead of ego by 10,
                     facing toward ego,
                     with name "opponent",
                     with team "red",
@@ -101,6 +102,7 @@ def sample_target(scene, prev_target, λ_dest) -> Vector:
 
 # ----------------------
 
+
 A = DistanceTo({
     'from': 'coach',
     'to': 'opponent',
@@ -121,7 +123,7 @@ B = HasBallPossession({
 
 C = InZone({
     'obj': 'Coach',
-    'zone': ['B4','C4','D4']
+    'zone': ['B4','C4']
 })
 
 # C = HeightRelation({
@@ -136,11 +138,29 @@ C = InZone({
 D = HasAngleOfPass({
     'passer': 'teammate',
     'receiver': 'Coach',
-    'radius': {'avg': 1.0, 'std': 1.0}
+    'radius': {'avg': 2.0, 'std': 1.0}
+})
+
+E = HorizontalRelation({
+    'obj': 'Coach',
+    'ref': 'opponent',
+    'relation': 'right',
+    'x_threshold': {'avg': 3.0, 'std': 1.0},
+})
+
+F = MovingTowards({
+    'obj': 'opponent',
+    'ref': 'teammate'
+})
+
+G = CloseTo({
+    'ref': 'ball',
+    'obj': 'Coach',
+    'max': 2
 })
 
 def target_1(scene, sample):
-    return A(scene, sample)
+    return G(scene, sample)
 
 def termination_1(scene):
     return B(scene, None)
@@ -151,4 +171,5 @@ def target_2(scene, sample):
 def termination_2(scene):
     return B(scene, None)
 
-    
+def termination_3(scene):
+    return F(scene, None)

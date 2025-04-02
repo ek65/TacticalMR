@@ -31,7 +31,7 @@ behavior InterceptBall(ball):
         take MoveToAction(ball.position, "Intercept Ball")
     take StopAction()
 
-behavior PassTo(target, slow=False):
+behavior Pass(target, slow=False):
     # if the target is moving, then pass in front of the target
     # target_pass_pos = target
     # if isinstance(target, UnityObject):
@@ -71,7 +71,7 @@ behavior LookAt(vec):
     take LookAtAction(location, "Look At")
     take StopAction()
 
-behavior MoveToBehavior(v, lookAtTarget = None, distance = 0.5, status=""):
+behavior MoveToBehavior(v, lookAtTarget = None, distance = 0.2, status=""):
     dist = 1000
     while not (dist < distance):
         if isinstance(v, Ball):
@@ -150,6 +150,7 @@ def sample_target(scene, prev_target, λ_dest) -> Vector:
         i += 1
 
     sample = Vector(target[0], target[1])
+    print(f"sample: {sample}")
     return sample
 
 # MARK: MoveTo

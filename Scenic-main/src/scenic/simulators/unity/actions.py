@@ -926,40 +926,50 @@ class MovingTowards(Constraint):
 
     def __call__(self, scene, sample):
 
-        if self.objID == scene.egoObject.name:
-            moving_obj = scene.egoObject
-        else:
-            moving_objs = findObj(self.objID, scene.objects)
+        # if self.objID == scene.egoObject.name:
+        # if sample and isEgo(self.passerID, scene):
+        #     moving_obj = scene.egoObject
+        # else:
+        #     moving_objs = findObj(self.objID, scene.objects)
 
-            if not moving_objs:
-                print(f"Moving object '{self.objID}' not found in the scene.")
-                return False
+        #     if not moving_objs:
+        #         print(f"Moving object '{self.objID}' not found in the scene.")
+        #         return False
             
-            moving_obj = moving_objs[0]
+        #     moving_obj = moving_objs[0]
 
+        moving_objs = findObj(self.objID, scene.objects)
         ref_objs = findObj(self.refID, scene.objects)
 
         if not ref_objs:
             print(f"Reference object '{self.refID}' not found in the scene.")
             return False
         
+        if not moving_objs:
+            print(f"Reference object '{self.refID}' not found in the scene.")
+            return False
+        
         ref_obj = ref_objs[0]
+        moving_obj = moving_objs[0]
 
         def distance(pos1, pos2):
             return np.sqrt((pos1.x - pos2.x) ** 2 + (pos1.y - pos2.y) ** 2)
         
-        if self.objID == scene.egoObject.name:
-            current_distance = distance(Vector(sample[0], sample[1], 0), ref_obj.position)
-            previous_distance = distance(moving_obj.position, ref_obj.prevPosition)
-        else:
-            current_distance = distance(moving_obj.position, ref_obj.position)
-            previous_distance = distance(moving_obj.prevPosition, ref_obj.prevPosition)
-        
-        return current_distance < previous_distance
+        # if self.objID == scene.egoObject.name:
+        #     current_distance = distance(Vector(sample[0], sample[1], 0), ref_obj.position)
+        #     previous_distance = distance(moving_obj.position, ref_obj.prevPosition)
+        # else:
+        #     current_distance = distance(moving_obj.position, ref_obj.position)
+        #     previous_distance = distance(moving_obj.prevPosition, ref_obj.prevPosition)
 
-# MARK: HasAngleOfPass
+        current_distance = distance(moving_obj.position, ref_obj.position)
+        previous_distance = distance(moving_obj.prevPosition, ref_obj.prevPosition)
+        # print(f"distance travelled: {previous_distance - current_distance}")
+        return previous_distance - current_distance <= -0.05
 
-class HasAngleOfPass(Constraint):
+# MARK: HasPathToPass
+
+class HasPathToPass(Constraint):
 
     def __init__(self, args={}):
         self.passerID = args.get('passer', None)
@@ -969,10 +979,10 @@ class HasAngleOfPass(Constraint):
         self.radiusStd = self.radius.get('std', 1.0)
 
     def __call__(self, scene, sample):
-        print(f"HasAngleOfPass Called")
 
         passer_obj, receiver_obj = None, None
-        if sample and isEgo(self.passerID, scene):
+        if sample and isEgo(self.receiverID, scene):
+            print("ego is receiver")
             receiver_obj = Vector(sample[0], sample[1], 0)
             passer_list = findObj(self.passerID, scene.objects)
             if not passer_list :
@@ -980,8 +990,8 @@ class HasAngleOfPass(Constraint):
                 return False
             passer_obj = passer_list[0]
 
-        if sample and isEgo(self.receiverID, scene):
-            print("ego is receiver")
+        if sample and isEgo(self.passerID, scene):
+            print("ego is passer")
             passer_obj = Vector(sample[0], sample[1], 0)
             receiver_list = findObj(self.receiverID, scene.objects)
             if not receiver_list:
@@ -998,12 +1008,11 @@ class HasAngleOfPass(Constraint):
                 d = self.distance_to_line(start, end, obj.position)
                 min_d = min(min_d, d)
         
-        print(f"min_d: {min_d}, radiusAvg: {self.radiusAvg}")
+        # print(f"min_d: {min_d}, radiusAvg: {self.radiusAvg}")
 
         if self.radius is None:
             print("Warning: No radius threshold learned.")
             return False
-    
         
         return min_d >= self.radiusAvg
 
@@ -1032,11 +1041,29 @@ class CloseTo(Constraint):
     def __init__(self, args):
         self.obj = args.get('obj', None)
         self.ref = args.get('ref', None)
-        self.max = args.get('max', None)
+        self.max = float(args.get('max', None))
+
+    def __call__(self, scene, sample):
+        obj_pos, ref_pos = None, None
+
+        if sample and isEgo(self.obj, scene):
+            obj_pos = Vector(sample[0], sample[1], 0)
+            ref = findObj(self.ref, scene.objects)
+            ref_pos = ref[0].position
+        if sample and isEgo(self.ref, scene):
+            ref_pos = Vector(sample[0], sample[1], 0)
+            obj = findObj(self.obj, scene.objects)
+            obj_pos = obj[0].position
+        
+        def distance(pos1, pos2):
+            return np.sqrt((pos1.x - pos2.x) ** 2 + (pos1.y - pos2.y) ** 2)
+
+        dist = distance(obj_pos, ref_pos)
+        print(f"dist: {dist}")
+        return dist <= self.max
 
 # MARK: DistanceTo
 class DistanceTo(Constraint):
-
     def __init__(self, args):
         self.fromID = args.get('from', None)
         self.toID = args.get('to', None)
@@ -1134,11 +1161,10 @@ class HorizontalRelation(Constraint):
         self.refID = args.get('ref', None)
         self.relation = args.get('relation', None)
         self.threshold = args.get('x_threshold', None)
-        self.threshold_avg = self.threshold.get('avg') if self.threshold else None
+        self.threshold_avg = float(self.threshold.get('avg')) if self.threshold else None
 
     def __call__(self, scene, sample):
-
-        if self.objID == scene.egoObject.name:
+        if sample and isEgo(self.objID, scene):
             player_x = sample[0]
         else:
             player_objs = findObj(self.objID, scene.objects)
@@ -1163,9 +1189,9 @@ class HorizontalRelation(Constraint):
             return False
         
         if self.relation == 'left':
-            return value < self.threshold_avg
+            return value <= 0 and abs(value) >= self.threshold_avg
         elif self.relation == 'right':
-            return value > self.threshold_avg
+            return value >= 0 and abs(value) > self.threshold_avg
         else:
             print(f"Unknown relation '{self.relation}' in HorizontalRelation.")
             return False
