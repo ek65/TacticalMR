@@ -127,15 +127,15 @@ class UnityMessageServer:
         self.step()
         self.objects = []
         self.ScenicPlayers = []
-        self.HumanPlayers = dict()
-        self.ball = None
+        # self.HumanPlayers = dict()
+        # self.ball = None
         self.sendData.clearObjects()
         self.step()
         self.sendData.clearControl()
-        # self.resetData()
+        self.resetData()
         self.step()
-        self.socket.close()
-        self.context.destroy()
+        # self.socket.close()
+        # self.context.destroy()
     def resetData(self):
         self.timestepNumber = 0
         self.sendData = SendData()
@@ -561,7 +561,7 @@ class SendData:
         if self.control:
             self.clearQueue()
             self.control = False
-            self.destroy = False
+            # self.destroy = False
             #self.addToQueue = False
     def clearObjects(self):
         self.control = True

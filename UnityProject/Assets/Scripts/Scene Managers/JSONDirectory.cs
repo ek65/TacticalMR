@@ -285,10 +285,10 @@ public class JSONDirectory : MonoBehaviour
     {
         JSONToLLM jsonToLLM = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<JSONToLLM>();
         keyboardInput.saveDemoCanvas.SetActive(false);
-        while (!jsonToLLM.isTranscriptionComplete) // Wait until transcription is done
-        {
-            yield return new WaitForSeconds(0.5f);
-        }
+        // while (!jsonToLLM.isTranscriptionComplete) // Wait until transcription is done
+        // {
+        //     yield return new WaitForSeconds(0.5f);
+        // }
         yield return new WaitForSeconds(0.5f);
         // adding this reset here in case, it also resets in ObjectsList.cs in Reset()
         keyboardInput.timelineManager.Unpause();

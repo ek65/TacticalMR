@@ -38,6 +38,8 @@ public class ExitScenario : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        endScenario = false;
+
         if (OVRInput.GetDown(buttonX, controllerRight))
         {
             EndScenario();

@@ -141,6 +141,13 @@ public class ScenicParser
         {
             if (data.AddObject && data.SpawnObjectQueue.Count != 0)
             {
+                // control and spawnobjectsqueue is not empty should only happen when first starting a scenic program
+                // so at timestep 0
+                // want to delete any objects that were not deleted in previous simulation run
+                GameObject manager = GameObject.FindGameObjectWithTag("ScenicManager");
+                ObjectsList objectsList = manager.GetComponent<ObjectsList>();
+                objectsList.Reset();
+                
                 foreach (Object p in data.SpawnObjectQueue)
                 {
                     Vector3 pos = ListToVector(p.Position);

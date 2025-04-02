@@ -8,6 +8,7 @@ using System.Reflection;
 using System;
 using System.Linq;
 using OpenAI.Samples.Chat;
+using Pathfinding;
 using UnityEngine.InputSystem;
 
 public class HumanInterface : MonoBehaviour
@@ -180,7 +181,7 @@ public class HumanInterface : MonoBehaviour
     
     private void OnCollisionEnter(Collision other)
     {
-        if (other.collider.CompareTag("ball") && canPossessBall && ballOwnership.heldByScenic == false)
+        if (other.collider.CompareTag("ball") && canPossessBall && ballOwnership.heldByScenic == false && !ballPossession)
         {
             GainPossession(other.gameObject);
         }
@@ -299,6 +300,10 @@ public class HumanInterface : MonoBehaviour
     
     public void LosePossession()
     {
+        if (!ball)
+        {
+            return;
+        }
         StartCoroutine(PossessionDebounce());
         ball.transform.SetParent(null);
         ball.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
@@ -432,7 +437,22 @@ public class HumanInterface : MonoBehaviour
         LosePossession();
         ballPossession = false;
         actionAPI.alreadyInAnimation = false;
+        actionAPI.SetAnimController("Movement");
         forwardArrow.SetActive(false);
+
+        if (this.GetComponent<AIDestinationSetter>())
+        {
+            AIDestinationSetter dest = this.GetComponent<AIDestinationSetter>();
+            RichAI aiNav = this.GetComponent<RichAI>();
+            
+            dest.target.localPosition = Vector3.zero;
+            actionAPI.stopMovement = true;
+            
+            this.GetComponent<Animator>().SetFloat("VelZ", 0);
+            this.GetComponent<Animator>().SetFloat("VelX", 0);
+        }
+        
+        localTick = 0;
     }
     
     public void SpawnCircle(Vector3 pos)

@@ -170,6 +170,10 @@ public class KeyboardInput : MonoBehaviour
     // Restart scenario
     public void HandleRestart()
     {
+        if (jsonToLLM.isLogging)
+        {
+            return;
+        }
         restarting = true;
         StopSegment();
 

@@ -100,7 +100,7 @@ public class PlayerInterface : MonoBehaviour
     // For ball possession
     private void OnCollisionEnter(Collision other)
     {
-        if (other.collider.CompareTag("ball") && canPossessBall)
+        if (other.collider.CompareTag("ball") && canPossessBall && !ballPossession)
         {
             GainPossession(other);
         }
