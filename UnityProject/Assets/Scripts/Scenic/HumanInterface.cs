@@ -164,7 +164,8 @@ public class HumanInterface : NetworkBehaviour
             t.anchoredPosition = new Vector3(t.position.x, 100);
             
             RectTransform t2 = GameObject.Find("Recording Dot").GetComponent<RectTransform>();
-            t2.anchoredPosition = new Vector3(300, 150);
+            t2.anchoredPosition = new Vector3(250, 200);
+            t2.gameObject.SetActive(false);
         }
     }
     

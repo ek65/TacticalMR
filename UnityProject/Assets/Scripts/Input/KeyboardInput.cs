@@ -264,12 +264,15 @@ public class KeyboardInput : NetworkBehaviour
         // if (!gm.isHost)
         // {
             if (segmentStarted) return;
+            
+            // Reset state from previous recordings
+            jsonToLLM.PrepareForNewRecording();
 
             timelineManager.isRecordingSegment = true;
             segmentStarted = true;
             timelineManager.segmentCount++;
 
-            recordingDot.GetComponent<Image>().SetActive(true);
+            recordingDot.SetActive(true);
 
             segmentStartTime = Time.time;
 
@@ -325,7 +328,7 @@ public class KeyboardInput : NetworkBehaviour
         jsonToLLM.isLogging = false; // triggers video stop in JSONToLLM - NOT ANYMORE, now done in FileCoroutine
         segmentStarted = false;
         
-        recordingDot.GetComponent<Image>().SetActive(false);
+        recordingDot.SetActive(false);
         // jsonToLLM.activateSystemRecording = true;
         // Stop audio
         
@@ -795,6 +798,25 @@ public class KeyboardInput : NetworkBehaviour
                 yield return new WaitForSeconds(0.5f);
             }
             
+            // Now wait for client to confirm it received all data
+            baseText = "WAITING FOR CLIENT";
+            dotCount = 0;
+        
+            float startTime = Time.time;
+            float timeout = 30f;
+        
+            while (!jsonToLLM.HasClientReceivedAllData() && (Time.time - startTime < timeout))
+            {
+                countdownText.text = $"{baseText}{new string('.', dotCount % 4)}";
+                dotCount++;
+                yield return new WaitForSeconds(0.5f);
+            }
+        
+            if (!jsonToLLM.HasClientReceivedAllData())
+            {
+                Debug.LogWarning("SERVER: Timed out waiting for client to receive data");
+            }
+            
             countdownText.gameObject.SetActive(false);
             Debug.Log("SERVER: Transcription processing complete");
         }
@@ -816,11 +838,11 @@ public class KeyboardInput : NetworkBehaviour
             {
                 if (!jsonToLLM.AreAllChunksReceived())
                 {
-                    countdownText.text = $"{chunkText} CHUNKS{new string('.', chunkDotCount % 4)}";
+                    countdownText.text = $"{chunkText} {new string('.', chunkDotCount % 4)}";
                 }
                 else if (!AreAnnotationsSynced())
                 {
-                    countdownText.text = $"{chunkText} ANNOTATIONS{new string('.', chunkDotCount % 4)}";
+                    countdownText.text = $"{chunkText} {new string('.', chunkDotCount % 4)}";
                 }
             
                 chunkDotCount++;
@@ -832,10 +854,13 @@ public class KeyboardInput : NetworkBehaviour
             if (!jsonToLLM.AreAllChunksReceived() || !AreAnnotationsSynced())
             {
                 Debug.LogWarning($"CLIENT: Timed out waiting for data! Chunks: {jsonToLLM.totalChunksReceived}/{jsonToLLM.totalChunksSent}, Annotations synced: {AreAnnotationsSynced()}");
+                // Notify server anyway to avoid deadlock
+                jsonToLLM.RPC_NotifyChunksReceived();
             }
             else
             {
                 Debug.Log("CLIENT: All data successfully received");
+                jsonToLLM.RPC_NotifyChunksReceived();
             }
         }
 

@@ -2685,12 +2685,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _interpolationDataSource: 3
-  autoIsHost: 0
-  isHost: 1
+  autoIsHost: 1
+  isHost: 0
   _ObserverCamera: {fileID: 11567817}
   _runner: {fileID: 0}
   _playerPrefab:
-    RawGuidValue: 18f8c9fb7de7b46649e844db67081e42
+    RawGuidValue: b3a53b9f699dd4beebd53d0802fbc75b
   ZMQManagerObject: {fileID: 777379925808647183}
 --- !u!4 &590246860
 Transform:
@@ -7297,7 +7297,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1589058439}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
@@ -10584,7 +10584,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 777379923757108249, guid: 666baf2eca0804901807bbe20b856a51, type: 3}
       propertyPath: ip
-      value: localhost
+      value: 10.41.113.38
       objectReference: {fileID: 0}
     - target: {fileID: 777379925808647185, guid: 666baf2eca0804901807bbe20b856a51, type: 3}
       propertyPath: recordingNum

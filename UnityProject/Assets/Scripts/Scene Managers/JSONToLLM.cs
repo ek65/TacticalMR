@@ -376,6 +376,32 @@ public class JSONToLLM : NetworkBehaviour
     // Add a property to track how many chunks were received by the client
     public int totalChunksReceived = 0;
     
+    private bool clientHasReceivedAllData = false;
+
+    // Add this method for clients to notify the server
+    [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
+    public void RPC_NotifyChunksReceived()
+    {
+        // Only the server will execute this code
+        if (Runner.IsServer)
+        {
+            clientHasReceivedAllData = true;
+            Debug.Log("SERVER: Received notification that client has all chunks");
+        }
+    }
+    
+    // Add this method on the server to check client status
+    public bool HasClientReceivedAllData()
+    {
+        return clientHasReceivedAllData;
+    }
+
+    // Add this to reset state between recordings
+    public void ResetClientReceiveStatus()
+    {
+        clientHasReceivedAllData = false;
+    }
+    
     private void SyncDictionaryToClients()
     {
         // First, clear the clients' dictionaries
@@ -519,7 +545,8 @@ public class JSONToLLM : NetworkBehaviour
             // Check if all chunks have been received
             if (totalChunksReceived >= totalChunksSent && totalChunksSent > 0)
             {
-                Debug.Log("CLIENT: All dictionary chunks received.");
+                Debug.Log("CLIENT: All dictionary chunks received, notifying server");
+                RPC_NotifyChunksReceived(); // Notify the server
                 isTranscriptionComplete = true;
             }
         }
@@ -611,8 +638,15 @@ public class JSONToLLM : NetworkBehaviour
         // Optionally, trim any extra whitespace
         return sb.ToString().Trim();
     }
-
-
+    
+    public void PrepareForNewRecording()
+    {
+        // Reset any state needed for a new recording
+        ResetSegmentData();
+        ResetClientReceiveStatus(); // Make sure this gets called
+        Debug.Log("Prepared for new recording session");
+    }
+    
     public void ResetSegmentData()
     {
         // Reset segment data
@@ -622,20 +656,39 @@ public class JSONToLLM : NetworkBehaviour
         keyboard.explanation = "";
     
         // Reset network synchronization state
-        RPC_ResetNetworkSync();
+        totalChunksSent = 0;
+        totalChunksReceived = 0;
+        isTranscriptionComplete = false;
+        clientHasReceivedAllData = false; // Make sure this gets reset!
     
         // Reset recording state
         videoIsRecording = false;
         isLogging = false;
-        Debug.Log("Segment data has been reset.");
+    
+        // Sync reset to clients
+        RPC_ResetNetworkSync();
+    
+        Debug.Log("Segment data has been reset completely.");
     }
     
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
     public void RPC_ResetNetworkSync()
     {
+        // For both server and client
         totalChunksSent = 0;
         totalChunksReceived = 0;
         isTranscriptionComplete = false;
+    
+        // Client-specific reset
+        if (Runner.IsClient)
+        {
+            myRootSegment = new RootSegment();
+            time = 0;
+            tokenDictionary.Clear();
+        
+            // Notify server that reset is complete
+            Debug.Log("CLIENT: Network sync state reset complete");
+        }
     }
 
     void FixedUpdate()
