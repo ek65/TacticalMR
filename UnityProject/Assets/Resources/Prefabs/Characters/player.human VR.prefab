@@ -7651,6 +7651,7 @@ MonoBehaviour:
   closestPlayerInDirection: {fileID: 0}
   velocity: {x: 0, y: 0, z: 0}
   vrTransform: {fileID: 8589663238157637001}
+  vrCollider: {fileID: 1199819070913021989}
   objectPossession: 0
   grabbedObject: {fileID: 0}
   objectPosition: {fileID: 7268947062247442647}
@@ -15568,6 +15569,25 @@ MonoBehaviour:
         - m_Target: {fileID: -597261438230882058}
           m_TargetAssemblyTypeName: ControllerInput, Assembly-CSharp
           m_MethodName: HandleControllerThroughPass
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+  - Title: ShootGoal
+    Button: 8192
+    ButtonMode: 0
+    InputActionReference: {fileID: -7222465138875598189, guid: b277640baaf59410a972a670edd870f9, type: 3}
+    Callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: -597261438230882058}
+          m_TargetAssemblyTypeName: ControllerInput, Assembly-CSharp
+          m_MethodName: HandleControllerShoot
           m_Mode: 1
           m_Arguments:
             m_ObjectArgument: {fileID: 0}

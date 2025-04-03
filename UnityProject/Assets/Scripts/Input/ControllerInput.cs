@@ -160,6 +160,21 @@ public class ControllerInput : MonoBehaviour
         humanInterface.ThroughPass();
     }
     
+    private void ControllerShoot(InputAction.CallbackContext ctx)
+    {
+        HandleControllerShoot();
+    }
+    
+    public void HandleControllerShoot()
+    {
+        if (tlManager.Paused)
+        {
+            return;
+        }
+        HumanInterface humanInterface = this.GetComponent<HumanInterface>();
+        humanInterface.ShootGoal();
+    }
+    
     private void ControllerPackaging(InputAction.CallbackContext ctx)
     {
         if (tlManager.Paused) return;

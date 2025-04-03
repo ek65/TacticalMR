@@ -60,6 +60,7 @@ public class HumanInterface : NetworkBehaviour
     public Vector3 velocity;
     
     public Transform vrTransform;
+    public GameObject vrCollider;
     
     public bool objectPossession;
     public GameObject grabbedObject;
@@ -450,6 +451,32 @@ public class HumanInterface : NetworkBehaviour
         keyboardInput.clickOrder++; 
     }
     
+    private void LogShootGoal()
+    {
+        GameObject goalObj = objectList.goalObject; 
+        if (goalObj == null)
+        {
+            Debug.LogWarning("No goal found for pass.");
+            return;
+        }
+
+        int passID = keyboardInput.clickOrder;
+        float passTime = jsonToLLM.time;
+    
+        keyboardInput.annotation.Add(passID, new Dictionary<string, object>
+        {
+            { "type", "Shoot Goal" },
+            { "from", this.name },
+            { "to", goalObj.name }
+        });
+
+        keyboardInput.annotationDescriptions.Add(passID, $"({this.name} shot towards Goal)");
+        
+        keyboardInput.annotationTimes.Add(passID, passTime);
+        Debug.Log($"Shoot goal action recorded with ID {passID}, from: {this.name} at time: {passTime}");
+        keyboardInput.clickOrder++; 
+    }
+    
     public void PickUp()
     {
         actionAPI.PickUp();
@@ -600,6 +627,10 @@ public class HumanInterface : NetworkBehaviour
         LogReceiveBall();
         int layerIgnoreBallCollision = LayerMask.NameToLayer("PlayerBall");
         this.gameObject.layer = layerIgnoreBallCollision;
+        if (isVR && !isViewer)
+        {
+            vrCollider.layer = layerIgnoreBallCollision;
+        }
         
         ball.transform.position = ballPosition.position;
         ball.transform.SetParent(ballPosition);
@@ -675,6 +706,50 @@ public class HumanInterface : NetworkBehaviour
         actionAPI.GroundPassFast(closestPlayerInDirection.transform.position);
         StartCoroutine(ResetToMovementController());
         closestPlayerInDirection = null;
+    }
+    
+    public void ShootGoal()
+    {
+        if (!ballPossession || !canKickBall)
+        {
+            return;
+        }
+
+        GameObject goalObj = objectList.goalObject; 
+        if (goalObj == null)
+        {
+            return;
+        }
+        
+        LogShootGoal();
+        
+        Vector3 goalPosition = goalObj.transform.position;
+        Vector3 currentPosition = transform.position;
+        if (isVR)
+        {
+            currentPosition = vrTransform.position;
+        }
+        
+        Vector3 direction = goalPosition - currentPosition;
+        float currentDistance = direction.magnitude;
+        
+        Vector3 targetPosition;
+        
+        // If the distance is greater than 8.5, clamp it
+        if (currentDistance > 8.5f)
+        {
+            // Normalize the direction and multiply by max distance
+            direction = direction.normalized;
+            targetPosition = currentPosition + direction * 8.5f;
+        }
+        else
+        {
+            // Use the original goal position if it's within range
+            targetPosition = goalPosition;
+        }
+        
+        actionAPI.GroundPassFast(targetPosition);
+        StartCoroutine(ResetToMovementController());
     }
     
     public void ThroughPass()
@@ -781,8 +856,12 @@ public class HumanInterface : NetworkBehaviour
     {
         canPossessBall = false;
         yield return new WaitForSeconds(1f);
-        canPossessBall = true;
+        canPossessBall = true;  
         this.gameObject.layer = LayerMask.NameToLayer("Default");
+        if (isVR && !isViewer)
+        {
+            vrCollider.layer = LayerMask.NameToLayer("Default");
+        }
     }
     
     public IEnumerator KickDebounce()
