@@ -2690,7 +2690,7 @@ MonoBehaviour:
   _ObserverCamera: {fileID: 11567817}
   _runner: {fileID: 0}
   _playerPrefab:
-    RawGuidValue: b3a53b9f699dd4beebd53d0802fbc75b
+    RawGuidValue: 18f8c9fb7de7b46649e844db67081e42
   ZMQManagerObject: {fileID: 777379925808647183}
 --- !u!4 &590246860
 Transform:
