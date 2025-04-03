@@ -92,7 +92,7 @@ public class InstantiateScenicObject
                 
                 pI.SetObjectName(name);
                 
-                // addedGameObject.name = name;
+                addedGameObject.name = name;
                 // objectList.scenicPlayers.Add(addedGameObject);
             } else if (modelType == "Robot")
             {
@@ -137,7 +137,7 @@ public class InstantiateScenicObject
                 HumanInterface hI = addedGameObject.GetComponent<HumanInterface>();
                 hI.RPC_InstantiateValues();
                 hI.SetObjectName("Coach");
-                // addedGameObject.name = "Coach";
+                addedGameObject.name = "Coach";
                 
                 // objectList.humanPlayers.Add(addedGameObject);
                 // addedGameObject.GetComponentInChildren<HumanInterface>().ally = true;

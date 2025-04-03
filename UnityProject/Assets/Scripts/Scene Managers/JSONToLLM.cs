@@ -142,7 +142,7 @@ public class JSONToLLM : NetworkBehaviour
         }
         else
         {
-            Debug.LogWarning("JSONToLLM: No Scribe found—cannot subscribe to OnTranscriptionComplete.");
+            Debug.LogError("JSONToLLM: No Scribe found—cannot subscribe to OnTranscriptionComplete.");
         }
     }
 
@@ -377,6 +377,29 @@ public class JSONToLLM : NetworkBehaviour
     public int totalChunksReceived = 0;
     
     private bool clientHasReceivedAllData = false;
+    public bool clientVideoSaveComplete = false;
+    
+    [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
+    public void RPC_NotifyVideoSaveComplete()
+    {
+        // Only the server will execute this code
+        if (Runner.IsServer)
+        {
+            clientVideoSaveComplete = true;
+            Debug.Log("SERVER: Received notification that client has saved video");
+        }
+    }
+    
+    public bool HasClientSavedVideo()
+    {
+        return clientVideoSaveComplete;
+    }
+
+    public void ResetClientVideoSaveStatus()
+    {
+        clientVideoSaveComplete = false;
+    }
+
 
     // Add this method for clients to notify the server
     [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
@@ -400,6 +423,7 @@ public class JSONToLLM : NetworkBehaviour
     public void ResetClientReceiveStatus()
     {
         clientHasReceivedAllData = false;
+        clientVideoSaveComplete = false;
     }
     
     private void SyncDictionaryToClients()
@@ -574,7 +598,7 @@ public class JSONToLLM : NetworkBehaviour
     {
         if (!AreAllChunksReceived())
         {
-            Debug.LogWarning($"Warning: Writing file before all chunks received! ({totalChunksReceived}/{totalChunksSent})");
+            Debug.LogError($"Warning: Writing file before all chunks received! ({totalChunksReceived}/{totalChunksSent})");
         }
     
         Debug.Log($"Creating JSON with tokenDictionary containing {tokenDictionary.Count} entries");

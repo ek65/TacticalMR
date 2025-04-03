@@ -267,6 +267,16 @@ public class KeyboardInput : NetworkBehaviour
             
             // Reset state from previous recordings
             jsonToLLM.PrepareForNewRecording();
+            
+            // Ensure recorder is reset for new recording
+#if UNITY_EDITOR
+            if (recorderManager != null)
+            {
+                // Force re-initialization of the recorder
+                recorderManager.Initialize();
+                Debug.Log("Re-initialized RecorderManager for new segment");
+            }
+#endif
 
             timelineManager.isRecordingSegment = true;
             segmentStarted = true;
@@ -616,7 +626,7 @@ public class KeyboardInput : NetworkBehaviour
                     }
                     else
                     {
-                        Debug.LogWarning($"CLIENT: Could not find GameObject named {objectName}");
+                        Debug.LogError($"CLIENT: Could not find GameObject named {objectName}");
                         // Create a placeholder dictionary to avoid null references
                         annotation[id] = new Dictionary<string, object> { { "type", "Reference" }, { "obj", objectName } };
                     }
@@ -765,15 +775,38 @@ public class KeyboardInput : NetworkBehaviour
         
 #if UNITY_EDITOR
         // Only then stop the recording
-        if (recorderManager != null && recorderManager.RecorderController != null && 
-            recorderManager.RecorderController.IsRecording())
+        if (recorderManager != null && recorderManager.RecorderController != null)
         {
             Debug.Log("Now stopping video recording...");
             recorderManager.StopRecording();
+            
+            // Wait for the recording to be processed with a timeout
+            float startTime = Time.time;
+            float timeout = 10f;
         
-            // Wait for the recording to be processed
-            yield return new WaitForSeconds(1.0f);
-            Debug.Log("Video recording stopped");
+            Debug.Log("CLIENT: Waiting for video to be processed...");
+        
+            while (recorderManager.IsRecordingProcessing && (Time.time - startTime < timeout))
+            {
+                yield return new WaitForSeconds(0.5f);
+            }
+        
+            if (recorderManager.IsRecordingProcessing)
+            {
+                Debug.LogError("CLIENT: Timed out waiting for video to be processed!");
+                recorderManager.IsRecordingProcessing = false;
+            }
+            else
+            {
+                Debug.Log("CLIENT: Video processing completed successfully");
+            }
+            
+            // Release resources
+            recorderManager.ReleaseRecorderResources();
+        
+            // Notify server that video has been saved
+            jsonToLLM.RPC_NotifyVideoSaveComplete();
+            Debug.Log("CLIENT: Notified server that video save is complete");
         }
 #endif
     }
@@ -787,7 +820,7 @@ public class KeyboardInput : NetworkBehaviour
             countdownText.gameObject.SetActive(true);
             countdownText.color = Color.red;
 
-            string baseText = "TRANSCRIPTION PROCESSING";
+            string baseText = "TRANSCRIPTION PROCESSING \n(DO NOT RESTART YET)";
             int dotCount = 0;
             countdownText.fontSize = 40;
 
@@ -797,13 +830,15 @@ public class KeyboardInput : NetworkBehaviour
                 dotCount++;
                 yield return new WaitForSeconds(0.5f);
             }
+
+            Debug.Log("SERVER: Transcription processing complete");
             
             // Now wait for client to confirm it received all data
-            baseText = "WAITING FOR CLIENT";
+            baseText = "WAITING FOR CLIENT \n(DO NOT RESTART YET)";
             dotCount = 0;
         
             float startTime = Time.time;
-            float timeout = 30f;
+            float timeout = 10f;
         
             while (!jsonToLLM.HasClientReceivedAllData() && (Time.time - startTime < timeout))
             {
@@ -811,14 +846,33 @@ public class KeyboardInput : NetworkBehaviour
                 dotCount++;
                 yield return new WaitForSeconds(0.5f);
             }
-        
+            
             if (!jsonToLLM.HasClientReceivedAllData())
             {
-                Debug.LogWarning("SERVER: Timed out waiting for client to receive data");
+                Debug.LogError("SERVER: Timed out waiting for client to receive data");
             }
             
+            // Now wait for client to confirm it saved the video
+            baseText = "WAITING FOR VIDEO SAVE \n(DO NOT RESTART YET)";
+            dotCount = 0;
+
+            startTime = Time.time;
+            timeout = 10f; // Longer timeout for video saving
+
+            while (!jsonToLLM.HasClientSavedVideo() && (Time.time - startTime < timeout))
+            {
+                countdownText.text = $"{baseText}{new string('.', dotCount % 4)}";
+                dotCount++;
+                yield return new WaitForSeconds(0.5f);
+            }
+
+            if (!jsonToLLM.HasClientSavedVideo())
+            {
+                Debug.LogWarning("SERVER: Timed out waiting for client to save video");
+            }
+    
             countdownText.gameObject.SetActive(false);
-            Debug.Log("SERVER: Transcription processing complete");
+            Debug.Log("SERVER: Client video save complete or timed out");
         }
         else
         {
@@ -831,7 +885,7 @@ public class KeyboardInput : NetworkBehaviour
             int chunkDotCount = 0;
         
             float startTime = Time.time;
-            float timeout = 30f; // Increase timeout for longer recordings
+            float timeout = 10f; // Increase timeout for longer recordings
         
             // Client waits for both dictionary chunks and annotations
             while ((!jsonToLLM.AreAllChunksReceived() || !AreAnnotationsSynced()) && (Time.time - startTime < timeout))
@@ -853,7 +907,7 @@ public class KeyboardInput : NetworkBehaviour
         
             if (!jsonToLLM.AreAllChunksReceived() || !AreAnnotationsSynced())
             {
-                Debug.LogWarning($"CLIENT: Timed out waiting for data! Chunks: {jsonToLLM.totalChunksReceived}/{jsonToLLM.totalChunksSent}, Annotations synced: {AreAnnotationsSynced()}");
+                Debug.LogError($"CLIENT: Timed out waiting for data! Chunks: {jsonToLLM.totalChunksReceived}/{jsonToLLM.totalChunksSent}, Annotations synced: {AreAnnotationsSynced()}");
                 // Notify server anyway to avoid deadlock
                 jsonToLLM.RPC_NotifyChunksReceived();
             }
@@ -871,29 +925,29 @@ public class KeyboardInput : NetworkBehaviour
     void FixedUpdate()
     {
 // #if UNITY_EDITOR
-        if (rb == null)
-        {
-            GameObject coachObject = GameObject.FindGameObjectWithTag("human");
-            if (coachObject == null)
-            {
-                return;
-            }
-            if (coachObject != null)
-            {
-                rb = coachObject.GetComponent<Rigidbody>();
-                Debug.Log("found human rigidbody");
-            }
-        }
-        if (rb == null) return;
-        if (timelineManager.Paused) return;
-
-        float horizontalInput = Input.GetAxis("Horizontal");
-        float verticalInput = Input.GetAxis("Vertical");
-        
-        Vector3 forwardDirection = transform.forward;
-        movement = (forwardDirection * verticalInput + transform.right * horizontalInput).normalized * moveSpeed;
-        
-        rb.MovePosition(rb.position + movement * Time.fixedDeltaTime);
+        // if (rb == null)
+        // {
+        //     GameObject coachObject = GameObject.FindGameObjectWithTag("human");
+        //     if (coachObject == null)
+        //     {
+        //         return;
+        //     }
+        //     if (coachObject != null)
+        //     {
+        //         rb = coachObject.GetComponent<Rigidbody>();
+        //         Debug.Log("found human rigidbody");
+        //     }
+        // }
+        // if (rb == null) return;
+        // if (timelineManager.Paused) return;
+        //
+        // float horizontalInput = Input.GetAxis("Horizontal");
+        // float verticalInput = Input.GetAxis("Vertical");
+        //
+        // Vector3 forwardDirection = transform.forward;
+        // movement = (forwardDirection * verticalInput + transform.right * horizontalInput).normalized * moveSpeed;
+        //
+        // rb.MovePosition(rb.position + movement * Time.fixedDeltaTime);
 // #endif
     }
 
@@ -906,11 +960,18 @@ public class KeyboardInput : NetworkBehaviour
 //         }
 // #endif
 
+        RPC_ResetJsonData();
+    }
+    
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    public void RPC_ResetJsonData()
+    {
         annotation.Clear();
         annotationDescriptions.Clear();
         objectToKey.Clear();
         annotationTimes.Clear();
         clickOrder = 0;
+        annotationsReady = false;
         jsonToLLM.ResetSegmentData();
     }
 }

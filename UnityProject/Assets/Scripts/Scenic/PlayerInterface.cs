@@ -144,10 +144,7 @@ public class PlayerInterface : NetworkBehaviour
     
     public void SetObjectName(string newName)
     {
-        if (Object.HasStateAuthority) // Only the host or owner should update this
-        {
-            ObjName = newName; // This will trigger OnNameChanged() on all clients
-        }
+        ObjName = newName; // This will trigger OnNameChanged() on all clients
     }
 
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
@@ -158,6 +155,8 @@ public class PlayerInterface : NetworkBehaviour
             ally = true;
             enemy = false;
             
+            shirt.material.SetColor("_Color", Color.blue);
+            
             ObjectsList objectList = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<ObjectsList>();
             objectList.defensePlayers.Add(this.gameObject);
         }
@@ -165,6 +164,8 @@ public class PlayerInterface : NetworkBehaviour
         {
             ally = false;
             enemy = true;
+            
+            shirt.material.SetColor("_Color", Color.red);
             
             ObjectsList objectList = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<ObjectsList>();
             objectList.offensePlayers.Add(this.gameObject);

@@ -3,11 +3,12 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using Assets.OVR.Scripts;
+using Fusion;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using UnityEngine;
 
-public class JSONDirectory : MonoBehaviour
+public class JSONDirectory : NetworkBehaviour
 {
     public int participantID;
     public string ParticipantID => "participant" + participantID.ToString();
@@ -73,6 +74,12 @@ public class JSONDirectory : MonoBehaviour
     }
 
     public void AddAndSaveDemo()
+    {
+        RPC_AddAndSaveDemo();
+    }
+    
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    public void RPC_AddAndSaveDemo()
     {
         if (!usableDemos.demoNums.Contains(demoNum))
         {
@@ -277,7 +284,6 @@ public class JSONDirectory : MonoBehaviour
 
     public void DoNotSaveDemonstrationButton()
     {
-        Debug.LogError("in DoNotSaveDemonstrationButton()");
         // when finished prompting the user, unpause then restart the scenario
         StartCoroutine(UnpauseAndEndScenario());
     }
@@ -304,7 +310,7 @@ public class JSONDirectory : MonoBehaviour
     public void ResetRecordingNum()
     {
         JSONToLLM jsonToLLM = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<JSONToLLM>();
-        jsonToLLM.recordingNum = -1;
+        // jsonToLLM.recordingNum = -1;
         jsonToLLM.time = 0;
         
         // RecorderManager recorderManager = GameObject.FindGameObjectWithTag("RecorderManager").GetComponent<RecorderManager>();

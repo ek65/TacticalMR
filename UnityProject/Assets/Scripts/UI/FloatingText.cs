@@ -22,12 +22,18 @@ public class FloatingText : MonoBehaviour
             transform.rotation = Quaternion.Euler(90,0,0); // lock rotation
         }
 
-        if (gm.isHost)
+        // HumanInterface hI = GameObject.FindGameObjectWithTag("human").GetComponent<HumanInterface>();
+        HumanInterface hI = transform.parent.GetComponent<HumanInterface>();
+        if (gm.isHost && hI != null && hI.isVR)
         {
             this.gameObject.GetComponent<MeshRenderer>().enabled = false;
         }
-
+        
         transform.position = this.transform.parent.position + offset;
+        if (hI != null && hI.isVR)
+        {
+            transform.position = hI.vrTransform.position + offset;
+        }
     }
     
     public void SetText(string text)

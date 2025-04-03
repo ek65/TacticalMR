@@ -326,10 +326,7 @@ public class HumanInterface : NetworkBehaviour
     
     public void SetObjectName(string newName)
     {
-        if (Object.HasStateAuthority) // Only the host or owner should update this
-        {
-            ObjName = newName; // This will trigger OnNameChanged() on all clients
-        }
+        ObjName = newName; // This will trigger OnNameChanged() on all clients
     }
     
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
