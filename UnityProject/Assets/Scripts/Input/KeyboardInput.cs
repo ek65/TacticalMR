@@ -925,28 +925,28 @@ public class KeyboardInput : NetworkBehaviour
     void FixedUpdate()
     {
 // #if UNITY_EDITOR
-        // if (rb == null)
-        // {
-        //     GameObject coachObject = GameObject.FindGameObjectWithTag("human");
-        //     if (coachObject == null)
-        //     {
-        //         return;
-        //     }
-        //     if (coachObject != null)
-        //     {
-        //         rb = coachObject.GetComponent<Rigidbody>();
-        //         Debug.Log("found human rigidbody");
-        //     }
-        // }
-        // if (rb == null) return;
-        // if (timelineManager.Paused) return;
-        //
-        // float horizontalInput = Input.GetAxis("Horizontal");
-        // float verticalInput = Input.GetAxis("Vertical");
-        //
-        // Vector3 forwardDirection = transform.forward;
-        // movement = (forwardDirection * verticalInput + transform.right * horizontalInput).normalized * moveSpeed;
-        //
+        if (rb == null)
+        {
+            GameObject coachObject = GameObject.FindGameObjectWithTag("human");
+            if (coachObject == null)
+            {
+                return;
+            }
+            if (coachObject != null)
+            {
+                rb = coachObject.GetComponent<Rigidbody>();
+                Debug.Log("found human rigidbody");
+            }
+        }
+        if (rb == null) return;
+        if (timelineManager.Paused) return;
+        
+        float horizontalInput = Input.GetAxis("Horizontal");
+        float verticalInput = Input.GetAxis("Vertical");
+        
+        Vector3 forwardDirection = transform.forward;
+        movement = (forwardDirection * verticalInput + transform.right * horizontalInput).normalized * moveSpeed;
+        
         // rb.MovePosition(rb.position + movement * Time.fixedDeltaTime);
 // #endif
     }
