@@ -62,7 +62,7 @@
         "ConnectAttempts": 10,
         "ConnectInterval": 0.5,
         "ConnectionDefaultRtt": 0.1,
-        "ConnectionTimeout": 30.0,
+        "ConnectionTimeout": 60.0,
         "ConnectionPingInterval": 1.0,
         "ConnectionShutdownTime": 1.0,
         "MtuDefault": 1136,

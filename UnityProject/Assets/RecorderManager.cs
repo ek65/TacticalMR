@@ -74,7 +74,7 @@ public class RecorderManager : MonoBehaviour
         // Setup recording
         controllerSettings.AddRecorderSettings(m_Settings);
         controllerSettings.SetRecordModeToManual();
-        controllerSettings.FrameRate = 10.0f;
+        controllerSettings.FrameRate = 5.0f;
         
         // Make sure to set IsRecordingProcessing to false
         IsRecordingProcessing = false;
@@ -117,7 +117,7 @@ public class RecorderManager : MonoBehaviour
     
         string filePath = OutputFile.FullName;
         float startTime = Time.time;
-        float timeout = 10f; // Maximum wait time in seconds
+        float timeout = 15f; // Maximum wait time in seconds
     
         Debug.Log($"Waiting for file to be created: {filePath}");
     
