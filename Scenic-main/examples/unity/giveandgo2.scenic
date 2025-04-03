@@ -10,10 +10,17 @@ def movesToward(player1, player2):
     dist2 = distance from player1.position to player2.position
     return dist2 < dist1
 
-behavior opponent1Behavior():
-    do Idle() until ego.gameObject.ballPossession
+behavior Follow(obj):
     while True:
-        do MoveTo(ball, distance = 4)
+        do MoveToBehavior(obj, distance = 2)
+
+behavior opponent1Behavior():
+    do Idle() until teammate.gameObject.ballPossession
+    do Follow(ball) until ego.gameObject.ballPossession
+    # do Uniform(Follow(ball), Follow(teammate))
+    do Follow(teammate)
+    # do Follow(ball)
+    
 
 behavior TeammateBehavior():
     passed = False
@@ -22,11 +29,11 @@ behavior TeammateBehavior():
         do Idle()
     interrupt when (abs(self.x - ego.x) > 3 and not passed):
         do Idle() for 1.5 seconds
-        do PassTo(ego, slow=False)
+        do Pass(ego, slow=False)
         do Idle() for 0.5 seconds
         take StopAction()
         point = new Point at (0,10,0)
-        do MoveTo(point)
+        do MoveToBehavior(point)
         passed = True
 
 behavior GetBall():
@@ -41,7 +48,7 @@ def teammateHasBallPossession():
 
 behavior GetBehindAndReceiveBall(player, zone): # similar logic as inzone
     
-    do MoveTo(point) until self.position.y > player.position.y + 2
+    do MoveToBehavior(point) until self.position.y > player.position.y + 2
     while teammateHasBallPossession():
         take IdleAction()
     do GetBall()
@@ -54,7 +61,7 @@ behavior ReceiveBall():
 behavior CoachBehavior():
     do GetBall() until hasBallPosession(ego)
     do Idle() until movesToward(opponent, ego)
-    do PassTo(teammate)
+    do Pass(teammate)
     # do GetBehindAndReceiveBall(opponent)
     do MoveToAndReceiveBall(InZone(['A1','A2','A3']))
 
