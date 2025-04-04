@@ -12,7 +12,7 @@ public class JSONDirectory : NetworkBehaviour
 {
     public int participantID;
     public string ParticipantID => "participant" + participantID.ToString();
-    public Drills drillID;
+    public string drillID = "Test";
     public int demoNum = -1;
     public string DemoNum => "demo" + demoNum.ToString();
     public int transcriptNum = -1; // only used for system recording
