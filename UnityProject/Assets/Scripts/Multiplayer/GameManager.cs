@@ -96,6 +96,8 @@ public class GameManager : NetworkBehaviour, INetworkRunnerCallbacks
 	[HideInInspector]
 	public NetworkRunner _runner;
 
+	public int sessionNum = 0;
+
 
 	async void StartGame(GameMode mode)
 	{
@@ -109,7 +111,7 @@ public class GameManager : NetworkBehaviour, INetworkRunnerCallbacks
 		await _runner.StartGame(new StartGameArgs()
 		{
 			GameMode = mode,
-			SessionName = "GameRoom",
+			SessionName = "GameRoom" + sessionNum,
 			Scene = SceneManager.GetActiveScene().buildIndex,
 			SceneManager = gameObject.AddComponent<NetworkSceneManagerDefault>()
 		});
