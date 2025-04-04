@@ -10,11 +10,6 @@ from scenic.core.object_types import Point
 
 timestep = 0.1 # sec per timestep
 
-behavior IdleSpecial():
-    while True:
-        take IdleAction()
-        # print(f"opp.x: {self.position.x}, opp.y: {self.position.y}, opp.z: {self.position.z}")
-
 behavior Idle():
     while True:
         take IdleAction()
@@ -70,6 +65,9 @@ behavior LookAt(vec):
         location = vec.position
     take LookAtAction(location, "Look At")
     take StopAction()
+
+behavior Shoot(goal):
+    take  GroundPassFastAction(goal.position, "Shoot Ball")
 
 behavior MoveToBehavior(v, lookAtTarget = None, distance = 0.2, status=""):
     dist = 1000
