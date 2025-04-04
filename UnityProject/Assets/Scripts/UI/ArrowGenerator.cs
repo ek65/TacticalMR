@@ -52,6 +52,10 @@ public class ArrowGenerator : NetworkBehaviour
 
     void Update()
     {
+        if (Runner.IsClient)
+        {
+            return;
+        }
         GenerateArrow();
         
         if (target == new Vector3(0,0,0))

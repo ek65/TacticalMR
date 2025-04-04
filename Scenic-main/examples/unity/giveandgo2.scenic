@@ -17,8 +17,8 @@ behavior Follow(obj):
 behavior opponent1Behavior():
     do Idle() until teammate.gameObject.ballPossession
     do Follow(ball) until ego.gameObject.ballPossession
-    # do Uniform(Follow(ball), Follow(teammate))
-    do Follow(teammate)
+    do Uniform(Follow(ball), Follow(teammate))
+    # do Follow(teammate)
     # do Follow(ball)
     
 
@@ -35,6 +35,8 @@ behavior TeammateBehavior():
         point = new Point at (0,10,0)
         do MoveToBehavior(point)
         passed = True
+        do Idle() until self.gameObject.ballPossession
+        do Pass(goal)
 
 behavior GetBall():
     while not self.gameObject.ballPossession:
