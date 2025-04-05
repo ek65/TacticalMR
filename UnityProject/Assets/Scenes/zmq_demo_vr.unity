@@ -10533,7 +10533,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 278377970342781417, guid: 666baf2eca0804901807bbe20b856a51, type: 3}
       propertyPath: participantID
-      value: 0
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 777379923757108246, guid: 666baf2eca0804901807bbe20b856a51, type: 3}
       propertyPath: m_RootOrder

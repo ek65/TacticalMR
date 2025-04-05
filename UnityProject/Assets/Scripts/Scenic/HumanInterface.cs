@@ -153,7 +153,7 @@ public class HumanInterface : NetworkBehaviour
         
         // find gameobject with tag "InfoCanvas" and assign the canvas object to this object's camera
         GameObject infoCanvas = GameObject.FindGameObjectWithTag("InfoCanvas");
-        if (gm.isHost && isVR && infoCanvas != null)
+        if (gm.isHost && infoCanvas != null)
         {
             infoCanvas.GetComponent<Canvas>().worldCamera = Camera.main;
 
