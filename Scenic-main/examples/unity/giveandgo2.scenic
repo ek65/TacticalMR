@@ -33,7 +33,7 @@ behavior opponent1Behavior():
     print("opponent follows ego")
     do Follow(ego)
 
-A = HasPathToPass({'passer': 'teammate', 'receiver': 'coach', 'path_width':{'avg': 5, 'std':1}})
+A = HasPathToPass({'passer': 'teammate', 'receiver': 'coach', 'path_width':{'avg': 2, 'std':1}})
 
 behavior TeammateBehavior():
     passed = False
@@ -71,7 +71,7 @@ behavior ReceiveBall():
     do GetBall()
 
 behavior CoachBehavior():
-    point = new Point left of teammate by Uniform(-4, 4)
+    point = new Point left of teammate by -4 #Uniform(-4, 4)
     do MoveToBehavior(point.position, distance=0.5)
     do Idle() until self.gameObject.ballPossession
     do Idle() for 1.5 seconds
