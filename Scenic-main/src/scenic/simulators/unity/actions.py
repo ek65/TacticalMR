@@ -572,11 +572,13 @@ class PlacingAndShortPassAction(Action):
 # Coach/Human/AIAgent Actions
 class SpeakAction(Action):
     def __init__(self, input):
-        self.actionName = "Speak"
+        # self.actionName = "Speak"
+        inputString = "Say \"" + input + "\""
         
         if not isinstance(input, str):
             raise RuntimeError("output must be a string")
-        self.input = input
+        self.input = inputString
+        # self.input = input
 
     def applyTo(self, obj, sim):
         obj.gameObject.DoAction(self.actionName, self.input)
