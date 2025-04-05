@@ -11,6 +11,7 @@ using Fusion;
 using OpenAI.Samples.Chat;
 using Pathfinding;
 using UnityEngine.InputSystem;
+using Utilities.Extensions;
 
 public class HumanInterface : NetworkBehaviour
 {
@@ -153,6 +154,7 @@ public class HumanInterface : NetworkBehaviour
         
         // find gameobject with tag "InfoCanvas" and assign the canvas object to this object's camera
         GameObject infoCanvas = GameObject.FindGameObjectWithTag("InfoCanvas");
+        RectTransform t = GameObject.Find("Paused Text").GetComponent<RectTransform>();
         RectTransform t2 = GameObject.Find("Recording Dot").GetComponent<RectTransform>();
         if (gm.isHost && infoCanvas != null)
         {
@@ -162,11 +164,15 @@ public class HumanInterface : NetworkBehaviour
             infoCanvas.transform.SetParent(vrCam.gameObject.transform);
             // infoCanvas.transform.localScale = new Vector3(0.001f, 0.001f, 0.001f);
             
-            RectTransform t = GameObject.Find("Paused Text").GetComponent<RectTransform>();
             t.anchoredPosition = new Vector3(t.position.x, 100);
             
             t2.anchoredPosition = new Vector3(250, 200);
             t2.gameObject.SetActive(false);
+        }
+
+        if (isViewer)
+        {
+            t.SetActive(false);
         }
         t2.gameObject.SetActive(false);
     }

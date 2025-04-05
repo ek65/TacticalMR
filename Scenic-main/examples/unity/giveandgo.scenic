@@ -49,15 +49,17 @@ behavior ReceiveBall():
     do GetBall()
 
 behavior CoachBehavior():
+    do Idle() for 3 seconds
+    do Speak("Say \"" + "Let me show you another variation of this defense task. Be ready to position yourself after the pass." + "\"")
     do GetBall() until hasBallPosession(ego)
     do Idle() until movesToward(opponent, ego)
     do PassTo(teammate)
     do GetBehindAndReceiveBall(opponent)
     # do MoveToAndReceiveBall(InZone(['A1','A2','A3']))
 
-ego = new Human at (0,0)
-# ego = new Coach at (0,0),
-#         with behavior CoachBehavior()
+# ego = new Human at (0,0)
+ego = new Coach at (0,0),
+        with behavior CoachBehavior()
 
 ball = new Ball ahead of ego by 1
 
