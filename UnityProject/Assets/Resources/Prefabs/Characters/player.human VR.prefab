@@ -8014,7 +8014,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d172ecfbd99184b849e2ff7857c1ae40, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rb: {fileID: 6677702417837865644, guid: 411b39aed80274614af37926557abec9, type: 3}
+  rb: {fileID: 3351509275040309747}
   movementForce: 4
   cam: {fileID: 0}
   playerDirection: {x: 0, y: 0, z: 0}
