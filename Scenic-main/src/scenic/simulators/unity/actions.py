@@ -3,6 +3,7 @@ from scenic.core.vectors import Vector
 from scenic.core.object_types import OrientedPoint, Point
 from scenic.simulators.unity.client import *
 from enum import Enum
+import math
 import numpy as np
 
 # Language: Python 3
@@ -827,12 +828,10 @@ def findObj(id, objects):
         return [obj for obj in objects if key_lower in obj.name.lower()]
 
 def isEgo(id, scene):
-    return id.lower() == scene.egoObject.name.lower()
+    return 'coach' in id.lower()
     
-# MARK: Constraints
-
+# MARK: Constraint
 class Constraint:
-
     def __init__(self, args):
         self.args = args
 
@@ -967,45 +966,87 @@ class MovingTowards(Constraint):
         # print(f"distance travelled: {previous_distance - current_distance}")
         return previous_distance - current_distance <= -0.05
 
-# MARK: HasPathToPass
+# MARK: Pressure
+class Pressure(Constraint):
+    def __init__(self, args={}):
+        self.player1 = args.get('player1', None)
+        self.player2 = args.get('player2', None)
 
+    def __call__(self, scene, sample):
+        player1 = findObj(self.player1, scene.objects)[0]
+        player2 = findObj(self.player2, scene.objects)[0]
+
+        behav = player1.gameObject.behavior.lower()
+        name = player2.name.lower()
+
+        if 'follow' in behav and name in behav:
+            return True
+        return False
+    
+# MARK: MakePass
+class MakePass(Constraint):
+    def __init__(self, args={}):
+        self.player = args.get('player', None)
+
+    def __call__(self, scene, sample):
+        player_list = findObj(self.player, scene.objects)
+        if not player_list:
+            print(f"MakePass(): Player '{self.player}' not found in the scene.")
+            return True # so that the program would move forward
+        else:
+            player = player_list[0]
+        # print(f"player: {player}")
+        # print(f"type(player): {type(player)}")
+
+        behav = player.gameObject.behavior
+
+        if behav is None or behav == "":
+            return False
+        
+        else:
+            if 'pass' in behav.lower():
+                return True
+        return False
+
+
+# MARK: HasPathToPass
 class HasPathToPass(Constraint):
 
     def __init__(self, args={}):
         self.passerID = args.get('passer', None)
         self.receiverID = args.get('receiver', None)
-        self.radius = args.get('radius', None)
+        self.radius = args.get('path_width', None)
         self.radiusAvg = self.radius.get('avg', 0.0)
         self.radiusStd = self.radius.get('std', 1.0)
 
     def __call__(self, scene, sample):
-
-        passer_obj, receiver_obj = None, None
-        if sample and isEgo(self.receiverID, scene):
-            print("ego is receiver")
-            receiver_obj = Vector(sample[0], sample[1], 0)
-            passer_list = findObj(self.passerID, scene.objects)
-            if not passer_list :
-                print("Passer not found in the scene.")
-                return False
-            passer_obj = passer_list[0]
-
         if sample and isEgo(self.passerID, scene):
-            print("ego is passer")
-            passer_obj = Vector(sample[0], sample[1], 0)
+            passer_pos = Vector(sample[0], sample[1], 0)
             receiver_list = findObj(self.receiverID, scene.objects)
-            if not receiver_list:
-                print("Receiver not found in the scene.")
-                return False
+            receiver_obj = receiver_list[0]
+            start = passer_pos
+            end   = receiver_obj.position
+        elif sample and isEgo(self.receiverID, scene):
+            receiver_pos = Vector(sample[0], sample[1], 0)
+            passerID_list = findObj(self.passerID, scene.objects)
+            passer_obj = passerID_list[0]
+            start = passer_obj.position
+            end   = receiver_pos
+        else:
+            passer_list = findObj(self.passerID, scene.objects)
+            receiver_list = findObj(self.receiverID, scene.objects)
+
+            passer_obj = passer_list[0]
             receiver_obj = receiver_list[0]
         
-        start = passer_obj if isinstance(passer_obj, Vector) else passer_obj.position
-        end = receiver_obj if isinstance(receiver_obj, Vector) else receiver_obj.position
+            start = passer_obj.position
+            end = receiver_obj.position
 
-        min_d = float('inf')
+        min_d = 100
         for obj in scene.objects:
-            if obj.name.lower() == 'opponent':
+            if 'opponent' in obj.name.lower():
                 d = self.distance_to_line(start, end, obj.position)
+                # print(f"distance d: {d}")
                 min_d = min(min_d, d)
         
         # print(f"min_d: {min_d}, radiusAvg: {self.radiusAvg}")
@@ -1014,34 +1055,72 @@ class HasPathToPass(Constraint):
             print("Warning: No radius threshold learned.")
             return False
         
-        return min_d >= self.radiusAvg
+        # print(f"HasPathToPass: min_d: {min_d}")
+        return min_d >= self.radiusAvg - self.radiusStd
 
     def distance_to_line(self, start, end, point):
-
-        start = np.array([start.x, start.y])
-        end = np.array([end.x, end.y])
-        point = np.array([point.x, point.y])
-
-        line_vec, obj_vec = end - start, point - start
-        line_len = np.dot(line_vec, line_vec)
-
-        if line_len == 0:
-            return np.linalg.norm(point - start)
+        """
+        Calculate the minimum distance from a point to a line segment.
         
-        t = np.dot(obj_vec, line_vec) / line_len
-        t = max(0, min(1, t))
+        Parameters:
+            start (tuple): The (x, y) coordinates of the start point of the segment.
+            end (tuple): The (x, y) coordinates of the end point of the segment.
+            point (tuple): The (x, y) coordinates of the point.
+            
+        Returns:
+            float: The shortest distance from 'point' to the line segment between 'start' and 'end'.
+        """
+        x1, y1 = start.x, start.y
+        x2, y2 = end.x, end.y
+        x0, y0 = point.x, point.y
         
-        closest_point = start + t * line_vec
-        distance = np.linalg.norm(point - closest_point)
+        # Compute the vector from start to end
+        dx = x2 - x1
+        dy = y2 - y1
         
-        return distance
+        # Compute the squared length of the line segment
+        segment_length_sq = dx * dx + dy * dy
+        
+        # If the segment is a single point, return the distance from the point to start
+        if segment_length_sq == 0:
+            print("HasPathToPass: Segment length is zero")
+            return math.hypot(x0 - x1, y0 - y1)
+        
+        # Compute the projection scalar of point onto the line (normalized by segment length)
+        t = ((x0 - x1) * dx + (y0 - y1) * dy) / segment_length_sq
+
+        # print(f"HasPathToPass) t: {t}")
+        
+        # If the projection falls before the start of the segment, use the start point
+        if t < 0:
+            distance = math.hypot(x0 - x1, y0 - y1)
+            return distance
+        elif t > 1:
+            distance = math.hypot(x0 - x2, y0 - y2)
+            return distance
+        
+        # Otherwise, the projection falls on the segment. Compute the projection coordinates.
+        proj_x = x1 + t * dx
+        proj_y = y1 + t * dy
+        
+        # Return the distance from the point to the projection point
+        return math.hypot(x0 - proj_x, y0 - proj_y)
     
 # MARK: CloseTo
-class CloseTo(Constraint):
+class CloseTo(Constraint): # Checked for graceful failure
     def __init__(self, args):
         self.obj = args.get('obj', None)
         self.ref = args.get('ref', None)
-        self.max = float(args.get('max', None))
+        self.max = args.get('max', None)
+
+        if self.max is not None:
+            self.max = args.get('max', None)
+            self.max_avg = self.max.get('avg', 3.0)
+            self.max_std = self.max.get('std', 1.0)
+        else:
+            self.max = {'avg': 3.0, 'std': 1.0}
+            self.max_avg = 3.0
+            self.max_std = 1.0
 
     def __call__(self, scene, sample):
         obj_pos, ref_pos = None, None
@@ -1050,17 +1129,31 @@ class CloseTo(Constraint):
             obj_pos = Vector(sample[0], sample[1], 0)
             ref = findObj(self.ref, scene.objects)
             ref_pos = ref[0].position
-        if sample and isEgo(self.ref, scene):
+        elif sample and isEgo(self.ref, scene):
             ref_pos = Vector(sample[0], sample[1], 0)
             obj = findObj(self.obj, scene.objects)
             obj_pos = obj[0].position
+        else:
+            obj = findObj(self.obj, scene.objects)
+            ref = findObj(self.ref, scene.objects)
+
+            if not obj:
+                print(f"CloseTo(): Object '{self.obj}' not found in the scene.")
+                return True # so that the program would at least move on
+            
+            if not ref:
+                print(f"CloseTo(): Reference object '{self.ref}' not found in the scene.")
+                return True # so that the program would at least move on
+            
+            obj_pos = obj[0].position
+            ref_pos = ref[0].position
         
         def distance(pos1, pos2):
             return np.sqrt((pos1.x - pos2.x) ** 2 + (pos1.y - pos2.y) ** 2)
 
         dist = distance(obj_pos, ref_pos)
-        print(f"dist: {dist}")
-        return dist <= self.max
+        # print(f"dist: {dist}")
+        return dist <= self.max_avg + self.max_std
 
 # MARK: DistanceTo
 class DistanceTo(Constraint):
@@ -1071,8 +1164,14 @@ class DistanceTo(Constraint):
         self.max = args.get('max', None)
         self.operator = args.get('operator', None)
 
-        self.minAvg = self.min.get('avg', None)
-        self.maxAvg = self.max.get('avg', None)
+        if self.min is not None:
+            self.minAvg = self.min.get('avg', None)
+        else:
+            self.minAvg = {'avg': 3.0, 'std': 1.0}
+        if self.max is not None:
+            self.maxAvg = self.max.get('avg', None)
+        else:
+            self.maxAvg = {'avg': 3.0, 'std': 1.0}
 
     def __call__(self, scene, sample):
 
@@ -1109,95 +1208,147 @@ class DistanceTo(Constraint):
             return False
         
 # MARK: HeightRelation
-        
 class HeightRelation(Constraint):
     def __init__(self, args):
         self.objID = args.get('obj', None)
         self.refID = args.get('ref', None)
         self.relation = args.get('relation', None)
         self.threshold = args.get('height_threshold', None)
-        self.threshold_avg = self.threshold.get('avg') if self.threshold else None
+        if self.threshold is None:
+            self.threshold = {'avg': 2.0, 'std': 1.0}
+        self.threshold_avg = self.threshold.get('avg')
+        self.threshold_std = self.threshold.get('std')
 
     def __call__(self, scene, sample):
-
         if sample and isEgo(self.objID, scene):
             player_y = sample[1]
+            if self.refID:
+                ref_objs = findObj(self.refID, scene.objects)
+                if not ref_objs:
+                    print(f"HeightRelation() IF: Reference object '{self.refID}' not found in the scene.")
+                    return True # so that the program would at least move on
+                ref_obj = ref_objs[0]
+                ref_y = ref_obj.position.y
+                value = player_y - ref_y
+            else:
+                value = player_y
+
+        elif sample and isEgo(self.refID, scene):
+            ref_y = sample[1]
+            if self.objID:
+                player_objs = findObj(self.objID, scene.objects)
+                if not player_objs:
+                    print(f"HeightRelation() ELIF: obj Player '{self.objID}' not found in the scene.")
+                    return True
+                player_obj = player_objs[0]
+                player_y = player_obj.position.y
+                value = player_y - ref_y
+            else:
+                value = ref_y
+
         else:
             player_objs = findObj(self.objID, scene.objects)
-            if not player_objs:
-                print(f"Player '{self.objID}' not found in the scene.")
-                return False
-            player_obj = player_objs[0]
-            player_y = player_obj.position.y
-
-        if self.refID:
             ref_objs = findObj(self.refID, scene.objects)
-            if not ref_objs:
-                print(f"Reference object '{self.refID}' not found in the scene.")
-                return False
-            ref_obj = ref_objs[0]
-            ref_y = ref_obj.position.y
-            value = player_y - ref_y
-        else:
-            value = player_y
-
-        print(player_y, ref_y, value, sample)
-
-        if self.threshold_avg is None:
-            print("No height threshold provided for HeightRelation.")
-            return False
+            if player_objs and ref_objs:
+                player_obj = player_objs[0]
+                ref_obj = ref_objs[0]
+                player_y = player_obj.position.y
+                ref_y = ref_obj.position.y
+                value = player_y - ref_y
+            elif not player_objs:
+                print(f"HeightRelation() ELIF: obj Player '{self.objID}' not found in the scene.")
+                return True # so that the program would at least move on
+            elif player_objs and not ref_objs:
+                player_obj = player_objs[0]
+                player_y = player_obj.position.y
+                value = player_y
+            else:
+                print(f"HeightRelation() ELSE: ref = '{self.refID}' and obj = '{self.refID}' not found in the scene.")
+                return True # so that the program would at least move on
         
-        if self.relation == 'behind':
-            return value < self.threshold_avg
-        elif self.relation == 'ahead':
-            return value > self.threshold_avg
+        if self.relation == 'below' and self.refID and self.objID:
+            return value < 0 and abs(value) > self.threshold_avg - self.threshold_std
+        elif self.relation == 'below' and not (self.refID and self.objID):
+            return value < 0 and abs(value) > self.threshold_avg - self.threshold_std
+        elif self.relation == 'above' and self.refID and self.objID:
+            return value > 0 and abs(value) > self.threshold_avg - self.threshold_std
+        elif self.relation == 'above' and not (self.refID and self.objID):
+            return value > 0 and abs(value) > self.threshold_avg - self.threshold_std
         else:
-            print(f"Unknown relation '{self.relation}' in HeightRelation.")
-            return False
+            print(f"HeightRelation(): Unknown relation '{self.relation}' in HeightRelation.")
+            return True # so that the program would at least move on
 
 class HorizontalRelation(Constraint):
     def __init__(self, args):
         self.objID = args.get('obj', None)
         self.refID = args.get('ref', None)
         self.relation = args.get('relation', None)
-        self.threshold = args.get('x_threshold', None)
-        self.threshold_avg = float(self.threshold.get('avg')) if self.threshold else None
+        self.threshold = args.get('horizontal_threshold', None)
+        if self.threshold is None:
+            self.threshold = {'avg': 2.0, 'std': 1.0}
+        self.threshold_avg = self.threshold.get('avg') 
+        self.threshold_std = self.threshold.get('std')
 
     def __call__(self, scene, sample):
         if sample and isEgo(self.objID, scene):
             player_x = sample[0]
+            if self.refID:
+                ref_objs = findObj(self.refID, scene.objects)
+                if not ref_objs:
+                    print(f"HorizontalRelation() IF: Reference object '{self.refID}' not found in the scene.")
+                    return True # so that the program would at least move on
+                ref_obj = ref_objs[0]
+                ref_x = ref_obj.position.x
+                value = player_x - ref_x
+            else:
+                value = player_x
+
+        elif sample and isEgo(self.refID, scene):
+            ref_y = sample[0]
+            if self.objID:
+                player_objs = findObj(self.objID, scene.objects)
+                if not player_objs:
+                    print(f"HorizontalRelation() ELIF: obj Player '{self.objID}' not found in the scene.")
+                    return True
+                player_obj = player_objs[0]
+                player_x = player_obj.position.x
+                value = player_x - ref_x
+            else:
+                value = ref_x
+
         else:
             player_objs = findObj(self.objID, scene.objects)
-            if not player_objs:
-                print(f"Player '{self.objID}' not found in the scene.")
-                return False
-            player_x = player_objs[0].position.x
-
-        if self.refID:
             ref_objs = findObj(self.refID, scene.objects)
-            if not ref_objs:
-                print(f"Reference object '{self.refID}' not found in the scene.")
-                return False
-            ref_obj = ref_objs[0]
-            ref_x = ref_obj.position.x
-            value = player_x - ref_x
-        else:
-            value = player_x
-
-        if self.threshold_avg is None:
-            print("No horizontal threshold provided for HorizontalRelation.")
-            return False
+            if player_objs and ref_objs:
+                player_obj = player_objs[0]
+                ref_obj = ref_objs[0]
+                player_x = player_obj.position.x
+                ref_x = ref_obj.position.x
+                value = player_x - ref_x
+            elif not player_objs:
+                print(f"HorizontalRelation() ELIF: obj Player '{self.objID}' not found in the scene.")
+                return True # so that the program would at least move on
+            elif player_objs and not ref_objs:
+                player_obj = player_objs[0]
+                player_x = player_obj.position.x
+                value = player_x
+            else:
+                print(f"HorizontalRelation() ELSE: ref = '{self.refID}' and obj = '{self.refID}' not found in the scene.")
+                return True # so that the program would at least move on
         
-        if self.relation == 'left':
-            return value <= 0 and abs(value) >= self.threshold_avg
-        elif self.relation == 'right':
-            return value >= 0 and abs(value) > self.threshold_avg
+        if self.relation == 'left' and self.refID and self.objID:
+            return value < 0 and abs(value) > self.threshold_avg - self.threshold_std
+        elif self.relation == 'left' and not (self.refID and self.objID):
+            return value < 0 and abs(value) > self.threshold_avg - self.threshold_std
+        elif self.relation == 'right' and self.refID and self.objID:
+            return value > 0 and abs(value) > self.threshold_avg - self.threshold_std
+        elif self.relation == 'right' and not (self.refID and self.objID):
+            return value > 0 and abs(value) > self.threshold_avg - self.threshold_std
         else:
-            print(f"Unknown relation '{self.relation}' in HorizontalRelation.")
-            return False
+            print(f"HorizontalRelation(): Unknown relation '{self.relation}' .")
+            return True # so that the program would at least move on
 
 # MARK: OrientedTo
-
 class OrientedTo(Constraint):
     def __init__(self, args):
         self.objID = args.get('obj', None)

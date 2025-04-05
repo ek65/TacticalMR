@@ -153,6 +153,7 @@ public class HumanInterface : NetworkBehaviour
         
         // find gameobject with tag "InfoCanvas" and assign the canvas object to this object's camera
         GameObject infoCanvas = GameObject.FindGameObjectWithTag("InfoCanvas");
+        RectTransform t2 = GameObject.Find("Recording Dot").GetComponent<RectTransform>();
         if (gm.isHost && infoCanvas != null)
         {
             infoCanvas.GetComponent<Canvas>().worldCamera = Camera.main;
@@ -164,10 +165,10 @@ public class HumanInterface : NetworkBehaviour
             RectTransform t = GameObject.Find("Paused Text").GetComponent<RectTransform>();
             t.anchoredPosition = new Vector3(t.position.x, 100);
             
-            RectTransform t2 = GameObject.Find("Recording Dot").GetComponent<RectTransform>();
             t2.anchoredPosition = new Vector3(250, 200);
             t2.gameObject.SetActive(false);
         }
+        t2.gameObject.SetActive(false);
     }
     
     private void RPC_SetActive(bool active)

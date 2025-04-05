@@ -10,11 +10,6 @@ from scenic.core.object_types import Point
 
 timestep = 0.1 # sec per timestep
 
-behavior IdleSpecial():
-    while True:
-        take IdleAction()
-        # print(f"opp.x: {self.position.x}, opp.y: {self.position.y}, opp.z: {self.position.z}")
-
 behavior Idle():
     while True:
         take IdleAction()
@@ -50,12 +45,12 @@ behavior Pass(target, slow=False):
 
     if isinstance(target, UnityObject) or isinstance(target,Point):
         target = target.position
-        print("UnityObj")
+        # print("UnityObj")
     elif checkIfString(target):
         target = [obj for obj in scene.objects if obj.name.lower() == target][0].position # converts string into object reference
-        print("elif case")
-    print(f"Passing to {target}")
-    print(f"type: {type(target)}")
+        # print("elif case")
+    # print(f"Passing to {target}")
+    # print(f"type: {type(target)}")
 
     if slow:
         take GroundPassSlowAction(target)
@@ -70,6 +65,9 @@ behavior LookAt(vec):
         location = vec.position
     take LookAtAction(location, "Look At")
     take StopAction()
+
+behavior Shoot(goal):
+    take  GroundPassFastAction(goal.position, "Shoot Ball")
 
 behavior MoveToBehavior(v, lookAtTarget = None, distance = 0.2, status=""):
     dist = 1000
@@ -143,14 +141,14 @@ def sample_target(scene, prev_target, λ_dest) -> Vector:
     
     while not λ_dest(scene, target):
         x = Range(-FIELD_WIDTH / 2, FIELD_WIDTH / 2)
-        y = Range(-FIELD_HEIGHT / 2, FIELD_HEIGHT / 2)
+        y = Range(0, FIELD_HEIGHT / 2)
         target = [x,y]
         if i > 100000:
             raise Exception("Maximum sample depth exceeded.")
         i += 1
 
     sample = Vector(target[0], target[1])
-    print(f"sample: {sample}")
+    # print(f"sample: {sample}")
     return sample
 
 # MARK: MoveTo
@@ -158,11 +156,14 @@ behavior MoveTo(λ_dest):
     scene = simulation()
     sample = Vector(0, 0)
     sample = sample_target(scene, sample, λ_dest)
+    timestep = 0.3
+    # print(f"sample: {sample}")
     while (distance from self to sample > 0.5):
         # print('moving to', sample)
         do MoveToBehavior(sample) for timestep seconds
         scene = simulation()
         sample = sample_target(scene, sample, λ_dest)
+        # print(f"sample: {sample}")
     do Idle() for 1 seconds
 
 # # MARK: moveTo
@@ -186,6 +187,10 @@ behavior getTo(destination):
     while (distance from self to destination > 0.01):
         # take MoveToAction(destination)
         take MoveToLookAtBallWithSpeed(destination, 2.0)
+
+behavior GetBallPossession(ball):
+    while not self.gameObject.ballPossession:
+        take MoveToAction(ball.position)
 
 
 behavior moveToLookAtBall(player: Player, target: Coordinate, ref: list, speed: Speed):
