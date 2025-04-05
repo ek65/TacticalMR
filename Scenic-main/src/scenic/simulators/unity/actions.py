@@ -572,7 +572,7 @@ class PlacingAndShortPassAction(Action):
 # Coach/Human/AIAgent Actions
 class SpeakAction(Action):
     def __init__(self, input):
-        # self.actionName = "Speak"
+        self.actionName = "Speak"
         inputString = "Say \"" + input + "\""
         
         if not isinstance(input, str):

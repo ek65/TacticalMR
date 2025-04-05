@@ -5,35 +5,48 @@ import trimesh
 from scenic.core.regions import MeshVolumeRegion
 import random
 behavior CoachBehavior():
-    take SpeakAction("Coach moves to a spot where the opponent is over 5.92 meters away.")
+    do Speak("Coach stands idle for one second without taking action.")
+    do Idle() for 1 seconds
+
+    do Speak("Coach moves to a target spot based on teammate and opponent positions.")
     do MoveTo(λ_target0) until λ_termination0(simulation(), None)
-    take SpeakAction("Coach idles until teammate pass conditions are met.")
+
+    do Speak("Coach waits until a teammate is ready for a pass opportunity.")
     do Idle() until λ_precondition_6(simulation(), None)
-    take SpeakAction("Coach runs to the ball to gain possession immediately.")
+
+    do Speak("Coach goes to the ball to take possession.")
     do GetBallPossession(ball)
-    take SpeakAction("Coach waits until opponent pressure or movement sets up a passing moment.")
+
+    do Speak("Coach idles until pressure or movement cues decide the next play.")
     do Idle() until λ_precondition_7_8(simulation(), None)
-    take SpeakAction("If under pressure from opponent, follow alternate move-pass strategy.")
+
+    do Speak("If opponent pressure exists, follow the passing strategy.")
     if λ_precondition7(simulation(), None):
-        take SpeakAction("Move so that opponent is more than 6.17 meters away from you.")
+        do Speak("Coach moves to a safer spot from the opponent for passing.")
         do MoveTo(λ_target2) until λ_termination2(simulation(), None)
-        take SpeakAction("Wait until opponent stays beyond 6.17 meters before passing.")
+        do Speak("Coach waits until a clear distance from opponent is reestablished.")
         do Idle() until λ_precondition_9(simulation(), None)
-        take SpeakAction("Then pass the ball to your teammate.")
+        do Speak("Coach then passes the ball to the teammate.")
         do Pass(teammate)
     else:
-        take SpeakAction("Otherwise, move towards the goal until within about 5.03 meters.")
+        do Speak("Coach moves toward goal area when pressure is low.")
         do MoveTo(λ_target3) until λ_termination3(simulation(), None)
-        take SpeakAction("Pause until a clear shooting path to the goal is confirmed.")
+        do Speak("Coach idles waiting for an unobstructed path to goal.")
         do Idle() until λ_precondition_10(simulation(), None)
-        take SpeakAction("Finally, shoot the ball toward the goal.")
+        do Speak("Coach shoots the ball aiming at the goal.")
         do Shoot(goal)
-A1termination_0 = DistanceTo({'from': 'Coach', 'to': 'opponent', 'min': {'avg': 5.921706745077121, 'std': 0.18424753231768948}, 'max': None, 'operator': 'greater_than'})
-A1target_0 = DistanceTo({'from': 'opponent', 'to': 'Coach', 'min': {'avg': 5.921706745077121, 'std': 0.18424753231768948}, 'max': None, 'operator': 'greater_than'})
+A3termination_0 = HeightRelation({'obj': 'Coach', 'ref': 'teammate', 'relation': 'below', 'height_threshold': {'avg': -2.0, 'std': 1.0}})
+A1termination_0 = HorizontalRelation({'obj': 'Coach', 'ref': 'teammate', 'relation': 'left', 'horizontal_threshold': {'avg': -0.051703527400000004, 'std': 0.044703527400000005}})
+A2termination_0 = HorizontalRelation({'obj': 'Coach', 'ref': 'teammate', 'relation': 'right', 'horizontal_threshold': {'avg': 0.013, 'std': 0.0}})
+A4termination_0 = DistanceTo({'from': 'Coach', 'to': 'opponent', 'min': {'avg': 5.921706745077121, 'std': 0.18424753231768948}, 'max': None, 'operator': 'greater_than'})
+A1target_0 = HorizontalRelation({'obj': 'Coach', 'ref': 'teammate', 'relation': 'left', 'horizontal_threshold': {'avg': -0.051703527400000004, 'std': 0.044703527400000005}})
+A2target_0 = HorizontalRelation({'obj': 'Coach', 'ref': 'teammate', 'relation': 'right', 'horizontal_threshold': {'avg': 0.013, 'std': 0.0}})
+A3target_0 = HeightRelation({'obj': 'Coach', 'ref': 'teammate', 'relation': 'below', 'height_threshold': {'avg': -2.0, 'std': 1.0}})
+A4target_0 = DistanceTo({'from': 'Coach', 'to': 'opponent', 'min': {'avg': 5.921706745077121, 'std': 0.18424753231768948}, 'max': None, 'operator': 'greater_than'})
 A1termination_2 = DistanceTo({'from': 'Coach', 'to': 'opponent', 'min': {'avg': 6.172259899611368, 'std': 0.0}, 'max': None, 'operator': 'greater_than'})
 A1target_2 = DistanceTo({'from': 'Coach', 'to': 'opponent', 'min': {'avg': 6.172259899611368, 'std': 0.0}, 'max': None, 'operator': 'greater_than'})
-A1termination_3 = CloseTo({'obj': 'Coach', 'ref': 'goal', 'max': {'avg': 5.025909493366715, 'std': 0.015410097852564864}})
-A1target_3 = CloseTo({'obj': 'Coach', 'ref': 'goal', 'max': {'avg': 5.025909493366715, 'std': 0.015410097852564864}})
+A1termination_3 = DistanceTo({'from': 'Coach', 'to': 'goal', 'min': None, 'max': {'avg': 5.025909493366715, 'std': 0.015410097852564864}, 'operator': 'less_than'})
+A1target_3 = DistanceTo({'from': 'Coach', 'to': 'goal', 'min': None, 'max': {'avg': 5.025909493366715, 'std': 0.015410097852564864}, 'operator': 'less_than'})
 A1precondition_6 = MakePass({'player': 'teammate'})
 A1precondition_7 = Pressure({'player1': 'opponent', 'player2': 'Coach'})
 A1precondition_8 = MovingTowards({'obj': 'opponent', 'ref': 'teammate'})
@@ -47,7 +60,7 @@ A2precondition_8 = Pressure({'player1': 'opponent', 'player2': 'Coach'})
 A1precondition_9 = DistanceTo({'from': 'Coach', 'to': 'opponent', 'min': {'avg': 6.172259899611368, 'std': 0.0}, 'max': None, 'operator': 'greater_than'})
 A1precondition_10 = HasPath({'obj1': 'Coach', 'obj2': 'goal', 'path_width': {'avg': 2.0, 'std': 0.0}})
 def λ_target0(scene, sample):
-    return A1target_0(simulation(), sample)
+    return (A3target_0(simulation(), sample) and (A1target_0(simulation(), sample) or A2target_0(simulation(), sample)) and A4target_0(simulation(), sample))
 
 def λ_target2(scene, sample):
     return A1target_2(simulation(), sample)
@@ -56,7 +69,7 @@ def λ_target3(scene, sample):
     return A1target_3(simulation(), sample)
 
 def λ_termination0(scene, sample):
-    return A1termination_0(simulation(), sample)
+    return (A3termination_0(simulation(), sample) and (A1termination_0(simulation(), sample) or A2termination_0(simulation(), sample)) and A4termination_0(simulation(), sample))
 
 def λ_termination1(scene, sample):
     return True
@@ -83,7 +96,7 @@ def λ_precondition7(scene, sample):
     return A1precondition_7(simulation(), sample)
 
 def λ_precondition8(scene, sample):
-    return (A1precondition_8(simulation(), sample) and NOT(A2precondition_8(simulation(), sample)))
+    return (A1precondition_8(simulation(), sample) and not(A2precondition_8(simulation(), sample)))
 
 def λ_precondition_7_8(scene, sample):
     return λ_precondition7(simulation(), sample) or λ_precondition8(simulation(), sample)
