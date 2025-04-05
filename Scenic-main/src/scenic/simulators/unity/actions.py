@@ -999,6 +999,7 @@ class MakePass(Constraint):
         # print(f"type(player): {type(player)}")
 
         behav = player.gameObject.behavior
+        # print(f"MakePass(): player: {player.name}, behavior: {behav}")
 
         if behav is None or behav == "":
             return False
@@ -1010,11 +1011,11 @@ class MakePass(Constraint):
 
 
 # MARK: HasPathToPass
-class HasPathToPass(Constraint):
+class HasPath(Constraint):
 
     def __init__(self, args={}):
-        self.passerID = args.get('passer', None)
-        self.receiverID = args.get('receiver', None)
+        self.passerID = args.get('obj1', None)
+        self.receiverID = args.get('obj2', None)
         self.radius = args.get('path_width', None)
         self.radiusAvg = self.radius.get('avg', 0.0)
         self.radiusStd = self.radius.get('std', 1.0)
@@ -1113,7 +1114,10 @@ class CloseTo(Constraint): # Checked for graceful failure
         self.ref = args.get('ref', None)
         self.max = args.get('max', None)
 
-        if self.max is not None:
+        if isinstance(self.max, (int, float)):
+            self.max_avg = self.max
+            self.max_std = 1.0
+        elif self.max is not None:
             self.max = args.get('max', None)
             self.max_avg = self.max.get('avg', 3.0)
             self.max_std = self.max.get('std', 1.0)

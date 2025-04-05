@@ -53,7 +53,7 @@ behavior Pass(target, slow=False):
     # print(f"type: {type(target)}")
 
     if slow:
-        take GroundPassSlowAction(target)
+        take GroundPassSlowAction(target, "Pass Ball")
     else:
         take GroundPassFastAction(target, "Pass Ball")
     do Idle() for 1 seconds
