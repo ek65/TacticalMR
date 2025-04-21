@@ -97,7 +97,7 @@ public class KeyboardInput : MonoBehaviour
         // Press B to toggle segment
         if (Input.GetKeyDown(KeyCode.B) && gameObject.CompareTag("keyboard"))
         {
-            HandleSegment();
+            HandleSegment2();
         }
 
         // Press P to pause/unpause
@@ -332,7 +332,6 @@ public class KeyboardInput : MonoBehaviour
         timelineManager.isRecordingSegment = false;
         jsonToLLM.isLogging = false; // triggers video stop in JSONToLLM
         segmentStarted = false;
-        jsonToLLM.activateSystemRecording = true;
         // Stop audio
         if (recordAudio != null && Microphone.IsRecording(null))
         {
@@ -359,7 +358,6 @@ public class KeyboardInput : MonoBehaviour
         timelineManager.isRecordingSegment = false;
 
         segmentStarted = false;
-        jsonToLLM.activateSystemRecording = true;
         // Stop audio
         if (recordAudio != null && Microphone.IsRecording(null))
         {
