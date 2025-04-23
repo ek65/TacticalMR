@@ -1377,7 +1377,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1551601592}
   m_HandleRect: {fileID: 1551601590}
   m_Direction: 2
-  m_Value: 1
+  m_Value: 0
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -2689,7 +2689,7 @@ MonoBehaviour:
   isHost: 0
   _ObserverCamera: {fileID: 11567817}
   _runner: {fileID: 0}
-  sessionNum: 0
+  sessionNum: 3
   _playerPrefab:
     RawGuidValue: b3a53b9f699dd4beebd53d0802fbc75b
   ZMQManagerObject: {fileID: 777379925808647183}
@@ -10585,7 +10585,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 777379923757108249, guid: 666baf2eca0804901807bbe20b856a51, type: 3}
       propertyPath: ip
-      value: 192.168.1.64
+      value: 192.168.1.47
       objectReference: {fileID: 0}
     - target: {fileID: 777379925808647185, guid: 666baf2eca0804901807bbe20b856a51, type: 3}
       propertyPath: recordingNum

@@ -155,6 +155,8 @@ public class KeyboardInput : NetworkBehaviour
     }
 
     // Pause/unpause
+    // This is the modified section of the HandlePause() method in KeyboardInput.cs
+
     public void HandlePause()
     {
         if (timelineManager.Paused)
@@ -170,6 +172,29 @@ public class KeyboardInput : NetworkBehaviour
         }
         else
         {
+            // Add annotation for pausing
+            if (segmentStarted)
+            {
+                // Create a dictionary with the PauseAction type
+                Dictionary<string, object> pauseAction = new Dictionary<string, object>
+                {
+                    { "type", "PauseAction" }
+                };
+            
+                // Add to annotations with current click order
+                annotation.Add(clickOrder, pauseAction);
+                annotationDescriptions.Add(clickOrder, "Coach paused the game");
+            
+                // Record the time of pause relative to segment start
+                float pauseTime = Time.time - segmentStartTime;
+                annotationTimes.Add(clickOrder, pauseTime);
+            
+                Debug.Log($"Added PauseAction annotation at {pauseTime:F2}s, key {clickOrder}");
+            
+                // Increment click order for next annotation
+                clickOrder++;
+            }
+        
             timelineManager.Pause();
         }
     }
