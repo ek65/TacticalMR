@@ -75,6 +75,11 @@ public class ControllerInput : MonoBehaviour
     private void FixedUpdate()
     {
 #if UNITY_EDITOR
+        GameManager gm = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
+        if (!gm.isHost)
+        {
+            return;
+        }
         // if (tlManager.Paused)
         // {
         //     return;

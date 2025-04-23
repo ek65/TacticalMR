@@ -79,6 +79,7 @@ public class GameManager : NetworkBehaviour, INetworkRunnerCallbacks
 			// ball.transform.position = new Vector3(0, 1, 1);
 		}
 
+#if UNITY_ANDROID && !UNITY_EDITOR
 		if (isHost)
 		{
 			GameObject ground = GameObject.FindGameObjectWithTag("Ground");
@@ -87,6 +88,7 @@ public class GameManager : NetworkBehaviour, INetworkRunnerCallbacks
 			GameObject soccerField = GameObject.Find("Soccer Field");
 			soccerField.GetComponent<MeshRenderer>().enabled = false;
 		}
+#endif
 	}
 
 	#endregion
