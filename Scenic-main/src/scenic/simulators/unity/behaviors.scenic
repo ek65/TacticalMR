@@ -1,4 +1,5 @@
 from scenic.simulators.unity.actions import *
+from scenic.simulators.unity.constraints import *
 from enum import Enum
 model scenic.simulators.unity.model
 from scenic.core.vectors import Orientation, Vector
@@ -300,3 +301,58 @@ behavior MoveToRobot(v, lookAtTarget = None, distance = 0.5, status=""):
         else:
             take MoveToRobotAction(v.position, status)
         dist = distance from self to v
+
+# behavior MoveTo(λ_dest):
+#     scene = simulation()
+#     sample = Vector(0, 0)
+#     sample = sample_target(scene, sample, λ_dest)
+#     timestep = 0.3
+#     # print(f"sample: {sample}")
+#     while (distance from self to sample > 0.5):
+#         # print('moving to', sample)
+#         do MoveToBehavior(sample) for timestep seconds
+#         scene = simulation()
+#         sample = sample_target(scene, sample, λ_dest)
+#         # print(f"sample: {sample}")
+#     do Idle() for 1 seconds
+
+import numpy as np
+
+rows, cols = 34, 20
+i, j = np.indices((rows, cols))
+
+def sample_from(dist, _min=0.1):
+
+    max_val = dist.max()
+    if max_val > 0:
+        dist = dist / max_val
+
+    filtered = np.where(dist >= _min, dist, 0.0)
+    
+    total = filtered.sum()
+    if total == 0:
+        filtered += epsilon
+    
+    probs = filtered / total
+    flat = probs.ravel()
+    
+    idx = np.random.choice(flat.size, p=flat)
+    coord = np.unravel_index(idx, dist.shape)
+
+    x, y = coord[1].item(), coord[0].item()
+    print('real sampled', x, y)
+    sample = Vector(x - cols / 2, rows / 2 - y)
+    print('Sampled', sample)
+
+    return sample
+
+behavior MoveAs(condition: list):
+    condition = [np.array(i) for i in condition]
+    scene = simulation()
+    dist = np.exp(sum(np.log(condition)))
+    sample = sample_from(dist)
+    dt = 0.3 # why not < 0.3
+    while (distance from self to sample > 0.5):
+        do MoveToBehavior(sample) for dt seconds
+    do Idle() for 1 seconds # really?
+    # TODO: Check if sample is still satisfied and if not re-sample
