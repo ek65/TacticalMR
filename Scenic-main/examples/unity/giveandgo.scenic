@@ -1,4 +1,4 @@
-from scenic.simulators.unity.actions_backup import *
+from scenic.simulators.unity.actions import *
 from scenic.simulators.unity.behaviors import *
 model scenic.simulators.unity.model
 import trimesh
@@ -13,7 +13,7 @@ def movesToward(player1, player2):
 behavior opponent1Behavior():
     do Idle() until ego.gameObject.ballPossession
     while True:
-        do MoveTo(ball, distance = 4)
+        do MoveToBehavior(ball, distance = 4)
 
 behavior TeammateBehavior():
     try:
@@ -36,9 +36,9 @@ def teammateHasBallPossession():
             return True
     return False
 
-behavior GetBehindAndReceiveBall(player, zone): # similar logic as inzone
-    
-    do MoveTo(point) until self.position.y > player.position.y + 2
+behavior GetBehindAndReceiveBall(player): # similar logic as inzone
+    point = new Point behind player by 5
+    do MoveToBehavior(point) until self.position.y > player.position.y + 2
     while teammateHasBallPossession():
         take IdleAction()
     do GetBall()
@@ -49,15 +49,17 @@ behavior ReceiveBall():
     do GetBall()
 
 behavior CoachBehavior():
+    do Idle() for 3 seconds
+    do Speak("Say \"" + "Let me show you another variation of this defense task. Be ready to position yourself after the pass." + "\"")
     do GetBall() until hasBallPosession(ego)
     do Idle() until movesToward(opponent, ego)
     do PassTo(teammate)
-    # do GetBehindAndReceiveBall(opponent)
-    do MoveToAndReceiveBall(InZone(['A1','A2','A3']))
+    do GetBehindAndReceiveBall(opponent)
+    # do MoveToAndReceiveBall(InZone(['A1','A2','A3']))
 
-ego = new Human at (0,0)
-# ego = new Coach at (0,0),
-#         with behavior CoachBehavior()
+# ego = new Human at (0,0)
+ego = new Coach at (0,0),
+        with behavior CoachBehavior()
 
 ball = new Ball ahead of ego by 1
 

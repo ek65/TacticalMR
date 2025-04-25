@@ -30,10 +30,10 @@ class UnitySimulation(Simulation):
         self.ego = None
         super().__init__(scene, timestep=timestep, **kwargs)
         # for obj in self.objects:
-        #     # print(obj)
-        #     # unityActor = self.createObjectInSimulator(obj)
-        #     if obj is self.objects[0]:
-        #         self.ego = obj
+        #     print(obj)
+            # unityActor = self.createObjectInSimulator(obj)
+            # if obj is self.objects[0]:
+            #     self.ego = obj
     def step(self):
         self.client.step()
     def executeActions(self, allActions):

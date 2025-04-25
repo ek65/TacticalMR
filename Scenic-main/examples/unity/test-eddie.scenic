@@ -1,4 +1,4 @@
-from scenic.simulators.unity.actions_backup import *
+from scenic.simulators.unity.actions import *
 from scenic.simulators.unity.behaviors import *
 model scenic.simulators.unity.model
 import trimesh
@@ -20,7 +20,7 @@ def pressure(player1, player2):
     """
     behav = player1.gameObject.behavior.lower()
     name = player2.name.lower()
-    print(f"player1: {player1.name}, player2: {player2.name}, behavior: {behav}")
+    # print(f"player1: {player1.name}, player2: {player2.name}, behavior: {behav}")
     if 'follow' in behav and name in behav:
         return True
     return False
@@ -29,11 +29,11 @@ behavior opponent1Behavior():
     do Idle() until teammate.gameObject.ballPossession
     do Follow(ball) until ego.gameObject.ballPossession
     # do Uniform(Follow(ego), Follow(teammate))
-    do Follow(teammate)
-    # print("opponent follows ego")
-    # do Follow(ego)
+    # do Follow(teammate)
+    print("opponent follows ego")
+    do Follow(ego)
 
-A = HasPath({'obj1': 'teammate', 'obj2': 'coach', 'path_width':{'avg': 2, 'std':1}})
+A = HasPathToPass({'passer': 'teammate', 'receiver': 'coach', 'path_width':{'avg': 2, 'std':1}})
 
 behavior TeammateBehavior():
     passed = False
@@ -47,7 +47,6 @@ behavior TeammateBehavior():
         take StopAction()
         point = new Point at (0,10,0)
         do MoveToBehavior(point) until MakePass({'player': 'coach'})(simulation(), None)
-        do Idle() for 0.5 seconds
         do GetBallPossession(ball)
         do Shoot(goal)
         passed = True
@@ -68,44 +67,52 @@ behavior ReceiveBall():
     while teammateHasBallPossession():
         take IdleAction()
     do GetBall()
+
 behavior CoachBehavior():
     do MoveTo(λ_target0) until λ_termination0(simulation(), None)
-    print("moveto")
+    print("move to completed")
     do Idle() until λ_precondition_0(simulation(), None)
-    print("idle1")
+    print("idle completed")
     do GetBallPossession(ball)
-    print("getball")
-    do Idle() until λ_precondition_1_4(simulation(), None)
-    print("idle2")
+    print("get ball possession completed")
+    do Idle() until λ_precondition_1_3(simulation(), None)
+    print("idle completed")
     if λ_precondition1(simulation(), None):
         print("precondition1")
         do MoveTo(λ_target2) until λ_termination2(simulation(), None)
-        print("moveto2")
+        print("move to completed")
         do Idle() until λ_precondition_2(simulation(), None)
-        print("idle3")
+        print("idle completed")
         do Shoot(goal)
     else:
-        print("precondition4")
+        print("precondition3")
         do Pass(teammate)
-A1termination_0 = MakePass({'player': 'teammate'})
-A1target_0 = HorizontalRelation({'obj': 'Coach', 'ref': None, 'relation': 'left', 'horizontal_threshold': {'avg': 5, 'std': 0.0}})
-A2target_0 = HorizontalRelation({'obj': 'Coach', 'ref': None, 'relation': 'right', 'horizontal_threshold': {'avg': 5, 'std': 0.0}})
-A1termination_2 = CloseTo({'obj': 'Coach', 'ref': 'goal', 'max': {'avg': 4.937129569846508, 'std': 0.0}})
-A1target_2 = CloseTo({'obj': 'Coach', 'ref': 'goal', 'max': {'avg': 4.937129569846508, 'std': 0.16371462664283953}})
+
+A1termination_0 = HorizontalRelation({'obj': 'Coach', 'ref': 'teammate', 'relation': 'right', 'horizontal_threshold': {'avg': 4, 'std': 0.046622037131346904}})
+A2termination_0 = HorizontalRelation({'obj': 'Coach', 'ref': 'teammate', 'relation': 'left', 'horizontal_threshold': {'avg': 4, 'std': 0.046622037131346904}})
+A1target_0 = HorizontalRelation({'obj': 'Coach', 'ref': 'teammate', 'relation': 'right', 'horizontal_threshold': {'avg': 4, 'std': 0.046622037131346904}})
+A2target_0 = HorizontalRelation({'obj': 'Coach', 'ref': 'teammate', 'relation': 'left', 'horizontal_threshold': {'avg': 4, 'std': 0.046622037131346904}})
+A3target_0 = CloseTo({'obj': 'Coach', 'ref': 'teammate', 'max': {'avg': 5, 'std': 0.16371462664283953}})
+A1termination_2 = DistanceTo({'from': 'Coach', 'to': 'goal', 'min': None, 'max': {'avg': 10, 'std': 0.0}, 'operator': 'less_than'})
+A1target_2 = CloseTo({'obj': 'Coach', 'ref': 'goal', 'max': {'avg': 10, 'std': 0.16371462664283953}})
+# A2target_2 = HeightRelation({'obj': 'Coach', 'ref': 'teammate', 'relation': 'above', 'height_threshold': {'avg': 13, 'std': 0.046622037131346904}})
 A1precondition_0 = MakePass({'player': 'teammate'})
-A2precondition_0 = HasBallPossession({'player': 'Coach'})
-A1precondition_1 = Pressure({'player1': 'opponent', 'player2': 'Coach'})
-A1precondition_2 = CloseTo({'obj': 'Coach', 'ref': 'goal', 'max': {'avg': 4.937129569846508, 'std': 0.0}})
-A1precondition_4 = Pressure({'player1': 'opponent', 'player2': 'Coach'})
-A2precondition_4 = CloseTo({'obj': 'teammate', 'ref': 'goal', 'max': 10})
+A2precondition_0 = HorizontalRelation({'obj': 'Coach', 'ref': 'teammate', 'relation': 'right', 'horizontal_threshold': {'avg': 0, 'std': 0.046622037131346904}})
+A3precondition_0 = HorizontalRelation({'obj': 'Coach', 'ref': 'teammate', 'relation': 'left', 'horizontal_threshold': {'avg': 0, 'std': 0.046622037131346904}})
+A1precondition_1 = Pressure({'player1': 'opponent', 'player2': 'teammate'})
+# A2precondition_1 = Pressure({'player1': 'opponent', 'player2': 'teammate'})
+A1precondition_2 = CloseTo({'obj': 'Coach', 'ref': 'goal', 'max': {'avg': 10, 'std': 0.16371462664283953}})
+A1precondition_3 = Pressure({'player1': 'opponent', 'player2': 'coach'})
+# A2precondition_3 = HasPathToPass({'passer': 'Coach', 'receiver': 'teammate', 'path_width': {'avg': 1.0, 'std': 0.0}})
+
 def λ_target0(scene, sample):
-    return A1target_0(simulation(), sample) or A2target_0(simulation(), sample)
+    return (A1target_0(simulation(), sample) or A2target_0(simulation(), sample)) and A3target_0(simulation(), sample)
 
 def λ_target2(scene, sample):
-    return A1target_2(simulation(), sample)
+    return A1target_2(simulation(), sample) #and A2target_2(simulation(), sample)
 
 def λ_termination0(scene, sample):
-    return A1termination_0(simulation(), None)
+    return A1termination_0(simulation(), None) or A2termination_0(simulation(), None)
 
 def λ_termination1(scene, sample):
     return True
@@ -120,24 +127,19 @@ def λ_termination4(scene, sample):
     return True
 
 def λ_precondition0(scene, sample):
-    return (A1precondition_0(simulation(), sample) and A2precondition_0(simulation(), sample))
+    return A1precondition_0(simulation(), sample) and (A2precondition_0(simulation(), sample) or A3precondition_0(simulation(), sample))
 
 def λ_precondition_0(scene, sample):
     return λ_precondition0(simulation(), sample)
 
 def λ_precondition1(scene, sample):
-    output = A1precondition_1(simulation(), sample)
-    print(f"opponent pressure coach: {output}")
-    return output
+    return A1precondition_1(simulation(), sample) # or A2precondition_1(simulation(), sample)
 
-def λ_precondition4(scene, sample):
-    output1 = A1precondition_4(simulation(), sample)
-    output2 = A2precondition_4(simulation(), sample)
-    print(f"opponent pressure coach: {output1}, teammate close to goal: {output2}")
-    return A1precondition_4(simulation(), sample) and A2precondition_4(simulation(), sample)
+def λ_precondition3(scene, sample):
+    return A1precondition_3(simulation(), sample) #and A2precondition_3(simulation(), sample)
 
-def λ_precondition_1_4(scene, sample):
-    return λ_precondition1(simulation(), sample) or λ_precondition4(simulation(), sample)
+def λ_precondition_1_3(scene, sample):
+    return λ_precondition1(simulation(), sample) or λ_precondition3(simulation(), sample)
 
 def λ_precondition2(scene, sample):
     return A1precondition_2(simulation(), sample)
