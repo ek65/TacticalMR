@@ -321,6 +321,23 @@ behavior MoveToRobot(v, lookAtTarget = None, distance = 0.5, status=""):
 import numpy as np
 import matplotlib.pyplot as plt
 
+def location(vec):
+    return vec.x + cols / 2, -vec.y + rows / 2
+
+def bool_sample(vec, dist, min=0.1):
+
+    max_val = dist.max()
+    if max_val > 0:
+        dist = dist / max_val
+
+    x = builtins.min(builtins.max(int(vec[0]), 0), cols - 1)
+    y = builtins.min(builtins.max(int(vec[1]), 0), rows - 1)
+
+    sample = (y, x)
+    value = dist[sample]
+
+    return value > min
+
 rows, cols = 34, 20
 i, j = np.indices((rows, cols))
 
@@ -355,5 +372,6 @@ behavior MoveAs(dist):
     while (distance from self to sample > 0.5):
         print('moving to', sample)
         do MoveToBehavior(sample) for dt seconds
+        if not bool_sample(location(sample), dist):
+            sample = sample_from(dist)
     do Idle() for 1 seconds
-    # TODO: Check if sample is still satisfied and if not re-sample
