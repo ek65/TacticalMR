@@ -35,13 +35,13 @@ behavior TeammateBehavior():
     try:
         do GetBallPossession(ball)
         do Idle()
-    interrupt when (A(simulation(), None) and not passed and self.gameObject.ballPossession):
+    interrupt when (A.bool(simulation()) and not passed and self.gameObject.ballPossession):
         do Idle() for 2.5 seconds
         do Pass(ego, slow=False)
         do Idle() for 0.5 seconds
         take StopAction()
         point = new Point at (0,10,0)
-        do MoveToBehavior(point) until MakePass({'player': 'coach'})(simulation(), None)
+        do MoveToBehavior(point) until MakePass({'player': 'coach'}).bool(simulation())
         do Idle() for 0.5 seconds
         do GetBallPossession(ball)
         do Shoot(goal)

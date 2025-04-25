@@ -1,51 +1,50 @@
 from scenic.simulators.unity.actions import *
 from scenic.simulators.unity.behaviors import *
-from scenic.simulators.unity.constraints import *
 model scenic.simulators.unity.model
 import trimesh
 from scenic.core.regions import MeshVolumeRegion
 import random
 behavior CoachBehavior():
-    do Speak("wait for one second doing nothing to start the play")  
+    do Speak("wait idly for about 1 second with no movement")
     do Idle() for 1 seconds
-    do Speak("move toward the ball so coach can get control of it")
+    do Speak("run to the ball so the coach gains ball possession")
     do GetBallPossession(ball)
-    do Speak("stay still until coach’s horizontal position relative to teammate is about one meter apart")
+    do Speak("pause until the coach’s horizontal offset relative to the teammate meets set criteria")
     do Idle() until λ_precondition_1(simulation(), None)
-    do Speak("move laterally toward teammate until coach reaches roughly one meter distance")
+    do Speak("move toward a target position left/right of teammate using horizontal threshold")
     do MoveTo(λ_target1) until λ_termination1(simulation(), None)
-    do Speak("pause until conditions favor initiating a pass to the teammate")
+    do Speak("wait until conditions allow a pass to the teammate")
     do Idle() until λ_precondition_2(simulation(), None)
-    do Speak("advance to get ball again to secure control")
+    do Speak("run again to the ball to secure possession")
     do GetBallPossession(ball)
-    do Speak("wait until a clear passing path emerges either toward goal or teammate")
+    do Speak("pause until either a clear shooting path to goal or an obstructed pass path is detected")
     do Idle() until λ_precondition_4_5(simulation(), None)
-    do Speak("if a clear path to the goal exists with a two‐meter allowance, then prepare to shoot")
+    do Speak("if a clear path to goal exists, then prepare to shoot")
     if λ_precondition4(simulation(), None):
-        do Speak("shoot the ball aiming at the goal")
+        do Speak("shoot the ball toward the goal immediately")
         do Shoot(goal)
     else:
-        do Speak("remain idle until a safe passing condition—no opponent pressure—is met")
+        do Speak("wait until passing pressure from opponents is relieved")
         do Idle() until λ_termination4(simulation(), None)
-        do Speak("wait until the coach’s pass path to teammate is clear, approximating one meter width")
+        do Speak("pause until a clear path to teammate emerges")
         do Idle() until λ_precondition_6(simulation(), None)
         do Speak("pass the ball to the teammate")
         do Pass(teammate)
-        do Speak("hold position until conditions balance: safe pass from coach with proper spacing")
+        do Speak("wait until the teammate is not pressured and in valid distance")
         do Idle() until λ_precondition_7(simulation(), None)
-        do Speak("return to ball control if needed")
+        do Speak("regain ball possession after the pass")
         do GetBallPossession(ball)
-        do Speak("wait until coach reaches the designated zone C5 on the field")
+        do Speak("wait until the coach is positioned within zone C5 on the field")
         do Idle() until λ_precondition_8(simulation(), None)
-        do Speak("shoot the ball toward the goal after aligning in zone C5")
+        do Speak("finally, shoot the ball toward the goal")
         do Shoot(goal)
-A1termination_1 = HorizontalRelation({'obj': 'Coach', 'ref': 'teammate', 'relation': 'left', 'horizontal_threshold': {'avg': 2.0, 'std': 2.0}})
+A1termination_1 = HorizontalRelation({'obj': 'Coach', 'ref': 'teammate', 'relation': 'left', 'horizontal_threshold': {'avg': nan, 'std': nan}})
 A2termination_1 = HorizontalRelation({'obj': 'Coach', 'ref': 'teammate', 'relation': 'right', 'horizontal_threshold': {'avg': 0.40049360700000003, 'std': 0.009865832999999963}})
-A1target_1 = HorizontalRelation({'obj': 'Coach', 'ref': 'teammate', 'relation': 'left', 'horizontal_threshold': {'avg': 2.0, 'std': 2.0}})
+A1target_1 = HorizontalRelation({'obj': 'Coach', 'ref': 'teammate', 'relation': 'left', 'horizontal_threshold': {'avg': nan, 'std': nan}})
 A2target_1 = HorizontalRelation({'obj': 'Coach', 'ref': 'teammate', 'relation': 'right', 'horizontal_threshold': {'avg': 0.40049360700000003, 'std': 0.009865832999999963}})
 A1termination_4 = HasPath({'obj1': 'teammate', 'obj2': 'goal', 'path_width': {'avg': 0.12739879122352266, 'std': 0.014703974570608527}})
 A2termination_4 = Pressure({'player1': 'opponent', 'player2': 'teammate'})
-A1precondition_1 = HorizontalRelation({'obj': 'Coach', 'ref': 'teammate', 'relation': 'left', 'horizontal_threshold': {'avg': 2.0, 'std': 2.0}})
+A1precondition_1 = HorizontalRelation({'obj': 'Coach', 'ref': 'teammate', 'relation': 'left', 'horizontal_threshold': {'avg': nan, 'std': nan}})
 A2precondition_1 = HorizontalRelation({'obj': 'Coach', 'ref': 'teammate', 'relation': 'right', 'horizontal_threshold': {'avg': 0.39062777400000004, 'std': 0.0}})
 A1precondition_2 = MakePass({'player': 'teammate'})
 A1precondition_3 = HasBallPossession({'player': 'Coach'})
@@ -56,7 +55,7 @@ A1precondition_7 = MakePass({'player': 'Coach'})
 A2precondition_7 = Pressure({'player1': 'opponent', 'player2': 'teammate'})
 A3precondition_7 = DistanceTo({'from': 'goal', 'to': 'teammate', 'min': {'avg': 14.37173079141661, 'std': 0.0}, 'max': {'avg': 17.565448745064746, 'std': 0.0}, 'operator': 'within'})
 A1precondition_8 = InZone({'obj': 'coach', 'zone': ['C5']})
-A1precondition_1 = HorizontalRelation({'obj': 'Coach', 'ref': 'teammate', 'relation': 'left', 'horizontal_threshold': {'avg': 2.0, 'std': 2.0}})
+A1precondition_1 = HorizontalRelation({'obj': 'Coach', 'ref': 'teammate', 'relation': 'left', 'horizontal_threshold': {'avg': nan, 'std': nan}})
 A2precondition_1 = HorizontalRelation({'obj': 'Coach', 'ref': 'teammate', 'relation': 'right', 'horizontal_threshold': {'avg': 0.39062777400000004, 'std': 0.0}})
 A1precondition_2 = MakePass({'player': 'teammate'})
 A1precondition_3 = HasBallPossession({'player': 'Coach'})
@@ -191,13 +190,13 @@ behavior TeammateBehavior():
     try:
         do GetBallPossession(ball)
         do Idle()
-    interrupt when (A.bool(simulation()) and not passed and self.gameObject.ballPossession):
+    interrupt when (A(simulation(), None) and not passed and self.gameObject.ballPossession):
         do Idle() for 2.5 seconds
         do Pass(ego, slow=False)
         do Idle() for 0.5 seconds
         take StopAction()
         point = new Point at (0,10,0)
-        do MoveToBehavior(point) until MakePass({'player': 'coach'}).bool(simulation())
+        do MoveToBehavior(point) until MakePass({'player': 'coach'})(simulation(), None)
         do Idle() for 0.5 seconds
         do GetBallPossession(ball)
         do Shoot(goal)
