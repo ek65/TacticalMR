@@ -1,5 +1,5 @@
 from scenic.simulators.unity.actions import *
-from scenic.simulators.unity.constraints import _CloseTo, _HeightRelation, _SideRelation, _ClearLine, _DistanceTo, _InZone, true
+from scenic.simulators.unity.constraints import *
 from scenic.simulators.unity.behaviors import *
 model scenic.simulators.unity.model
 import trimesh
@@ -51,7 +51,7 @@ behavior CoachBehavior():
     scene.egoObject = ego
     do Idle() for 1 seconds
 
-    do MoveAs(target())
+    do MoveAs(target()) until termination()
 
 ego = new Coach at (0,-3,0),
         with behavior CoachBehavior()
@@ -73,27 +73,15 @@ teammate = new Player offset by (Uniform(-5,5), 7),
 
 terminate when (ego.gameObject.stopButton)
 
-# ------ Sampling ------
-
-def sample_target(scene, prev_target, λ_dest) -> Vector: 
-    global sample
-    i = 0
-    target = [prev_target.x, prev_target.y]
-    
-    while not λ_dest(scene, target):
-        x = Range(-FIELD_WIDTH / 2, FIELD_WIDTH / 2)
-        y = Range(-FIELD_HEIGHT / 2, FIELD_HEIGHT / 2)
-        target = [x,y]
-        if i > 100000:
-            raise Exception("Maximum sample depth exceeded.")
-        i += 1
-
-    sample = Vector(target[0], target[1])
-    return sample
-
-# ----------------------
+# Constraints
 
 T1 = _CloseTo({
+    'obj': 'coach',
+    'ref': 'teammate',
+    'max': 1
+})
+
+E1 = _CloseTo({
     'obj': 'coach',
     'ref': 'teammate',
     'max': 2
@@ -151,5 +139,13 @@ T7 = _InZone({
 })
 
 def target():
-    condition = [T6, T7]
-    return [c.dist(simulation(), ego=True) for c in condition]
+    cond = T1
+    return cond.dist(simulation(), ego=True)
+
+def termination():
+    cond = E1
+    return cond.bool(simulation())
+
+
+
+

@@ -1,6 +1,7 @@
 from scenic.core.vectors import Vector
 from scenic.core.object_types import OrientedPoint, Point
 import numpy as np
+import builtins
 
 rows, cols = 34, 20
 i, j = np.indices((rows, cols))
@@ -14,9 +15,6 @@ def findObj(id, objects):
 
 def isEgo(id):
     return 'coach' in id.lower()
-
-def _not(x):
-    return 1 - x
 
 def sigmoid(x):
     return 1 / (1 + np.exp(-x))
@@ -34,6 +32,22 @@ def false():
     dist += epsilon
     dist[0][0] += epsilon
     return dist
+
+import matplotlib.pyplot as plt
+
+def bool_sample(vec, dist, min=0.1):
+
+    max_val = dist.max()
+    if max_val > 0:
+        dist = dist / max_val
+
+    x = builtins.min(builtins.max(int(vec[0]), 0), cols - 1)
+    y = builtins.min(builtins.max(int(vec[1]), 0), rows - 1)
+
+    sample = (y, x)
+    value = dist[sample]
+
+    return value > min
     
 # MARK: Constraint
 class Constraint:
@@ -42,9 +56,54 @@ class Constraint:
 
     def dist(self, scene, ego=False):
         return true()
+    
+    def bool(self, scene):
+        return True
+    
+class CompositeConstraint(Constraint):
+    def __init__(self, left: Constraint, right: Constraint, op: str):
+        self.left = left
+        self.right = right
+        assert op in ('AND','OR')
+        self.op = op
+
+    def dist(self, scene, ego=False):
+        d1 = self.left.dist(scene, ego)
+        d2 = self.right.dist(scene, ego)
+        if self.op == 'AND':
+            return np.exp(np.log(d1) + np.log(d2))
+        else:
+            return d1 + d2
+        
+    def bool(self, scene):
+        b1 = self.left.bool(scene)
+        b2 = self.right.bool(scene)
+        if self.op == 'AND':
+            return b1 and b2
+        else:
+            return b1 or b2
+
+        
+class NegationConstraint(Constraint):
+    def __init__(self, inner: Constraint):
+        self.inner = inner
+
+    def dist(self, scene, ego=False):
+        d = self.inner.dist(scene, ego)
+        return np.clip(1 - d, epsilon, None)
+    
+    def bool(self, scene):
+        b = self.inner.bool(scene)
+        return not b
+    
+    
+Constraint.__and__ = lambda self, other: CompositeConstraint(self, other, 'AND')
+Constraint.__or__ = lambda self, other: CompositeConstraint(self, other, 'OR')
+Constraint.__invert__ = lambda self: NegationConstraint(self)
+
 
 # MARK: CloseTo
-class _CloseTo(Constraint): # Checked for graceful failure
+class CloseTo(Constraint): # Checked for graceful failure
     def __init__(self, args):
         self.obj = args.get('obj', None)
         self.ref = args.get('ref', None)
@@ -83,8 +142,21 @@ class _CloseTo(Constraint): # Checked for graceful failure
 
         return close_to
     
+    def bool(self, scene):
+
+        obj = findObj(self.obj, scene.objects)
+
+        if not obj:
+            return false()
+        
+        dist = self.dist(scene)
+        sample = location(obj[0].position)
+
+        return bool_sample(sample, dist)
+
+    
 # MARK: HeightRelation
-class _HeightRelation(Constraint):
+class HeightRelation(Constraint):
     def __init__(self, args):
         self.objID = args.get('obj', None)
         self.refID = args.get('ref', None)
@@ -119,7 +191,20 @@ class _HeightRelation(Constraint):
 
         return height_relation
     
-class _SideRelation(Constraint):
+    def bool(self, scene):
+
+        obj = findObj(self.objID, scene.objects)
+
+        if not obj:
+            return false()
+        
+        dist = self.dist(scene)
+        sample = location(obj[0].position)
+
+        return bool_sample(sample, dist)
+    
+# MARK: HorizontalRelation
+class HorizontalRelation(Constraint):
     def __init__(self, args):
         self.objID = args.get('obj', None)
         self.refID = args.get('ref', None)
@@ -154,7 +239,21 @@ class _SideRelation(Constraint):
 
         return side_relation
     
-class _ClearLine(Constraint):
+    def bool(self, scene):
+
+        obj = findObj(self.obj, scene.objects)
+
+        if not obj:
+            return false()
+        
+        dist = self.dist(scene)
+        sample = location(obj[0].position)
+
+        return bool_sample(sample, dist)
+
+
+# MARK: HasPath  
+class HasPath(Constraint):
     def __init__(self, args):
         self.passerID = args.get('obj1', None)
         self.receiverID = args.get('obj2', None)
@@ -219,7 +318,21 @@ class _ClearLine(Constraint):
             
         return safety
     
-class _DistanceTo(Constraint):
+    def bool(self, scene):
+
+        passer = findObj(self.passerID, scene.objects)
+
+        if not passer:
+            return false()
+        
+        dist = self.dist(scene)
+        sample = location(passer[0].position)
+
+        return bool_sample(sample, dist, min=0.4)
+    
+
+# MARK: DistanceTo  
+class DistanceTo(Constraint):
     def __init__(self, args):
         self.fromID = args.get('from', None)
         self.toID = args.get('to', None)
@@ -276,7 +389,21 @@ class _DistanceTo(Constraint):
         
         return map
     
-class _InZone(Constraint):
+    def bool(self, scene):
+
+        obj = findObj(self.fromID, scene.objects)
+
+        if not obj:
+            return false()
+        
+        dist = self.dist(scene)
+        sample = location(obj[0].position)
+
+        return bool_sample(sample, dist)
+    
+
+# MARK: InZone
+class InZone(Constraint):
 
     width, height = cols, rows
     num_zones_x, num_zones_y = 4, 5
@@ -313,3 +440,120 @@ class _InZone(Constraint):
                                 1.0, epsilon)
         
         return zone_field
+
+    def bool(self, scene):
+
+        obj = findObj(self.objID, scene.objects)
+
+        if not obj:
+            return false()
+        
+        dist = self.dist(scene)
+        sample = location(obj[0].position)
+
+        return bool_sample(sample, dist)
+    
+# MARK: HasBallPosession
+class HasBallPossession(Constraint):
+    def __init__(self, args):
+        self.playerID = args.get('player', None)
+
+    def dist(self, scene, ego=False):
+
+        if ego and not isEgo(self.playerID):
+            return true()
+        
+        return true() if self.bool(scene) else false()
+        
+    def bool(self, scene):
+        
+        player = findObj(self.playerID, scene.objects)
+        
+        if not player:
+            return False
+        
+        return player[0].gameObject.ballPossession
+    
+
+# MARK: MovingTowards
+class MovingTowards(Constraint):
+    def __init__(self, args={}):
+        self.objID = args.get('obj', None)
+        self.refID = args.get('ref', None)
+
+    def dist(self, scene, ego=False):
+
+        if ego and not isEgo(self.objID):
+            return true()
+        
+        return true() if self.bool(scene) else false()
+    
+    def bool(self, scene):
+
+        obj = findObj(self.objID, scene.objects)
+        ref = findObj(self.refID, scene.objects)
+
+        if not (obj and ref):
+            return False
+
+        distance = lambda pos1, pos2: np.sqrt((pos1.x - pos2.x) ** 2 + (pos1.y - pos2.y) ** 2)
+        current_distance = distance(obj[0].position, ref[0].position)
+        previous_distance = distance(obj[0].prevPosition, ref[0].prevPosition)
+
+        return previous_distance - current_distance <= -0.05
+    
+
+# MARK: Pressure
+class Pressure(Constraint):
+    def __init__(self, args={}):
+        self.player1 = args.get('player1', None)
+        self.player2 = args.get('player2', None)
+
+    def dist(self, scene, ego=False):
+
+        if ego and not isEgo(self.player1):
+            return true()
+        
+        return true() if self.bool(scene) else false()
+
+    def bool(self, scene):
+
+        player1 = findObj(self.player1, scene.objects)
+        player2 = findObj(self.player2, scene.objects)
+
+        if not (player1 and player2):
+            return False
+
+        behav = player1[0].gameObject.behavior.lower()
+        name = player2[0].name.lower()
+
+        if 'follow' in behav and name in behav:
+            return True
+        return False
+    
+
+# MARK: MakePass
+class MakePass(Constraint):
+    def __init__(self, args={}):
+        self.player = args.get('player', None)
+
+    def dist(self, scene, ego=False):
+
+        if ego and not isEgo(self.player):
+            return true()
+        
+        return true() if self.bool(scene) else false()
+
+    def bool(self, scene):
+
+        player = findObj(self.player, scene.objects)
+
+        if not player:
+            return False
+
+        behav = player[0].gameObject.behavior
+
+        if behav and 'pass' in behav.lower():
+            return True
+
+        return False

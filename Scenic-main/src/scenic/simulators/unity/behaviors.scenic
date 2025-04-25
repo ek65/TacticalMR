@@ -316,12 +316,15 @@ behavior MoveToRobot(v, lookAtTarget = None, distance = 0.5, status=""):
 #         # print(f"sample: {sample}")
 #     do Idle() for 1 seconds
 
+# -------------------------------
+
 import numpy as np
+import matplotlib.pyplot as plt
 
 rows, cols = 34, 20
 i, j = np.indices((rows, cols))
 
-def sample_from(dist, _min=0.1):
+def sample_from(dist, _min=0.4):
 
     max_val = dist.max()
     if max_val > 0:
@@ -346,13 +349,11 @@ def sample_from(dist, _min=0.1):
 
     return sample
 
-behavior MoveAs(condition: list):
-    condition = [np.array(i) for i in condition]
-    scene = simulation()
-    dist = np.exp(sum(np.log(condition)))
+behavior MoveAs(dist):
     sample = sample_from(dist)
-    dt = 0.3 # why not < 0.3
+    dt = 0.2
     while (distance from self to sample > 0.5):
+        print('moving to', sample)
         do MoveToBehavior(sample) for dt seconds
-    do Idle() for 1 seconds # really?
+    do Idle() for 1 seconds
     # TODO: Check if sample is still satisfied and if not re-sample
