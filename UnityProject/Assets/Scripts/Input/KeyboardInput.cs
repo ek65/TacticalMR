@@ -979,7 +979,7 @@ public class KeyboardInput : NetworkBehaviour
 // #endif
     }
 
-    private void ResetJsonData()
+    public void ResetJsonData()
     {   
 // #if UNITY_EDITOR
 //         if (recorderManager.RecorderController.IsRecording())

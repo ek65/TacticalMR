@@ -303,6 +303,7 @@ public class JSONDirectory : NetworkBehaviour
         keyboardInput.canClick = true;
         keyboardInput.restarting = false;
         keyboardInput.timelineManager.Reset();
+        keyboardInput.ResetJsonData();
         HumanInterface humanInterface = GameObject.FindGameObjectWithTag("human").GetComponent<HumanInterface>();
         humanInterface.ResetHuman();
     }
