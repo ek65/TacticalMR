@@ -54,6 +54,10 @@ public class JSONToLLM : NetworkBehaviour
         {
             angle = transform.rotation.eulerAngles.y;
         }
+        public Orientation(Quaternion quaternion)
+        {
+            angle = quaternion.eulerAngles.y;
+        }
     }
 
     [System.Serializable]
@@ -116,8 +120,41 @@ public class JSONToLLM : NetworkBehaviour
         public int timestep;
         public List<object> objects = new List<object>();
     }
+    
+    [System.Serializable]
+    public class ObjectData
+    {
+        public string objectName; // e.g., "coach", "opponent"
+        public Position pos;    
+        public Orientation rot;      
+        public string action;     // Action (e.g., "moveTo")
+        public string behavior;   // Behavior (e.g., "ActionID1")
+    }
+    
+    [System.Serializable]
+    public class TimeStep
+    {
+        public int timestep;              // Timestep number
+        public List<ObjectData> objects;  // List of objects in this timestep
+    }
+
+    [System.Serializable]
+    public class StoppedTime
+    {
+        public int timestopped;  // Timestep when stopped
+        public string narration; // Narration text
+    }
+    
+    [System.Serializable]
+    public class RootSegment2
+    {
+        public List<TimeStep> Timeseries;      // List of timesteps
+        public List<StoppedTime> StoppedTimes; // List of stopped times
+    }
+
 
     public RootSegment myRootSegment = new RootSegment();
+    public RootSegment2 rewindableRootSegment = new RootSegment2();
     private List<RootSegment> segmentsList = new List<RootSegment>();
 
     // Key = timestamp float, Value = list of tokens (strings or placeholders)
@@ -167,6 +204,67 @@ public class JSONToLLM : NetworkBehaviour
         myRootSegment.timestep = timelineManager.TimeIndex;
     }
     
+    public void PopulateSegment2()
+    {
+        rewindableRootSegment.Timeseries = new List<TimeStep>();
+
+        // Populate Timeseries
+        
+        // Determine the maximum number of timesteps
+        int maxTimesteps = timelineManager.Timeseries.Values
+            .Select(ts => ts.positions.Count)
+            .DefaultIfEmpty(0)
+            .Max();
+        
+        // Iterate over each timestep
+        for (int timeIndex = 0; timeIndex < maxTimesteps; timeIndex++)
+        {
+            TimeStep timeStep = new TimeStep
+            {
+                timestep = timeIndex,
+                objects = new List<ObjectData>()
+            };
+
+            // Iterate over each GameObject in Timeseries
+            foreach (var entry in timelineManager.Timeseries)
+            {
+                GameObject obj = entry.Key;
+                RewindableTimeSeries timeSeries = entry.Value;
+
+                if (timeIndex < timeSeries.positions.Count)
+                {
+                    Vector3 position = timeSeries.positions[timeIndex];
+                    Quaternion rotation = timeSeries.rotations[timeIndex];
+
+                    ObjectData objectData = new ObjectData
+                    {
+                        objectName = obj.name,
+                        pos = new Position(position),
+                        rot = new Orientation(rotation),
+                        action = timeSeries.currAction,
+                        behavior = timeSeries.currBehavior
+                    };
+
+                    timeStep.objects.Add(objectData);
+                }
+            }
+
+            rewindableRootSegment.Timeseries.Add(timeStep);
+        }
+    }
+    
+    public void AddStoppedTime()
+    {
+        keyboard.explanation = BuildSentenceFromTokens();
+        
+        StoppedTime stoppedTime = new StoppedTime
+        {
+            timestopped = timelineManager.RewindTimeIndex,
+            narration = keyboard.explanation
+        };
+        rewindableRootSegment.StoppedTimes.Add(stoppedTime);
+    }
+
     public void PopulateSceneObjects()
     {
         // Debug.LogError("in populate scene objects");
@@ -273,7 +371,7 @@ public class JSONToLLM : NetworkBehaviour
             rightGoalPost.orientation.Add(new Orientation(rightPost));
         }
     }
-
+    
     private void AddOrUpdatePlayer(GameObject playerGO, string type, string behaviorOverride = null)
     {
         var existingPlayer = (Player)myRootSegment.objects
@@ -604,6 +702,11 @@ public class JSONToLLM : NetworkBehaviour
         Debug.Log($"Creating JSON with tokenDictionary containing {tokenDictionary.Count} entries");
         CreateJSONString();
     }
+    
+    public void WriteFile2()
+    {
+        CreateJSONString2();
+    }
 
     public void CreateJSONString()
     {
@@ -643,6 +746,38 @@ public class JSONToLLM : NetworkBehaviour
         File.WriteAllText(filename, jsonString);
 
         Debug.Log($"Segment written to {filename}");
+    }
+    
+    public void CreateJSONString2()
+    {
+        PopulateSegment2();
+        AddStoppedTime();
+        
+        JSONDirectory jsonDirectory = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<JSONDirectory>();
+        
+        var settings = new JsonSerializerSettings
+        {
+            ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+            Formatting = Formatting.Indented,
+            ContractResolver = new CamelCasePropertyNamesContractResolver()
+        };
+
+        object finalScene;
+      
+        finalScene = new
+        {
+            scene = new
+            {
+                TimeSeries = rewindableRootSegment.Timeseries,
+                StoppedTimes = rewindableRootSegment.StoppedTimes
+            }
+        };
+        
+        jsonString = JsonConvert.SerializeObject(finalScene, settings);
+        filename = jsonDirectory.InstantiateJSONEditPath() + ".json";
+        File.WriteAllText(filename, jsonString);
+
+        Debug.Log($"Edited recording written to {filename}");
     }
 
     

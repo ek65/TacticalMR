@@ -1,9 +1,4 @@
-from scenic.simulators.unity.actions import *
-from scenic.simulators.unity.behaviors import *
-model scenic.simulators.unity.model
-import trimesh
-from scenic.core.regions import MeshVolumeRegion
-import random
+
 
 def movesToward(player1, player2):
     dist1 = distance from player1.prevPosition to player2.prevPosition
@@ -12,7 +7,7 @@ def movesToward(player1, player2):
 
 behavior Follow(obj):
     while True:
-        do MoveToBehavior(obj, distance = 2, status = f"Follow {obj.name}")
+        do MoveToBehavior(obj, distance = 3, status = f"Follow {obj.name}")
 
 def pressure(player1, player2):
     """
@@ -29,16 +24,16 @@ behavior opponent1Behavior():
     do Idle() until teammate.gameObject.ballPossession
     do Follow(ball) until ego.gameObject.ballPossession
     # do Uniform(Follow(ego), Follow(teammate))
-    # do Follow(teammate)
-    print("opponent follows ego")
-    do Follow(ego)
+    do Follow(teammate)
+    # print("opponent follows ego")
+    # do Follow(ego)
 
-A = HasPathToPass({'passer': 'teammate', 'receiver': 'coach', 'path_width':{'avg': 2, 'std':1}})
+A = HasPath({'obj1': 'teammate', 'obj2': 'coach', 'path_width':{'avg': 2, 'std':1}})
 
 behavior TeammateBehavior():
     passed = False
     try:
-        do GetBall()
+        do GetBallPossession(ball)
         do Idle()
     interrupt when (A(simulation(), None) and not passed and self.gameObject.ballPossession):
         do Idle() for 2.5 seconds
@@ -46,12 +41,11 @@ behavior TeammateBehavior():
         do Idle() for 0.5 seconds
         take StopAction()
         point = new Point at (0,10,0)
-        do MoveToBehavior(point)
+        do MoveToBehavior(point) until MakePass({'player': 'coach'})(simulation(), None)
+        do Idle() for 0.5 seconds
+        do GetBallPossession(ball)
+        do Shoot(goal)
         passed = True
-
-behavior GetBall():
-    while not self.gameObject.ballPossession:
-        take MoveToAction(ball.position)
 
 def teammateHasBallPossession():
     for obj in simulation().objects:
@@ -69,36 +63,7 @@ behavior ReceiveBall():
     while teammateHasBallPossession():
         take IdleAction()
     do GetBall()
-
-behavior CoachBehavior():
-    point = new Point left of teammate by -4 #Uniform(-4, 4)
-    do MoveToBehavior(point.position, distance=0.5)
-    do Idle() until self.gameObject.ballPossession
-    do Idle() for 1.5 seconds
-    do Idle() until pressure(opponent, ego) or pressure(opponent, teammate)
-    print("pressure detected")
-    if pressure(opponent, ego):
-        do Pass(teammate)
-    else:
-        point = new Point at (Range(-5, 5), Range(13, 17), 0)
-        do MoveToBehavior(point, distance=0.5)
-        do Pass(goal)
-
-    # do GetBehindAndReceiveBall(opponent)
-    # do MoveToAndReceiveBall(InZone(['A1','A2','A3']))
-
-behavior IdleSpecial():
-    while True:
-        take IdleAction()
-        # print(f"teammate: {teammate.gameObject.behavior}")
-        print(f"opponent: {opponent.gameObject.behavior}")
-        print(f"ego: {ego.name}")
-        # print(f"opp.x: {self.position.x}, opp.y: {self.position.y}, opp.z: {self.position.z}")
-
-teammate2 = new Player at (10,0), 
-                with name "teammate2",
-                with team "blue",
-                with behavior IdleSpecial()
+ 
 
 teammate = new Player at (0,0), 
                 with name "teammate",

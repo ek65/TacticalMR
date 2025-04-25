@@ -1,4 +1,4 @@
-from scenic.simulators.unity.actions_backup import *
+from scenic.simulators.unity.actions import *
 from scenic.simulators.unity.behaviors import *
 model scenic.simulators.unity.model
 import trimesh
@@ -13,18 +13,25 @@ def movesToward(player1, player2):
 behavior opponent1Behavior():
     do Idle() until ego.gameObject.ballPossession
     while True:
-        do MoveTo(ball, distance = 4)
+        do MoveTo(ball, distance = 3)
 
 behavior TeammateBehavior():
+    passed = False
+    passed2 = True
     try:
-        do Idle()
-    interrupt when (self.gameObject.ballPossession):
-        print("ego ahead of opponent")
-        point = new Point at (0, 11, 0)
-        do Idle() for 1.5 seconds
+        do GetBall()
+        do Idle() for 1 seconds
         do PassTo(ego, slow=False)
-        do Idle() for 0.5 seconds
-        take StopAction()
+        passed = True
+        do Idle()
+    interrupt when (self.gameObject.ballPossession and passed):
+        do Idle() for 1 seconds
+        if (self.position.x - ego.position.x) > 0:
+            point = new Point at (-5,10,0)
+            do PassTo(point, slow=False)
+        else:
+            point = new Point at (5,10,0)
+            do PassTo(point, slow=False)
 
 behavior GetBall():
     while not self.gameObject.ballPossession:
@@ -55,23 +62,31 @@ behavior CoachBehavior():
     # do GetBehindAndReceiveBall(opponent)
     do MoveToAndReceiveBall(InZone(['A1','A2','A3']))
 
-ego = new Human at (0,0)
+# ego = new Human at (0,0)
 # ego = new Coach at (0,0),
 #         with behavior CoachBehavior()
 
-ball = new Ball ahead of ego by 1
 
-opponent = new Player ahead of ego by 5,
-                    facing toward ego,
+teammate = new Player at (0,0), 
+                with name "teammate",
+                with team "blue",
+                with behavior TeammateBehavior()
+
+ball = new Ball ahead of teammate by 1
+
+ego = new Human ahead of teammate by 4, 
+            facing toward teammate,
+            with name "Coach",
+            with team "blue"
+
+opponent = new Player behind ego by 5,
+                    facing toward teammate,
                     with name "opponent",
                     with team "red",
                     with behavior opponent1Behavior()
 
-goal = new Goal behind opponent by 5, facing away from ego
 
-teammate = new Player offset by (Uniform(-5,5), 7), 
-                with name "teammate",
-                with team "blue",
-                with behavior TeammateBehavior()
+
+goal = new Goal behind opponent by 10, facing away from ego
 
 terminate when (ego.gameObject.stopButton)
