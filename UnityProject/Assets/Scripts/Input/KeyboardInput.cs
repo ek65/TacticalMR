@@ -215,35 +215,6 @@ public class KeyboardInput : MonoBehaviour
             }
         }
     }
-    
-    public void HandleSegment2()
-    {
-        // If unpaused, pause it first
-        if (!timelineManager.Paused)
-        {
-            timelineManager.Pause();
-            if (timelineManager.isRecordingSegment)
-            {
-                StopSegment2();
-            }
-            else
-            {
-                StartSegment2();
-            }
-        }
-        else
-        {
-            // If paused, toggle the segment
-            if (timelineManager.isRecordingSegment)
-            {
-                StopSegment2();
-            }
-            else
-            {
-                StartSegment2();
-            }
-        }
-    }
 
     // Start the segment + audio
     // (Video is started automatically in JSONToLLM.FixedUpdate if isLogging==true)
@@ -285,41 +256,6 @@ public class KeyboardInput : MonoBehaviour
 
         Debug.Log("Started new segment recording (audio). JSONToLLM will auto-start video in FixedUpdate.");
     }
-    
-    // for editing voice recording
-    public void StartSegment2()
-    {
-        if (segmentStarted) return;
-
-        timelineManager.isRecordingSegment = true;
-        segmentStarted = true;
-        timelineManager.segmentCount++;
-
-        segmentStartTime = Time.time;
-
-        // Start audio only
-        if (recordAudio != null)
-        {
-            recordAudio.StartRecording();
-            Debug.Log("Audio recording started with the segment.");
-        }
-        else
-        {
-            Debug.LogWarning("No RecordAudio reference set in KeyboardInput!");
-        }
-        
-        // Folder setup if needed
-      
-        if (jsonDirectory.InitialDemo)
-        {
-            jsonDirectory.InstantiateInitialFolders();
-            jsonDirectory.InitialDemo = false;
-            Debug.Log("Directory created");
-        }
-        jsonDirectory.InstantiateDemoFolders();
-
-        Debug.Log("Started new segment recording (audio). JSONToLLM will auto-start video in FixedUpdate.");
-    }
 
     // Stop the segment + audio
     // (Video is stopped automatically in JSONToLLM.FixedUpdate if isLogging==false)
@@ -347,33 +283,6 @@ public class KeyboardInput : MonoBehaviour
             groundSelection.ClearGroundHighlights();
 
         StartCoroutine(ChainedCoroutines());
-    }
-    
-    // for editing voice recording
-    public void StopSegment2()
-    {
-        if (!segmentStarted) return;
-
-        jsonToLLM.voiceActivated = false;
-        Debug.Log("Stopped segment recording");
-        timelineManager.isRecordingSegment = false;
-
-        segmentStarted = false;
-        jsonToLLM.activateSystemRecording = true;
-        // Stop audio
-        if (recordAudio != null && Microphone.IsRecording(null))
-        {
-            recordAudio.StopRecording();
-            Debug.Log("Audio recording stopped with the segment.");
-        }
-        
-        
-
-        GroundSelection groundSelection = GameObject.FindGameObjectWithTag("Ground")
-            .GetComponent<GroundSelection>();
-        groundSelection.ClearGroundHighlights();
-
-        StartCoroutine(ChainedCoroutines2());
     }
 
     private IEnumerator HandleClickWithDelay(Action handleClickAction)
@@ -491,11 +400,6 @@ public class KeyboardInput : MonoBehaviour
     {
         yield return FileCoroutine();
     }
-    
-    IEnumerator ChainedCoroutines2()
-    {
-        yield return FileCoroutine2();
-    }
 
     IEnumerator FileCoroutine()
     {
@@ -503,14 +407,6 @@ public class KeyboardInput : MonoBehaviour
         yield return ProcessingTranscript();
         jsonToLLM.WriteFile();
         ResetJsonData();
-    }
-    
-    IEnumerator FileCoroutine2()
-    {
-        Debug.Log("Started File Coroutine at timestamp : " + Time.time);
-        yield return ProcessingTranscript();
-        jsonToLLM.WriteFile2();
-        // ResetJsonData();
     }
 
     private IEnumerator ProcessingTranscript()

@@ -265,14 +265,6 @@ public class JSONDirectory : MonoBehaviour
 
         return jsonSegmentFile.FullName;
     }
-    
-    public string InstantiateJSONEditPath()
-    {
-        DirectoryInfo jsonEditFile = 
-            new DirectoryInfo(Path.Combine(jsonSegmentFolder.FullName, "EDIT"));
-
-        return jsonEditFile.FullName;
-    }
 
     // UI element prompt
     public void SaveDemonstrationButton()
