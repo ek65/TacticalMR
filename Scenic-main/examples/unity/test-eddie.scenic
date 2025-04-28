@@ -158,11 +158,11 @@ opponent = new Player ahead of teammate by 5,
                     with team "red",
                     with behavior opponent1Behavior()
 
-ego = new Coach behind opponent by 5, 
+ego = new Human behind opponent by 5, 
             facing toward teammate,
             with name "Coach",
             with team "blue",
-            with behavior CoachBehavior()
+            # with behavior CoachBehavior()
 
 goal = new Goal behind opponent by 10, facing away from ego
 

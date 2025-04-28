@@ -33,15 +33,6 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "Restart",
-                    "type": "Button",
-                    "id": "da91950c-7803-43bc-88e3-ea76b75cfd16",
-                    "expectedControlType": "Button",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
                     "name": "Segment",
                     "type": "Button",
                     "id": "66c2bdc4-ebd0-49fc-b938-88d2666e83a0",
@@ -72,6 +63,15 @@
                     "name": "ThroughPass",
                     "type": "Button",
                     "id": "227cc767-8841-464d-a7f7-b5e18d610680",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "ShootGoal",
+                    "type": "Button",
+                    "id": "80495e5e-02a7-49ca-8e2f-c0c8c990d399",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
@@ -109,17 +109,6 @@
                     "processors": "",
                     "groups": "",
                     "action": "Pause",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "dacdb3d6-f400-4c24-9c97-28328578f6bf",
-                    "path": "<Gamepad>/buttonNorth",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Restart",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -164,6 +153,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "ThroughPass",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "32c547a1-7ae3-4727-8c04-fda6fd75e83b",
+                    "path": "<Gamepad>/leftShoulder",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ShootGoal",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

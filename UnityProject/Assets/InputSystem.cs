@@ -55,15 +55,6 @@ public partial class @InputSystem: IInputActionCollection2, IDisposable
                     ""initialStateCheck"": false
                 },
                 {
-                    ""name"": ""Restart"",
-                    ""type"": ""Button"",
-                    ""id"": ""da91950c-7803-43bc-88e3-ea76b75cfd16"",
-                    ""expectedControlType"": ""Button"",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
-                },
-                {
                     ""name"": ""Segment"",
                     ""type"": ""Button"",
                     ""id"": ""66c2bdc4-ebd0-49fc-b938-88d2666e83a0"",
@@ -94,6 +85,15 @@ public partial class @InputSystem: IInputActionCollection2, IDisposable
                     ""name"": ""ThroughPass"",
                     ""type"": ""Button"",
                     ""id"": ""227cc767-8841-464d-a7f7-b5e18d610680"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""ShootGoal"",
+                    ""type"": ""Button"",
+                    ""id"": ""80495e5e-02a7-49ca-8e2f-c0c8c990d399"",
                     ""expectedControlType"": ""Button"",
                     ""processors"": """",
                     ""interactions"": """",
@@ -131,17 +131,6 @@ public partial class @InputSystem: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""Pause"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""dacdb3d6-f400-4c24-9c97-28328578f6bf"",
-                    ""path"": ""<Gamepad>/buttonNorth"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""Restart"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -188,6 +177,17 @@ public partial class @InputSystem: IInputActionCollection2, IDisposable
                     ""action"": ""ThroughPass"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""32c547a1-7ae3-4727-8c04-fda6fd75e83b"",
+                    ""path"": ""<Gamepad>/leftShoulder"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ShootGoal"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -199,11 +199,11 @@ public partial class @InputSystem: IInputActionCollection2, IDisposable
         m_PlayerControls_Move = m_PlayerControls.FindAction("Move", throwIfNotFound: true);
         m_PlayerControls_Look = m_PlayerControls.FindAction("Look", throwIfNotFound: true);
         m_PlayerControls_Pause = m_PlayerControls.FindAction("Pause", throwIfNotFound: true);
-        m_PlayerControls_Restart = m_PlayerControls.FindAction("Restart", throwIfNotFound: true);
         m_PlayerControls_Segment = m_PlayerControls.FindAction("Segment", throwIfNotFound: true);
         m_PlayerControls_Intercept = m_PlayerControls.FindAction("Intercept", throwIfNotFound: true);
         m_PlayerControls_Pass = m_PlayerControls.FindAction("Pass", throwIfNotFound: true);
         m_PlayerControls_ThroughPass = m_PlayerControls.FindAction("ThroughPass", throwIfNotFound: true);
+        m_PlayerControls_ShootGoal = m_PlayerControls.FindAction("ShootGoal", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -268,11 +268,11 @@ public partial class @InputSystem: IInputActionCollection2, IDisposable
     private readonly InputAction m_PlayerControls_Move;
     private readonly InputAction m_PlayerControls_Look;
     private readonly InputAction m_PlayerControls_Pause;
-    private readonly InputAction m_PlayerControls_Restart;
     private readonly InputAction m_PlayerControls_Segment;
     private readonly InputAction m_PlayerControls_Intercept;
     private readonly InputAction m_PlayerControls_Pass;
     private readonly InputAction m_PlayerControls_ThroughPass;
+    private readonly InputAction m_PlayerControls_ShootGoal;
     public struct PlayerControlsActions
     {
         private @InputSystem m_Wrapper;
@@ -280,11 +280,11 @@ public partial class @InputSystem: IInputActionCollection2, IDisposable
         public InputAction @Move => m_Wrapper.m_PlayerControls_Move;
         public InputAction @Look => m_Wrapper.m_PlayerControls_Look;
         public InputAction @Pause => m_Wrapper.m_PlayerControls_Pause;
-        public InputAction @Restart => m_Wrapper.m_PlayerControls_Restart;
         public InputAction @Segment => m_Wrapper.m_PlayerControls_Segment;
         public InputAction @Intercept => m_Wrapper.m_PlayerControls_Intercept;
         public InputAction @Pass => m_Wrapper.m_PlayerControls_Pass;
         public InputAction @ThroughPass => m_Wrapper.m_PlayerControls_ThroughPass;
+        public InputAction @ShootGoal => m_Wrapper.m_PlayerControls_ShootGoal;
         public InputActionMap Get() { return m_Wrapper.m_PlayerControls; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -303,9 +303,6 @@ public partial class @InputSystem: IInputActionCollection2, IDisposable
             @Pause.started += instance.OnPause;
             @Pause.performed += instance.OnPause;
             @Pause.canceled += instance.OnPause;
-            @Restart.started += instance.OnRestart;
-            @Restart.performed += instance.OnRestart;
-            @Restart.canceled += instance.OnRestart;
             @Segment.started += instance.OnSegment;
             @Segment.performed += instance.OnSegment;
             @Segment.canceled += instance.OnSegment;
@@ -318,6 +315,9 @@ public partial class @InputSystem: IInputActionCollection2, IDisposable
             @ThroughPass.started += instance.OnThroughPass;
             @ThroughPass.performed += instance.OnThroughPass;
             @ThroughPass.canceled += instance.OnThroughPass;
+            @ShootGoal.started += instance.OnShootGoal;
+            @ShootGoal.performed += instance.OnShootGoal;
+            @ShootGoal.canceled += instance.OnShootGoal;
         }
 
         private void UnregisterCallbacks(IPlayerControlsActions instance)
@@ -331,9 +331,6 @@ public partial class @InputSystem: IInputActionCollection2, IDisposable
             @Pause.started -= instance.OnPause;
             @Pause.performed -= instance.OnPause;
             @Pause.canceled -= instance.OnPause;
-            @Restart.started -= instance.OnRestart;
-            @Restart.performed -= instance.OnRestart;
-            @Restart.canceled -= instance.OnRestart;
             @Segment.started -= instance.OnSegment;
             @Segment.performed -= instance.OnSegment;
             @Segment.canceled -= instance.OnSegment;
@@ -346,6 +343,9 @@ public partial class @InputSystem: IInputActionCollection2, IDisposable
             @ThroughPass.started -= instance.OnThroughPass;
             @ThroughPass.performed -= instance.OnThroughPass;
             @ThroughPass.canceled -= instance.OnThroughPass;
+            @ShootGoal.started -= instance.OnShootGoal;
+            @ShootGoal.performed -= instance.OnShootGoal;
+            @ShootGoal.canceled -= instance.OnShootGoal;
         }
 
         public void RemoveCallbacks(IPlayerControlsActions instance)
@@ -368,10 +368,10 @@ public partial class @InputSystem: IInputActionCollection2, IDisposable
         void OnMove(InputAction.CallbackContext context);
         void OnLook(InputAction.CallbackContext context);
         void OnPause(InputAction.CallbackContext context);
-        void OnRestart(InputAction.CallbackContext context);
         void OnSegment(InputAction.CallbackContext context);
         void OnIntercept(InputAction.CallbackContext context);
         void OnPass(InputAction.CallbackContext context);
         void OnThroughPass(InputAction.CallbackContext context);
+        void OnShootGoal(InputAction.CallbackContext context);
     }
 }

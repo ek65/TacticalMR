@@ -41,22 +41,24 @@ public class ControllerInput : MonoBehaviour
         move = inputSystem.PlayerControls.Move;
         look = inputSystem.PlayerControls.Look;
         inputSystem.PlayerControls.Pause.performed += ControllerPause; // A Button
-        inputSystem.PlayerControls.Restart.performed += ControllerRestart; // Y Button
+        // inputSystem.PlayerControls.Restart.performed += ControllerRestart; // Y Button
         inputSystem.PlayerControls.Segment.performed += ControllerSegment; // X Button
         inputSystem.PlayerControls.Intercept.performed += ControllerIntercept; // Left Trigger
         inputSystem.PlayerControls.Pass.performed += ControllerPass; // Right Trigger
         inputSystem.PlayerControls.ThroughPass.performed += ControllerThroughPass; // Right Bumper
+        inputSystem.PlayerControls.ShootGoal.performed += ControllerShoot; // Left Shoulder
         inputSystem.PlayerControls.Enable();
     }
     
     private void OnDisable()
     {
         inputSystem.PlayerControls.Pause.performed -= ControllerPause;
-        inputSystem.PlayerControls.Restart.performed -= ControllerRestart;
+        // inputSystem.PlayerControls.Restart.performed -= ControllerRestart;
         inputSystem.PlayerControls.Segment.performed -= ControllerSegment;
         inputSystem.PlayerControls.Intercept.performed -= ControllerIntercept;
         inputSystem.PlayerControls.Pass.performed -= ControllerPass;
         inputSystem.PlayerControls.ThroughPass.performed -= ControllerThroughPass;
+        inputSystem.PlayerControls.ShootGoal.performed -= ControllerShoot; // Left Shoulder
         inputSystem.PlayerControls.Disable();
     }
 
