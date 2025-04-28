@@ -6,152 +6,72 @@ import trimesh
 from scenic.core.regions import MeshVolumeRegion
 import random
 behavior CoachBehavior():
-    do Speak("wait for one second doing nothing to start the play")  
+    do Speak("Coach waits silently for 1 second with no movement or action.")
     do Idle() for 1 seconds
-    do Speak("move toward the ball so coach can get control of it")
+    do Speak("Coach moves toward zone D3 until he reaches that area and gains ball possession.")
+    do MoveAs(λ_target0()) until λ_termination0()
+    do Speak("Coach idles until he is in the designated zone and currently does not have the ball.")
+    do Idle() until λ_precondition_3()
+    do Speak("Coach proceeds to the ball in order to take possession of it.")
     do GetBallPossession(ball)
-    do Speak("stay still until coach’s horizontal position relative to teammate is about one meter apart")
-    do Idle() until λ_precondition_1(simulation(), None)
-    do Speak("move laterally toward teammate until coach reaches roughly one meter distance")
-    do MoveTo(λ_target1) until λ_termination1(simulation(), None)
-    do Speak("pause until conditions favor initiating a pass to the teammate")
-    do Idle() until λ_precondition_2(simulation(), None)
-    do Speak("advance to get ball again to secure control")
-    do GetBallPossession(ball)
-    do Speak("wait until a clear passing path emerges either toward goal or teammate")
-    do Idle() until λ_precondition_4_5(simulation(), None)
-    do Speak("if a clear path to the goal exists with a two‐meter allowance, then prepare to shoot")
-    if λ_precondition4(simulation(), None):
-        do Speak("shoot the ball aiming at the goal")
+    do Speak("Coach idles until either he has ball possession with a clear pass to goal or opponent pressure subsides.")
+    do Idle() until λ_precondition_5_6()
+    do Speak("If coach has possession and a clear path to goal, shoot; otherwise, pass to the teammate.")
+    if λ_precondition5():
         do Shoot(goal)
     else:
-        do Speak("remain idle until a safe passing condition—no opponent pressure—is met")
-        do Idle() until λ_termination4(simulation(), None)
-        do Speak("wait until the coach’s pass path to teammate is clear, approximating one meter width")
-        do Idle() until λ_precondition_6(simulation(), None)
-        do Speak("pass the ball to the teammate")
         do Pass(teammate)
-        do Speak("hold position until conditions balance: safe pass from coach with proper spacing")
-        do Idle() until λ_precondition_7(simulation(), None)
-        do Speak("return to ball control if needed")
-        do GetBallPossession(ball)
-        do Speak("wait until coach reaches the designated zone C5 on the field")
-        do Idle() until λ_precondition_8(simulation(), None)
-        do Speak("shoot the ball toward the goal after aligning in zone C5")
-        do Shoot(goal)
-A1termination_1 = HorizontalRelation({'obj': 'Coach', 'ref': 'teammate', 'relation': 'left', 'horizontal_threshold': {'avg': 2.0, 'std': 2.0}})
-A2termination_1 = HorizontalRelation({'obj': 'Coach', 'ref': 'teammate', 'relation': 'right', 'horizontal_threshold': {'avg': 0.40049360700000003, 'std': 0.009865832999999963}})
-A1target_1 = HorizontalRelation({'obj': 'Coach', 'ref': 'teammate', 'relation': 'left', 'horizontal_threshold': {'avg': 2.0, 'std': 2.0}})
-A2target_1 = HorizontalRelation({'obj': 'Coach', 'ref': 'teammate', 'relation': 'right', 'horizontal_threshold': {'avg': 0.40049360700000003, 'std': 0.009865832999999963}})
-A1termination_4 = HasPath({'obj1': 'teammate', 'obj2': 'goal', 'path_width': {'avg': 0.12739879122352266, 'std': 0.014703974570608527}})
-A2termination_4 = Pressure({'player1': 'opponent', 'player2': 'teammate'})
-A1precondition_1 = HorizontalRelation({'obj': 'Coach', 'ref': 'teammate', 'relation': 'left', 'horizontal_threshold': {'avg': 2.0, 'std': 2.0}})
-A2precondition_1 = HorizontalRelation({'obj': 'Coach', 'ref': 'teammate', 'relation': 'right', 'horizontal_threshold': {'avg': 0.39062777400000004, 'std': 0.0}})
-A1precondition_2 = MakePass({'player': 'teammate'})
-A1precondition_3 = HasBallPossession({'player': 'Coach'})
-A1precondition_4 = HasPath({'obj1': 'Coach', 'obj2': 'goal', 'path_width': {'avg': 2.0, 'std': 0.0}})
-A1precondition_5 = HasPath({'obj1': 'Coach', 'obj2': 'teammate', 'path_width': {'avg': 0.008382096896738045, 'std': 0.0}})
-A1precondition_6 = HasPath({'obj1': 'Coach', 'obj2': 'teammate', 'path_width': {'avg': 0.045738412923325214, 'std': 0.03735631602658717}})
-A1precondition_7 = MakePass({'player': 'Coach'})
-A2precondition_7 = Pressure({'player1': 'opponent', 'player2': 'teammate'})
-A3precondition_7 = DistanceTo({'from': 'goal', 'to': 'teammate', 'min': {'avg': 14.37173079141661, 'std': 0.0}, 'max': {'avg': 17.565448745064746, 'std': 0.0}, 'operator': 'within'})
-A1precondition_8 = InZone({'obj': 'coach', 'zone': ['C5']})
-A1precondition_1 = HorizontalRelation({'obj': 'Coach', 'ref': 'teammate', 'relation': 'left', 'horizontal_threshold': {'avg': 2.0, 'std': 2.0}})
-A2precondition_1 = HorizontalRelation({'obj': 'Coach', 'ref': 'teammate', 'relation': 'right', 'horizontal_threshold': {'avg': 0.39062777400000004, 'std': 0.0}})
-A1precondition_2 = MakePass({'player': 'teammate'})
-A1precondition_3 = HasBallPossession({'player': 'Coach'})
-A1precondition_4 = HasPath({'obj1': 'Coach', 'obj2': 'goal', 'path_width': {'avg': 2.0, 'std': 0.0}})
-A1precondition_5 = HasPath({'obj1': 'Coach', 'obj2': 'teammate', 'path_width': {'avg': 0.008382096896738045, 'std': 0.0}})
-A1precondition_6 = HasPath({'obj1': 'Coach', 'obj2': 'teammate', 'path_width': {'avg': 0.045738412923325214, 'std': 0.03735631602658717}})
-A1precondition_7 = MakePass({'player': 'Coach'})
-A2precondition_7 = Pressure({'player1': 'opponent', 'player2': 'teammate'})
-A3precondition_7 = DistanceTo({'from': 'goal', 'to': 'teammate', 'min': {'avg': 14.37173079141661, 'std': 0.0}, 'max': {'avg': 17.565448745064746, 'std': 0.0}, 'operator': 'within'})
-A1precondition_8 = InZone({'obj': 'coach', 'zone': ['C5']})
-def λ_target1(scene, sample):
-    cond = (A1target_1 | A2target_1)
-
+A1termination_0 = InZone({'obj': 'coach', 'zone': ['D3', 'D3', 'D3']})
+A2termination_0 = HasBallPossession({'player': 'Coach'})
+A1target_0 = InZone({'obj': 'coach', 'zone': ['D3', 'D3', 'D3']})
+A1precondition_3 = InZone({'obj': 'coach', 'zone': []})
+A2precondition_3 = HasBallPossession({'player': 'Coach'})
+A1precondition_5 = HasBallPossession({'player': 'Coach'})
+A2precondition_5 = HasPath({'obj1': 'Coach', 'obj2': 'goal', 'path_width': {'avg': 2.0, 'std': 1.0}})
+A1precondition_6 = Pressure({'player1': 'opponent', 'player2': 'teammate'})
+A1precondition_3 = InZone({'obj': 'coach', 'zone': []})
+A2precondition_3 = HasBallPossession({'player': 'Coach'})
+A1precondition_5 = HasBallPossession({'player': 'Coach'})
+A2precondition_5 = HasPath({'obj1': 'Coach', 'obj2': 'goal', 'path_width': {'avg': 2.0, 'std': 1.0}})
+A1precondition_6 = Pressure({'player1': 'opponent', 'player2': 'teammate'})
+def λ_target0():
+    cond = A1target_0
     return cond.dist(simulation(), ego=True)
 
-def λ_termination0(scene, sample):
+def λ_termination0():
+    cond = (A1termination_0 & A2termination_0)
+
+    return cond.bool(simulation())
+
+def λ_termination4():
     return True
 
-def λ_termination1(scene, sample):
-    cond = (A1termination_1 | A2termination_1)
-
-    return cond.bool(simulation())
-
-def λ_termination3(scene, sample):
+def λ_termination1():
     return True
 
-def λ_termination6(scene, sample):
+def λ_termination3():
     return True
 
-def λ_termination4(scene, sample):
-    cond = (A1termination_4 & ~(A2termination_4))
+def λ_precondition3():
+    cond = A1precondition_3 & ~(A2precondition_3)
 
     return cond.bool(simulation())
 
-def λ_termination5(scene, sample):
-    return True
+def λ_precondition_3():
+    return λ_precondition3()
 
-def λ_termination7(scene, sample):
-    return True
-
-def λ_termination6(scene, sample):
-    return True
-
-def λ_precondition1(scene, sample):
-    cond = (A1precondition_1 | A2precondition_1)
+def λ_precondition5():
+    cond = A1precondition_5 & A2precondition_5
 
     return cond.bool(simulation())
 
-def λ_precondition_1(scene, sample):
-    return λ_precondition1(simulation(), sample)
-
-def λ_precondition2(scene, sample):
-    cond = A1precondition_2
+def λ_precondition6():
+    cond = ~(A1precondition_6)
 
     return cond.bool(simulation())
 
-def λ_precondition_2(scene, sample):
-    return λ_precondition2(simulation(), sample)
-
-def λ_precondition4(scene, sample):
-    cond = A1precondition_4
-
-    return cond.bool(simulation())
-
-def λ_precondition5(scene, sample):
-    cond = ~(A1precondition_5)
-
-    return cond.bool(simulation())
-
-def λ_precondition_4_5(scene, sample):
-    return λ_precondition4(simulation(), sample) or λ_precondition5(simulation(), sample)
-
-def λ_precondition6(scene, sample):
-    cond = A1precondition_6
-
-    return cond.bool(simulation())
-
-def λ_precondition_6(scene, sample):
-    return λ_precondition6(simulation(), sample)
-
-def λ_precondition7(scene, sample):
-    cond = A1precondition_7 & ~(A2precondition_7) & A3precondition_7
-
-    return cond.bool(simulation())
-
-def λ_precondition_7(scene, sample):
-    return λ_precondition7(simulation(), sample)
-
-def λ_precondition8(scene, sample):
-    cond = A1precondition_8
-
-    return cond.bool(simulation())
-
-def λ_precondition_8(scene, sample):
-    return λ_precondition8(simulation(), sample)
+def λ_precondition_5_6():
+    return λ_precondition5() or λ_precondition6()
 
 
 

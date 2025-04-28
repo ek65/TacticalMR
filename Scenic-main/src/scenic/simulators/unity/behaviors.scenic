@@ -343,6 +343,8 @@ i, j = np.indices((rows, cols))
 
 def sample_from(dist, _min=0.4):
 
+    print(dist)
+
     max_val = dist.max()
     if max_val > 0:
         dist = dist / max_val

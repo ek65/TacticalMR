@@ -426,9 +426,16 @@ class InZone(Constraint):
             return false()
         
         print('in zone', self.zone)
+
+        if isinstance(self.zone, list):
+            zone_str = self.zone[0]
+        else:
+            zone_str = self.zone
+
+        print('zone', zone_str, zone_str[0], zone_str[1])
         
-        zone_x = self.zone_x_labels.index(self.zone[0])
-        zone_y = int(self.zone[1:]) - 1
+        zone_x = self.zone_x_labels.index(zone_str[0])
+        zone_y = int(zone_str[1]) - 1
         
         x_coord = j - self.width / 2 + 0.5
         y_coord = i - self.height / 2 + 0.5
