@@ -215,11 +215,6 @@ public class HumanInterface : MonoBehaviour
         
         Vector3 goalPosition = goalObj.transform.position;
         Vector3 currentPosition = transform.position;
-        if (isVR)
-        {
-            currentPosition = vrTransform.position;
-        }
-        
         Vector3 direction = goalPosition - currentPosition;
         float currentDistance = direction.magnitude;
         
