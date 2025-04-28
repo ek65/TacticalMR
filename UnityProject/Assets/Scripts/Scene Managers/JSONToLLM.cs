@@ -205,23 +205,15 @@ public class JSONToLLM : MonoBehaviour
         rewindableRootSegment.Timeseries = new List<TimeStep>();
 
         // Populate Timeseries
-        
-        // Determine the maximum number of timesteps
-        int maxTimesteps = timelineManager.Timeseries.Values
-            .Select(ts => ts.positions.Count)
-            .DefaultIfEmpty(0)
-            .Max();
-        
-        // Iterate over each timestep
-        for (int timeIndex = 0; timeIndex < maxTimesteps; timeIndex++)
+        foreach (var timestep in timelineManager.Timeseries.OrderBy(t => t.Key))
         {
+            int timeIndex = timelineManager.TimeIndex;
             TimeStep timeStep = new TimeStep
             {
                 timestep = timeIndex,
                 objects = new List<ObjectData>()
             };
 
-            // Iterate over each GameObject in Timeseries
             foreach (var entry in timelineManager.Timeseries)
             {
                 GameObject obj = entry.Key;
