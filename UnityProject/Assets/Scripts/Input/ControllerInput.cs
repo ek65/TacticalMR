@@ -80,6 +80,12 @@ public class ControllerInput : MonoBehaviour
         keyboardInput.HandleRestart();
     }
     
+    private void ControllerShoot(InputAction.CallbackContext ctx)
+    {
+        HandleControllerShoot();
+    }
+
+    
     private void ControllerSegment(InputAction.CallbackContext ctx)
     {
         keyboardInput.HandleSegment();
