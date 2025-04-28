@@ -112,6 +112,16 @@ public class ControllerInput : MonoBehaviour
         humanInterface.PassToPlayer();
     }
     
+    public void HandleControllerShoot()
+    {
+        if (tlManager.Paused)
+        {
+            return;
+        }
+        HumanInterface humanInterface = this.GetComponent<HumanInterface>();
+        humanInterface.ShootGoal();
+    }
+    
     private void ControllerThroughPass(InputAction.CallbackContext ctx)
     {
         if (tlManager.Paused)
