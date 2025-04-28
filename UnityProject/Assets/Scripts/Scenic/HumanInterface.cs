@@ -238,6 +238,32 @@ public class HumanInterface : MonoBehaviour
         Debug.Log($"Pass action recorded with ID {passID}, from: {this.name} to: {targetPlayer.name} at time: {passTime}");
         keyboardInput.clickOrder++; 
     }
+    
+    private void LogShootGoal()
+    {
+        GameObject goalObj = objectList.goalObject; 
+        if (goalObj == null)
+        {
+            Debug.LogWarning("No goal found for pass.");
+            return;
+        }
+
+        int passID = keyboardInput.clickOrder;
+        float passTime = jsonToLLM.time;
+    
+        keyboardInput.annotation.Add(passID, new Dictionary<string, object>
+        {
+            { "type", "Shoot Goal" },
+            { "from", this.name },
+            { "to", goalObj.name }
+        });
+
+        keyboardInput.annotationDescriptions.Add(passID, $"({this.name} shot towards Goal)");
+        
+        keyboardInput.annotationTimes.Add(passID, passTime);
+        Debug.Log($"Shoot goal action recorded with ID {passID}, from: {this.name} at time: {passTime}");
+        keyboardInput.clickOrder++; 
+    }
 
     private void LogThroughPass(Vector3 pos)
     {
