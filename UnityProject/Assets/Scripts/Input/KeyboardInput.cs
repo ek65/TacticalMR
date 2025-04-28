@@ -268,7 +268,7 @@ public class KeyboardInput : MonoBehaviour
         timelineManager.isRecordingSegment = false;
         jsonToLLM.isLogging = false; // triggers video stop in JSONToLLM
         segmentStarted = false;
-        jsonToLLM.activateSystemRecording = true;
+        // jsonToLLM.activateSystemRecording = true;
         // Stop audio
         if (recordAudio != null && Microphone.IsRecording(null))
         {
