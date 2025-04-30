@@ -7712,7 +7712,7 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 8300000, guid: 4a90fc2449d4a4572acbd86e31108498, type: 3}
+  m_audioClip: {fileID: 8300000, guid: 6cd98096fa80d4080ad29f2d188375d1, type: 3}
   m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1

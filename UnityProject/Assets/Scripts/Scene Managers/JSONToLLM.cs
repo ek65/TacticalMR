@@ -204,54 +204,54 @@ public class JSONToLLM : NetworkBehaviour
         myRootSegment.timestep = timelineManager.TimeIndex;
     }
     
-    public void PopulateSegment2()
-    {
-        rewindableRootSegment.Timeseries = new List<TimeStep>();
-
-        // Populate Timeseries
-        
-        // Determine the maximum number of timesteps
-        int maxTimesteps = timelineManager.Timeseries.Values
-            .Select(ts => ts.positions.Count)
-            .DefaultIfEmpty(0)
-            .Max();
-        
-        // Iterate over each timestep
-        for (int timeIndex = 0; timeIndex < maxTimesteps; timeIndex++)
-        {
-            TimeStep timeStep = new TimeStep
-            {
-                timestep = timeIndex,
-                objects = new List<ObjectData>()
-            };
-
-            // Iterate over each GameObject in Timeseries
-            foreach (var entry in timelineManager.Timeseries)
-            {
-                GameObject obj = entry.Key;
-                RewindableTimeSeries timeSeries = entry.Value;
-
-                if (timeIndex < timeSeries.positions.Count)
-                {
-                    Vector3 position = timeSeries.positions[timeIndex];
-                    Quaternion rotation = timeSeries.rotations[timeIndex];
-
-                    ObjectData objectData = new ObjectData
-                    {
-                        objectName = obj.name,
-                        pos = new Position(position),
-                        rot = new Orientation(rotation),
-                        action = timeSeries.currAction,
-                        behavior = timeSeries.currBehavior
-                    };
-
-                    timeStep.objects.Add(objectData);
-                }
-            }
-
-            rewindableRootSegment.Timeseries.Add(timeStep);
-        }
-    }
+    // public void PopulateSegment2()
+    // {
+    //     rewindableRootSegment.Timeseries = new List<TimeStep>();
+    //
+    //     // Populate Timeseries
+    //     
+    //     // Determine the maximum number of timesteps
+    //     int maxTimesteps = timelineManager.Timeseries.Values
+    //         .Select(ts => ts.positions.Count)
+    //         .DefaultIfEmpty(0)
+    //         .Max();
+    //     
+    //     // Iterate over each timestep
+    //     for (int timeIndex = 0; timeIndex < maxTimesteps; timeIndex++)
+    //     {
+    //         TimeStep timeStep = new TimeStep
+    //         {
+    //             timestep = timeIndex,
+    //             objects = new List<ObjectData>()
+    //         };
+    //
+    //         // Iterate over each GameObject in Timeseries
+    //         foreach (var entry in timelineManager.Timeseries)
+    //         {
+    //             GameObject obj = entry.Key;
+    //             RewindableTimeSeries timeSeries = entry.Value;
+    //
+    //             if (timeIndex < timeSeries.positions.Count)
+    //             {
+    //                 Vector3 position = timeSeries.positions[timeIndex];
+    //                 Quaternion rotation = timeSeries.rotations[timeIndex];
+    //
+    //                 ObjectData objectData = new ObjectData
+    //                 {
+    //                     objectName = obj.name,
+    //                     pos = new Position(position),
+    //                     rot = new Orientation(rotation),
+    //                     action = timeSeries.currAction,
+    //                     behavior = timeSeries.currBehavior
+    //                 };
+    //
+    //                 timeStep.objects.Add(objectData);
+    //             }
+    //         }
+    //
+    //         rewindableRootSegment.Timeseries.Add(timeStep);
+    //     }
+    // }
     
     public void AddStoppedTime()
     {
@@ -703,10 +703,10 @@ public class JSONToLLM : NetworkBehaviour
         CreateJSONString();
     }
     
-    public void WriteFile2()
-    {
-        CreateJSONString2();
-    }
+    // public void WriteFile2()
+    // {
+    //     CreateJSONString2();
+    // }
 
     public void CreateJSONString()
     {
@@ -748,37 +748,37 @@ public class JSONToLLM : NetworkBehaviour
         Debug.Log($"Segment written to {filename}");
     }
     
-    public void CreateJSONString2()
-    {
-        PopulateSegment2();
-        AddStoppedTime();
-        
-        JSONDirectory jsonDirectory = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<JSONDirectory>();
-        
-        var settings = new JsonSerializerSettings
-        {
-            ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
-            Formatting = Formatting.Indented,
-            ContractResolver = new CamelCasePropertyNamesContractResolver()
-        };
-
-        object finalScene;
-      
-        finalScene = new
-        {
-            scene = new
-            {
-                TimeSeries = rewindableRootSegment.Timeseries,
-                StoppedTimes = rewindableRootSegment.StoppedTimes
-            }
-        };
-        
-        jsonString = JsonConvert.SerializeObject(finalScene, settings);
-        filename = jsonDirectory.InstantiateJSONEditPath() + ".json";
-        File.WriteAllText(filename, jsonString);
-
-        Debug.Log($"Edited recording written to {filename}");
-    }
+    // public void CreateJSONString2()
+    // {
+    //     PopulateSegment2();
+    //     AddStoppedTime();
+    //     
+    //     JSONDirectory jsonDirectory = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<JSONDirectory>();
+    //     
+    //     var settings = new JsonSerializerSettings
+    //     {
+    //         ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+    //         Formatting = Formatting.Indented,
+    //         ContractResolver = new CamelCasePropertyNamesContractResolver()
+    //     };
+    //
+    //     object finalScene;
+    //   
+    //     finalScene = new
+    //     {
+    //         scene = new
+    //         {
+    //             TimeSeries = rewindableRootSegment.Timeseries,
+    //             StoppedTimes = rewindableRootSegment.StoppedTimes
+    //         }
+    //     };
+    //     
+    //     jsonString = JsonConvert.SerializeObject(finalScene, settings);
+    //     filename = jsonDirectory.InstantiateJSONEditPath() + ".json";
+    //     File.WriteAllText(filename, jsonString);
+    //
+    //     Debug.Log($"Edited recording written to {filename}");
+    // }
 
     
     private string BuildSentenceFromTokens()
