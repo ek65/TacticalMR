@@ -72,14 +72,16 @@ public class Rewindable : MonoBehaviour
         }
         Rigidbody r = GetComponent<Rigidbody>();
         
+        r.isKinematic = isKinematic;
+        
         r.constraints = savedConstraints;
         
         r.velocity = savedVelocity;
-        r.isKinematic = isKinematic;
         r.angularVelocity = savedAngularVelocity;
-
-
+        
+        r.WakeUp();
     }
+    
     //TODO: need to be changed if u switch to Motion Matching systm
     private void FreezeAnimation()
     {
