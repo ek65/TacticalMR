@@ -152,20 +152,20 @@ def sample_target(scene, prev_target, λ_dest) -> Vector:
     # print(f"sample: {sample}")
     return sample
 
-# MARK: MoveTo
-behavior MoveTo(λ_dest):
-    scene = simulation()
-    sample = Vector(0, 0)
-    sample = sample_target(scene, sample, λ_dest)
-    timestep = 0.3
-    # print(f"sample: {sample}")
-    while (distance from self to sample > 0.5):
-        # print('moving to', sample)
-        do MoveToBehavior(sample) for timestep seconds
-        scene = simulation()
-        sample = sample_target(scene, sample, λ_dest)
-        # print(f"sample: {sample}")
-    do Idle() for 1 seconds
+# # MARK: MoveTo
+# behavior MoveTo(λ_dest):
+#     scene = simulation()
+#     sample = Vector(0, 0)
+#     sample = sample_target(scene, sample, λ_dest)
+#     timestep = 0.3
+#     # print(f"sample: {sample}")
+#     while (distance from self to sample > 0.5):
+#         # print('moving to', sample)
+#         do MoveToBehavior(sample) for timestep seconds
+#         scene = simulation()
+#         sample = sample_target(scene, sample, λ_dest)
+#         # print(f"sample: {sample}")
+#     do Idle() for 1 seconds
 
 # # MARK: moveTo
 # behavior moveTo(player: Player, target: Coordinate, ref: list, speed: Speed):
@@ -368,7 +368,7 @@ def sample_from(dist, _min=0.4):
 
     return sample
 
-behavior MoveAs(dist):
+behavior MoveTo(dist):
     sample = sample_from(dist)
     dt = 0.2
     while (distance from self to sample > 0.5):

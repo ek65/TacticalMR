@@ -129,3 +129,5 @@ output/
 UnityProject/SampleJsons/
 
 *.wav
+UnityProject/mono_crash.mem.99527.1.blob
+Scenic-main/.idea/workspace.xml
