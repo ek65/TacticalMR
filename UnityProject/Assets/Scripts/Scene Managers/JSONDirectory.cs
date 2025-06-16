@@ -266,18 +266,23 @@ public class JSONDirectory : MonoBehaviour
         return jsonSegmentFile.FullName;
     }
     
+    // public string InstantiateJSONEditPath()
+    // {
+    //     DirectoryInfo directoryOutputFolder = new DirectoryInfo(Path.Combine(Application.dataPath, "..", "..", "output"));
+    //     if (!directoryOutputFolder.Exists)
+    //     {
+    //         directoryOutputFolder.Create();
+    //     }
+    //     
+    //     DirectoryInfo jsonEditFile = 
+    //         new DirectoryInfo(Path.Combine(directoryOutputFolder.FullName, "EDIT"));
+    //
+    //     return jsonEditFile.FullName;
+    // }
     public string InstantiateJSONEditPath()
     {
-        DirectoryInfo directoryOutputFolder = new DirectoryInfo(Path.Combine(Application.dataPath, "..", "..", "output"));
-        if (!directoryOutputFolder.Exists)
-        {
-            directoryOutputFolder.Create();
-        }
-        
-        DirectoryInfo jsonEditFile = 
-            new DirectoryInfo(Path.Combine(directoryOutputFolder.FullName, "EDIT"));
-
-        return jsonEditFile.FullName;
+        string editFilePath = Path.Combine(demoFolder.FullName, "EDIT");
+        return editFilePath;
     }
 
     // UI element prompt

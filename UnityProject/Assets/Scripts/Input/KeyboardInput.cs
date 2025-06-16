@@ -47,6 +47,8 @@ public class KeyboardInput : MonoBehaviour
     private bool isPositionMode = false;
     private bool isReferenceMode = false;
     public string explanation;
+    
+    private bool isTransitioning = false;
 
     void Start()
     {
@@ -218,31 +220,32 @@ public class KeyboardInput : MonoBehaviour
     
     public void HandleSegment2()
     {
-        // If unpaused, pause it first
+        if (isTransitioning) return;
+        StartCoroutine(SegmentToggleRoutine());
+    }
+
+    private IEnumerator SegmentToggleRoutine()
+    {
+        isTransitioning = true;
+
         if (!timelineManager.Paused)
         {
             timelineManager.Pause();
             if (timelineManager.isRecordingSegment)
-            {
                 StopSegment2();
-            }
             else
-            {
                 StartSegment2();
-            }
         }
         else
         {
-            // If paused, toggle the segment
             if (timelineManager.isRecordingSegment)
-            {
                 StopSegment2();
-            }
             else
-            {
                 StartSegment2();
-            }
         }
+
+        yield return new WaitForSeconds(0.4f); // debounce time
+        isTransitioning = false;
     }
 
     // Start the segment + audio
@@ -294,10 +297,9 @@ public class KeyboardInput : MonoBehaviour
         timelineManager.isRecordingSegment = true;
         segmentStarted = true;
         timelineManager.segmentCount++;
-
         segmentStartTime = Time.time;
 
-        // Start audio only
+        // Start audio
         if (recordAudio != null)
         {
             recordAudio.StartRecording();
@@ -307,16 +309,28 @@ public class KeyboardInput : MonoBehaviour
         {
             Debug.LogWarning("No RecordAudio reference set in KeyboardInput!");
         }
-        
-        // Folder setup if needed
-      
+
         if (jsonDirectory.InitialDemo)
         {
             jsonDirectory.InstantiateInitialFolders();
             jsonDirectory.InitialDemo = false;
             Debug.Log("Directory created");
         }
+
         jsonDirectory.InstantiateDemoFolders();
+        
+        if (jsonToLLM == null)
+        {
+            jsonToLLM = GameObject.FindGameObjectWithTag("ScenicManager")?.GetComponent<JSONToLLM>();
+            if (jsonToLLM == null)
+            {
+                Debug.LogError("jsonToLLM is still null after GetComponent!");
+                return;
+            }
+        }
+
+        jsonToLLM.isLogging = true;
+        Debug.Log("jsonToLLM.isLogging set to true in StartSegment2");
 
         Debug.Log("Started new segment recording (audio). JSONToLLM will auto-start video in FixedUpdate.");
     }
@@ -507,8 +521,14 @@ public class KeyboardInput : MonoBehaviour
     {
         Debug.Log("Started File Coroutine at timestamp : " + Time.time);
         yield return ProcessingTranscript();
-        jsonToLLM.WriteFile2();
-        // ResetJsonData();
+
+        jsonToLLM.CreateJSONString();   // NEW: ensures segment0.json is created
+        jsonToLLM.CreateJSONString2();  // already present, keeps EDIT.json
+
+        jsonToLLM.WriteFile();          // write segment0.json
+        jsonToLLM.WriteFile2();         // write EDIT.json
+
+        ResetJsonData();                // optional, safe to keep
     }
 
     private IEnumerator ProcessingTranscript()

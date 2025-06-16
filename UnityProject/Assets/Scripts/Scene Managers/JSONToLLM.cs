@@ -551,34 +551,73 @@ public class JSONToLLM : MonoBehaviour
         Debug.Log("Segment data has been reset.");
     }
 
+    // void FixedUpdate()
+    // {
+    //   
+    //     if (activateSystemRecording && keyboard.segmentStarted) // if system recording and segment started, we want to start logging
+    //     {
+    //         isLogging = true;
+    //         Debug.Log("started logging");
+    //     }
+    //     
+    //
+    //     if (isLogging)
+    //     {
+    //         // Debug.Log("JSON LOGGING");
+    //         time += 0.02f;
+    //         PopulateSegment();
+    //         if (!recorderManager.RecorderController.IsRecording())
+    //         {
+    //             recorderManager.StartRecording();
+    //             videoIsRecording = recorderManager.RecorderController.IsRecording();
+    //         }
+    //     }
+    //     else if (!isLogging)
+    //     {
+    //         if (recorderManager.RecorderController.IsRecording())
+    //         {
+    //             recorderManager.StopRecording();
+    //             videoIsRecording = recorderManager.RecorderController.IsRecording();
+    //         }
+    //     }
+    // }
+    
+    public bool hasStartedRecording = false;
+
     void FixedUpdate()
     {
-      
-        if (activateSystemRecording && keyboard.segmentStarted) // if system recording and segment started, we want to start logging
+        if (!isLogging)
         {
-            isLogging = true;
-            Debug.Log("started logging");
+            hasStartedRecording = false; // reset for next segment
+            return;
         }
-        
 
-        if (isLogging)
+        // the rest as you have:
+        if (recorderManager == null)
         {
-            // Debug.Log("JSON LOGGING");
-            time += 0.02f;
+            Debug.LogError("recorderManager is NULL!");
+            return;
+        }
+
+        if (myRootSegment == null)
+        {
+            Debug.LogError("myRootSegment is NULL!");
+            return;
+        }
+
+        try
+        {
             PopulateSegment();
-            if (!recorderManager.RecorderController.IsRecording())
+
+            if (!hasStartedRecording)
             {
                 recorderManager.StartRecording();
-                videoIsRecording = recorderManager.RecorderController.IsRecording();
+                hasStartedRecording = true;
             }
         }
-        else if (!isLogging)
+        catch (Exception e)
         {
-            if (recorderManager.RecorderController.IsRecording())
-            {
-                recorderManager.StopRecording();
-                videoIsRecording = recorderManager.RecorderController.IsRecording();
-            }
+            Debug.LogError("Exception in FixedUpdate: " + e);
         }
     }
 
