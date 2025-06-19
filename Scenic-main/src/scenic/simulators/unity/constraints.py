@@ -241,7 +241,7 @@ class HorizontalRelation(Constraint):
     
     def bool(self, scene):
 
-        obj = findObj(self.obj, scene.objects)
+        obj = findObj(self.objID, scene.objects)
 
         if not obj:
             return false()
@@ -349,57 +349,87 @@ class DistanceTo(Constraint):
         else:
             self.maxAvg = {'avg': 3.0, 'std': 1.0}
 
+#     def dist(self, scene, ego=False):
+# 
+#         if ego and not isEgo(self.fromID):
+#             return true()
+#         
+#         ref = findObj(self.toID, scene.objects)
+# 
+#         if not ref:
+#             return false()
+# 
+#         x, y = location(ref[0].position)
+#         distances = np.sqrt((i - y)**2 + (j - x)**2)
+# 
+#         print('distance to', x, y, self.minAvg, self.maxAvg, self.operator)
+# 
+#         if self.operator == 'within':
+#             mu = (self.minAvg + self.maxAvg) / 2.0
+#             sigma = (self.maxAvg - self.minAvg) / 2.0
+#             mask = (distances >= self.minAvg) & (distances <= self.maxAvg)
+#             bump = np.exp(-((distances - mu)**2) / (2 * sigma**2))
+#             map = np.where(mask, bump + epsilon, epsilon)
+#         
+#         elif self.operator == 'less_than':
+#             sigma = self.maxAvg
+#             mask = distances < self.maxAvg
+#             bump = np.exp(-(distances**2) / (2 * sigma**2))
+#             map = np.where(mask, bump + epsilon, epsilon)
+#         
+#         elif self.operator == 'greater_than':
+#             sigma = self.minAvg
+#             mask = distances > self.minAvg
+#             bump = np.exp(-((distances - self.minAvg)**2) / (2 * sigma**2))
+#             map = np.where(mask, bump + epsilon, epsilon)
+#         
+#         else:
+#             print('Invalid operator.')
+#             return false()
+#         
+#         return map
+
     def dist(self, scene, ego=False):
-
         if ego and not isEgo(self.fromID):
-            return true()
-        
-        ref = findObj(self.toID, scene.objects)
+            return True
 
-        if not ref:
-            return false()
+        targets = findObj(self.toID, scene.objects)
+        if not targets:
+            return False
 
-        x, y = location(ref[0].position)
-        distances = np.sqrt((i - y)**2 + (j - x)**2)
+        sources = findObj(self.fromID, scene.objects)
+        if not sources:
+            return False
 
-        print('distance to', x, y, self.minAvg, self.maxAvg, self.operator)
+        src_x, src_y = location(sources[0].position)
+        tgt_x, tgt_y = location(targets[0].position)
+
+        d = np.hypot(src_x - tgt_x, src_y - tgt_y)
 
         if self.operator == 'within':
-            mu = (self.minAvg + self.maxAvg) / 2.0
-            sigma = (self.maxAvg - self.minAvg) / 2.0
-            mask = (distances >= self.minAvg) & (distances <= self.maxAvg)
-            bump = np.exp(-((distances - mu)**2) / (2 * sigma**2))
-            map = np.where(mask, bump + epsilon, epsilon)
-        
+            return self.minAvg <= d <= self.maxAvg
         elif self.operator == 'less_than':
-            sigma = self.maxAvg
-            mask = distances < self.maxAvg
-            bump = np.exp(-(distances**2) / (2 * sigma**2))
-            map = np.where(mask, bump + epsilon, epsilon)
-        
+            return d < self.maxAvg
         elif self.operator == 'greater_than':
-            sigma = self.minAvg
-            mask = distances > self.minAvg
-            bump = np.exp(-((distances - self.minAvg)**2) / (2 * sigma**2))
-            map = np.where(mask, bump + epsilon, epsilon)
-        
+            return d > self.minAvg
         else:
-            print('Invalid operator.')
-            return false()
-        
-        return map
+            return False
     
+#     def bool(self, scene):
+# 
+#         obj = findObj(self.fromID, scene.objects)
+# 
+#         if not obj:
+#             return false()
+#         
+#         dist = self.dist(scene)
+#         sample = location(obj[0].position)
+# 
+#         return bool_sample(sample, dist)
+
     def bool(self, scene):
-
-        obj = findObj(self.fromID, scene.objects)
-
-        if not obj:
-            return false()
-        
-        dist = self.dist(scene)
-        sample = location(obj[0].position)
-
-        return bool_sample(sample, dist)
+            # Simply return the same boolean that .dist would
+            return self.dist(scene)
     
 
 # MARK: InZone
