@@ -6,7 +6,7 @@ from scenic.core.regions import MeshVolumeRegion
 
 import trimesh
 import random
-
+    
 # TODO: Conform initalization to boundary conditions.
 
 footed = DiscreteRange(-1, 1)
