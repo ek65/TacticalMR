@@ -2514,7 +2514,7 @@ GameObject:
   - component: {fileID: 306100465012550539}
   - component: {fileID: 3367079664407752086}
   - component: {fileID: 58977548018487206}
-  - component: {fileID: 807198753372907920}
+  - component: {fileID: 6636505798836516186}
   - component: {fileID: 4723546269911805798}
   - component: {fileID: 5540683782832157742}
   - component: {fileID: 6494099915239531661}
@@ -2532,7 +2532,6 @@ GameObject:
   - component: {fileID: 4892042961728156080}
   - component: {fileID: 7399459022303715469}
   - component: {fileID: 4163043330634576739}
-  - component: {fileID: 6636505798836516186}
   - component: {fileID: 5258423594824916337}
   - component: {fileID: 2363807978607189299}
   - component: {fileID: 4003989586829683350}
@@ -2577,7 +2576,7 @@ Animator:
   m_GameObject: {fileID: 4578892383467444653}
   m_Enabled: 1
   m_Avatar: {fileID: 9000000, guid: 2b18b1336ce994f7ba387e787ada27fd, type: 3}
-  m_Controller: {fileID: 9100000, guid: e918d2ad6334e144893385438d3b2b14, type: 2}
+  m_Controller: {fileID: 9100000, guid: ec50e1f25d1954f9c826ce323d8aa2d3, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -2607,41 +2606,39 @@ MonoBehaviour:
   test: {x: 0, y: 0, z: 0}
   stopMovement: 0
   alreadyInAnimation: 0
---- !u!114 &807198753372907920
+--- !u!114 &6636505798836516186
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4578892383467444653}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 189b4c9bf1f341f428485e3ed904fd74, type: 3}
+  m_Script: {fileID: 11500000, guid: 96b886443f9fb44b1a0a9a2f2664eb13, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  enemy: 0
-  ally: 0
-  self: 0
-  shirt: {fileID: 0}
-  speed: 3
-  ball: {fileID: 0}
-  ballOnTheGround: {x: 0, y: 0, z: 0}
-  targetPosition: {x: 0, y: 0, z: 0}
-  force: 18
+  actionAPI: {fileID: 58977548018487206}
+  arrowGenerator: {fileID: 0}
+  circleGenerator: {fileID: 0}
+  circleObjects: []
+  arrowObjects: []
+  forwardArrow: {fileID: 0}
+  explanation: 
   distToBall: 0
-  goal: {fileID: 0}
+  ballOnTheGround: {x: 0, y: 0, z: 0}
   ballPossession: 0
+  ball: {fileID: 0}
   ballPosition: {fileID: 8247870286867644651}
   canKickBall: 1
-  actionAPI: {fileID: 58977548018487206}
-  floatingBehaviorText: {fileID: 2749666095738733064}
-  floatingNameText: {fileID: 155651006703957522}
-  behavior: Idle
-  currAction: No Action
-  isRobot: 1
-  objectPosition: {fileID: 8247870286867644651}
+  closestPlayerInDirection: {fileID: 0}
   objectPossession: 0
   grabbedObject: {fileID: 0}
+  objectPosition: {fileID: 8247870286867644651}
+  behavior: Idle
+  currAction: No Action
+  ally: 0
+  shirt: {fileID: 0}
 --- !u!114 &4723546269911805798
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3218,39 +3215,6 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!114 &6636505798836516186
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4578892383467444653}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 96b886443f9fb44b1a0a9a2f2664eb13, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  actionAPI: {fileID: 58977548018487206}
-  arrowGenerator: {fileID: 0}
-  circleGenerator: {fileID: 0}
-  circleObjects: []
-  arrowObjects: []
-  forwardArrow: {fileID: 0}
-  explanation: 
-  distToBall: 0
-  ballOnTheGround: {x: 0, y: 0, z: 0}
-  ballPossession: 0
-  ball: {fileID: 0}
-  ballPosition: {fileID: 0}
-  canKickBall: 1
-  closestPlayerInDirection: {fileID: 0}
-  objectPossession: 0
-  grabbedObject: {fileID: 0}
-  objectPosition: {fileID: 0}
-  behavior: Idle
-  currAction: No Action
-  ally: 0
-  shirt: {fileID: 0}
 --- !u!114 &5258423594824916337
 MonoBehaviour:
   m_ObjectHideFlags: 0

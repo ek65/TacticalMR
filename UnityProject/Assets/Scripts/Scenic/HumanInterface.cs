@@ -250,58 +250,6 @@ public class HumanInterface : MonoBehaviour
         keyboardInput.clickOrder++; 
     }
     
-    public void PickUp()
-    {
-        actionAPI.PickUp();
-        Debug.Log("Picking up");
-        LogPickUp();
-    }
-
-    public void PutDown()
-    {
-        actionAPI.PutDown(transform.position + transform.forward * 1f + Vector3.up * 1f);
-        Debug.Log("Putting down");
-        LogPutDown();
-    }
-
-    private void LogPickUp()
-    {
-        int eventID = keyboardInput.clickOrder;
-        float eventTime = jsonToLLM.time;
-        Debug.Log("test");
-    
-        keyboardInput.annotation.Add(eventID, new Dictionary<string, object>
-        {
-            { "type", "PickUp" },
-            { "player", this.name }
-        });
-        Debug.Log(keyboardInput.annotation);
-    
-        keyboardInput.annotationDescriptions.Add(eventID, $"({this.name} picked up an object)");
-        Debug.Log($"Added pick up to annotations at {eventTime:F2}s, key {eventTime}");
-        keyboardInput.annotationTimes.Add(eventID, eventTime);
-        keyboardInput.clickOrder++;
-    }
-
-    private void LogPutDown()
-    {
-        int eventID = keyboardInput.clickOrder;
-        float eventTime = jsonToLLM.time;
-        Debug.Log("test put down");
-    
-        keyboardInput.annotation.Add(eventID, new Dictionary<string, object>
-        {
-            { "type", "PutDown" },
-            { "player", this.name }
-        });
-        Debug.Log(keyboardInput.annotation);
-    
-        keyboardInput.annotationDescriptions.Add(eventID, $"({this.name} put down an object)");
-        keyboardInput.annotationTimes.Add(eventID, eventTime);
-        keyboardInput.clickOrder++;
-    }
-    
-
     private void LogThroughPass(Vector3 pos)
     {
         int passID = keyboardInput.clickOrder;
@@ -326,36 +274,33 @@ public class HumanInterface : MonoBehaviour
         keyboardInput.clickOrder++; 
     }
     
+    
+    public void PickUp()
+    {
+        actionAPI.PickUp();
+        Debug.Log("Picking up");
+    }
+
+    public void PutDown()
+    {
+        if (!objectPossession)
+        {
+            return;
+        }
+        actionAPI.PutDown(transform.position + transform.forward * 1f + Vector3.up * 1f);
+        Debug.Log("Putting down");
+    }
+
     public void Packaging()
     {
         actionAPI.Packaging();
         Debug.Log("Packaging action triggered.");
-        LogPackaging();
     }
-
-    private void LogPackaging()
-    {
-        int eventID = keyboardInput.clickOrder;
-        float eventTime = jsonToLLM.time;
     
-        GameObject targetObject = FindNearestObject();
-        if (targetObject == null)
-        {
-            Debug.LogError("No object found for Packaging.");
-            return;
-        }
-
-        keyboardInput.annotation.Add(eventID, new Dictionary<string, object>
-        {
-            { "type", "Packaging" },
-            { "player", this.name },
-            { "object", targetObject.name }
-        });
-
-        keyboardInput.annotationDescriptions.Add(eventID, $"({this.name} packaged {targetObject.name})");
-
-        keyboardInput.annotationTimes.Add(eventID, eventTime);
-        keyboardInput.clickOrder++;
+    public void RaiseHand()
+    {
+        actionAPI.RaiseHand();
+        Debug.Log("Raising hand");
     }
 
     private GameObject FindNearestObject()

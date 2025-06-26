@@ -135,6 +135,12 @@ public class InstantiateScenicObject
             }
             
         }
+        else
+        {
+            addedGameObject = MonoBehaviour.Instantiate(objectList.modelList[modelType], pos, rot);
+            addedGameObject.name = name;
+            objectList.scenicObjects.Add(addedGameObject);
+        }
         if (Publish != null)
         {
             Publish(new ScenicObectAddEventArg() { gameObject = addedGameObject });

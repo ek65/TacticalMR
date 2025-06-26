@@ -46,12 +46,13 @@ public class ControllerInput : MonoBehaviour
         inputSystem.PlayerControls.Restart.performed += ControllerRestart; // Y Button
         inputSystem.PlayerControls.Segment.performed += ControllerSegment; // X Button
         // soccer actions
-            inputSystem.PlayerControls.Intercept.performed += ControllerIntercept; // Left Trigger
-            inputSystem.PlayerControls.Pass.performed += ControllerPass; // Right Trigger
-            inputSystem.PlayerControls.ThroughPass.performed += ControllerThroughPass; // Right Bumper 
+            // inputSystem.PlayerControls.Intercept.performed += ControllerIntercept; // Left Trigger
+            // inputSystem.PlayerControls.Pass.performed += ControllerPass; // Right Trigger
+            // inputSystem.PlayerControls.ThroughPass.performed += ControllerThroughPass; // Right Bumper 
         // factory actions
             inputSystem.PlayerControls.PickUp.performed += ControllerPickUp; // Left Trigger 
             inputSystem.PlayerControls.PutDown.performed += ControllerPutDown; // Right Trigger
+            inputSystem.PlayerControls.RaiseHand.performed += ControllerRaiseHand; // Left Shoulder
             inputSystem.PlayerControls.Packaging.performed += ControllerPackaging; // Right Shoulder
             inputSystem.PlayerControls.Enable();
     }
@@ -62,12 +63,13 @@ public class ControllerInput : MonoBehaviour
         inputSystem.PlayerControls.Restart.performed -= ControllerRestart;
         inputSystem.PlayerControls.Segment.performed -= ControllerSegment;
         // soccer actions
-        inputSystem.PlayerControls.Intercept.performed -= ControllerIntercept;
-        inputSystem.PlayerControls.Pass.performed -= ControllerPass;
-        inputSystem.PlayerControls.ThroughPass.performed -= ControllerThroughPass;
+        // inputSystem.PlayerControls.Intercept.performed -= ControllerIntercept;
+        // inputSystem.PlayerControls.Pass.performed -= ControllerPass;
+        // inputSystem.PlayerControls.ThroughPass.performed -= ControllerThroughPass;
         // factory actions
         inputSystem.PlayerControls.PickUp.performed -= ControllerPickUp;
         inputSystem.PlayerControls.PutDown.performed -= ControllerPutDown;
+        inputSystem.PlayerControls.RaiseHand.performed -= ControllerRaiseHand;
         inputSystem.PlayerControls.Packaging.performed -= ControllerPackaging;
         inputSystem.PlayerControls.Disable();
     }
@@ -155,6 +157,16 @@ public class ControllerInput : MonoBehaviour
         }
         HumanInterface humanInterface = this.GetComponent<HumanInterface>();
         humanInterface.PutDown();
+    }
+    
+    private void ControllerRaiseHand(InputAction.CallbackContext ctx)
+    {
+        if (tlManager.Paused)
+        {
+            return;
+        }
+        HumanInterface humanInterface = this.GetComponent<HumanInterface>();
+        humanInterface.RaiseHand();
     }
     
     private void Movement()

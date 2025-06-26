@@ -226,61 +226,181 @@ public class ActionAPI : MonoBehaviour
     
     // factory setting 
     public void PickUp()
-{
-    SetAnimController("FactoryMovement");
-    stopMovement = true;
-
-    if (this.GetComponent<PlayerInterface>() == true)
     {
-        PlayerInterface pI = this.GetComponent<PlayerInterface>();
-        Vector3 lookAtPosition = pI.objectPosition.position;
+        SetAnimController("FactoryMovement");
+        stopMovement = true;
 
-        GameObject[] grabbableObjects = GameObject.FindGameObjectsWithTag("Grabbable");
-        Vector3 originPosition = pI.gameObject.transform.position;
-
-        GameObject closestObject = grabbableObjects
-            .Where(obj => Vector3.Distance(obj.transform.position, originPosition) <= 2f)
-            .OrderBy(obj => Vector3.Distance(obj.transform.position, originPosition))
-            .FirstOrDefault();
-
-        if (closestObject != null)
+        if (this.GetComponent<PlayerInterface>() == true)
         {
-            StartCoroutine(LookTowards(lookAtPosition, "PickUp"));
+            PlayerInterface pI = this.GetComponent<PlayerInterface>();
+            Vector3 lookAtPosition = pI.objectPosition.position;
+
+            GameObject[] grabbableObjects = GameObject.FindGameObjectsWithTag("Grabbable");
+            Vector3 originPosition = pI.gameObject.transform.position;
+
+            GameObject closestObject = grabbableObjects
+                .Where(obj => Vector3.Distance(obj.transform.position, originPosition) <= 2f)
+                .OrderBy(obj => Vector3.Distance(obj.transform.position, originPosition))
+                .FirstOrDefault();
+
+            if (closestObject != null)
+            {
+                StartCoroutine(LookTowards(lookAtPosition, "PickUp"));
+            }
+        }
+        else if (this.GetComponent<HumanInterface>() == true)
+        {
+            HumanInterface hI = this.GetComponent<HumanInterface>();
+            Vector3 lookAtPosition = hI.objectPosition.position;
+
+            GameObject[] grabbableObjects = GameObject.FindGameObjectsWithTag("Grabbable");
+            Vector3 originPosition = hI.gameObject.transform.position;
+
+            GameObject closestObject = grabbableObjects
+                .Where(obj => Vector3.Distance(obj.transform.position, originPosition) <= 2f)
+                .OrderBy(obj => Vector3.Distance(obj.transform.position, originPosition))
+                .FirstOrDefault();
+
+            if (closestObject != null)
+            {
+                StartCoroutine(LookTowards(lookAtPosition, "PickUp"));
+            }
         }
     }
-    else if (this.GetComponent<HumanInterface>() == true)
+    
+    public void LogPickUp(GameObject closestObject)
     {
-        HumanInterface hI = this.GetComponent<HumanInterface>();
-        Vector3 lookAtPosition = hI.objectPosition.position;
+        KeyboardInput keyboardInput = GameObject.FindGameObjectWithTag("keyboard").GetComponent<KeyboardInput>();
+        JSONToLLM jsonToLLM = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<JSONToLLM>();
 
-        GameObject[] grabbableObjects = GameObject.FindGameObjectsWithTag("Grabbable");
-        Vector3 originPosition = hI.gameObject.transform.position;
-
-        GameObject closestObject = grabbableObjects
-            .Where(obj => Vector3.Distance(obj.transform.position, originPosition) <= 2f)
-            .OrderBy(obj => Vector3.Distance(obj.transform.position, originPosition))
-            .FirstOrDefault();
-
-        if (closestObject != null)
+        int eventID = keyboardInput.clickOrder;
+        float eventTime = jsonToLLM.time;
+            
+        keyboardInput.annotation.Add(eventID, new Dictionary<string, object>
         {
-            StartCoroutine(LookTowards(lookAtPosition, "PickUp"));
-        }
+            { "type", "Pick Up" },
+            { "player", this.name },
+            { "object", closestObject },
+            { "at", closestObject.transform.position }
+        });
+
+        keyboardInput.annotationDescriptions.Add(eventID, $"({this.name} picked up {closestObject})");
+        keyboardInput.annotationTimes.Add(eventID, eventTime);
+        Debug.Log($"Pick Up action recorded with ID {eventID}, from player: {this.name} for object: {closestObject.name} at time: {eventTime}");
+        keyboardInput.clickOrder++; 
     }
-}
 
-public void PutDown(Vector3 putDownPosition)
-{
-    finalPos = putDownPosition;
-    SetAnimController("FactoryMovement");
-    stopMovement = true;
-    StartCoroutine(LookTowards(putDownPosition, "PutDown"));
-}
+    public void PutDown(Vector3 putDownPosition)
+    {
+        finalPos = putDownPosition;
+        SetAnimController("FactoryMovement");
+        stopMovement = true;
+        StartCoroutine(LookTowards(putDownPosition, "PutDown"));
+    }
 
+    public void LogPutDown(GameObject o)
+    {
+        KeyboardInput keyboardInput = GameObject.FindGameObjectWithTag("keyboard").GetComponent<KeyboardInput>();
+        JSONToLLM jsonToLLM = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<JSONToLLM>();
+
+        int eventID = keyboardInput.clickOrder;
+        float eventTime = jsonToLLM.time;
+
+        keyboardInput.annotation.Add(eventID, new Dictionary<string, object>
+        {
+            { "type", "Put Down" },
+            { "player", this.name },
+            { "object", o },
+            { "at", o.transform.position }
+        });
+
+        keyboardInput.annotationDescriptions.Add(eventID, $"({this.name} put down {o})");
+        keyboardInput.annotationTimes.Add(eventID, eventTime);
+        Debug.Log(
+            $"Put Down action recorded with ID {eventID}, from player: {this.name} for object: {o.name} at time: {eventTime}");
+        keyboardInput.clickOrder++;
+    }
+
+    public void LogReceivedItem(GameObject o, GameObject receivedPlayer)
+    {
+        KeyboardInput keyboardInput = GameObject.FindGameObjectWithTag("keyboard").GetComponent<KeyboardInput>();
+        JSONToLLM jsonToLLM = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<JSONToLLM>();
+
+        int eventID = keyboardInput.clickOrder;
+        float eventTime = jsonToLLM.time;
+
+        keyboardInput.annotation.Add(eventID, new Dictionary<string, object>
+        {
+            { "type", "Received Item" },
+            { "player", receivedPlayer },
+            { "object", o },
+            { "from", this.name }
+        });
+        keyboardInput.annotationDescriptions.Add(eventID, $"({receivedPlayer} received {o}) from {this.name}");
+        keyboardInput.annotationTimes.Add(eventID, eventTime);
+        Debug.Log(
+            $"Received Item action recorded with ID {eventID}, for player: {receivedPlayer} for object: {o.name} at time: {eventTime}");
+        keyboardInput.clickOrder++;
+    }
 
     public void Packaging()
     {
         SetAnimController("FactoryMovement");
         stopMovement = true;
+        
+        WrapPackage();
+    }
+    
+    public void LogPackaging(GameObject o)
+    {
+        KeyboardInput keyboardInput = GameObject.FindGameObjectWithTag("keyboard").GetComponent<KeyboardInput>();
+        JSONToLLM jsonToLLM = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<JSONToLLM>();
+
+        int eventID = keyboardInput.clickOrder;
+        float eventTime = jsonToLLM.time;
+
+        keyboardInput.annotation.Add(eventID, new Dictionary<string, object>
+        {
+            { "type", "Packaging" },
+            { "player", this.name },
+            { "object", o },
+            { "at", o.transform.position }
+        });
+
+        keyboardInput.annotationDescriptions.Add(eventID, $"({this.name} packaged {o})");
+        keyboardInput.annotationTimes.Add(eventID, eventTime);
+        Debug.Log(
+            $"Packaging action recorded with ID {eventID}, from player: {this.name} for object: {o.name} at time: {eventTime}");
+        keyboardInput.clickOrder++;
+    }
+    
+    public void RaiseHand()
+    {
+        SetAnimController("FactoryMovement");
+        stopMovement = true;
+        this.GetComponent<Animator>().SetTrigger("RaiseHand");
+        LogRaiseHand();
+    }
+    
+    public void LogRaiseHand()
+    {
+        KeyboardInput keyboardInput = GameObject.FindGameObjectWithTag("keyboard").GetComponent<KeyboardInput>();
+        JSONToLLM jsonToLLM = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<JSONToLLM>();
+
+        int eventID = keyboardInput.clickOrder;
+        float eventTime = jsonToLLM.time;
+
+        keyboardInput.annotation.Add(eventID, new Dictionary<string, object>
+        {
+            { "type", "Raise Hand" },
+            { "player", this.name }
+        });
+
+        keyboardInput.annotationDescriptions.Add(eventID, $"({this.name} raised hand)");
+        keyboardInput.annotationTimes.Add(eventID, eventTime);
+        Debug.Log(
+            $"Raise Hand action recorded with ID {eventID}, from player: {this.name} at time: {eventTime}");
+        keyboardInput.clickOrder++;
     }
 
     private IEnumerator ChangeObjectColorAfterDelay(GameObject targetObject, Color color, float delay)
@@ -296,6 +416,7 @@ public void PutDown(Vector3 putDownPosition)
         {
             Debug.LogError("Target object does not have a Renderer component.");
         }
+        Debug.Log("Finished packaging the object");
     }
 
     private GameObject FindNearestObject()
@@ -304,7 +425,7 @@ public void PutDown(Vector3 putDownPosition)
         Vector3 originPosition = this.gameObject.transform.position;
 
         return grabbableObjects
-            .Where(obj => Vector3.Distance(obj.transform.position, originPosition) <= 5f)
+            .Where(obj => Vector3.Distance(obj.transform.position, originPosition) <= 1f)
             .OrderBy(obj => Vector3.Distance(obj.transform.position, originPosition))
             .FirstOrDefault();
     }
@@ -1049,21 +1170,20 @@ public void PutDown(Vector3 putDownPosition)
 
         return quadrant;
     }
-
-    // called from animation event
+    
     public void WrapPackage()
     {
         GameObject closestObject = FindNearestObject();
 
         if (closestObject != null)
         {
-            StartCoroutine(ChangeObjectColorAfterDelay(closestObject, Color.magenta, 3f));
-            Debug.Log("Finished packaging the object");
+            StartCoroutine(ChangeObjectColorAfterDelay(closestObject, Color.magenta, 2f));
             StartCoroutine(LookTowards(closestObject.transform.position, "Packaging"));
         }
         else
         {
             Debug.LogError("No object found for Packaging.");
+            this.GetComponent<Animator>().SetTrigger("Packaging");
         }
     }
     public void DetachBox()
@@ -1091,6 +1211,15 @@ public void PutDown(Vector3 putDownPosition)
 
             pI.grabbedObject = null;
             pI.objectPossession = false;
+            
+            LogPutDown(droppedObject);
+            
+            // if object was dropped next to a player, then log that
+            GameObject receivedPlayer = FindClosestPlayerToFinalPos(droppedObject.transform.position, 2f);
+            if (receivedPlayer != null)
+            {
+                LogReceivedItem(droppedObject, receivedPlayer);
+            }
         }
         else if (this.GetComponent<HumanInterface>() == true)
         {
@@ -1114,6 +1243,15 @@ public void PutDown(Vector3 putDownPosition)
 
             hI.grabbedObject = null;
             hI.objectPossession = false;
+            
+            LogPutDown(droppedObject);
+            
+            // if object was dropped next to a player, then log that
+            GameObject receivedPlayer = FindClosestPlayerToFinalPos(droppedObject.transform.position, 2f);
+            if (receivedPlayer != null)
+            {
+                LogReceivedItem(droppedObject, receivedPlayer);
+            }
         }
     }
     public void MoveBox()
@@ -1146,6 +1284,8 @@ public void PutDown(Vector3 putDownPosition)
 
                 pI.objectPossession = true;
                 pI.grabbedObject = closestObject;
+                
+                LogPickUp(closestObject);
             }
         }
         else if (this.GetComponent<HumanInterface>() == true)
@@ -1178,6 +1318,8 @@ public void PutDown(Vector3 putDownPosition)
 
                 hI.objectPossession = true;
                 hI.grabbedObject = closestObject;
+                
+                LogPickUp(closestObject);
             }
         }
     }
@@ -1223,7 +1365,7 @@ public void PutDown(Vector3 putDownPosition)
         Debug.Log("in moveball");
         Debug.Log("force:" + forceDirection * forceMagnitude * forceFactor);
         
-        // find closest opponent within 0.1m of the ball. if there is an opponent, then the ball was passed to them (for non-human player only)
+        // find closest opponent within 0.5m of the ball. if there is an opponent, then the ball was passed to them (for non-human player only)
         if (pI)
         {
             GameObject closestPlayer = FindClosestPlayerToFinalPos(finalPos);
@@ -1276,10 +1418,12 @@ public void PutDown(Vector3 putDownPosition)
         }
     }
 
-    public GameObject FindClosestPlayerToFinalPos(Vector3 pos)
+    public GameObject FindClosestPlayerToFinalPos(Vector3 pos, float dist = 0.5f)
     {
         ObjectsList objectList = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<ObjectsList>();
         List<GameObject> players = objectList.scenicPlayers.Concat(objectList.humanPlayers).ToList();
+        // remove self player from this list 
+        players.Remove(this.gameObject);
         GameObject bestTarget = null;
         float closestDistanceSqr = Mathf.Infinity;
         foreach (GameObject player in players)
@@ -1293,7 +1437,7 @@ public void PutDown(Vector3 putDownPosition)
             }
         }
         
-        if (closestDistanceSqr < 0.1f)
+        if (closestDistanceSqr < dist)
         {
             return bestTarget;
         }

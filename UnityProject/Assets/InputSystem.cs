@@ -125,6 +125,15 @@ public partial class @InputSystem: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""RaiseHand"",
+                    ""type"": ""Button"",
+                    ""id"": ""e26649b9-dd93-4ee8-b564-c78061e3f0e6"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -248,6 +257,17 @@ public partial class @InputSystem: IInputActionCollection2, IDisposable
                     ""action"": ""Packaging"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""aee169af-d96f-4044-a137-56c86c08525b"",
+                    ""path"": ""<Gamepad>/leftShoulder"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""RaiseHand"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -267,6 +287,7 @@ public partial class @InputSystem: IInputActionCollection2, IDisposable
         m_PlayerControls_PickUp = m_PlayerControls.FindAction("PickUp", throwIfNotFound: true);
         m_PlayerControls_PutDown = m_PlayerControls.FindAction("PutDown", throwIfNotFound: true);
         m_PlayerControls_Packaging = m_PlayerControls.FindAction("Packaging", throwIfNotFound: true);
+        m_PlayerControls_RaiseHand = m_PlayerControls.FindAction("RaiseHand", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -339,6 +360,7 @@ public partial class @InputSystem: IInputActionCollection2, IDisposable
     private readonly InputAction m_PlayerControls_PickUp;
     private readonly InputAction m_PlayerControls_PutDown;
     private readonly InputAction m_PlayerControls_Packaging;
+    private readonly InputAction m_PlayerControls_RaiseHand;
     public struct PlayerControlsActions
     {
         private @InputSystem m_Wrapper;
@@ -354,6 +376,7 @@ public partial class @InputSystem: IInputActionCollection2, IDisposable
         public InputAction @PickUp => m_Wrapper.m_PlayerControls_PickUp;
         public InputAction @PutDown => m_Wrapper.m_PlayerControls_PutDown;
         public InputAction @Packaging => m_Wrapper.m_PlayerControls_Packaging;
+        public InputAction @RaiseHand => m_Wrapper.m_PlayerControls_RaiseHand;
         public InputActionMap Get() { return m_Wrapper.m_PlayerControls; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -396,6 +419,9 @@ public partial class @InputSystem: IInputActionCollection2, IDisposable
             @Packaging.started += instance.OnPackaging;
             @Packaging.performed += instance.OnPackaging;
             @Packaging.canceled += instance.OnPackaging;
+            @RaiseHand.started += instance.OnRaiseHand;
+            @RaiseHand.performed += instance.OnRaiseHand;
+            @RaiseHand.canceled += instance.OnRaiseHand;
         }
 
         private void UnregisterCallbacks(IPlayerControlsActions instance)
@@ -433,6 +459,9 @@ public partial class @InputSystem: IInputActionCollection2, IDisposable
             @Packaging.started -= instance.OnPackaging;
             @Packaging.performed -= instance.OnPackaging;
             @Packaging.canceled -= instance.OnPackaging;
+            @RaiseHand.started -= instance.OnRaiseHand;
+            @RaiseHand.performed -= instance.OnRaiseHand;
+            @RaiseHand.canceled -= instance.OnRaiseHand;
         }
 
         public void RemoveCallbacks(IPlayerControlsActions instance)
@@ -463,5 +492,6 @@ public partial class @InputSystem: IInputActionCollection2, IDisposable
         void OnPickUp(InputAction.CallbackContext context);
         void OnPutDown(InputAction.CallbackContext context);
         void OnPackaging(InputAction.CallbackContext context);
+        void OnRaiseHand(InputAction.CallbackContext context);
     }
 }

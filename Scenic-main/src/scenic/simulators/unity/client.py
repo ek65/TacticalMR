@@ -202,6 +202,7 @@ class UnityMessageServer:
             if obj.gameObjectType is None or obj.gameObjectType == "":
                 obj.gameObjectType = "empty"
             obj.gameObject.model = Model(1,1, (255,255,255,1), obj.gameObjectType)
+            game_object.name = obj.name
             self.sendData.addToQueue(obj.gameObject)
             self.sendData.control, self.sendData.addObject = True, True
             self.objects.append(obj.gameObject)

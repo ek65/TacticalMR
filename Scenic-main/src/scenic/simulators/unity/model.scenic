@@ -140,6 +140,20 @@ class AIAgent(UnityObject):
     length : 1.0
     height : 1.0
 
+class PartA(UnityObject):
+    gameObjectType : "PartA"
+    name: "PartA"
+    width : 0.1
+    length : 0.1
+    height : 0.1
+
+class PartB(UnityObject):
+    gameObjectType : "PartB"
+    name: "PartB"
+    width : 0.1
+    length : 0.1
+    height : 0.1
+
 # MARK: movingTowards
 def isMovingTowards(refObject: UnityObject, targetObject: UnityObject) -> bool:
     """

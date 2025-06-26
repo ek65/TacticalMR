@@ -11,7 +11,7 @@ public class JSONDirectory : MonoBehaviour
 {
     public int participantID;
     public string ParticipantID => "participant" + participantID.ToString();
-    public Drills drillID;
+    public string drillID = "Test";
     public int demoNum = -1;
     public string DemoNum => "demo" + demoNum.ToString();
     public int transcriptNum = -1; // only used for system recording
@@ -133,10 +133,11 @@ public class JSONDirectory : MonoBehaviour
             if (!drillFolder.Exists)
             {
                 drillFolder.Create();
-            } else if (drillFolder.Exists)
-            {
-                drillFolder.Delete(true);
-                drillFolder.Create();
+                // } else if (drillFolder.Exists)
+                // {
+                //     drillFolder.Delete(true);
+                //     drillFolder.Create();
+                // }
             }
         }
         else if (jsonToLLM.activateSystemRecording)
@@ -163,120 +164,78 @@ public class JSONDirectory : MonoBehaviour
         }
         
     }
-    public void InstantiateDemoFolders()
+ public void InstantiateDemoFolders()
+{
+    // Create or verify the top-level output folder
+    DirectoryInfo directoryOutputFolder = new DirectoryInfo(Path.Combine(Application.dataPath, "..", "..", "output"));
+    if (!directoryOutputFolder.Exists)
     {
-        if (!jsonToLLM.activateSystemRecording)
-        {
-            DirectoryInfo directoryOutputFolder = new DirectoryInfo(Path.Combine(Application.dataPath, "..", "..", "output"));
-            if (!directoryOutputFolder.Exists)
-            {
-                directoryOutputFolder.Create();
-            }
-        
-            DirectoryInfo participantFolder = 
-                new DirectoryInfo(Path.Combine(directoryOutputFolder.FullName, "participant" + participantID.ToString()));
-            if (!participantFolder.Exists)
-            {
-                participantFolder.Create();
-            }
-        
-            drillFolder = 
-                new DirectoryInfo(Path.Combine(participantFolder.FullName, drillID.ToString()));
-            if (!drillFolder.Exists)
-            {
-                drillFolder.Create();
-            }
-            Debug.Log(drillFolder);
-            demoFolder = 
-                new DirectoryInfo(Path.Combine(drillFolder.FullName, "demonstration" + demoNum.ToString()));
-            if (!demoFolder.Exists)
-            {
-                demoFolder.Create();
-            } else if (demoFolder.Exists)
-            {
-                demoFolder.Delete(true);
-                demoFolder.Create();
-            }
-            Debug.Log(demoFolder);
-        
-            videoFolder = 
-                new DirectoryInfo(Path.Combine(demoFolder.FullName, "videos"));
-            if (!videoFolder.Exists)
-            {
-                videoFolder.Create();
-            } else if (videoFolder.Exists)
-            {
-                videoFolder.Delete(true);
-                videoFolder.Create();
-            }
-            Debug.Log(videoFolder);
-        
-            jsonSegmentFolder = 
-                new DirectoryInfo(Path.Combine(demoFolder.FullName, "json_segments"));
-            if (!jsonSegmentFolder.Exists)
-            {
-                jsonSegmentFolder.Create();
-            } else if (jsonSegmentFolder.Exists)
-            {
-                jsonSegmentFolder.Delete(true);
-                jsonSegmentFolder.Create();
-            }
-        } else if (jsonToLLM.activateSystemRecording)
-        {
-            DirectoryInfo directoryOutputFolder = new DirectoryInfo(Path.Combine(Application.dataPath, "..", "..", "output"));
-            if (!directoryOutputFolder.Exists)
-            {
-                directoryOutputFolder.Create();
-            }
-            
-            DirectoryInfo systemFolder = 
-                new DirectoryInfo(Path.Combine(directoryOutputFolder.FullName, "system_recordings"));
-            if (!systemFolder.Exists)
-            {
-                systemFolder.Create();
-            }
-            systemTranscriptsFolder = 
-                new DirectoryInfo(Path.Combine(systemFolder.FullName, "transcript" + transcriptNum.ToString()));
-            if (!systemTranscriptsFolder.Exists)
-            {
-                systemTranscriptsFolder.Create();
-            }
-            demoFolder = 
-                new DirectoryInfo(Path.Combine(systemTranscriptsFolder.FullName, "demonstration" + demoNum.ToString()));
-            if (!demoFolder.Exists)
-            {
-                demoFolder.Create();
-            } else if (demoFolder.Exists)
-            {
-                demoFolder.Delete(true);
-                demoFolder.Create();
-            }
-        
-            videoFolder = 
-                new DirectoryInfo(Path.Combine(demoFolder.FullName, "videos"));
-            if (!videoFolder.Exists)
-            {
-                videoFolder.Create();
-            } else if (videoFolder.Exists)
-            {
-                videoFolder.Delete(true);
-                videoFolder.Create();
-            }
-        
-            jsonSegmentFolder = 
-                new DirectoryInfo(Path.Combine(demoFolder.FullName, "json_segments"));
-            if (!jsonSegmentFolder.Exists)
-            {
-                jsonSegmentFolder.Create();
-            } else if (jsonSegmentFolder.Exists)
-            {
-                jsonSegmentFolder.Delete(true);
-                jsonSegmentFolder.Create();
-            }
-        }
-        
-        
+        directoryOutputFolder.Create();
     }
+    
+    if (!jsonToLLM.activateSystemRecording)
+    {
+        DirectoryInfo participantFolder = 
+            new DirectoryInfo(Path.Combine(directoryOutputFolder.FullName, "participant" + participantID.ToString()));
+        if (!participantFolder.Exists)
+        {
+            participantFolder.Create();
+        }
+    
+        drillFolder = new DirectoryInfo(Path.Combine(participantFolder.FullName, drillID.ToString()));
+        if (!drillFolder.Exists)
+        {
+            drillFolder.Create();
+        }
+
+
+        int nextDemoIndex = 0;
+        while (Directory.Exists(Path.Combine(drillFolder.FullName, "demonstration" + nextDemoIndex)))
+        {
+            nextDemoIndex++;
+        }
+        demoNum = nextDemoIndex;
+        demoFolder = new DirectoryInfo(Path.Combine(drillFolder.FullName, "demonstration" + demoNum));
+        demoFolder.Create();
+        videoFolder = new DirectoryInfo(Path.Combine(demoFolder.FullName, "videos"));
+        videoFolder.Create();
+        jsonSegmentFolder = new DirectoryInfo(Path.Combine(demoFolder.FullName, "json_segments"));
+        jsonSegmentFolder.Create();
+    }
+    else
+    {
+        DirectoryInfo systemFolder = 
+            new DirectoryInfo(Path.Combine(directoryOutputFolder.FullName, "system_recordings"));
+        if (!systemFolder.Exists)
+        {
+            systemFolder.Create();
+        }
+
+        systemTranscriptsFolder = 
+            new DirectoryInfo(Path.Combine(systemFolder.FullName, "transcript" + transcriptNum.ToString()));
+        if (!systemTranscriptsFolder.Exists)
+        {
+            systemTranscriptsFolder.Create();
+        }
+        int nextDemoIndex = 0;
+        while (Directory.Exists(Path.Combine(systemTranscriptsFolder.FullName, "demonstration" + nextDemoIndex)))
+        {
+            nextDemoIndex++;
+        }
+        demoNum = nextDemoIndex;
+        
+        demoFolder = new DirectoryInfo(Path.Combine(systemTranscriptsFolder.FullName, "demonstration" + demoNum));
+        demoFolder.Create();
+        
+        videoFolder = new DirectoryInfo(Path.Combine(demoFolder.FullName, "videos"));
+        videoFolder.Create();
+        jsonSegmentFolder = new DirectoryInfo(Path.Combine(demoFolder.FullName, "json_segments"));
+        jsonSegmentFolder.Create();
+    }
+
+    Debug.Log($"Created new folder: {demoFolder.FullName}");
+}
+
     
     public string InstantiateVideoFilePath(int recordingNum)
     {
@@ -326,10 +285,10 @@ public class JSONDirectory : MonoBehaviour
     {
         JSONToLLM jsonToLLM = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<JSONToLLM>();
         keyboardInput.saveDemoCanvas.SetActive(false);
-        while (!jsonToLLM.isTranscriptionComplete) // Wait until transcription is done
-        {
-            yield return new WaitForSeconds(0.5f);
-        }
+        // while (!jsonToLLM.isTranscriptionComplete) // Wait until transcription is done
+        // {
+        //     yield return new WaitForSeconds(0.5f);
+        // }
         yield return new WaitForSeconds(0.5f);
         // adding this reset here in case, it also resets in ObjectsList.cs in Reset()
         keyboardInput.timelineManager.Unpause();

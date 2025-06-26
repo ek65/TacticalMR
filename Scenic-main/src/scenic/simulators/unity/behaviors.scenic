@@ -74,6 +74,8 @@ behavior MoveTo(v, lookAtTarget = None, distance = 0.5, status=""):
         elif isinstance(v, Vector):
             take MoveToAction(v, status)
             # take LookAtAction(v)
+        elif isinstance(v, tuple):
+            take MoveToAction(Vector(v[0], v[1], v[2]), status)
         else:
             # take MoveToAction(v.position, status)
             take MoveToAction(v.position, status)

@@ -968,3 +968,12 @@ class PackagingAction(Action):
     def applyTo(self, obj, sim):
         obj.gameObject.SetBehavior(self.behavior)
         obj.gameObject.DoAction(self.actionName)
+
+class RaiseHandAction(Action):
+    def __init__(self, behavior = "Raise Hand"):
+        self.actionName = "RaiseHand"
+        self.behavior = behavior
+    
+    def applyTo(self, obj, sim):
+        obj.gameObject.SetBehavior(self.behavior)
+        obj.gameObject.DoAction(self.actionName)
