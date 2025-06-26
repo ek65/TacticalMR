@@ -50,7 +50,7 @@ public class KeyboardInput : MonoBehaviour
 
     void Start()
     {
-        // Basic references
+        // Basic referencespl
         timelineManager = GameObject.FindGameObjectWithTag("TimelineManager").GetComponent<TimelineManager>();
         jsonToLLM = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<JSONToLLM>();
         countdownText = GameObject.FindGameObjectWithTag("countdown").GetComponent<TextMeshProUGUI>();
@@ -163,6 +163,29 @@ public class KeyboardInput : MonoBehaviour
         }
         else
         {
+            // Add annotation for pausing
+            if (segmentStarted)
+            {
+                // Create a dictionary with the PauseAction type
+                Dictionary<string, object> pauseAction = new Dictionary<string, object>
+                {
+                    { "type", "PauseAction" }
+                };
+            
+                // Add to annotations with current click order
+                annotation.Add(clickOrder, pauseAction);
+                annotationDescriptions.Add(clickOrder, "Coach paused the game");
+            
+                // Record the time of pause relative to segment start
+                float pauseTime = Time.time - segmentStartTime;
+                annotationTimes.Add(clickOrder, pauseTime);
+            
+                Debug.Log($"Added PauseAction annotation at {pauseTime:F2}s, key {clickOrder}");
+            
+                // Increment click order for next annotation
+                clickOrder++;
+            }
+        
             timelineManager.Pause();
         }
     }
@@ -170,6 +193,10 @@ public class KeyboardInput : MonoBehaviour
     // Restart scenario
     public void HandleRestart()
     {
+        if (jsonToLLM.isLogging)
+        {
+            return;
+        }
         restarting = true;
         StopSegment();
 
@@ -264,7 +291,7 @@ public class KeyboardInput : MonoBehaviour
         timelineManager.isRecordingSegment = false;
         jsonToLLM.isLogging = false; // triggers video stop in JSONToLLM
         segmentStarted = false;
-        jsonToLLM.activateSystemRecording = true;
+        // jsonToLLM.activateSystemRecording = true;
         // Stop audio
         if (recordAudio != null && Microphone.IsRecording(null))
         {
