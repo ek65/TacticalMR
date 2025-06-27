@@ -253,18 +253,18 @@ public class JSONToLLM : MonoBehaviour
         }
 
         // Process the ball in the scene
-        // GameObject ball = objectsList.ballObject;
-        // Ball ballObject = (Ball)myRootSegment.objects.Find(obj => obj is Ball);
-        // if (ballObject == null)
-        // {
-        //     ballObject = new Ball { id = "ball" };
-        //     myRootSegment.objects.Add(ballObject);
-        // }
-        //
-        // ballObject.position.Add(new Position(ball.transform.position));
-        // ballObject.orientation.Add(new Orientation(ball.transform));
-        // Rigidbody ballRB = ball.GetComponent<Rigidbody>();
-        // ballObject.velocity.Add(new Velocity(ballRB.velocity));
+        GameObject ball = objectsList.ballObject;
+        Ball ballObject = (Ball)myRootSegment.objects.Find(obj => obj is Ball);
+        if (ballObject == null)
+        {
+            ballObject = new Ball { id = "ball" };
+            myRootSegment.objects.Add(ballObject);
+        }
+        
+        ballObject.position.Add(new Position(ball.transform.position));
+        ballObject.orientation.Add(new Orientation(ball.transform));
+        Rigidbody ballRB = ball.GetComponent<Rigidbody>();
+        ballObject.velocity.Add(new Velocity(ballRB.velocity));
 
         // Process the goal in the scene
         // GameObject goal = objectsList.goalObject;

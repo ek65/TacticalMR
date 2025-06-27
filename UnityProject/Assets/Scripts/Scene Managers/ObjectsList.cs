@@ -7,6 +7,8 @@ public class ObjectsList : MonoBehaviour
     //in-game objects created from Scenic
     public GameObject ballObject;
     public GameObject goalObject;
+
+    public List<GameObject> miscObjects;
     // public List<ulong> bluePlayers;
     // public List<ulong> orangePlayers;
     public List<GameObject> defensePlayers;
