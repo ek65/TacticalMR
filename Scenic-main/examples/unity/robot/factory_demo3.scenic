@@ -10,6 +10,7 @@ import random
 # the worker will return to their station after a short delay
 #   distance check ^
 # the robot will then return to its original position
+# TODO: other workers can leave too
 
 # Define idle packaging behavior
 behavior packagingBehavior():

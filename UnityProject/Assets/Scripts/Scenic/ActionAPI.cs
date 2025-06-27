@@ -276,15 +276,21 @@ public class ActionAPI : MonoBehaviour
         int eventID = keyboardInput.clickOrder;
         float eventTime = jsonToLLM.time;
             
+        var pointDict = new Dictionary<string, float>
+        {
+            { "x", closestObject.transform.position.x },
+            { "y", closestObject.transform.position.y }
+        };
+        
         keyboardInput.annotation.Add(eventID, new Dictionary<string, object>
         {
             { "type", "Pick Up" },
             { "player", this.name },
-            { "object", closestObject },
-            { "at", closestObject.transform.position }
+            { "object", closestObject.name },
+            { "at", pointDict }
         });
 
-        keyboardInput.annotationDescriptions.Add(eventID, $"({this.name} picked up {closestObject})");
+        keyboardInput.annotationDescriptions.Add(eventID, $"({this.name} picked up {closestObject.name})");
         keyboardInput.annotationTimes.Add(eventID, eventTime);
         Debug.Log($"Pick Up action recorded with ID {eventID}, from player: {this.name} for object: {closestObject.name} at time: {eventTime}");
         keyboardInput.clickOrder++; 
@@ -305,16 +311,22 @@ public class ActionAPI : MonoBehaviour
 
         int eventID = keyboardInput.clickOrder;
         float eventTime = jsonToLLM.time;
+        
+        var pointDict = new Dictionary<string, float>
+        {
+            { "x", o.transform.position.x },
+            { "y", o.transform.position.y }
+        };
 
         keyboardInput.annotation.Add(eventID, new Dictionary<string, object>
         {
             { "type", "Put Down" },
             { "player", this.name },
-            { "object", o },
-            { "at", o.transform.position }
+            { "object", o.name },
+            { "at", pointDict }
         });
 
-        keyboardInput.annotationDescriptions.Add(eventID, $"({this.name} put down {o})");
+        keyboardInput.annotationDescriptions.Add(eventID, $"({this.name} put down {o.name})");
         keyboardInput.annotationTimes.Add(eventID, eventTime);
         Debug.Log(
             $"Put Down action recorded with ID {eventID}, from player: {this.name} for object: {o.name} at time: {eventTime}");
@@ -333,10 +345,10 @@ public class ActionAPI : MonoBehaviour
         {
             { "type", "Received Item" },
             { "player", receivedPlayer },
-            { "object", o },
+            { "object", o.name },
             { "from", this.name }
         });
-        keyboardInput.annotationDescriptions.Add(eventID, $"({receivedPlayer} received {o}) from {this.name}");
+        keyboardInput.annotationDescriptions.Add(eventID, $"({receivedPlayer} received {o.name}) from {this.name}");
         keyboardInput.annotationTimes.Add(eventID, eventTime);
         Debug.Log(
             $"Received Item action recorded with ID {eventID}, for player: {receivedPlayer} for object: {o.name} at time: {eventTime}");
@@ -359,15 +371,21 @@ public class ActionAPI : MonoBehaviour
         int eventID = keyboardInput.clickOrder;
         float eventTime = jsonToLLM.time;
 
+        var pointDict = new Dictionary<string, float>
+        {
+            { "x", o.transform.position.x },
+            { "y", o.transform.position.y }
+        };
+        
         keyboardInput.annotation.Add(eventID, new Dictionary<string, object>
         {
             { "type", "Packaging" },
             { "player", this.name },
-            { "object", o },
-            { "at", o.transform.position }
+            { "object", o.name },
+            { "at", pointDict }
         });
 
-        keyboardInput.annotationDescriptions.Add(eventID, $"({this.name} packaged {o})");
+        keyboardInput.annotationDescriptions.Add(eventID, $"({this.name} packaged {o.name})");
         keyboardInput.annotationTimes.Add(eventID, eventTime);
         Debug.Log(
             $"Packaging action recorded with ID {eventID}, from player: {this.name} for object: {o.name} at time: {eventTime}");
@@ -1215,7 +1233,7 @@ public class ActionAPI : MonoBehaviour
             LogPutDown(droppedObject);
             
             // if object was dropped next to a player, then log that
-            GameObject receivedPlayer = FindClosestPlayerToFinalPos(droppedObject.transform.position, 2f);
+            GameObject receivedPlayer = FindClosestPlayerToFinalPos(droppedObject.transform.position, 3f);
             if (receivedPlayer != null)
             {
                 LogReceivedItem(droppedObject, receivedPlayer);
@@ -1247,7 +1265,7 @@ public class ActionAPI : MonoBehaviour
             LogPutDown(droppedObject);
             
             // if object was dropped next to a player, then log that
-            GameObject receivedPlayer = FindClosestPlayerToFinalPos(droppedObject.transform.position, 2f);
+            GameObject receivedPlayer = FindClosestPlayerToFinalPos(droppedObject.transform.position, 3f);
             if (receivedPlayer != null)
             {
                 LogReceivedItem(droppedObject, receivedPlayer);

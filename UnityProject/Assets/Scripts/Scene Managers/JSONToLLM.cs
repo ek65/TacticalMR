@@ -84,7 +84,7 @@ public class JSONToLLM : MonoBehaviour
         public string type;
         public List<Position> position = new List<Position>();
         public List<Velocity> velocity = new List<Velocity>();
-        public List<bool> ballPossession = new List<bool>();
+        // public List<bool> ballPossession = new List<bool>();
         public string behavior;
         public List<Orientation> orientation = new List<Orientation>();
     }
@@ -171,44 +171,44 @@ public class JSONToLLM : MonoBehaviour
         // }
         
         // Process each corner in the scene
-        for (int i = 1; i <= 4; i++)
-        {
-            GameObject corner = GameObject.Find("corner" + i);
-            if (corner != null)
-            {
-                Corner cornerObject = (Corner)myRootSegment.objects.Find(obj => obj is Corner c && c.id == "corner" + i);
-                if (cornerObject == null)
-                {
-                    cornerObject = new Corner { id = "corner" + i , type = "Bound"};
-                    myRootSegment.objects.Add(cornerObject);
-                }
-
-                cornerObject.position.Add(new Position(corner.transform.position));
-                cornerObject.velocity.Add(new Velocity(Vector3.zero));
-                cornerObject.orientation.Add(new Orientation(corner.transform));
-            }
-        }
+        // for (int i = 1; i <= 4; i++)
+        // {
+        //     GameObject corner = GameObject.Find("corner" + i);
+        //     if (corner != null)
+        //     {
+        //         Corner cornerObject = (Corner)myRootSegment.objects.Find(obj => obj is Corner c && c.id == "corner" + i);
+        //         if (cornerObject == null)
+        //         {
+        //             cornerObject = new Corner { id = "corner" + i , type = "Bound"};
+        //             myRootSegment.objects.Add(cornerObject);
+        //         }
+        //
+        //         cornerObject.position.Add(new Position(corner.transform.position));
+        //         cornerObject.velocity.Add(new Velocity(Vector3.zero));
+        //         cornerObject.orientation.Add(new Orientation(corner.transform));
+        //     }
+        // }
         
         // Process each player in the scene
-        foreach (GameObject currPlayer in objectsList.defensePlayers)
-        {
-            Player player = (Player)myRootSegment.objects.Find(obj => obj is Player p && p.id == currPlayer.name);
-            if (player == null)
-            {
-                player = new Player
-                {
-                    id = currPlayer.name,
-                    behavior = currPlayer.GetComponent<PlayerInterface>().behavior,
-                    type = "Teammate"
-                };
-                myRootSegment.objects.Add(player);
-            }
-
-            player.position.Add(new Position(currPlayer.transform.position));
-            player.velocity.Add(new Velocity(currPlayer.GetComponent<PlayerInterface>().currVelocity));
-            player.orientation.Add(new Orientation(currPlayer.transform));
-            // player.ballPossession.Add(currPlayer.GetComponent<PlayerInterface>().ballPossession);
-        }
+        // foreach (GameObject currPlayer in objectsList.defensePlayers)
+        // {
+        //     Player player = (Player)myRootSegment.objects.Find(obj => obj is Player p && p.id == currPlayer.name);
+        //     if (player == null)
+        //     {
+        //         player = new Player
+        //         {
+        //             id = currPlayer.name,
+        //             behavior = currPlayer.GetComponent<PlayerInterface>().behavior,
+        //             type = "Teammate"
+        //         };
+        //         myRootSegment.objects.Add(player);
+        //     }
+        //
+        //     player.position.Add(new Position(currPlayer.transform.position));
+        //     player.velocity.Add(new Velocity(currPlayer.GetComponent<PlayerInterface>().currVelocity));
+        //     player.orientation.Add(new Orientation(currPlayer.transform));
+        //     // player.ballPossession.Add(currPlayer.GetComponent<PlayerInterface>().ballPossession);
+        // }
         
         foreach (GameObject currPlayer in objectsList.scenicPlayers)
         {
@@ -249,7 +249,7 @@ public class JSONToLLM : MonoBehaviour
             Vector3 coachVelocity = keyboard.movement;
             coach.velocity.Add(new Velocity(coachVelocity));
             coach.orientation.Add(new Orientation(humanPlayer.transform));
-            coach.ballPossession.Add(humanPlayer.GetComponent<HumanInterface>().ballPossession);
+            // coach.ballPossession.Add(humanPlayer.GetComponent<HumanInterface>().ballPossession);
         }
 
         // Process the ball in the scene
