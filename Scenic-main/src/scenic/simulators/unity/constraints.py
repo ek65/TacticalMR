@@ -73,7 +73,7 @@ class CompositeConstraint(Constraint):
         if self.op == 'AND':
             return np.exp(np.log(d1) + np.log(d2))
         else:
-            return d1 + d2 #ask jorge cap at 1
+            return d1 + d2 - np.exp(np.log(d1) + np.log(d2)) #P(A U B) = P(A) + P(B) + P(A n B)
         
     def bool(self, scene):
         b1 = self.left.bool(scene)
