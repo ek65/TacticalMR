@@ -595,23 +595,27 @@ class MakePass(Constraint):
 
         return False
         
-    # MARK: HandRaised
-    class HandRaised(Constraint):
-        def __init__(self, args):
-            self.objID = args.get('player', args.get('obj', None))
-    
-        def dist(self, scene, ego=False):
-            if ego and not isEgo(self.objID):
-                return true()
-    
-            objs = findObj(self.objID, scene.objects)
-            if not objs:
-                return false()
-    
-            beh = objs[0].gameObject.behavior.lower()
+# MARK: HandRaised
+class HandRaised(Constraint):
+    def __init__(self, args):
+        super().__init__(args)
+        # allow either 'player' or 'obj'
+        self.objID = args.get('player', args.get('obj', None))
 
-            raised = ('raise hand' in beh or 'raise hand' in beh)
-            return true() if raised else false()
-    
-        def bool(self, scene):
-            return bool(self.dist(scene))
+    def dist(self, scene, ego=False):
+        if ego and not isEgo(self.objID):
+            return true()
+        objs = findObj(self.objID, scene.objects)
+        if not objs:
+            return false()
+        beh = objs[0].gameObject.behavior.lower()
+        raised = ('raisehand' in beh.replace(' ', '') or 'raise hand' in beh)
+        return true() if raised else false()
+
+    def bool(self, scene):
+        objs = findObj(self.objID, scene.objects)
+        if not objs:
+            return False
+        dist_map = self.dist(scene)                      
+        sample_pt = location(objs[0].position)           
+        return bool_sample(sample_pt, dist_map, min=0.5) 
