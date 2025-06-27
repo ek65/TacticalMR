@@ -80,10 +80,10 @@ A1precondition_3 = HasBallPossession({'player': 'Coach'})
 A1precondition_4 = Pressure({'player1': 'Opponent', 'player2': 'Coach'})
 A1precondition_5 = Pressure({'player1': 'Opponent', 'player2': 'Coach'})
 def λ_target0():
-    return (A1target_0.dist(simulation(), ego=True) | A2target_0.dist(simulation(), ego=True))
+    return (A1target_0.dist(simulation(), ego=True) or A2target_0.dist(simulation(), ego=True))
 
 def λ_termination0(scene, sample):
-    return (A1termination_0.bool(simulation()) | A2termination_0.bool(simulation())) & A3termination_0.bool(simulation())
+    return (A1termination_0.bool(simulation()) or A2termination_0.bool(simulation())) and A3termination_0.bool(simulation())
 
 def λ_termination1(scene, sample):
     return A1termination_1.bool(simulation())
@@ -92,7 +92,7 @@ def λ_termination2(scene, sample):
     return 
 
 def λ_termination3(scene, sample):
-    return (A1termination_3.bool(simulation()) | A2termination_3.bool(simulation()))
+    return (A1termination_3.bool(simulation()) or A2termination_3.bool(simulation()))
 
 def λ_termination4(scene, sample):
     return 
@@ -104,7 +104,7 @@ def λ_termination2(scene, sample):
     return 
 
 def λ_termination3(scene, sample):
-    return (A1termination_3.bool(simulation()) | A2termination_3.bool(simulation()))
+    return (A1termination_3.bool(simulation()) or A2termination_3.bool(simulation()))
 
 def λ_termination4(scene, sample):
     return 
@@ -113,16 +113,16 @@ def λ_termination5(scene, sample):
     return 
 
 def λ_precondition0(scene, sample):
-    return ( (A1precondition_0.bool(simulation()) | A2precondition_0.bool(simulation())) & ~(A3precondition_0.bool(simulation())) & ~(A4precondition_0.bool(simulation())) & A5precondition_0.bool(simulation()) )
+    return ( (A1precondition_0.bool(simulation()) or A2precondition_0.bool(simulation())) and ~(A3precondition_0.bool(simulation())) and ~(A4precondition_0.bool(simulation())) and A5precondition_0.bool(simulation()) )
 
 def λ_precondition1(scene, sample):
-    return (A1precondition_1.bool(simulation()) | A2precondition_1.bool(simulation())) & A3precondition_1.bool(simulation())
+    return (A1precondition_1.bool(simulation()) or A2precondition_1.bool(simulation())) and A3precondition_1.bool(simulation())
 
 def λ_precondition_0_1(scene, sample):
     return λ_precondition0(simulation(), sample) or λ_precondition1(simulation(), sample)
 
 def λ_precondition2(scene, sample):
-    return (A1precondition_2.bool(simulation()) & A2precondition_2.bool(simulation()))
+    return (A1precondition_2.bool(simulation()) and A2precondition_2.bool(simulation()))
 
 def λ_precondition_2(scene, sample):
     return λ_precondition2(simulation(), sample)

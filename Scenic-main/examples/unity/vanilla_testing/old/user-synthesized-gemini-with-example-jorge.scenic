@@ -5,6 +5,7 @@ model scenic.simulators.unity.model
 import trimesh
 from scenic.core.regions import MeshVolumeRegion
 import random
+
 behavior CoachBehavior():
     do Speak("wait for 1 second doing nothing")
     do Idle() for 1 seconds
@@ -33,36 +34,28 @@ behavior CoachBehavior():
         do Idle() until λ_precondition_5(simulation(), None)
         do Speak("take a shot towards the goal")
         do Shoot(goal)
+
 A1termination_0 = DistanceTo({'from': 'opponent', 'to': 'Coach', 'min': {'avg': 6.399477695297064, 'std': 0.8416729364595561}, 'max': None, 'operator': 'greater_than'})
-A2termination_0 = HasPath({'obj1': 'Teammate', 'obj2': 'Coach', 'path_width': {'avg': 0.043342957402023236, 'std': 0.04454568506693753}})
+A2termination_0 = HasPath({'passer': 'teammate', 'receiver': 'Coach', 'path_width': {'avg': 0.043342957402023236, 'std': 0.04454568506693753}})
 A1target_0 = DistanceTo({'from': 'opponent', 'to': 'Coach', 'min': {'avg': 6.399477695297064, 'std': 0.8416729364595561}, 'max': None, 'operator': 'greater_than'})
 A1termination_2 = DistanceTo({'from': 'Coach', 'to': 'opponent', 'min': {'avg': 6.172259899611368, 'std': 0.0}, 'max': None, 'operator': 'greater_than'})
 A1target_2 = DistanceTo({'from': 'Coach', 'to': 'opponent', 'min': {'avg': 6.172259899611368, 'std': 0.0}, 'max': None, 'operator': 'greater_than'})
 A1termination_5 = HasBallPossession({'player': 'Coach'})
 A2termination_5 = DistanceTo({'from': 'Coach', 'to': 'goal', 'min': None, 'max': {'avg': 5.025909493366715, 'std': 0.015410097852564864}, 'operator': 'less_than'})
-A3termination_5 = HasPath({'obj1': 'Coach', 'obj2': 'goal', 'path_width': {'avg': 2.0, 'std': 0.0}})
+A3termination_5 = HasPath({'passer': 'Coach', 'receiver': 'goal', 'path_width': {'avg': 2.0, 'std': 0.0}})
 A1target_5 = DistanceTo({'from': 'Coach', 'to': 'goal', 'min': None, 'max': {'avg': 5.025909493366715, 'std': 0.015410097852564864}, 'operator': 'less_than'})
 A2target_5 = CloseTo({'obj': 'Coach', 'ref': 'ball', 'max': {'avg': 11.941602839093648, 'std': 0.01539784416917822}})
-A1precondition_0 = MakePass({'player': 'teammate'})
-A1precondition_1 = Pressure({'player1': 'opponent', 'player2': 'Coach'})
+A1precondition_0 = HasPath({'passer': 'teammate', 'receiver': 'Coach', 'path_width': {'avg': 0.043342957402023236, 'std': 0.04454568506693753}})
+A1precondition_1 = MovingTowards({'obj': 'opponent', 'ref': 'Coach'})
 A2precondition_1 = CloseTo({'obj': 'Coach', 'ref': 'opponent', 'max': {'avg': 7.551545991065808, 'std': 0.0}})
-A1precondition_2 = Pressure({'player1': 'opponent', 'player2': 'Coach'})
-A2precondition_2 = HasPath({'obj1': 'Coach', 'obj2': 'teammate', 'path_width': {'avg': 0.11392247846714056, 'std': 0.0}})
-A1precondition_3 = Pressure({'player1': 'opponent', 'player2': 'Coach'})
-A1precondition_4 = MovingTowards({'obj': 'Teammate', 'ref': 'goal'})
+A1precondition_2 = MovingTowards({'obj': 'opponent', 'ref': 'Coach'})
+A2precondition_2 = HasPath({'passer': 'Coach', 'receiver': 'teammate', 'path_width': {'avg': 0.11392247846714056, 'std': 0.0}})
+A1precondition_3 = MovingTowards({'obj': 'opponent', 'ref': 'teammate'})
+A1precondition_4 = MovingTowards({'obj': 'teammate', 'ref': 'goal'})
 A1precondition_5 = HasBallPossession({'player': 'Coach'})
 A2precondition_5 = DistanceTo({'from': 'goal', 'to': 'Coach', 'min': None, 'max': {'avg': 5.025909493366715, 'std': 0.015410097852564864}, 'operator': 'less_than'})
-A3precondition_5 = HasPath({'obj1': 'Coach', 'obj2': 'goal', 'path_width': {'avg': 2.0, 'std': 0.0}})
-A1precondition_0 = MakePass({'player': 'teammate'})
-A1precondition_1 = Pressure({'player1': 'opponent', 'player2': 'Coach'})
-A2precondition_1 = CloseTo({'obj': 'Coach', 'ref': 'opponent', 'max': {'avg': 7.551545991065808, 'std': 0.0}})
-A1precondition_2 = Pressure({'player1': 'opponent', 'player2': 'Coach'})
-A2precondition_2 = HasPath({'obj1': 'Coach', 'obj2': 'teammate', 'path_width': {'avg': 0.11392247846714056, 'std': 0.0}})
-A1precondition_3 = Pressure({'player1': 'opponent', 'player2': 'Coach'})
-A1precondition_4 = MovingTowards({'obj': 'Teammate', 'ref': 'goal'})
-A1precondition_5 = HasBallPossession({'player': 'Coach'})
-A2precondition_5 = DistanceTo({'from': 'goal', 'to': 'Coach', 'min': None, 'max': {'avg': 5.025909493366715, 'std': 0.015410097852564864}, 'operator': 'less_than'})
-A3precondition_5 = HasPath({'obj1': 'Coach', 'obj2': 'goal', 'path_width': {'avg': 2.0, 'std': 0.0}})
+A3precondition_5 = HasPath({'passer': 'Coach', 'receiver': 'goal', 'path_width': {'avg': 2.0, 'std': 0.0}})
+
 def λ_target0():
     return A1target_0.dist(simulation(), ego=True)
 
@@ -70,61 +63,58 @@ def λ_target2():
     return A1target_2.dist(simulation(), ego=True)
 
 def λ_target5():
-    cond = A1target_5 and A2target_5 # could be A1target_5 & A2target_5 (as in test.scenic)
-    return cond.dist(simulation(), ego=True)
-    
+    return (A1target_5.bool(simulation()) and A2target_5.bool(simulation()))
+
 def λ_termination0(scene, sample):
-    return (A1termination_0.bool(simulation()) and A2termination_0.bool(simulation()))
+    return (A1termination_0.bool(scene, sample) and A2termination_0.bool(scene, sample))
 
 def λ_termination1(scene, sample):
-    return 
+    return False # Not used, but keeping for consistency if it was in the original hidden example
 
 def λ_termination2(scene, sample):
-    return A1termination_2.bool(simulation())
+    return A1termination_2.bool(scene, sample)
 
 def λ_termination4(scene, sample):
-    return 
+    return False # Not used, but keeping for consistency if it was in the original hidden example
 
 def λ_termination3(scene, sample):
-    return 
+    return False # Not used, but keeping for consistency if it was in the original hidden example
 
 def λ_termination5(scene, sample):
-    return (A1termination_5.bool(simulation()) and A2termination_5.bool(simulation()) and A3termination_5.bool(simulation()))
+    return (A1termination_5.bool(scene, sample) and A2termination_5.bool(scene, sample) and A3termination_5.bool(scene, sample))
 
 def λ_termination6(scene, sample):
-    return 
+    return False # Not used, but keeping for consistency if it was in the original hidden example
 
 def λ_precondition0(scene, sample):
-    return A1precondition_0.bool(simulation())
+    return A1precondition_0.bool(scene, sample)
 
 def λ_precondition_0(scene, sample):
-    return λ_precondition0(simulation(), sample)
+    return λ_precondition0(scene, sample)
 
 def λ_precondition1(scene, sample):
-    return (A1precondition_1.bool(simulation()) and ~(A2precondition_1.bool(simulation())))
+    return (A1precondition_1.bool(scene, sample) and ~(A2precondition_1.bool(scene, sample)))
 
 def λ_precondition2(scene, sample):
-    return (A1precondition_2.bool(simulation()) and A2precondition_2.bool(simulation()))
+    return (A1precondition_2.bool(scene, sample) and A2precondition_2.bool(scene, sample))
 
 def λ_precondition3(scene, sample):
-    return ~(A1precondition_3.bool(simulation()))
+    return ~(A1precondition_3.bool(scene, sample))
 
 def λ_precondition_1_2_3(scene, sample):
-    return λ_precondition1(simulation(), sample) or λ_precondition2(simulation(), sample) or λ_precondition3(simulation(), sample)
+    return λ_precondition1(scene, sample) or λ_precondition2(scene, sample) or λ_precondition3(scene, sample)
 
 def λ_precondition4(scene, sample):
-    return A1precondition_4.bool(simulation())
+    return A1precondition_4.bool(scene, sample)
 
 def λ_precondition_4(scene, sample):
-    return λ_precondition4(simulation(), sample)
+    return λ_precondition4(scene, sample)
 
 def λ_precondition5(scene, sample):
-    return (A1precondition_5.bool(simulation()) and A2precondition_5.bool(simulation()) and A3precondition_5.bool(simulation()))
+    return (A1precondition_5.bool(scene, sample) and A2precondition_5.bool(scene, sample) and A3precondition_5.bool(scene, sample))
 
 def λ_precondition_5(scene, sample):
-    return λ_precondition5(simulation(), sample)
-
-
+    return λ_precondition5(scene, sample)
 
 
 def movesToward(player1, player2):
@@ -155,7 +145,7 @@ behavior opponent1Behavior():
     # print("opponent follows ego")
     # do Follow(ego)
 
-A = HasPath({'obj1': 'teammate', 'obj2': 'coach', 'path_width':{'avg': 10, 'std':5}})
+A = HasPath({'obj1': 'teammate', 'obj2': 'coach', 'path_width':{'avg': 2, 'std':1}})
 
 behavior TeammateBehavior():
     passed = False

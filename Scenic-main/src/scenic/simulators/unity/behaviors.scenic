@@ -250,7 +250,7 @@ behavior orientArms(player: Player, angle: int, target: Object = None):
     player (Player): The player whose arms are being oriented.
     angle (int): The angle to which the player's
         arms should be raised.
-    target (Object, optional): The target to point the arms towards
+    target (moect, optional): The target to point the arms towards
     Returns:
     None: The function modifies the player's posture but does not return any value.
     """
@@ -353,20 +353,27 @@ def sample_from(dist, _min=0.4):
     
     total = filtered.sum()
     if total == 0:
-        filtered += epsilon
+        #filtered += epsilon
+        flat = np.ones(dist.size, dtype=np.float64) / dist.size
+    else:
+        probs = filtered / total
+        flat = probs.ravel()
     
-    probs = filtered / total
-    flat = probs.ravel()
+    #probs = filtered / total
+    #flat = probs.ravel()
     
     idx = np.random.choice(flat.size, p=flat)
     coord = np.unravel_index(idx, dist.shape)
-
-    x, y = coord[1].item(), coord[0].item()
+    
+    print(f"coord: {coord}, dist.shape: {dist.shape}, idx: {idx}")
+    x, y = int(coord[1]), int(coord[0])
     print('real sampled', x, y)
     sample = Vector(x - cols / 2, rows / 2 - y)
     print('Sampled', sample)
 
     return sample
+    
+
 
 behavior MoveTo(dist):
     sample = sample_from(dist)
