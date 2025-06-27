@@ -1,6 +1,9 @@
 from scenic.simulators.unity.actions import *
+from scenic.simulators.unity.constraints import *
 from enum import Enum
 model scenic.simulators.unity.model
+from scenic.core.vectors import Orientation, Vector
+from scenic.core.object_types import Point
 
 # Language: scenic (python)
 # This file defines all shared scenic behaviors. In order to use any behavior defined
@@ -8,17 +11,11 @@ model scenic.simulators.unity.model
 
 timestep = 0.1 # sec per timestep
 
-behavior IdleSpecial():
-    while True:
-        prev = ego.prevPosition
-        pos = ego.position
-        print(f"ego.prevPosition = {(prev.x, prev.y, prev.z)}")
-        print(f"ego.currPosition = {(pos.x, pos.y, pos.z)}")
-        take IdleAction()
-
 behavior Idle():
     while True:
         take IdleAction()
+        take StopAction()
+        # print(f"ego.x: {ego.position.x}, ego.y: {ego.position.y}, ego.z: {ego.position.z}")
 
 behavior ShootBall(vec : Vector, string : str):
     take ShootAction(vec, string, "Shoot Ball")
@@ -30,7 +27,7 @@ behavior InterceptBall(ball):
         take MoveToAction(ball.position, "Intercept Ball")
     take StopAction()
 
-behavior PassTo(target):
+behavior Pass(target, slow=False):
     # if the target is moving, then pass in front of the target
     # target_pass_pos = target
     # if isinstance(target, UnityObject):
@@ -47,14 +44,19 @@ behavior PassTo(target):
         # print(f"target_pass_pos: {(target_pass_pos.x, target_pass_pos.y, target_pass_pos.z)}")
     scene = simulation()
 
-    if isinstance(target, UnityObject):
+    if isinstance(target, UnityObject) or isinstance(target,Point):
         target = target.position
+        # print("UnityObj")
     elif checkIfString(target):
         target = [obj for obj in scene.objects if obj.name.lower() == target][0].position # converts string into object reference
+        # print("elif case")
+    # print(f"Passing to {target}")
+    # print(f"type: {type(target)}")
 
-    print(f"Passing to {target}")
-
-    take GroundPassFastAction(target, "Pass Ball")
+    if slow:
+        take GroundPassSlowAction(target, "Pass Ball")
+    else:
+        take GroundPassFastAction(target, "Pass Ball")
     do Idle() for 1 seconds
     take StopAction()
 
@@ -65,7 +67,10 @@ behavior LookAt(vec):
     take LookAtAction(location, "Look At")
     take StopAction()
 
-behavior MoveTo(v, lookAtTarget = None, distance = 0.5, status=""):
+behavior Shoot(goal):
+    take  GroundPassFastAction(goal.position, "Shoot Ball")
+
+behavior MoveToBehavior(v, lookAtTarget = None, distance = 0.2, status=""):
     dist = 1000
     while not (dist < distance):
         if isinstance(v, Ball):
@@ -74,19 +79,16 @@ behavior MoveTo(v, lookAtTarget = None, distance = 0.5, status=""):
         elif isinstance(v, Vector):
             take MoveToAction(v, status)
             # take LookAtAction(v)
-        elif isinstance(v, tuple):
-            take MoveToAction(Vector(v[0], v[1], v[2]), status)
         else:
             # take MoveToAction(v.position, status)
             take MoveToAction(v.position, status)
             # take LookAtAction(v)
         dist = distance from self to v
     
-    if lookAtTarget is None:
-        lookAtTarget = Vector(0, -13, 0)
+    if lookAtTarget is not None:
+        do LookAt(lookAtTarget)
     else:
-        lookAtTarget = lookAtTarget.position
-    do LookAt(lookAtTarget)
+        do LookAt(v)
     
 
 behavior ApproachGoal(v):
@@ -133,28 +135,63 @@ behavior WaitFor(timesteps):
     for i in range(timesteps):
         take StopAction()
 
+def sample_target(scene, prev_target, λ_dest) -> Vector: 
+    # global sample
+    i = 0
+    target = [prev_target.x, prev_target.y]
+    
+    while not λ_dest(scene, target):
+        x = Range(-FIELD_WIDTH / 2, FIELD_WIDTH / 2)
+        y = Range(0, FIELD_HEIGHT / 2)
+        target = [x,y]
+        if i > 100000:
+            raise Exception("Maximum sample depth exceeded.")
+        i += 1
 
-# MARK: moveTo
-behavior moveTo(player: Player, target: Coordinate, ref: list, speed: Speed):
-    """
-    A player will move to the specified target with a specified velocity and style.
+    sample = Vector(target[0], target[1])
+    # print(f"sample: {sample}")
+    return sample
 
-    Args:
-        targetPosition (Vector): A position of the end point of the trajectory.
-        style (MovingStyle): A moving style out of the options 'walk', 'run' and 'sprint'.
-        velocity (float): The velocity to move to the target.
-    """
-    target_position = target.predict(ref)
-    target_speed = speed.predict()
+# # MARK: MoveTo
+# behavior MoveTo(λ_dest):
+#     scene = simulation()
+#     sample = Vector(0, 0)
+#     sample = sample_target(scene, sample, λ_dest)
+#     timestep = 0.3
+#     # print(f"sample: {sample}")
+#     while (distance from self to sample > 0.5):
+#         # print('moving to', sample)
+#         do MoveToBehavior(sample) for timestep seconds
+#         scene = simulation()
+#         sample = sample_target(scene, sample, λ_dest)
+#         # print(f"sample: {sample}")
+#     do Idle() for 1 seconds
 
-    while (distance from self to target_position > 0.01):
-        target_position = target.predict(ref)
-        take MoveToWithSpeed(target_position, target_speed), LookAtAction(ball)
+# # MARK: moveTo
+# behavior moveTo(player: Player, target: Coordinate, ref: list, speed: Speed):
+#     """
+#     A player will move to the specified target with a specified velocity and style.
+
+#     Args:
+#         targetPosition (Vector): A position of the end point of the trajectory.
+#         style (MovingStyle): A moving style out of the options 'walk', 'run' and 'sprint'.
+#         velocity (float): The velocity to move to the target.
+#     """
+#     target_position = target.predict(ref)
+#     target_speed = speed.predict()
+
+#     while (distance from self to target_position > 0.01):
+#         target_position = target.predict(ref)
+#         take MoveToWithSpeed(target_position, target_speed), LookAtAction(ball)
 
 behavior getTo(destination):
     while (distance from self to destination > 0.01):
         # take MoveToAction(destination)
         take MoveToLookAtBallWithSpeed(destination, 2.0)
+
+behavior GetBallPossession(ball):
+    while not self.gameObject.ballPossession:
+        take MoveToAction(ball.position)
 
 
 behavior moveToLookAtBall(player: Player, target: Coordinate, ref: list, speed: Speed):
@@ -213,7 +250,7 @@ behavior orientArms(player: Player, angle: int, target: Object = None):
     player (Player): The player whose arms are being oriented.
     angle (int): The angle to which the player's
         arms should be raised.
-    target (Object, optional): The target to point the arms towards
+    target (moect, optional): The target to point the arms towards
     Returns:
     None: The function modifies the player's posture but does not return any value.
     """
@@ -256,7 +293,7 @@ behavior idle(player: Player):
 # --------------------
 # MARK: Robot Scenario Behaviors
 # --------------------
-behavior MoveToRobot(v, lookAtTarget = None, distance = 2, status="Move To"):
+behavior MoveToRobot(v, lookAtTarget = None, distance = 0.5, status=""):
     dist = 1000
     while not (dist < distance):
         if isinstance(v, Vector):
@@ -264,3 +301,102 @@ behavior MoveToRobot(v, lookAtTarget = None, distance = 2, status="Move To"):
         else:
             take MoveToRobotAction(v.position, status)
         dist = distance from self to v
+
+behavior PickUp():
+    take PickUpAction()
+    take StopAction()
+
+behavior PutDown():
+    take PutDownAction()
+    take StopAction()
+
+behavior Packaging():
+    take PackagingAction()
+    take StopAction()
+
+behavior RaiseHand():
+    take RaiseHandAction()
+    take StopAction()
+
+# behavior MoveTo(λ_dest):
+#     scene = simulation()
+#     sample = Vector(0, 0)
+#     sample = sample_target(scene, sample, λ_dest)
+#     timestep = 0.3
+#     # print(f"sample: {sample}")
+#     while (distance from self to sample > 0.5):
+#         # print('moving to', sample)
+#         do MoveToBehavior(sample) for timestep seconds
+#         scene = simulation()
+#         sample = sample_target(scene, sample, λ_dest)
+#         # print(f"sample: {sample}")
+#     do Idle() for 1 seconds
+
+# -------------------------------
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+def location(vec):
+    return vec.x + cols / 2, -vec.y + rows / 2
+
+def bool_sample(vec, dist, min=0.1):
+
+    max_val = dist.max()
+    if max_val > 0:
+        dist = dist / max_val
+
+    x = builtins.min(builtins.max(int(vec[0]), 0), cols - 1)
+    y = builtins.min(builtins.max(int(vec[1]), 0), rows - 1)
+
+    sample = (y, x)
+    value = dist[sample]
+
+    return value > min
+
+rows, cols = 34, 20
+i, j = np.indices((rows, cols))
+
+def sample_from(dist, _min=0.4):
+
+    print(dist)
+
+    max_val = dist.max()
+    if max_val > 0:
+        dist = dist / max_val
+
+    filtered = np.where(dist >= _min, dist, 0.0)
+    
+    total = filtered.sum()
+    if total == 0:
+        #filtered += epsilon
+        flat = np.ones(dist.size, dtype=np.float64) / dist.size
+    else:
+        probs = filtered / total
+        flat = probs.ravel()
+    
+    #probs = filtered / total
+    #flat = probs.ravel()
+    
+    idx = np.random.choice(flat.size, p=flat)
+    coord = np.unravel_index(idx, dist.shape)
+    
+    print(f"coord: {coord}, dist.shape: {dist.shape}, idx: {idx}")
+    x, y = int(coord[1]), int(coord[0])
+    print('real sampled', x, y)
+    sample = Vector(x - cols / 2, rows / 2 - y)
+    print('Sampled', sample)
+
+    return sample
+    
+
+
+behavior MoveTo(dist):
+    sample = sample_from(dist)
+    dt = 0.2
+    while (distance from self to sample > 0.5):
+        print('moving to', sample)
+        do MoveToBehavior(sample) for dt seconds
+        if not bool_sample(location(sample), dist):
+            sample = sample_from(dist)
+    do Idle() for 1 seconds

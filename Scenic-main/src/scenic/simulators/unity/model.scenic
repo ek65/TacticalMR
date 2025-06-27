@@ -66,6 +66,7 @@ class Player(UnityObject):
     tacticalPosition : Vector(0, 0, 0)
     name : "Player"
     debug: True
+    handRaised : False
 
 class OffensePlayer(Player):
     team : "red"

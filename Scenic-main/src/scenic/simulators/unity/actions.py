@@ -3,6 +3,7 @@ from scenic.core.vectors import Vector
 from scenic.core.object_types import OrientedPoint, Point
 from scenic.simulators.unity.client import *
 from enum import Enum
+import math
 import numpy as np
 
 # Language: Python 3
@@ -249,17 +250,17 @@ class GroundPassFastAction(Action):
     def __init__(self, obj, behavior = None):
         self.actionName = "GroundPassFast"
         self.behavior = behavior
-    
+
         if isinstance(obj, tuple) or type(obj) is tuple:
             self.position = obj
-        elif isinstance(obj, OrientedPoint):
-            self.position = obj.position
-        elif isinstance(obj, Point):
-            self.position = obj.position
+        elif isinstance(obj, OrientedPoint) or isinstance(obj, Point):
+            pos = obj.position
+            self.position = (pos.x, pos.y, pos.z)
         elif isinstance(obj, Vector):
             self.position = (obj.x, obj.y, obj.z)
         else:
             self.position = obj.position
+
     def applyTo(self, obj, sim):
         obj.gameObject.SetBehavior(self.behavior)
         obj.gameObject.DoAction(self.actionName, self.position)
@@ -572,10 +573,12 @@ class PlacingAndShortPassAction(Action):
 class SpeakAction(Action):
     def __init__(self, input):
         self.actionName = "Speak"
+        inputString = "Say \"" + input + "\""
         
         if not isinstance(input, str):
             raise RuntimeError("output must be a string")
-        self.input = input
+        self.input = inputString
+        # self.input = input
 
     def applyTo(self, obj, sim):
         obj.gameObject.DoAction(self.actionName, self.input)
@@ -708,210 +711,100 @@ class MoveToLookAtBallWithSpeed(Action):
         obj.gameObject.DoAction(self.actionName, self.position, self.speed)
 
 
-
-FIELD_WIDTH, FIELD_HEIGHT = 20, 34
-NUM_ZONES_X, NUM_ZONES_Y = 4, 5
-ZONE_WIDTH = FIELD_WIDTH / NUM_ZONES_X
-ZONE_HEIGHT = FIELD_HEIGHT / NUM_ZONES_Y
-class Constraint:
-
-    def __init__(self, args):
-        self.args = args
-
-    def __call__(self, sample, scene):
-        pass
-
-class InZone(Constraint):
-
-    def __init__(self, args={}):
-        self.zone = args.get('zone', None)
-        self.obj = args.get('obj', None)
-        # super().__init__(args=args)
-
-    def __call__(self, scene, sample):
-        # if no sample position, use coach's current position
-        if sample is None:
-            sample = [obj for obj in scene.objects if obj.name.lower() == "coach"][0].position
-
-        if self.obj.lower() == "coach":
-            # if it is coach, this should test the sampled destination
-            # print(sample)
-            return self.get_zone(sample) in self.zone
-        elif self.obj is not None:
-            # if its not coach, check obj's current position (this is only for always and termination/precondition)
-            sample = [obj for obj in scene.objects if obj.name.lower() == self.obj.lower()][0].position
-            return self.get_zone(sample) in self.zone
-
-    def get_zone(self, point):
-
-        zone_x = int((point[0] + FIELD_WIDTH / 2) // ZONE_WIDTH)
-        zone_y = int((point[1] + FIELD_HEIGHT / 2) // ZONE_HEIGHT)
-
-        zone_x_labels = ['A', 'B', 'C', 'D', 'E']
-        zone_y_labels = ['1', '2', '3', '4', '5', '6', '7', '8']
-
-        if 0 <= zone_x < NUM_ZONES_X and 0 <= zone_y < NUM_ZONES_Y:
-            zone_label = zone_x_labels[zone_x] + zone_y_labels[zone_y]
-            # print(zone_label)
-            return zone_label
-        else:
-            return None
-
 class Object:
     def __init__(self, label, type, location):
         self.label = label
         self.type = type
         self.location = location
-
-class HasAngleOfPass(Constraint):
-
-    def __init__(self, args={}):
-        self.ref = args.get('ref', None)
-        self.radius = args.get('radius', None)
-        # super().__init__({'ref': ref})
-
-    def __call__(self, scene, sample):
-        avg = self.radius.get('avg', 0)
-        std = self.radius.get('std', 0)
-
-        # if no sample position, use coach's current position
-        if sample is None:
-            sample = [obj for obj in scene.objects if obj.name.lower() == "coach"][0].position
-
-        if isinstance(self.ref, str):
-            self.ref = [obj for obj in scene.objects if obj.name.lower() == self.ref.lower()][0] # converts string into object reference
-
-        for obj in [i for i in scene.objects if i.name.lower().startswith("opponent")]:
-            # TODO: change to PDF?
-            r = avg - std if avg - std > 0 else 0.1
-
-            if self.closest(Object('A', 'coach', sample), Object('R', 'ref', [self.ref.position.x, self.ref.position.y]), Object('O', 'opponent', [obj.position.x, obj.position.y])) < r:
-                return False
-        return True
-
-    def closest(self, start, end, obj):
-
-        p1 = np.array(start.location)[:2]
-        p2 = np.array(end.location)[:2]
-        p0 = np.array(obj.location)[:2]
-        # print('p0', p0)
-        # print(type(p0))
-        # print('p1', p1)
-        # print(type(p1))
-        # print('p2', p2)
-        # print(type(p2))
-        line_vec, obj_vec = p2 - p1, p0 - p1
-        line_len = np.dot(line_vec, line_vec)
-
-        if line_len == 0:
-            return np.linalg.norm(p0 - p1)
-
-        t = np.dot(obj_vec, line_vec) / line_len
-        t = max(0, min(1, t))
-
-        closest_point = p1 + t * line_vec
-        distance = np.linalg.norm(p0 - closest_point)
-
-        return distance
     
-class HasBallPossession(Constraint):
+# class AheadOfLine(Constraint):
 
-    def __init__(self, args):
-        self.ref = args.get('ref', None)
+#     def __init__(self, args):
+#         self.obj = args.get('obj', None)
+#         self.height = args.get('height', None)
 
-    def __call__(self, scene, sample):
-        if isinstance(self.ref, str):
-            self.ref = [obj for obj in scene.objects if obj.name.lower() == self.ref.lower()][0] # converts string into object reference
-        return self.ref.gameObject.ballPossession
+#     def __call__(self, scene, sample):
+#         avg = self.height.get('avg', 0)
+#         std = self.height.get('std', 0)
+
+#         if isinstance(self.obj, str):
+#             self.obj = [obj for obj in scene.objects if obj.name.lower() == self.obj.lower()][0] # converts string into object reference
+
+#         # if no obj given, use coach object
+#         if self.obj is None:
+#             coachObj = [obj for obj in scene.objects if obj.name.lower() == "coach"][0]
+#             self.obj = coachObj
+
+#         # if no sample position, use self.obj's current position
+#         if sample is None:
+#             sample = self.obj.position
+
+#         # TODO: change to use PDF later
+#         h = avg
+
+#         if sample[1] >= h:
+#             return True
+        
+#         return False
     
-class AheadOfLine(Constraint):
+# class DistanceToObject(Constraint):
 
-    def __init__(self, args):
-        self.obj = args.get('obj', None)
-        self.height = args.get('height', None)
+#     def __init__(self, args):
+#         self.ref = args.get('ref', None)  # Reference object to measure distance to
+#         self.obj = args.get('obj', None)  # Object to check distance from (defaults to coach)
+#         self.min_dist = args.get('min_dist', None)  # Minimum distance threshold
+#         self.max_dist = args.get('max_dist', None)  # Maximum distance threshold
+#         self.operator = args.get('operator', 'between')  # Comparison operator: 'between', 'less_than', 'greater_than'
 
-    def __call__(self, scene, sample):
-        avg = self.height.get('avg', 0)
-        std = self.height.get('std', 0)
 
-        if isinstance(self.obj, str):
-            self.obj = [obj for obj in scene.objects if obj.name.lower() == self.obj.lower()][0] # converts string into object reference
-
-        # if no obj given, use coach object
-        if self.obj is None:
-            coachObj = [obj for obj in scene.objects if obj.name.lower() == "coach"][0]
-            self.obj = coachObj
-
-        # if no sample position, use self.obj's current position
-        if sample is None:
-            sample = self.obj.position
-
-        # TODO: change to use PDF later
-        h = avg
-
-        if sample[1] >= h:
-            return True
+#     def __call__(self, scene, sample):
+#         """
+#         Checks if the distance between objects satisfies the constraint based on the operator.
+#         Returns True if the constraint is satisfied, False otherwise.
+#         """
+#         # Get reference object
+#         ref_obj = [obj for obj in scene.objects if obj.name.lower() == self.ref][0]
         
-        return False
+#         # Get current position to check (either sample point or object position)
+#         if self.obj is None:
+#             current_pos = [obj for obj in scene.objects if obj.name.lower() == "coach"][0].position  # Direct position for coach/target
+#         else:
+#             current_pos = [obj for obj in scene.objects if obj.name.lower() == self.obj.lower()][0].position
+
+#         distance = self.calculate_distance(ref_obj.position, current_pos)
+
+#         # TODO: Change to actually sample from PDF
+#         if (self.min_dist is not None):
+#             min_dist_sample = self.min_dist.get('avg', 0) - self.min_dist.get('std', 0)
+#         else:
+#             min_dist_sample = 0
+
+#         if (self.max_dist is not None):
+#             max_dist_sample = self.max_dist.get('avg', 0) + self.max_dist.get('std', 0)
+#         else:
+#             max_dist_sample = 1000
+        
+#         # Check distance based on operator
+#         if self.operator == 'between':
+#             return (min_dist_sample <= distance <= max_dist_sample)
+#         elif self.operator == 'less_than':
+#             return distance <= max_dist_sample
+#         elif self.operator == 'greater_than':
+#             return distance >= min_dist_sample
+        
+#         return False  # Invalid operator
     
-class DistanceToObject(Constraint):
-
-    def __init__(self, args):
-        self.ref = args.get('ref', None)  # Reference object to measure distance to
-        self.obj = args.get('obj', None)  # Object to check distance from (defaults to coach)
-        self.min_dist = args.get('min_dist', None)  # Minimum distance threshold
-        self.max_dist = args.get('max_dist', None)  # Maximum distance threshold
-        self.operator = args.get('operator', 'between')  # Comparison operator: 'between', 'less_than', 'greater_than'
-
-
-    def __call__(self, scene, sample):
-        """
-        Checks if the distance between objects satisfies the constraint based on the operator.
-        Returns True if the constraint is satisfied, False otherwise.
-        """
-        # Get reference object
-        ref_obj = [obj for obj in scene.objects if obj.name.lower() == self.ref][0]
-        
-        # Get current position to check (either sample point or object position)
-        if self.obj is None:
-            current_pos = [obj for obj in scene.objects if obj.name.lower() == "coach"][0].position  # Direct position for coach/target
-        else:
-            current_pos = [obj for obj in scene.objects if obj.name.lower() == self.obj.lower()][0].position
-
-        distance = self.calculate_distance(ref_obj.position, current_pos)
-
-        # TODO: Change to actually sample from PDF
-        if (self.min_dist is not None):
-            min_dist_sample = self.min_dist.get('avg', 0) - self.min_dist.get('std', 0)
-        else:
-            min_dist_sample = 0
-
-        if (self.max_dist is not None):
-            max_dist_sample = self.max_dist.get('avg', 0) + self.max_dist.get('std', 0)
-        else:
-            max_dist_sample = 1000
-        
-        # Check distance based on operator
-        if self.operator == 'between':
-            return (min_dist_sample <= distance <= max_dist_sample)
-        elif self.operator == 'less_than':
-            return distance <= max_dist_sample
-        elif self.operator == 'greater_than':
-            return distance >= min_dist_sample
-        
-        return False  # Invalid operator
-    
-    def calculate_distance(self, pos1, pos2):
-        """Helper function to calculate distance between two positions"""
-        return np.sqrt((pos1.x - pos2.x)**2 + (pos1.y - pos2.y)**2)
+#     def calculate_distance(self, pos1, pos2):
+#         """Helper function to calculate distance between two positions"""
+#         return np.sqrt((pos1.x - pos2.x)**2 + (pos1.y - pos2.y)**2)
     
 def checkIfString(target):
     return isinstance(target, str)
 
-
 # --------------------
 # MARK: Robot Scenario Actions
 # --------------------
+
 class MoveToRobotAction(Action):
     def __init__(self, obj, behavior = "Move To"):
         self.actionName = "FactoryMoveToPos"
