@@ -1197,6 +1197,7 @@ public class ActionAPI : MonoBehaviour
         {
             StartCoroutine(ChangeObjectColorAfterDelay(closestObject, Color.magenta, 2f));
             StartCoroutine(LookTowards(closestObject.transform.position, "Packaging"));
+            LogPackaging(closestObject);
         }
         else
         {

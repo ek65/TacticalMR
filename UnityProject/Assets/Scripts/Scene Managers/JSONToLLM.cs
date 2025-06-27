@@ -263,19 +263,24 @@ public class JSONToLLM : MonoBehaviour
         }
 
         // process misc objects in the scene
-        // foreach (GameObject obj in objectsList.miscObjects)
-        // {
-        //     Object miscObject = (Object)myRootSegment.objects.Find(o => o is Object m && m.id == obj.name);
-        //     if (miscObject == null)
-        //     {
-        //         miscObject = new Object { id = obj.name, type = "Misc" };
-        //         myRootSegment.objects.Add(miscObject);
-        //     }
-        //
-        //     miscObject.position.Add(new Position(obj.transform.position));
-        //     miscObject.velocity.Add(new Velocity(Vector3.zero)); 
-        //     miscObject.orientation.Add(new Orientation(obj.transform));
-        // }
+        
+        List<GameObject> objs = objectsList.miscObjects
+            .Concat(objectsList.scenicObjects)
+            .ToList();
+
+        foreach (GameObject obj in objs)
+        {
+            Object miscObject = (Object)myRootSegment.objects.Find(o => o is Object m && m.id == obj.name);
+            if (miscObject == null)
+            {
+                miscObject = new Object { id = obj.name };
+                myRootSegment.objects.Add(miscObject);
+            }
+        
+            miscObject.position.Add(new Position(obj.transform.position));
+            miscObject.velocity.Add(new Velocity(Vector3.zero)); 
+            miscObject.orientation.Add(new Orientation(obj.transform));
+        }
         
         // Process the ball in the scene
         // GameObject ball = objectsList.ballObject;
