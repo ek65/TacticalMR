@@ -375,12 +375,36 @@ def sample_from(dist, _min=0.4):
     
 
 
-behavior MoveTo(dist):
-    sample = sample_from(dist)
+#behavior MoveTo(dist):
+#    sample = sample_from(dist)
+#    dt = 0.2
+#    while (distance from self to sample > 0.5):
+#        print('moving to', sample)
+#        do MoveToBehavior(sample) for dt seconds
+#       if not bool_sample(location(sample), dist):
+#            sample = sample_from(dist)
+#    do Idle() for 1 seconds
+
+
+behavior MoveTo(param):
+    # --- try the “param is a distribution” path ---
+    try:
+        sample  = sample_from(param)
+        dynamic = True
+        dist    = param
+    # if sample_from isn’t defined for this type, assume it’s already a goal
+    except Exception:
+        sample  = param
+        dynamic = False
+
     dt = 0.2
-    while (distance from self to sample > 0.5):
-        print('moving to', sample)
+    # loop until we get within 0.5 units of our current target
+    while (distance from self to sample) > 0.5:
         do MoveToBehavior(sample) for dt seconds
-        if not bool_sample(location(sample), dist):
+        # if it was a distribution, re-sample whenever we leave its support
+        if dynamic and not bool_sample(location(sample), dist):
             sample = sample_from(dist)
+
+    # once we’ve arrived, pause for a bit
     do Idle() for 1 seconds
+
