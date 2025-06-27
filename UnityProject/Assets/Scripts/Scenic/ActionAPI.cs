@@ -344,14 +344,14 @@ public class ActionAPI : MonoBehaviour
         keyboardInput.annotation.Add(eventID, new Dictionary<string, object>
         {
             { "type", "Received Item" },
-            { "player", receivedPlayer },
+            { "player", receivedPlayer.name },
             { "object", o.name },
             { "from", this.name }
         });
-        keyboardInput.annotationDescriptions.Add(eventID, $"({receivedPlayer} received {o.name}) from {this.name}");
+        keyboardInput.annotationDescriptions.Add(eventID, $"({receivedPlayer.name} received {o.name}) from {this.name}");
         keyboardInput.annotationTimes.Add(eventID, eventTime);
         Debug.Log(
-            $"Received Item action recorded with ID {eventID}, for player: {receivedPlayer} for object: {o.name} at time: {eventTime}");
+            $"Received Item action recorded with ID {eventID}, for player: {receivedPlayer.name} for object: {o.name} at time: {eventTime}");
         keyboardInput.clickOrder++;
     }
 

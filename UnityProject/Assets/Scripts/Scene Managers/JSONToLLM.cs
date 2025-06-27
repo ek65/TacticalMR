@@ -108,6 +108,16 @@ public class JSONToLLM : MonoBehaviour
         public List<Velocity> velocity = new List<Velocity>();
         public List<Orientation> orientation = new List<Orientation>();
     }
+    
+    [System.Serializable]
+    public class Object
+    {
+        public string id;
+        public string type = "Object";
+        public List<Position> position = new List<Position>();
+        public List<Velocity> velocity = new List<Velocity>();
+        public List<Orientation> orientation = new List<Orientation>();
+    }
 
     [System.Serializable]
     public class RootSegment
@@ -252,19 +262,34 @@ public class JSONToLLM : MonoBehaviour
             // coach.ballPossession.Add(humanPlayer.GetComponent<HumanInterface>().ballPossession);
         }
 
-        // Process the ball in the scene
-        GameObject ball = objectsList.ballObject;
-        Ball ballObject = (Ball)myRootSegment.objects.Find(obj => obj is Ball);
-        if (ballObject == null)
-        {
-            ballObject = new Ball { id = "ball" };
-            myRootSegment.objects.Add(ballObject);
-        }
+        // process misc objects in the scene
+        // foreach (GameObject obj in objectsList.miscObjects)
+        // {
+        //     Object miscObject = (Object)myRootSegment.objects.Find(o => o is Object m && m.id == obj.name);
+        //     if (miscObject == null)
+        //     {
+        //         miscObject = new Object { id = obj.name, type = "Misc" };
+        //         myRootSegment.objects.Add(miscObject);
+        //     }
+        //
+        //     miscObject.position.Add(new Position(obj.transform.position));
+        //     miscObject.velocity.Add(new Velocity(Vector3.zero)); 
+        //     miscObject.orientation.Add(new Orientation(obj.transform));
+        // }
         
-        ballObject.position.Add(new Position(ball.transform.position));
-        ballObject.orientation.Add(new Orientation(ball.transform));
-        Rigidbody ballRB = ball.GetComponent<Rigidbody>();
-        ballObject.velocity.Add(new Velocity(ballRB.velocity));
+        // Process the ball in the scene
+        // GameObject ball = objectsList.ballObject;
+        // Ball ballObject = (Ball)myRootSegment.objects.Find(obj => obj is Ball);
+        // if (ballObject == null)
+        // {
+        //     ballObject = new Ball { id = "ball" };
+        //     myRootSegment.objects.Add(ballObject);
+        // }
+        //
+        // ballObject.position.Add(new Position(ball.transform.position));
+        // ballObject.orientation.Add(new Orientation(ball.transform));
+        // Rigidbody ballRB = ball.GetComponent<Rigidbody>();
+        // ballObject.velocity.Add(new Velocity(ballRB.velocity));
 
         // Process the goal in the scene
         // GameObject goal = objectsList.goalObject;

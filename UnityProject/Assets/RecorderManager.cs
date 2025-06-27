@@ -58,7 +58,7 @@ public class RecorderManager : MonoBehaviour
         // Setup recording
         controllerSettings.AddRecorderSettings(m_Settings);
         controllerSettings.SetRecordModeToManual();
-        controllerSettings.FrameRate = 60.0f;
+        controllerSettings.FrameRate = 30.0f;
     }
 
     public void StartRecording()
