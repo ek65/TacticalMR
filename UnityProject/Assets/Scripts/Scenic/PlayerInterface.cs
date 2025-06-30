@@ -46,6 +46,7 @@ public class PlayerInterface : MonoBehaviour
     public Transform objectPosition;
     public bool objectPossession;
     public GameObject grabbedObject;
+    public bool handRaised;
     
     private void Start()
     {
@@ -72,6 +73,7 @@ public class PlayerInterface : MonoBehaviour
         }
 
         ballPossession = false;
+        handRaised = false;
         
         ballOwnership = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<BallOwnership>();
         

@@ -84340,8 +84340,22 @@ AnimationClip:
     floatParameter: 0
     intParameter: 0
     messageOptions: 0
+  - time: 0
+    functionName: SetHandRaisedTrue
+    data: 
+    objectReferenceParameter: {fileID: 0}
+    floatParameter: 0
+    intParameter: 0
+    messageOptions: 0
   - time: 4.0666666
     functionName: SetAlreadyInAnimationFalse
+    data: 
+    objectReferenceParameter: {fileID: 0}
+    floatParameter: 0
+    intParameter: 0
+    messageOptions: 0
+  - time: 4.0666666
+    functionName: SetHandRaisedFalse
     data: 
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0

@@ -50,6 +50,7 @@ public class HumanInterface : MonoBehaviour
     public bool objectPossession;
     public GameObject grabbedObject;
     public Transform objectPosition;
+    public bool handRaised;
 
     
     public string behavior = "Idle";
@@ -88,6 +89,7 @@ public class HumanInterface : MonoBehaviour
         }
 
         ballPossession = false;
+        handRaised = false;
         if (ball == null)
         {
             ball = GameObject.FindGameObjectWithTag("ball");

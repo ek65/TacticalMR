@@ -96,3 +96,6 @@ else:
     else:
         workerA = new Player at workerAPosition, facing ego, with name "workerA", with behavior raiseHandLater()
         workerB = new Player at workerBPosition, facing ego, with name "workerB", with behavior raiseHandNow()
+
+partA_shelf = new PartA at (21.8, -30.05, 0), with name "PartA at shelf"
+partB_shelf = new PartB at (26.53035, -30.03, 0), with name "PartB at shelf"

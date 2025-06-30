@@ -80,3 +80,6 @@ else:
     worker1 = new Player at station1, with name "worker1", with behavior packagingBehavior()
     worker2 = new Player at station2, with name "worker2", with behavior packagingBehavior()
     worker3 = new Player at station3, with name "worker3", with behavior leaveStationBehavior(station3)
+
+partA_shelf = new PartA at (21.8, -30.05, 0), with name "PartA at shelf"
+partB_shelf = new PartB at (26.53035, -30.03, 0), with name "PartB at shelf"

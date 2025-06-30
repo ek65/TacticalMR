@@ -255,6 +255,9 @@ public class ScenicParser
 
         [JsonProperty("ballPossession")]
         public bool BallPossession { get; set; }
+        
+        [JsonProperty("handRaised")]
+        public bool HandRaised { get; set; }
 
         [JsonProperty("velocity")]
         public List<float> Velocity { get; set; }

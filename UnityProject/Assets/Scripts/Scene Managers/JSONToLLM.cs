@@ -85,6 +85,7 @@ public class JSONToLLM : MonoBehaviour
         public List<Position> position = new List<Position>();
         public List<Velocity> velocity = new List<Velocity>();
         // public List<bool> ballPossession = new List<bool>();
+        public List<bool> handRaised = new List<bool>();
         public string behavior;
         public List<Orientation> orientation = new List<Orientation>();
     }
@@ -238,6 +239,7 @@ public class JSONToLLM : MonoBehaviour
             player.velocity.Add(new Velocity(currPlayer.GetComponent<PlayerInterface>().currVelocity));
             player.orientation.Add(new Orientation(currPlayer.transform));
             // player.ballPossession.Add(currPlayer.GetComponent<PlayerInterface>().ballPossession);
+            player.handRaised.Add(currPlayer.GetComponent<PlayerInterface>().handRaised);
         }
 
         // Process the human players (coach)
@@ -260,6 +262,7 @@ public class JSONToLLM : MonoBehaviour
             coach.velocity.Add(new Velocity(coachVelocity));
             coach.orientation.Add(new Orientation(humanPlayer.transform));
             // coach.ballPossession.Add(humanPlayer.GetComponent<HumanInterface>().ballPossession);
+            coach.handRaised.Add(humanPlayer.GetComponent<HumanInterface>().handRaised);
         }
 
         // process misc objects in the scene

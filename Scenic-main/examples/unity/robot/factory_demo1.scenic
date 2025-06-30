@@ -53,7 +53,8 @@ behavior workerPassiveBehavior():
 ego = new RobotCoach at (31.02, -41.45, 0), with name "Coach"
 
 # Randomly choose which worker will request parts
-requestingWorkerIsA = random.choice([True, False])
+# requestingWorkerIsA = random.choice([True, False])
+requestingWorkerIsA = False
 print("Requesting worker is A:", requestingWorkerIsA)
 
 # Instantiate workers
@@ -61,8 +62,8 @@ if requestingWorkerIsA:
     workerA = new Player at (24.75, -38.5, 0), with name "workerA", with behavior workerRequestBehavior()
     workerB = new Player at (30, -39, 0), with name "workerB", with behavior workerPassiveBehavior()
 else:
-    workerA = new Player at (24.75, -38.5, 0), with name "workerA", with behavior workerRequestBehavior()
-    workerB = new Player at (30, -39, 0), with name "workerB", with behavior workerPassiveBehavior()
+    workerA = new Player at (24.75, -38.5, 0), with name "workerA", with behavior workerPassiveBehavior()
+    workerB = new Player at (30, -39, 0), with name "workerB", with behavior workerRequestBehavior()
 
 # Part availability in bin
 numPartA = random.choice([True, False])
@@ -76,3 +77,6 @@ if numPartA:
 
 if numPartB:
     partB = new PartB at (28.574, -42.268, 0.255), with name "PartB"
+
+partA_shelf = new PartA at (21.8, -30.05, 0), with name "PartA at shelf"
+partB_shelf = new PartB at (26.53035, -30.03, 0), with name "PartB at shelf"

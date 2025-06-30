@@ -391,6 +391,29 @@ public class ActionAPI : MonoBehaviour
             $"Packaging action recorded with ID {eventID}, from player: {this.name} for object: {o.name} at time: {eventTime}");
         keyboardInput.clickOrder++;
     }
+
+    // set in animation event
+    public void SetHandRaisedTrue()
+    {
+        if (this.GetComponent<PlayerInterface>() == true)
+        {
+            this.GetComponent<PlayerInterface>().handRaised = true;
+        } else if (this.GetComponent<HumanInterface>() == true)
+        {
+            this.GetComponent<HumanInterface>().handRaised = true;
+        }
+    }
+    
+    public void SetHandRaisedFalse()
+    {
+        if (this.GetComponent<PlayerInterface>() == false)
+        {
+            this.GetComponent<PlayerInterface>().handRaised = false;
+        } else if (this.GetComponent<HumanInterface>() == false)
+        {
+            this.GetComponent<HumanInterface>().handRaised = false;
+        }
+    }
     
     public void RaiseHand()
     {

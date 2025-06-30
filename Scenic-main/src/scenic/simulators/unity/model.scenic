@@ -98,6 +98,7 @@ class Robot(UnityObject):
     length : 1.0
     height : 1.0
     name : "Robot"
+    handRaised : False
 
 class RobotHuman(UnityObject):
     gameObjectType : "RobotCoach"
@@ -106,6 +107,7 @@ class RobotHuman(UnityObject):
     length : 1.0
     height : 1.0
     name : "RobotHuman"
+    handRaised : False
 
 class NPC(UnityObject):
     gameObjectType : "npc"
