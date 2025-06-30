@@ -49,8 +49,13 @@ behavior workerPassiveBehavior():
     #     do MoveTo(workerB)
     #     take PutDownAction()
 
+behavior robotBehavior():
+    do Idle() until workerA.gameObject.handRaised or workerB.gameObject.handRaised
+    do MoveTo(Vector(21.8, -30.05, 0))  # Move to shelf location
+
 # Instantiate robot
 ego = new RobotCoach at (31.02, -41.45, 0), with name "Coach"
+# ego = new Robot at (31.02, -41.45, 0), with name "Coach", with behavior robotBehavior()
 
 # Randomly choose which worker will request parts
 # requestingWorkerIsA = random.choice([True, False])

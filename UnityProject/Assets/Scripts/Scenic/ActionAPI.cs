@@ -406,10 +406,10 @@ public class ActionAPI : MonoBehaviour
     
     public void SetHandRaisedFalse()
     {
-        if (this.GetComponent<PlayerInterface>() == false)
+        if (this.GetComponent<PlayerInterface>() == true)
         {
             this.GetComponent<PlayerInterface>().handRaised = false;
-        } else if (this.GetComponent<HumanInterface>() == false)
+        } else if (this.GetComponent<HumanInterface>() == true)
         {
             this.GetComponent<HumanInterface>().handRaised = false;
         }
