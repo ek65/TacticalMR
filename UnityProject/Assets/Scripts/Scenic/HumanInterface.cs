@@ -289,7 +289,7 @@ public class HumanInterface : MonoBehaviour
         {
             return;
         }
-        actionAPI.PutDown(transform.position + transform.forward * 1f + Vector3.up * 1f);
+        actionAPI.PutDown();
         Debug.Log("Putting down");
     }
 

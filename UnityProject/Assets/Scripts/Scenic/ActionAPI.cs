@@ -296,8 +296,9 @@ public class ActionAPI : MonoBehaviour
         keyboardInput.clickOrder++; 
     }
 
-    public void PutDown(Vector3 putDownPosition)
+    public void PutDown()
     {
+        Vector3 putDownPosition = transform.position + transform.forward * 1f + Vector3.up * 1f;
         finalPos = putDownPosition;
         SetAnimController("FactoryMovement");
         stopMovement = true;
