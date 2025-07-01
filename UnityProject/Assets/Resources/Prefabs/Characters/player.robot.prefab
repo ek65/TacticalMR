@@ -2535,7 +2535,6 @@ GameObject:
   - component: {fileID: 5258423594824916337}
   - component: {fileID: 2363807978607189299}
   - component: {fileID: 4003989586829683350}
-  - component: {fileID: 6583539588932967964}
   m_Layer: 0
   m_Name: player.robot
   m_TagString: human
@@ -2636,6 +2635,7 @@ MonoBehaviour:
   objectPossession: 0
   grabbedObject: {fileID: 0}
   objectPosition: {fileID: 8247870286867644651}
+  handRaised: 0
   behavior: Idle
   currAction: No Action
   ally: 0
@@ -3280,14 +3280,6 @@ MonoBehaviour:
   buttonX: 0
   buttonY: 0
   endScenario: 0
---- !u!81 &6583539588932967964
-AudioListener:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4578892383467444653}
-  m_Enabled: 1
 --- !u!1 &4626526408514675885
 GameObject:
   m_ObjectHideFlags: 0
