@@ -11,18 +11,21 @@ behavior CoachBehavior():
     do Idle() until λ_precondition_raisedHand(simulation(), None)
     do Speak("Pick up PartA to bring to workerB.")
     do MoveTo(partA) until λ_termination_PickUp(simulation(), None)
+    do Idle() for 2 seconds
     #do PickUp(λ_target_PartA()) until λ_termination_PickUp(simulation(), None)
     do PickUp()
     print('picked up')
     do Speak("Deliver PartA and put it down for workerB.")
     do MoveTo(λ_target_workerB()) until λ_termination_MoveTo(simulation(), None)
     do Speak("Put down PartA for workerB.")
+    do Idle() for 2 seconds
     #do PutDown(λ_putdown_PartA()) until λ_termination_PutDown(simulation(), None)
     do PutDown()
+    print('put down')
 
 A1precondition_raisedHand = HandRaised({'player': 'workerB'})
 A1target_PartA = CloseTo({'obj': 'Coach', 'ref': 'partA', 'max': {'avg': 1.0, 'std': 0.01}})
-A1termination_PickUp = CloseTo({'obj': 'Coach', 'ref': 'partA', 'max': {'avg': .001, 'std': 0.0001}})
+A1termination_PickUp = CloseTo({'obj': 'Coach', 'ref': 'partA', 'max': {'avg': 1.2, 'std': 0.01}})
 A1target_workerB = CloseTo({'obj': 'Coach', 'ref': 'workerB', 'max': {'avg': 1.2, 'std': 0.03}})
 A1termination_MoveTo = CloseTo({'obj': 'Coach', 'ref': 'workerB', 'max': {'avg': 1.2, 'std': 0.03}})
 A1putdown_PartA = CloseTo({'obj': 'Coach', 'ref': 'workerB', 'max': {'avg': 1.2, 'std': 0.03}})
@@ -77,8 +80,8 @@ print("Requesting worker is A:", requestingWorkerIsA)
 
 # Instantiate workers
 if requestingWorkerIsA:
-    workerA = new Player at (24.75, -38.5, 0), with name "workerA", with behavior workerRequestBehavior()
-    workerB = new Player at (30, -39, 0), with name "workerB", with behavior workerPassiveBehavior()
+    workerA = new Player at (24.75, -38.5, 0), with name "workerA", with behavior workerPassiveBehavior()
+    workerB = new Player at (30, -39, 0), with name "workerB", with behavior workerRequestBehavior()
 else:
     workerA = new Player at (24.75, -38.5, 0), with name "workerA", with behavior workerPassiveBehavior()
     workerB = new Player at (30, -39, 0), with name "workerB", with behavior workerRequestBehavior()

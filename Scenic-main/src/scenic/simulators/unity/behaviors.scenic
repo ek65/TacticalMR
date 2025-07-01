@@ -306,6 +306,7 @@ behavior MoveToRobot(v, lookAtTarget = None, distance = 0.5, status=""):
 
 behavior PickUp():
     take PickUpAction()
+    do Idle() for 2 seconds
     take StopAction()
 
 behavior PutDown():

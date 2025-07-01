@@ -3,7 +3,8 @@ from scenic.core.object_types import OrientedPoint, Point
 import numpy as np
 import builtins
 
-rows, cols = 34, 20
+#rows, cols = 34, 20 #soccer
+rows, cols = 100, 100
 i, j = np.indices((rows, cols))
 
 epsilon = 1e-2
@@ -35,11 +36,11 @@ def false():
 
 import matplotlib.pyplot as plt
 
-def bool_sample(vec, dist, min=0.1):
+def bool_sample(vec, dist, min=0.5): #switch this to .1 for soccer
 
     max_val = dist.max()
-    if max_val > 0:
-        dist = dist / max_val
+    if max_val > epsilon * 10:
+            dist = dist / max_val
 
     x = builtins.min(builtins.max(int(vec[0]), 0), cols - 1)
     y = builtins.min(builtins.max(int(vec[1]), 0), rows - 1)
@@ -138,9 +139,8 @@ class CloseTo(Constraint): # Checked for graceful failure
         print('close to', x, y, radius)
 
         distances = np.sqrt((i - y)**2 + (j - x)**2)
-        print("actual distance", np.linalg.norm(np.array([x, y]) - np.array([i.mean(), j.mean()])))
         close_to = np.exp(-distances**2 / (2 * radius**2)) + epsilon 
-
+        print(close_to)
         return close_to
     
     def bool(self, scene):
@@ -152,7 +152,8 @@ class CloseTo(Constraint): # Checked for graceful failure
         
         dist = self.dist(scene)
         sample = location(obj[0].position)
-
+#         print ('CloseTo bool:/n')
+#         print (bool_sample(sample, dist))
         return bool_sample(sample, dist)
 
     
