@@ -1,3 +1,55 @@
+from scenic.simulators.unity.actions import *
+from scenic.simulators.unity.behaviors import *
+from scenic.simulators.unity.constraints import *
+model scenic.simulators.unity.model
+import trimesh
+from scenic.core.regions import MeshVolumeRegion
+import random
+
+behavior CoachBehavior():
+    while True:
+        do Speak("I am waiting for a worker to signal for a part they need.")
+        do Idle() until λ_precondition_0_or_1(simulation(), None)
+        if λ_precondition_1(simulation(), None):
+            do Speak("Worker B raised their hand. I'll get Part A for them now.")
+            do PickUp('PartA at shelf')
+            do Speak("I have Part A and am moving to worker B's station.")
+            do MoveTo(λ_target_1()) until λ_termination_1(simulation(), None)
+            do Speak("Here is Part A for you, worker B.")
+            do PutDown('PartA')
+        if λ_precondition_0(simulation(), None):
+            do Speak("Worker A raised their hand. I'll get Part B for them now.")
+            do PickUp('PartB at shelf')
+            do Speak("I have Part B and am moving to worker A's station.")
+            do MoveTo(λ_target_0()) until λ_termination_0(simulation(), None)
+            do Speak("Here is Part B for you, worker A.")
+            do PutDown('PartB')
+
+A1precondition_0 = HandRaised({'player': 'workerA'})
+A1precondition_1 = HandRaised({'player': 'workerB'})
+A1termination_0 = CloseTo({'obj': 'Coach', 'ref': 'workerA'})
+A1termination_1 = CloseTo({'obj': 'Coach', 'ref': 'workerB'})
+
+def λ_target_0():
+    return workerA
+
+def λ_target_1():
+    return workerB
+
+def λ_termination_0(scene, sample):
+    return A1termination_0.bool(simulation())
+
+def λ_termination_1(scene, sample):
+    return A1termination_1.bool(simulation())
+
+def λ_precondition_0(scene, sample):
+    return A1precondition_0.bool(simulation())
+
+def λ_precondition_1(scene, sample):
+    return A1precondition_1.bool(simulation())
+
+def λ_precondition_0_or_1(scene, sample):
+    return A1precondition_0.bool(simulation()) or A1precondition_1.bool(simulation())
 # Human behaviors
 
 behavior raiseHandLater():
@@ -76,4 +128,3 @@ else:
 ego = new Robot at (31.02, -41.45, 0), 
             with name "Coach",
             with behavior CoachBehavior()
-            

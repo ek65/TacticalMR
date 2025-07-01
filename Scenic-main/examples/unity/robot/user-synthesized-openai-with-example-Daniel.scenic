@@ -7,13 +7,16 @@ from scenic.core.regions import MeshVolumeRegion
 import random
 
 behavior CoachBehavior():
-    print('pre-speak')
     do Speak("Let us observe the workers for any requests.")
-    print('post-speak')
+    print('WorkerA raisedHand:')
+    print(λ_precondition_raisehand_workerA(simulation(), None))
+    print('WorkerB raisedHand:')
+    print(λ_precondition_raisehand_workerB(simulation(), None))
     do Idle() until λ_precondition_raisehand_workerA(simulation(), None) or λ_precondition_raisehand_workerB(simulation(), None)
-    print('post Idle')
+    print('idle')
     if λ_precondition_raisehand_workerA(simulation(), None):
         do Speak("Worker A raised hand. Prepare to deliver PartB or fetch from shelf if needed.")
+        print('workerA raised hand')
         if λ_precondition_partb_cart(simulation(), None):
             do Speak("PartB is in the nearby cart. Pick up the gray object for Worker A.")
             do PickUp(λ_target_partb_cart())
@@ -105,8 +108,8 @@ if requestingWorkerIsA:
     workerA = new Player at (24.75, -38.5, 0), with name "workerA", with behavior workerRequestBehavior()
     workerB = new Player at (30, -39, 0), with name "workerB", with behavior workerPassiveBehavior()
 else:
-    workerA = new Player at (24.75, -38.5, 0), with name "workerA", with behavior workerRequestBehavior()
-    workerB = new Player at (30, -39, 0), with name "workerB", with behavior workerPassiveBehavior()
+    workerA = new Player at (24.75, -38.5, 0), with name "workerA", with behavior workerPassiveBehavior()
+    workerB = new Player at (30, -39, 0), with name "workerB", with behavior workerRequestBehavior()
 
 # Part availability in bin
 numPartA = random.choice([True, False])

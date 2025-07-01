@@ -138,6 +138,7 @@ class CloseTo(Constraint): # Checked for graceful failure
         print('close to', x, y, radius)
 
         distances = np.sqrt((i - y)**2 + (j - x)**2)
+        print("actual distance", np.linalg.norm(np.array([x, y]) - np.array([i.mean(), j.mean()])))
         close_to = np.exp(-distances**2 / (2 * radius**2)) + epsilon 
 
         return close_to
@@ -598,24 +599,23 @@ class MakePass(Constraint):
 # MARK: HandRaised
 class HandRaised(Constraint):
     def __init__(self, args):
-        super().__init__(args)
-        # allow either 'player' or 'obj'
         self.objID = args.get('player', args.get('obj', None))
 
     def dist(self, scene, ego=False):
         if ego and not isEgo(self.objID):
             return true()
+
         objs = findObj(self.objID, scene.objects)
         if not objs:
             return false()
-        beh = objs[0].gameObject.behavior.lower()
-        raised = ('raisehand' in beh.replace(' ', '') or 'raise hand' in beh)
-        return true() if raised else false()
+
+        beh = objs[0].gameObject.handRaised
+        print(beh)
+        return true() if beh else false()
 
     def bool(self, scene):
         objs = findObj(self.objID, scene.objects)
         if not objs:
-            return False
-        dist_map = self.dist(scene)                      
-        sample_pt = location(objs[0].position)           
-        return bool_sample(sample_pt, dist_map, min=0.5) 
+            return false()
+        beh = objs[0].gameObject.handRaised
+        return True if beh else False 

@@ -55,9 +55,9 @@ behavior leaveStationBehavior(station):
 # SCENE SETUP
 
 # Define fixed worker stations
-station1 = (24.75, -38.5, 0)
-station2 = (30, -39, 0)
-station3 = (23.92, -41.91, 0)
+station1 = Vector(24.75, -38.5, 0)
+station2 = Vector(30, -39, 0)
+station3 = Vector(23.92, -41.91, 0)
 
 # Define robot's spawn point
 robotStartPos = (31.02, -41.45, 0)
