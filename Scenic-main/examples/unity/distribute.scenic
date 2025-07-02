@@ -3,49 +3,19 @@ from scenic.simulators.unity.behaviors import *
 model scenic.simulators.unity.model
 
 from scenic.core.regions import MeshVolumeRegion
+from math import sqrt
 
 import trimesh
 import random
 
-# --- Ego passing logic as a behavior ---
-behavior EgoPassDecision():
-    gap_left_winger = distance from left_winger to defender2
-    gap_right_winger = distance from right_winger to defender3
-    gap_left_striker = distance from left_striker to defender4
-    gap_right_striker = distance from right_striker to defender5
-
-    teammate_gaps = [
-        (left_winger, gap_left_winger, defender2),
-        (right_winger, gap_right_winger, defender3),
-        (left_striker, gap_left_striker, defender4),
-        (right_striker, gap_right_striker, defender5)
-    ]
-    teammate_gaps = sorted(teammate_gaps, key=lambda x: -x[1])
-
-    for teammate, gap, defender in teammate_gaps:
-        dx = teammate.position.x - ego.position.x
-        dy = teammate.position.y - ego.position.y
-        dx1 = defender1.position.x - ego.position.x
-        dy1 = defender1.position.y - ego.position.y
-        t = ((dx1 * dx) + (dy1 * dy)) / (dx * dx + dy * dy)
-        t = max(0, min(1, t))
-        closest_x = ego.position.x + t * dx
-        closest_y = ego.position.y + t * dy
-        dist = sqrt((defender1.position.x - closest_x) ** 2 + (defender1.position.y - closest_y) ** 2)
-        if dist >= 1:
-            do PassTo(teammate)
-            break
-    else:
-        do Idle()
-
 # Ego (center midfielder) at origin
 pi = 3.1415
-ego = new Human at (0, 0, 0), facing toward (0, 0, 0), with team "blue", with behavior EgoPassDecision()
+ego = new Human at (0, 0, 0), facing toward (0, 0, 0), with team "blue"
 
 # Wingers
 left_winger_angle = 90 + Uniform(0, 10)  # degrees from y-axis, 90 is positive x-axis (left), variance +/-10
 right_winger_angle = -90 + Uniform(0, 10)  # degrees from y-axis, -90 is negative x-axis (right), variance +/-10
-winger_dist = Uniform(8, 12)
+winger_dist = Uniform(6,8)
 
 left_winger_x = winger_dist * sin(left_winger_angle * pi / 180)
 left_winger_y = winger_dist * cos(left_winger_angle * pi / 180)
@@ -56,9 +26,9 @@ right_winger_y = winger_dist * cos(right_winger_angle * pi / 180)
 right_winger = new Player at (right_winger_x, right_winger_y, 0), facing toward ego, with name "RightWinger", with team "blue"
 
 # Strikers
-left_striker_angle = -Uniform(5, 20)
-right_striker_angle = Uniform(5, 20)
-striker_dist = Uniform(10, 12)
+left_striker_angle = -Uniform(8, 20)
+right_striker_angle = Uniform(8, 20)
+striker_dist = Uniform(8,10)
 
 left_striker_x = striker_dist * sin(left_striker_angle * pi / 180)
 left_striker_y = striker_dist * cos(left_striker_angle * pi / 180)
@@ -75,33 +45,34 @@ ball = new Ball at (0, 1, 0)
 # Helper function for defender placement
 # (Scenic doesn't support functions in .scenic, so we inline the logic)
 
-defender1_angle = Uniform(-30, 30)
-defender1_dist = Uniform(2, 4)
+defender1_angle = Uniform(-10, 10)
+defender1_dist = Uniform(2,4)
 defender1_x = ego.position.x + defender1_dist * sin(defender1_angle * pi / 180)
 defender1_y = ego.position.y + defender1_dist * cos(defender1_angle * pi / 180)
 defender1 = new Player at (defender1_x, defender1_y, 0), facing toward ego, with team "red", with name "Defender1"
 
 defender2_angle = Uniform(-30, 30)
-defender2_dist = Uniform(2, 4)
+defender2_dist = Uniform(1,2)
 defender2_x = left_winger.position.x + defender2_dist * sin(defender2_angle * pi / 180)
 defender2_y = left_winger.position.y + defender2_dist * cos(defender2_angle * pi / 180)
 defender2 = new Player at (defender2_x, defender2_y, 0), facing toward ego, with team "red", with name "Defender2"
 
 defender3_angle = Uniform(-30, 30)
-defender3_dist = Uniform(2, 4)
+defender3_dist = Uniform(1,2)
 defender3_x = right_winger.position.x + defender3_dist * sin(defender3_angle * pi / 180)
 defender3_y = right_winger.position.y + defender3_dist * cos(defender3_angle * pi / 180)
 defender3 = new Player at (defender3_x, defender3_y, 0), facing toward ego, with team "red", with name "Defender3"
 
 defender4_angle = Uniform(-30, 30)
-defender4_dist = Uniform(2, 4)
+defender4_dist = Uniform(1,2)
 defender4_x = left_striker.position.x + defender4_dist * sin(defender4_angle * pi / 180)
 defender4_y = left_striker.position.y + defender4_dist * cos(defender4_angle * pi / 180)
 defender4 = new Player at (defender4_x, defender4_y, 0), facing toward ego, with team "red", with name "Defender4"
 
 defender5_angle = Uniform(-30, 30)
-defender5_dist = Uniform(2, 4)
+defender5_dist = Uniform(1,2)
 defender5_x = right_striker.position.x + defender5_dist * sin(defender5_angle * pi / 180)
 defender5_y = right_striker.position.y + defender5_dist * cos(defender5_angle * pi / 180)
 defender5 = new Player at (defender5_x, defender5_y, 0), facing toward ego, with team "red", with name "Defender5"
 
+terminate after 10 seconds
