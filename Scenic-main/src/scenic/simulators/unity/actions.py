@@ -182,25 +182,25 @@ class BallHeaderShootAction(Action):
         else:
             obj.gameObject.DoAction(self.actionName, self.position, self.height)
 
-class ReciveBallAction(Action):
-    def __init__(self, obj):
-        self.actionName = "ReceiveBall"
+# class ReciveBallAction(Action):
+#     def __init__(self, obj):
+#         self.actionName = "ReceiveBall"
 
-        if isinstance(obj, tuple) or type(obj) is tuple:
-            self.position = obj
-        elif isinstance(obj, OrientedPoint):
-            self.position = obj.position
-        elif isinstance(obj, Point):
-            self.position = obj.position
-        elif isinstance(obj, Vector):
-            self.position = (obj.x, obj.y, obj.z)
-        else:
-            self.clientID = obj.gameObject.clientID
-    def applyTo(self, obj, sim):
-        if self.position is None:
-            obj.gameObject.MoveToObject(self.clientID)
-        else:
-            obj.gameObject.DoAction(self.actionName, self.position)
+#         if isinstance(obj, tuple) or type(obj) is tuple:
+#             self.position = obj
+#         elif isinstance(obj, OrientedPoint):
+#             self.position = obj.position
+#         elif isinstance(obj, Point):
+#             self.position = obj.position
+#         elif isinstance(obj, Vector):
+#             self.position = (obj.x, obj.y, obj.z)
+#         else:
+#             self.clientID = obj.gameObject.clientID
+#     def applyTo(self, obj, sim):
+#         if self.position is None:
+#             obj.gameObject.MoveToObject(self.clientID)
+#         else:
+#             obj.gameObject.DoAction(self.actionName, self.position)
 
 class TackleBallAction(Action):
     def __init__(self, obj):

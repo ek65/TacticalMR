@@ -594,3 +594,168 @@ class MakePass(Constraint):
             return True
 
         return False
+
+# MARK: AtAngle
+class AtAngle(Constraint):
+    def __init__(self, args):
+        # required
+        self.playerID = args.get('player', None)
+        self.ballID   = args.get('ball',   None)
+        # left/right parameter dicts
+        self.left  = args.get('left',  {'theta':{'avg':45., 'std':15.}, 'dist':{'avg':3., 'std':1.}})
+        self.right = args.get('right', {'theta':{'avg':45., 'std':15.}, 'dist':{'avg':3., 'std':1.}})
+
+        lt = self.left['theta'];   ld = self.left['dist']
+        rt = self.right['theta'];  rd = self.right['dist']
+
+        self.left_theta_avg = lt['avg'];   self.left_theta_std = lt['std']
+        self.left_dist_avg  = ld['avg'];   self.left_dist_std  = ld['std']
+        self.right_theta_avg = rt['avg'];  self.right_theta_std = rt['std']
+        self.right_dist_avg  = rd['avg'];  self.right_dist_std  = rd['std']
+
+    def dist(self, scene, ego=False):
+        # only evaluate for ego if it's the coach  
+        if ego and not isEgo(self.playerID):
+            return true()
+
+        # find the two objects
+        player = findObj(self.playerID, scene.objects)
+        ball   = findObj(self.ballID,   scene.objects)
+        if not (player and ball):
+            return false()
+
+        # grid coords for vector math
+        P_x, P_y = location(player[0].position)
+        B_x, B_y = location(ball[0].position)
+
+        # compute the 2D angle+distance field
+        return self.make_dist((P_x, P_y), (B_x, B_y))
+
+    def make_dist(self, player_pos, ball_pos):
+        """Vectorized angle+distance probability field."""
+        P_x, P_y = player_pos
+        B_x, B_y = ball_pos
+
+        # vector from player -> ball
+        v1_x = B_x - P_x
+        v1_y = B_y - P_y
+        norm1 = np.hypot(v1_x, v1_y) + epsilon
+
+        # vector from player -> each grid cell
+        v2_x = j - P_x
+        v2_y = i - P_y
+        norm2 = np.hypot(v2_x, v2_y) + epsilon
+
+        # cosine and angle (in degrees)
+        cosang = np.clip((v1_x*v2_x + v1_y*v2_y) / (norm1*norm2), -1.0, 1.0)
+        angle  = np.arccos(cosang) * 180/np.pi
+
+        # radial distance field from player
+        dist   = norm2
+
+        # which side is each cell on?
+        cross = v1_x*v2_y - v1_y*v2_x
+        left_mask  = cross > 0
+        right_mask = ~left_mask
+
+        field = np.zeros((rows, cols))
+
+        # left side prob
+        if np.any(left_mask):
+            a_p = np.exp(-((angle - self.left_theta_avg)**2) / (2*self.left_theta_std**2))
+            d_p = np.exp(-((dist  - self.left_dist_avg )**2) / (2*self.left_dist_std **2))
+            field = np.where(left_mask, a_p*d_p, field)
+
+        # right side prob
+        if np.any(right_mask):
+            a_p = np.exp(-((angle - self.right_theta_avg)**2) / (2*self.right_theta_std**2))
+            d_p = np.exp(-((dist  - self.right_dist_avg )**2) / (2*self.right_dist_std **2))
+            field = np.where(right_mask, a_p*d_p, field)
+
+        # ensure no zero-probability cells
+        return field + epsilon
+
+    def bool(self, scene):
+        player = findObj(self.playerID, scene.objects)
+        if not player:
+            return false()
+        dist = self.dist(scene)
+        # sample at the player's actual position
+        sample = location(player[0].position)
+        return bool_sample(sample, dist)
+    
+# MARK: Overlap
+class Overlap(Constraint):
+    def __init__(self, args):
+        # required
+        self.playerID   = args.get('player',   None)
+        self.ballID     = args.get('ball',     None)
+        self.goalID     = args.get('goal',     None)
+        self.opponentID = args.get('opponent', None)
+        # optional: learned theta & dist distributions
+        th = args.get('theta', {'avg': 35., 'std': 5.})
+        ds = args.get('dist',  {'avg': 5.,  'std': 2.})
+        self.theta_avg = th['avg'];   self.theta_std = th['std']
+        self.dist_avg  = ds['avg'];   self.dist_std  = ds['std']
+
+    def dist(self, scene, ego=False):
+        # only enforce for ego
+        if ego and not isEgo(self.playerID):
+            return true()
+
+        # fetch objects
+        ball    = findObj(self.ballID,     scene.objects)
+        goal    = findObj(self.goalID,     scene.objects)
+        opponent= findObj(self.opponentID, scene.objects)
+        if not (ball and goal and opponent):
+            return false()
+
+        Bx, By = location(ball[0].position)
+        Gx, Gy = location(goal[0].position)
+        Ox, Oy = location(opponent[0].position)
+
+        # vector ball -> goal
+        v1x = Gx - Bx;  v1y = Gy - By
+        # determine side by opponent
+        cross_o = v1x*(Oy - By) - v1y*(Ox - Bx)
+        side = 'left' if cross_o > 0 else 'right'
+
+        return self.make_dist((Bx, By), (v1x, v1y), side)
+
+    def make_dist(self, ball_pos, v1, side):
+        """Build a grid of angle/dist probabilities around the ball."""
+        Bx, By = ball_pos
+        v1x, v1y = v1
+        norm1 = np.hypot(v1x, v1y) + epsilon
+
+        # grid vectors from ball -> each cell
+        v2x = j - Bx
+        v2y = i - By
+        norm2 = np.hypot(v2x, v2y) + epsilon
+
+        # angle between v1 and v2 (0–180 deg)
+        cosang = np.clip((v1x*v2x + v1y*v2y) / (norm1*norm2), -1.0, 1.0)
+        angle  = np.arccos(cosang) * 180.0/np.pi
+
+        # side masks
+        cross = v1x*v2y - v1y*v2x
+        left_mask  = cross > 0
+        right_mask = ~left_mask
+        valid_mask = left_mask if side == 'left' else right_mask
+
+        # compute gaussian probs
+        a_p = np.exp(-((angle - self.theta_avg)**2) / (2*self.theta_std**2))
+        d_p = np.exp(-((norm2   - self.dist_avg )**2) / (2*self.dist_std **2))
+        field = np.where(valid_mask, a_p * d_p, 0.0)
+
+        # no zeros
+        return field + epsilon
+
+    def bool(self, scene):
+        player = findObj(self.playerID, scene.objects)
+        if not player:
+            return false()
+        dist = self.dist(scene)
+        # sample at the player's actual location
+        sample = location(player[0].position)
+        return bool_sample(sample, dist)

@@ -408,3 +408,5 @@ behavior MoveTo(param):
     # once we’ve arrived, pause for a bit
     do Idle() for 1 seconds
 
+behavior ReceiveBall():
+    do Idle() until self.gameObject.ballPossession
