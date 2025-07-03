@@ -72,7 +72,7 @@ ball = new Ball ahead of teammate by 1
 
 ego = new Coach at (ego_x_distance, ego_y_distance, 0), with name "Coach", with team "blue", with behavior CoachBehavior()
 
-opponent = new Player at (0, Uniform(4, 6), 0), with name "opponent",
+opponent = new Player at (0, Uniform(4, 6), 0), with name "defender1",
             with behavior DefenderBehavior()
 
 goal = new Goal at (0, 17, 0)
