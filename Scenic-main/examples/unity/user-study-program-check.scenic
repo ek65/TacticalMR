@@ -13,8 +13,8 @@ behavior TeammatePass():
     do Idle() for 1.0 seconds  # Give coach time to start 
     do GetBallPossession(ball)
     print("got ball")
-    do Idle() for 1.0 seconds
-    do Pass(coach)
+    do Idle() for 5.0 seconds
+    do Pass(ego)
     do Idle()
 
 behavior OpponentFollowCoach():
@@ -22,7 +22,7 @@ behavior OpponentFollowCoach():
     speed = float(opponent_speed)
     do SetPlayerSpeed(speed)
     while True:
-        do MoveToBehavior(coach.position)
+        do MoveToBehavior(ego.position)
         do Idle() for 0.1 seconds
 
 # Place teammate (AI) at origin
@@ -32,9 +32,9 @@ teammate = new Player at (0, 0, 0), with name "teammate", with team "green", wit
 ego = new Coach ahead of teammate by coach_start_dist, with name "Coach", with team "blue", with behavior CoachBehavior()
 
 # Place opponent ahead of coach (further from goal than coach)
-opponent = new Player ahead of coach by opponent_dist, facing toward coach, with name "opponent", with team "red", with behavior OpponentFollowCoach()
+opponent = new Player ahead of ego by opponent_dist, facing toward ego, with name "opponent", with team "red", with behavior OpponentFollowCoach()
 
 # Ball at teammate's feet
 ball = new Ball ahead of teammate by 0.5
 
-goal = new Goal at (0, 10, 0)
+goal = new Goal at (0, 17, 0)

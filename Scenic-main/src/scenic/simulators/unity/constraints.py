@@ -629,6 +629,7 @@ class AtAngle(Constraint):
         B_x, B_y = location(ball[0].position)
 
         # compute the 2D angle+distance field
+        print(self.make_dist((P_x, P_y), (B_x, B_y)))
         return self.make_dist((P_x, P_y), (B_x, B_y))
 
     def make_dist(self, player_pos, ball_pos):
