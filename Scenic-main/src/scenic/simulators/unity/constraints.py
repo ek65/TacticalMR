@@ -272,7 +272,7 @@ class HasPath(Constraint):
         obstacles = []
         for obj in scene.objects:
             # TODO: Should check for team
-            if 'opponent' in obj.name.lower():
+            if 'opponent' in obj.name.lower() or 'defender' in obj.name.lower():
                 obstacles.append(location(obj.position))
 
         if not (passer and receiver):
@@ -286,36 +286,100 @@ class HasPath(Constraint):
         safety_p = self.make_dist((xp, yp), (xr, yr), obstacles, self.radiusAvg, self.radiusStd)
         safety_r = self.make_dist((xr, yr), (xp, yp), obstacles, self.radiusAvg, self.radiusStd)
             
-        return safety_p * safety_r
+        #return safety_p * safety_r
+        return np.minimum(safety_p, safety_r)
     
-    def make_dist(self, start, end, obstacles, radius, dev=None):
+#     def make_dist(self, start, end, obstacles, radius, dev=None):
+# 
+#         if dev is None:
+#             dev = radius / 3.0
+# 
+#         T_x, T_y = end
+# 
+#         v_x, v_y = T_y - i, T_x - j
+#         norm_v = np.sqrt(v_x**2 + v_y**2) + epsilon
+# 
+#         safety = np.ones((rows, cols))
+#         
+#         for (O_y, O_x) in obstacles:
+# 
+#             w_x, w_y = O_x - i, O_y - j
+#             
+#             dot = w_x * v_x + w_y * v_y
+#             t = dot / (norm_v**2)
+#             
+#             d = np.where(t < 0, 
+#                         np.sqrt((O_x - i)**2 + (O_y - j)**2),
+#                         np.where(t > 1, 
+#                                 np.sqrt((O_x - T_x)**2 + (O_y - T_y)**2),
+#                                 np.abs(v_x * w_y - v_y * w_x) / norm_v))
+# 
+#             opponent_safety = sigmoid((d - radius) / dev)
+#             safety = np.minimum(safety, opponent_safety)
+#             
+#         return safety
 
+
+    def make_dist(self, start, end, obstacles, radius, dev=None):
+        import numpy as np
+    
+        # DEBUG: Log input
+        print("=== make_dist DEBUG START ===")
+        print(f"Start: {start}, End: {end}, Radius: {radius}, Dev: {dev}, Obstacles: {obstacles}")
+    
         if dev is None:
             dev = radius / 3.0
-
+            print(f"Computed dev = {dev} from radius")
+    
+        # Global vars assumed defined outside class
+        global rows, cols, i, j
         T_x, T_y = end
-
-        v_x, v_y = T_y - i, T_x - j
-        norm_v = np.sqrt(v_x**2 + v_y**2) + epsilon
-
+        S_x, S_y = start
+    
+        # Vector from each point (j, i) to the target
+        v_x = T_x - j  # X component of direction vector to end
+        v_y = T_y - i  # Y component
+        norm_v = np.sqrt(v_x**2 + v_y**2) + 1e-6  # Avoid divide-by-zero
+    
+        # DEBUG: Log vector field
+        print("Vector field to end computed.")
+    
+        # Initial safety map (start with all safe)
         safety = np.ones((rows, cols))
-        
-        for (O_y, O_x) in obstacles:
-
-            w_x, w_y = O_x - i, O_y - j
-            
+    
+        for obstacle_index, (O_y, O_x) in enumerate(obstacles):
+            print(f"Processing obstacle {obstacle_index} at ({O_x}, {O_y})")
+    
+            # Vector from point (j, i) to obstacle
+            w_x = O_x - j
+            w_y = O_y - i
+    
             dot = w_x * v_x + w_y * v_y
             t = dot / (norm_v**2)
-            
-            d = np.where(t < 0, 
-                        np.sqrt((O_x - i)**2 + (O_y - j)**2),
-                        np.where(t > 1, 
-                                np.sqrt((O_x - T_x)**2 + (O_y - T_y)**2),
-                                np.abs(v_x * w_y - v_y * w_x) / norm_v))
-
+    
+            # Compute distance from obstacle to segment
+            d = np.where(
+                t < 0,
+                np.sqrt((O_x - j) ** 2 + (O_y - i) ** 2),  # Closest to start
+                np.where(
+                    t > 1,
+                    np.sqrt((O_x - T_x) ** 2 + (O_y - T_y) ** 2),  # Closest to end
+                    np.abs(v_x * w_y - v_y * w_x) / norm_v  # Perpendicular distance
+                )
+            )
+    
+            # Apply sigmoid safety dropoff
             opponent_safety = sigmoid((d - radius) / dev)
             safety = np.minimum(safety, opponent_safety)
-            
+    
+            # DEBUG: Show stats for current obstacle
+            print(f"Min dist: {np.min(d):.3f}, Max dist: {np.max(d):.3f}")
+            print(f"Min safety: {np.min(opponent_safety):.3f}, Max safety: {np.max(opponent_safety):.3f}")
+    
+        print("Final safety map stats:")
+        print(f"Min: {np.min(safety):.3f}, Max: {np.max(safety):.3f}")
+        print("=== make_dist DEBUG END ===")
+    
         return safety
     
     def bool(self, scene):

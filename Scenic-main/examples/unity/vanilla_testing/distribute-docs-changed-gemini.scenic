@@ -14,21 +14,25 @@ behavior CoachBehavior():
     if λ_precondition_pass_to_RS(simulation(), None):
         do Speak("Right Striker is open. I'm passing the ball to them now.")
         do Pass(RightStriker)
+        do Idle() for 2 seconds
         do Speak("Pass complete. I'm moving to support the Right Striker.")
         do MoveTo(λ_target_support_RS())
     elif λ_precondition_pass_to_LS(simulation(), None):
         do Speak("Left Striker has space. I'm sending the ball to them.")
         do Pass(LeftStriker)
+        do Idle() for 2 seconds
         do Speak("Pass complete. Moving up to support the Left Striker.")
         do MoveTo(λ_target_support_LS())
     elif λ_precondition_pass_to_LW(simulation(), None):
         do Speak("Left Winger is the best option. Passing it wide.")
         do Pass(LeftWinger)
+        do Idle() for 2 seconds
         do Speak("Pass complete. Now I'll provide support for the Left Winger.")
         do MoveTo(λ_target_support_LW())
     elif λ_precondition_pass_to_RW(simulation(), None):
         do Speak("Right Winger is available. Passing the ball to them.")
         do Pass(RightWinger)
+        do Idle() for 2 seconds
         do Speak("Pass complete. I'm moving forward to support the Right Winger.")
         do MoveTo(λ_target_support_RW())
     else:
