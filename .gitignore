@@ -131,3 +131,13 @@ UnityProject/SampleJsons/
 *.wav
 UnityProject/mono_crash.mem.99527.1.blob
 Scenic-main/.idea/workspace.xml
+Scenic-main/examples/unity/example_daniel_tuned_up.scenic
+Scenic-main/examples/unity/user-synthesized-gemini-with-example.scenic
+Scenic-main/examples/unity/user-synthesized-openai-with-example.scenic
+Scenic-main/examples/unity/user-study-program-distribute.scenic
+Scenic-main/examples/unity/vanilla_testing/check-new-termination-openai.scenic
+Scenic-main/examples/unity/vanilla_testing/distribute_new_termination_openai.scenic
+Scenic-main/examples/unity/vanilla_testing/overlap-new-termination-openai.scenic
+UnityProject/Assets/Resources/ImmersiveDebuggerSettings.asset
+UnityProject/Assets/Resources/ImmersiveDebuggerSettings.asset.meta
+UnityProject/Assets/Resources/ImmersiveDebuggerSettings.asset.meta
