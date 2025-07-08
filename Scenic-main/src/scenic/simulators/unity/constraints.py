@@ -20,7 +20,7 @@ def sigmoid(x):
     return 1 / (1 + np.exp(-x))
 
 def location(vec):
-    return vec.x + cols / 2, -vec.y + rows / 2
+    return vec.x + cols / 2, -vec.y + rows / 2 #ask about coordinate system
 
 def true():
     dist = np.ones((rows, cols))
@@ -73,7 +73,7 @@ class CompositeConstraint(Constraint):
         if self.op == 'AND':
             return np.exp(np.log(d1) + np.log(d2))
         else:
-            return d1 + d2
+            return d1 + d2 - np.exp(np.log(d1) + np.log(d2)) #P(A U B) = P(A) + P(B) - P(A n B)
         
     def bool(self, scene):
         b1 = self.left.bool(scene)
@@ -115,7 +115,7 @@ class CloseTo(Constraint): # Checked for graceful failure
         elif self.max is not None:
             self.max = args.get('max', None)
             self.max_avg = self.max.get('avg', 3.0)
-            self.max_std = self.max.get('std', 1.0)
+            self.max_std = self.max.get('std', 1.0) #should be using std
         else:
             self.max = {'avg': 3.0, 'std': 1.0}
             self.max_avg = 3.0
@@ -138,7 +138,7 @@ class CloseTo(Constraint): # Checked for graceful failure
         print('close to', x, y, radius)
 
         distances = np.sqrt((i - y)**2 + (j - x)**2)
-        close_to = np.exp(-distances**2 / (2 * radius**2)) + epsilon
+        close_to = np.exp(-distances**2 / (2 * radius**2)) + epsilon 
 
         return close_to
     
@@ -184,7 +184,7 @@ class HeightRelation(Constraint):
         offset = self.threshold_avg
         dev = self.threshold_std
 
-        print('heigh relation', self.relation, y, offset, dev)
+        print('height relation', self.relation, y, offset, dev)
 
         distances = (y + offset - i) if mirror else (i - y + offset) 
         height_relation = 1 - np.clip(distances / (dev if dev > 0 else 1), 0, 1) + epsilon
@@ -241,7 +241,7 @@ class HorizontalRelation(Constraint):
     
     def bool(self, scene):
 
-        obj = findObj(self.obj, scene.objects)
+        obj = findObj(self.objID, scene.objects)
 
         if not obj:
             return false()
@@ -272,7 +272,7 @@ class HasPath(Constraint):
         obstacles = []
         for obj in scene.objects:
             # TODO: Should check for team
-            if 'opponent' in obj.name.lower():
+            if 'opponent' in obj.name.lower() or 'defender' in obj.name.lower():
                 obstacles.append(location(obj.position))
 
         if not (passer and receiver):
@@ -286,36 +286,100 @@ class HasPath(Constraint):
         safety_p = self.make_dist((xp, yp), (xr, yr), obstacles, self.radiusAvg, self.radiusStd)
         safety_r = self.make_dist((xr, yr), (xp, yp), obstacles, self.radiusAvg, self.radiusStd)
             
-        return safety_p * safety_r
+        #return safety_p * safety_r
+        return np.minimum(safety_p, safety_r)
     
-    def make_dist(self, start, end, obstacles, radius, dev=None):
+#     def make_dist(self, start, end, obstacles, radius, dev=None):
+# 
+#         if dev is None:
+#             dev = radius / 3.0
+# 
+#         T_x, T_y = end
+# 
+#         v_x, v_y = T_y - i, T_x - j
+#         norm_v = np.sqrt(v_x**2 + v_y**2) + epsilon
+# 
+#         safety = np.ones((rows, cols))
+#         
+#         for (O_y, O_x) in obstacles:
+# 
+#             w_x, w_y = O_x - i, O_y - j
+#             
+#             dot = w_x * v_x + w_y * v_y
+#             t = dot / (norm_v**2)
+#             
+#             d = np.where(t < 0, 
+#                         np.sqrt((O_x - i)**2 + (O_y - j)**2),
+#                         np.where(t > 1, 
+#                                 np.sqrt((O_x - T_x)**2 + (O_y - T_y)**2),
+#                                 np.abs(v_x * w_y - v_y * w_x) / norm_v))
+# 
+#             opponent_safety = sigmoid((d - radius) / dev)
+#             safety = np.minimum(safety, opponent_safety)
+#             
+#         return safety
 
+
+    def make_dist(self, start, end, obstacles, radius, dev=None):
+        import numpy as np
+    
+        # DEBUG: Log input
+        print("=== make_dist DEBUG START ===")
+        print(f"Start: {start}, End: {end}, Radius: {radius}, Dev: {dev}, Obstacles: {obstacles}")
+    
         if dev is None:
             dev = radius / 3.0
-
+            print(f"Computed dev = {dev} from radius")
+    
+        # Global vars assumed defined outside class
+        global rows, cols, i, j
         T_x, T_y = end
-
-        v_x, v_y = T_y - i, T_x - j
-        norm_v = np.sqrt(v_x**2 + v_y**2) + epsilon
-
+        S_x, S_y = start
+    
+        # Vector from each point (j, i) to the target
+        v_x = T_x - j  # X component of direction vector to end
+        v_y = T_y - i  # Y component
+        norm_v = np.sqrt(v_x**2 + v_y**2) + 1e-6  # Avoid divide-by-zero
+    
+        # DEBUG: Log vector field
+        print("Vector field to end computed.")
+    
+        # Initial safety map (start with all safe)
         safety = np.ones((rows, cols))
-        
-        for (O_y, O_x) in obstacles:
-
-            w_x, w_y = O_x - i, O_y - j
-            
+    
+        for obstacle_index, (O_y, O_x) in enumerate(obstacles):
+            print(f"Processing obstacle {obstacle_index} at ({O_x}, {O_y})")
+    
+            # Vector from point (j, i) to obstacle
+            w_x = O_x - j
+            w_y = O_y - i
+    
             dot = w_x * v_x + w_y * v_y
             t = dot / (norm_v**2)
-            
-            d = np.where(t < 0, 
-                        np.sqrt((O_x - i)**2 + (O_y - j)**2),
-                        np.where(t > 1, 
-                                np.sqrt((O_x - T_x)**2 + (O_y - T_y)**2),
-                                np.abs(v_x * w_y - v_y * w_x) / norm_v))
-
+    
+            # Compute distance from obstacle to segment
+            d = np.where(
+                t < 0,
+                np.sqrt((O_x - j) ** 2 + (O_y - i) ** 2),  # Closest to start
+                np.where(
+                    t > 1,
+                    np.sqrt((O_x - T_x) ** 2 + (O_y - T_y) ** 2),  # Closest to end
+                    np.abs(v_x * w_y - v_y * w_x) / norm_v  # Perpendicular distance
+                )
+            )
+    
+            # Apply sigmoid safety dropoff
             opponent_safety = sigmoid((d - radius) / dev)
             safety = np.minimum(safety, opponent_safety)
-            
+    
+            # DEBUG: Show stats for current obstacle
+            print(f"Min dist: {np.min(d):.3f}, Max dist: {np.max(d):.3f}")
+            print(f"Min safety: {np.min(opponent_safety):.3f}, Max safety: {np.max(opponent_safety):.3f}")
+    
+        print("Final safety map stats:")
+        print(f"Min: {np.min(safety):.3f}, Max: {np.max(safety):.3f}")
+        print("=== make_dist DEBUG END ===")
+    
         return safety
     
     def bool(self, scene):
@@ -353,7 +417,7 @@ class DistanceTo(Constraint):
 
         if ego and not isEgo(self.fromID):
             return true()
-        
+
         ref = findObj(self.toID, scene.objects)
 
         if not ref:
@@ -370,24 +434,50 @@ class DistanceTo(Constraint):
             mask = (distances >= self.minAvg) & (distances <= self.maxAvg)
             bump = np.exp(-((distances - mu)**2) / (2 * sigma**2))
             map = np.where(mask, bump + epsilon, epsilon)
-        
+
         elif self.operator == 'less_than':
             sigma = self.maxAvg
             mask = distances < self.maxAvg
             bump = np.exp(-(distances**2) / (2 * sigma**2))
             map = np.where(mask, bump + epsilon, epsilon)
-        
+
         elif self.operator == 'greater_than':
             sigma = self.minAvg
             mask = distances > self.minAvg
             bump = np.exp(-((distances - self.minAvg)**2) / (2 * sigma**2))
             map = np.where(mask, bump + epsilon, epsilon)
-        
+
         else:
             print('Invalid operator.')
             return false()
-        
+
         return map
+
+#     def dist(self, scene, ego=False):
+#         if ego and not isEgo(self.fromID):
+#             return True
+# 
+#         targets = findObj(self.toID, scene.objects)
+#         if not targets:
+#             return False
+# 
+#         sources = findObj(self.fromID, scene.objects)
+#         if not sources:
+#             return False
+# 
+#         src_x, src_y = location(sources[0].position)
+#         tgt_x, tgt_y = location(targets[0].position)
+# 
+#         d = np.hypot(src_x - tgt_x, src_y - tgt_y)
+# 
+#         if self.operator == 'within':
+#             return self.minAvg <= d <= self.maxAvg
+#         elif self.operator == 'less_than':
+#             return d < self.maxAvg
+#         elif self.operator == 'greater_than':
+#             return d > self.minAvg
+#         else:
+#             return False
     
     def bool(self, scene):
 
@@ -395,11 +485,15 @@ class DistanceTo(Constraint):
 
         if not obj:
             return false()
-        
+
         dist = self.dist(scene)
         sample = location(obj[0].position)
 
         return bool_sample(sample, dist)
+
+#     def bool(self, scene):
+#             # Simply return the same boolean that .dist would
+#             return self.dist(scene)
     
 
 # MARK: InZone
@@ -426,9 +520,16 @@ class InZone(Constraint):
             return false()
         
         print('in zone', self.zone)
+
+        if isinstance(self.zone, list):
+            zone_str = self.zone[0]
+        else:
+            zone_str = self.zone
+
+        print('zone', zone_str, zone_str[0], zone_str[1])
         
-        zone_x = self.zone_x_labels.index(self.zone[0])
-        zone_y = int(self.zone[1:]) - 1
+        zone_x = self.zone_x_labels.index(zone_str[0])
+        zone_y = int(zone_str[1]) - 1
         
         x_coord = j - self.width / 2 + 0.5
         y_coord = i - self.height / 2 + 0.5
@@ -557,3 +658,169 @@ class MakePass(Constraint):
             return True
 
         return False
+
+# MARK: AtAngle
+class AtAngle(Constraint):
+    def __init__(self, args):
+        # required
+        self.playerID = args.get('player', None)
+        self.ballID   = args.get('ball',   None)
+        # left/right parameter dicts
+        self.left  = args.get('left',  {'theta':{'avg':45., 'std':15.}, 'dist':{'avg':3., 'std':1.}})
+        self.right = args.get('right', {'theta':{'avg':45., 'std':15.}, 'dist':{'avg':3., 'std':1.}})
+
+        lt = self.left['theta'];   ld = self.left['dist']
+        rt = self.right['theta'];  rd = self.right['dist']
+
+        self.left_theta_avg = lt['avg'];   self.left_theta_std = lt['std']
+        self.left_dist_avg  = ld['avg'];   self.left_dist_std  = ld['std']
+        self.right_theta_avg = rt['avg'];  self.right_theta_std = rt['std']
+        self.right_dist_avg  = rd['avg'];  self.right_dist_std  = rd['std']
+
+    def dist(self, scene, ego=False):
+        # only evaluate for ego if it's the coach  
+        if ego and not isEgo(self.playerID):
+            return true()
+
+        # find the two objects
+        player = findObj(self.playerID, scene.objects)
+        ball   = findObj(self.ballID,   scene.objects)
+        if not (player and ball):
+            return false()
+
+        # grid coords for vector math
+        P_x, P_y = location(player[0].position)
+        B_x, B_y = location(ball[0].position)
+
+        # compute the 2D angle+distance field
+        print(self.make_dist((P_x, P_y), (B_x, B_y)))
+        return self.make_dist((P_x, P_y), (B_x, B_y))
+
+    def make_dist(self, player_pos, ball_pos):
+        """Vectorized angle+distance probability field."""
+        P_x, P_y = player_pos
+        B_x, B_y = ball_pos
+
+        # vector from player -> ball
+        v1_x = B_x - P_x
+        v1_y = B_y - P_y
+        norm1 = np.hypot(v1_x, v1_y) + epsilon
+
+        # vector from player -> each grid cell
+        v2_x = j - P_x
+        v2_y = i - P_y
+        norm2 = np.hypot(v2_x, v2_y) + epsilon
+
+        # cosine and angle (in degrees)
+        cosang = np.clip((v1_x*v2_x + v1_y*v2_y) / (norm1*norm2), -1.0, 1.0)
+        angle  = np.arccos(cosang) * 180/np.pi
+
+        # radial distance field from player
+        dist   = norm2
+
+        # which side is each cell on?
+        cross = v1_x*v2_y - v1_y*v2_x
+        left_mask  = cross > 0
+        right_mask = ~left_mask
+
+        field = np.zeros((rows, cols))
+
+        # left side prob
+        if np.any(left_mask):
+            a_p = np.exp(-((angle - self.left_theta_avg)**2) / (2*self.left_theta_std**2))
+            d_p = np.exp(-((dist  - self.left_dist_avg )**2) / (2*self.left_dist_std **2))
+            field = np.where(left_mask, a_p*d_p, field)
+
+        # right side prob
+        if np.any(right_mask):
+            a_p = np.exp(-((angle - self.right_theta_avg)**2) / (2*self.right_theta_std**2))
+            d_p = np.exp(-((dist  - self.right_dist_avg )**2) / (2*self.right_dist_std **2))
+            field = np.where(right_mask, a_p*d_p, field)
+
+        # ensure no zero-probability cells
+        return field + epsilon
+
+    def bool(self, scene):
+        player = findObj(self.playerID, scene.objects)
+        if not player:
+            return false()
+        dist = self.dist(scene)
+        # sample at the player's actual position
+        sample = location(player[0].position)
+        return bool_sample(sample, dist)
+    
+# MARK: Overlap
+class Overlap(Constraint):
+    def __init__(self, args):
+        # required
+        self.playerID   = args.get('player',   None)
+        self.ballID     = args.get('ball',     None)
+        self.goalID     = args.get('goal',     None)
+        self.opponentID = args.get('opponent', None)
+        # optional: learned theta & dist distributions
+        th = args.get('theta', {'avg': 35., 'std': 5.})
+        ds = args.get('dist',  {'avg': 5.,  'std': 2.})
+        self.theta_avg = th['avg'];   self.theta_std = th['std']
+        self.dist_avg  = ds['avg'];   self.dist_std  = ds['std']
+
+    def dist(self, scene, ego=False):
+        # only enforce for ego
+        if ego and not isEgo(self.playerID):
+            return true()
+
+        # fetch objects
+        ball    = findObj(self.ballID,     scene.objects)
+        goal    = findObj(self.goalID,     scene.objects)
+        opponent= findObj(self.opponentID, scene.objects)
+        if not (ball and goal and opponent):
+            return false()
+
+        Bx, By = location(ball[0].position)
+        Gx, Gy = location(goal[0].position)
+        Ox, Oy = location(opponent[0].position)
+
+        # vector ball -> goal
+        v1x = Gx - Bx;  v1y = Gy - By
+        # determine side by opponent
+        cross_o = v1x*(Oy - By) - v1y*(Ox - Bx)
+        side = 'left' if cross_o > 0 else 'right'
+
+        return self.make_dist((Bx, By), (v1x, v1y), side)
+
+    def make_dist(self, ball_pos, v1, side):
+        """Build a grid of angle/dist probabilities around the ball."""
+        Bx, By = ball_pos
+        v1x, v1y = v1
+        norm1 = np.hypot(v1x, v1y) + epsilon
+
+        # grid vectors from ball -> each cell
+        v2x = j - Bx
+        v2y = i - By
+        norm2 = np.hypot(v2x, v2y) + epsilon
+
+        # angle between v1 and v2 (0–180 deg)
+        cosang = np.clip((v1x*v2x + v1y*v2y) / (norm1*norm2), -1.0, 1.0)
+        angle  = np.arccos(cosang) * 180.0/np.pi
+
+        # side masks
+        cross = v1x*v2y - v1y*v2x
+        left_mask  = cross > 0
+        right_mask = ~left_mask
+        valid_mask = left_mask if side == 'left' else right_mask
+
+        # compute gaussian probs
+        a_p = np.exp(-((angle - self.theta_avg)**2) / (2*self.theta_std**2))
+        d_p = np.exp(-((norm2   - self.dist_avg )**2) / (2*self.dist_std **2))
+        field = np.where(valid_mask, a_p * d_p, 0.0)
+
+        # no zeros
+        return field + epsilon
+
+    def bool(self, scene):
+        player = findObj(self.playerID, scene.objects)
+        if not player:
+            return false()
+        dist = self.dist(scene)
+        # sample at the player's actual location
+        sample = location(player[0].position)
+        return bool_sample(sample, dist)

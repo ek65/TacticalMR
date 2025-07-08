@@ -152,20 +152,20 @@ def sample_target(scene, prev_target, λ_dest) -> Vector:
     # print(f"sample: {sample}")
     return sample
 
-# MARK: MoveTo
-behavior MoveTo(λ_dest):
-    scene = simulation()
-    sample = Vector(0, 0)
-    sample = sample_target(scene, sample, λ_dest)
-    timestep = 0.3
-    # print(f"sample: {sample}")
-    while (distance from self to sample > 0.5):
-        # print('moving to', sample)
-        do MoveToBehavior(sample) for timestep seconds
-        scene = simulation()
-        sample = sample_target(scene, sample, λ_dest)
-        # print(f"sample: {sample}")
-    do Idle() for 1 seconds
+# # MARK: MoveTo
+# behavior MoveTo(λ_dest):
+#     scene = simulation()
+#     sample = Vector(0, 0)
+#     sample = sample_target(scene, sample, λ_dest)
+#     timestep = 0.3
+#     # print(f"sample: {sample}")
+#     while (distance from self to sample > 0.5):
+#         # print('moving to', sample)
+#         do MoveToBehavior(sample) for timestep seconds
+#         scene = simulation()
+#         sample = sample_target(scene, sample, λ_dest)
+#         # print(f"sample: {sample}")
+#     do Idle() for 1 seconds
 
 # # MARK: moveTo
 # behavior moveTo(player: Player, target: Coordinate, ref: list, speed: Speed):
@@ -250,7 +250,7 @@ behavior orientArms(player: Player, angle: int, target: Object = None):
     player (Player): The player whose arms are being oriented.
     angle (int): The angle to which the player's
         arms should be raised.
-    target (Object, optional): The target to point the arms towards
+    target (moect, optional): The target to point the arms towards
     Returns:
     None: The function modifies the player's posture but does not return any value.
     """
@@ -343,6 +343,8 @@ i, j = np.indices((rows, cols))
 
 def sample_from(dist, _min=0.4):
 
+    print(dist)
+
     max_val = dist.max()
     if max_val > 0:
         dist = dist / max_val
@@ -351,27 +353,60 @@ def sample_from(dist, _min=0.4):
     
     total = filtered.sum()
     if total == 0:
-        filtered += epsilon
+        #filtered += epsilon
+        flat = np.ones(dist.size, dtype=np.float64) / dist.size
+    else:
+        probs = filtered / total
+        flat = probs.ravel()
     
-    probs = filtered / total
-    flat = probs.ravel()
+    #probs = filtered / total
+    #flat = probs.ravel()
     
     idx = np.random.choice(flat.size, p=flat)
     coord = np.unravel_index(idx, dist.shape)
-
-    x, y = coord[1].item(), coord[0].item()
+    
+    print(f"coord: {coord}, dist.shape: {dist.shape}, idx: {idx}")
+    x, y = int(coord[1]), int(coord[0])
     print('real sampled', x, y)
     sample = Vector(x - cols / 2, rows / 2 - y)
     print('Sampled', sample)
 
     return sample
+    
 
-behavior MoveAs(dist):
-    sample = sample_from(dist)
+
+#behavior MoveTo(dist):
+#    sample = sample_from(dist)
+#    dt = 0.2
+#    while (distance from self to sample > 0.5):
+#        print('moving to', sample)
+#        do MoveToBehavior(sample) for dt seconds
+#       if not bool_sample(location(sample), dist):
+#            sample = sample_from(dist)
+#    do Idle() for 1 seconds
+
+
+behavior MoveTo(param):
+    # --- try the “param is a distribution” path ---
+    try:
+        sample  = sample_from(param)
+        dynamic = True
+        dist    = param
+    # if sample_from isn’t defined for this type, assume it’s already a goal
+    except Exception:
+        sample  = param
+        dynamic = False
+
     dt = 0.2
-    while (distance from self to sample > 0.5):
-        print('moving to', sample)
+    # loop until we get within 0.5 units of our current target
+    while (distance from self to sample) > 0.5:
         do MoveToBehavior(sample) for dt seconds
-        if not bool_sample(location(sample), dist):
+        # if it was a distribution, re-sample whenever we leave its support
+        if dynamic and not bool_sample(location(sample), dist):
             sample = sample_from(dist)
+
+    # once we’ve arrived, pause for a bit
     do Idle() for 1 seconds
+
+behavior ReceiveBall():
+    do Idle() until self.gameObject.ballPossession
