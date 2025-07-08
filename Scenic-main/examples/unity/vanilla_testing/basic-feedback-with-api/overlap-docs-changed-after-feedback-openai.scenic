@@ -6,17 +6,24 @@ import trimesh
 from scenic.core.regions import MeshVolumeRegion
 import random
 
+
+
 behavior CoachBehavior():
     do Speak("Wait while the teammate gets the ball")
     do Idle() until λ_teammate_possession(simulation(), None)
+    
     do Speak("Time to overlap the teammate and create space")
     do MoveTo(λ_overlap_position())
+    
     do Speak("Wait for the teammate to notice the overlap or to pass")
     do Idle() until λ_teammate_pass_or_open(simulation(), None)
+    
     do Speak("Receive the pass from the teammate and get possession")
     do ReceiveBall()
+    
     do Speak("Check if the defender is close or far before deciding")
     do Idle() until λ_possession_confirm(simulation(), None)
+    
     if λ_defender_is_close(simulation(), None):
         do Speak("Defender is close, pass the ball back to teammate")
         do Pass(teammate)
@@ -26,12 +33,37 @@ behavior CoachBehavior():
         do Speak("Maintain possession or look for next opportunity")
         do Idle() until λ_termination(simulation(), None)
 
-A1_overlap = Overlap({'player': 'Coach', 'ball': 'ball', 'goal': 'goal', 'opponent': 'defender1', 'theta': {'avg': 34.5, 'std': 5.5}, 'dist': {'avg': 6.8, 'std': 2.2}})
-A2_makepass = MakePass({'player': 'teammate'})
-A3_possession = HasBallPossession({'player': 'Coach'})
-A4_defender_close = CloseTo({'obj': 'Coach', 'ref': 'defender1', 'max': {'avg': 3.7, 'std': 0.5}})
-A5_forward = DistanceTo({'from': 'Coach', 'to': 'goal', 'min': {'avg': 8.3, 'std': 2.2}, 'max': None, 'operator': 'greater_than'})
 
+# Constraints
+A1_overlap = Overlap({
+    'player': 'Coach',
+    'ball': 'ball',
+    'goal': 'goal',
+    'opponent': 'defender1',
+    'theta': {'avg': 34.5, 'std': 5.5},
+    'dist': {'avg': 6.8, 'std': 2.2}
+})
+
+A2_makepass = MakePass({'player': 'teammate'})
+
+A3_possession = HasBallPossession({'player': 'Coach'})
+
+A4_defender_close = CloseTo({
+    'obj': 'Coach',
+    'ref': 'defender1',
+    'max': {'avg': 3.7, 'std': 0.5}
+})
+
+A5_forward = DistanceTo({
+    'from': 'Coach',
+    'to': 'goal',
+    'min': {'avg': 8.3, 'std': 2.2},
+    'max': None,
+    'operator': 'greater_than'
+})
+
+
+# Lambda Functions
 def λ_teammate_possession(scene, sample):
     return HasBallPossession({'player': 'teammate'}).bool(simulation())
 
@@ -39,8 +71,10 @@ def λ_overlap_position():
     return A1_overlap.dist(simulation(), ego=True)
 
 def λ_teammate_pass_or_open(scene, sample):
-    # Trigger when the teammate makes a pass OR the Coach is wide open i.e. not close to defender
-    return A2_makepass.bool(simulation()) or not A4_defender_close.bool(simulation())
+    return (
+        A2_makepass.bool(simulation()) or
+        HasPath('teammate', 'Coach', 3.0).bool(simulation())
+    )
 
 def λ_possession_confirm(scene, sample):
     return A3_possession.bool(simulation())
@@ -52,11 +86,7 @@ def λ_forward_position():
     return A5_forward.dist(simulation(), ego=True)
 
 def λ_termination(scene, sample):
-    # Terminate when Coach is still in possession and has moved into the forward space, or a significant change in state, or a pass has occurred.
-    # We do NOT terminate on "scored" or final outcome; intermediate safe: stop if possession is lost or next action is triggered.
     return not A3_possession.bool(simulation())
-
-
 
 
 

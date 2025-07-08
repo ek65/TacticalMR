@@ -8,7 +8,7 @@ import random
 
 behavior CoachBehavior():
     do Speak("Wait and get in good position to receive the ball")
-    #do Idle() until λ_possession_coach(simulation(), None)
+    # do Idle() until λ_possession_coach(simulation(), None)
     do GetBallPossession(ball)
     do Speak("Get possession of the ball and prepare to pass")
     do GetBallPossession(ball)
@@ -16,34 +16,86 @@ behavior CoachBehavior():
     do Idle() until λ_pass_option_ready(simulation(), None)
     do Speak("Pass forward or to the teammate with most space")
     do Pass(λ_best_pass_dest(simulation(), None))
+    do Idle() for 4 seconds
     do Speak("Wait for teammate to receive the ball")
     do Idle() until λ_teammate_has_ball(simulation(), None)
     do Speak("Move to support the new ball carrier as a passing option")
     do MoveTo(λ_support_new_carrier(simulation(), None))
+    # Ensure coach remains below the new ball carrier (i.e. not closer to opponent's goal)
+    do Idle() until (
+        (A_right_striker_receives.bool(simulation()) and HeightRelation('Coach', 'below', ref='RightStriker')) or
+        (A_left_striker_receives.bool(simulation()) and HeightRelation('Coach', 'below', ref='LeftStriker')) or
+        (A_left_winger_receives.bool(simulation()) and HeightRelation('Coach', 'below', ref='LeftWinger')) or
+        (A_right_winger_receives.bool(simulation()) and HeightRelation('Coach', 'below', ref='RightWinger'))
+    )
     do Speak("Idle in support position for a few moments")
     do Idle() for 2 seconds
 
+
 A_has_ball = HasBallPossession({'player': 'Coach'})
-A_right_striker_open = HasPath({'obj1': 'Coach', 'obj2': 'RightStriker', 'path_width': {'avg': 2.8, 'std': 0.25}})
-A_left_striker_open = HasPath({'obj1': 'Coach', 'obj2': 'LeftStriker', 'path_width': {'avg': 1.3, 'std': 0.3}})
-A_left_winger_open = HasPath({'obj1': 'Coach', 'obj2': 'LeftWinger', 'path_width': {'avg': 3.6, 'std': 0.4}})
-A_right_winger_open = HasPath({'obj1': 'Coach', 'obj2': 'RightWinger', 'path_width': {'avg': 2.8, 'std': 0.25}})
+
+A_right_striker_open = HasPath({
+    'obj1': 'Coach',
+    'obj2': 'RightStriker',
+    'path_width': {'avg': 2.8, 'std': 0.25}
+})
+
+A_left_striker_open = HasPath({
+    'obj1': 'Coach',
+    'obj2': 'LeftStriker',
+    'path_width': {'avg': 1.3, 'std': 0.3}
+})
+
+A_left_winger_open = HasPath({
+    'obj1': 'Coach',
+    'obj2': 'LeftWinger',
+    'path_width': {'avg': 3.6, 'std': 0.4}
+})
+
+A_right_winger_open = HasPath({
+    'obj1': 'Coach',
+    'obj2': 'RightWinger',
+    'path_width': {'avg': 2.8, 'std': 0.25}
+})
+
 A_left_striker_receives = HasBallPossession({'player': 'LeftStriker'})
 A_right_striker_receives = HasBallPossession({'player': 'RightStriker'})
 A_left_winger_receives = HasBallPossession({'player': 'LeftWinger'})
 A_right_winger_receives = HasBallPossession({'player': 'RightWinger'})
 
-A_move_support_LS = DistanceTo({'from': 'Coach', 'to': 'LeftStriker', 'min': {'avg': 4.4, 'std': 0.7}, 'max': {'avg': 10.1, 'std': 1.6}, 'operator': 'within'})
-A_move_support_RS = DistanceTo({'from': 'Coach', 'to': 'RightStriker', 'min': {'avg': 4.6, 'std': 0.9}, 'max': {'avg': 10.3, 'std': 2.1}, 'operator': 'within'})
-A_move_support_LW = DistanceTo({'from': 'Coach', 'to': 'LeftWinger', 'min': {'avg': 4.5, 'std': 0.8}, 'max': {'avg': 9.8, 'std': 1.7}, 'operator': 'within'})
-A_move_support_RW = DistanceTo({'from': 'Coach', 'to': 'RightWinger', 'min': {'avg': 4.5, 'std': 0.8}, 'max': {'avg': 10.0, 'std': 1.6}, 'operator': 'within'})
+A_move_support_LS = DistanceTo({
+    'from': 'Coach', 'to': 'LeftStriker',
+    'min': {'avg': 4.4, 'std': 0.7},
+    'max': {'avg': 10.1, 'std': 1.6},
+    'operator': 'within'
+})
+
+A_move_support_RS = DistanceTo({
+    'from': 'Coach', 'to': 'RightStriker',
+    'min': {'avg': 4.6, 'std': 0.9},
+    'max': {'avg': 10.3, 'std': 2.1},
+    'operator': 'within'
+})
+
+A_move_support_LW = DistanceTo({
+    'from': 'Coach', 'to': 'LeftWinger',
+    'min': {'avg': 4.5, 'std': 0.8},
+    'max': {'avg': 9.8, 'std': 1.7},
+    'operator': 'within'
+})
+
+A_move_support_RW = DistanceTo({
+    'from': 'Coach', 'to': 'RightWinger',
+    'min': {'avg': 4.5, 'std': 0.8},
+    'max': {'avg': 10.0, 'std': 1.6},
+    'operator': 'within'
+})
+
 
 def λ_possession_coach(scene, sample):
-    # Waits until Coach has the ball
     return A_has_ball.bool(simulation())
 
 def λ_pass_option_ready(scene, sample):
-    # Waits for a strong passing option (teammate not blocked, with path open)
     return (
         A_right_striker_open.bool(simulation()) or
         A_left_striker_open.bool(simulation()) or
@@ -52,7 +104,6 @@ def λ_pass_option_ready(scene, sample):
     )
 
 def λ_best_pass_dest(scene, sample):
-    # Passes forward, prioritizing unblocked options (priority: strikers ahead, then wingers)
     if A_right_striker_open.bool(simulation()):
         return RightStriker
     elif A_left_striker_open.bool(simulation()):
@@ -62,10 +113,9 @@ def λ_best_pass_dest(scene, sample):
     elif A_right_winger_open.bool(simulation()):
         return RightWinger
     else:
-        return LeftWinger # fallback to left winger
+        return LeftWinger  # fallback
 
 def λ_teammate_has_ball(scene, sample):
-    # Teammate successfully receives the ball
     return (
         A_right_striker_receives.bool(simulation()) or
         A_left_striker_receives.bool(simulation()) or
@@ -74,7 +124,6 @@ def λ_teammate_has_ball(scene, sample):
     )
 
 def λ_support_new_carrier(scene, sample):
-    # Move to support whoever received the ball
     if A_right_striker_receives.bool(simulation()):
         return A_move_support_RS.dist(simulation(), ego=True)
     elif A_left_striker_receives.bool(simulation()):
@@ -84,18 +133,16 @@ def λ_support_new_carrier(scene, sample):
     elif A_right_winger_receives.bool(simulation()):
         return A_move_support_RW.dist(simulation(), ego=True)
     else:
-        return A_move_support_LS.dist(simulation(), ego=True)  # Fallback
+        return A_move_support_LS.dist(simulation(), ego=True)  # fallback
 
 def λ_termination(scene, sample):
-    # Terminate after idling in support (not after pass or receive)
     return False
 
 def λ_precondition(scene, sample):
-    # None needed for this program
     return True
-
-
-
+    
+    
+    
 # Ego (center midfielder) at origin
 pi = 3.1415
 ego = new Coach at (0, 0, 0), facing toward (0, 0, 0), with team "blue", with behavior CoachBehavior()
