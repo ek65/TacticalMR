@@ -117,7 +117,7 @@ public class RecorderManager : MonoBehaviour
     
         string filePath = OutputFile.FullName;
         float startTime = Time.time;
-        float timeout = 15f; // Maximum wait time in seconds
+        float timeout = 30f; // Maximum wait time in seconds
     
         Debug.Log($"Waiting for file to be created: {filePath}");
     

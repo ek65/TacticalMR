@@ -345,30 +345,30 @@ public class JSONToLLM : NetworkBehaviour
             goalData2.position.Add(new Position(goalGO.transform.position));
             goalData2.orientation.Add(new Orientation(goalGO.transform));
             
-            Transform leftPost = goalGO.transform.Find("goal_leftpost");
-            Transform rightPost = goalGO.transform.Find("goal_rightpost");
-            
-            Goal leftGoalPost = (Goal)myRootSegment.objects
-                .Find(obj => obj is Goal g && g.id == "goal_leftpost");
-            if (leftGoalPost == null)
-            {
-                leftGoalPost = new Goal { id = "goal_leftpost", type = "Goal" };
-                myRootSegment.objects.Add(leftGoalPost);
-            }
-            leftGoalPost.position.Add(new Position(leftPost.position));
-            leftGoalPost.velocity.Add(new Velocity(Vector3.zero));
-            leftGoalPost.orientation.Add(new Orientation(leftPost));
-
-            Goal rightGoalPost = (Goal)myRootSegment.objects
-                .Find(obj => obj is Goal g && g.id == "goal_rightpost");
-            if (rightGoalPost == null)
-            {
-                rightGoalPost = new Goal { id = "goal_rightpost", type = "Goal" };
-                myRootSegment.objects.Add(rightGoalPost);
-            }
-            rightGoalPost.position.Add(new Position(rightPost.position));
-            rightGoalPost.velocity.Add(new Velocity(Vector3.zero));
-            rightGoalPost.orientation.Add(new Orientation(rightPost));
+            // Transform leftPost = goalGO.transform.Find("goal_leftpost");
+            // Transform rightPost = goalGO.transform.Find("goal_rightpost");
+            //
+            // Goal leftGoalPost = (Goal)myRootSegment.objects
+            //     .Find(obj => obj is Goal g && g.id == "goal_leftpost");
+            // if (leftGoalPost == null)
+            // {
+            //     leftGoalPost = new Goal { id = "goal_leftpost", type = "Goal" };
+            //     myRootSegment.objects.Add(leftGoalPost);
+            // }
+            // leftGoalPost.position.Add(new Position(leftPost.position));
+            // leftGoalPost.velocity.Add(new Velocity(Vector3.zero));
+            // leftGoalPost.orientation.Add(new Orientation(leftPost));
+            //
+            // Goal rightGoalPost = (Goal)myRootSegment.objects
+            //     .Find(obj => obj is Goal g && g.id == "goal_rightpost");
+            // if (rightGoalPost == null)
+            // {
+            //     rightGoalPost = new Goal { id = "goal_rightpost", type = "Goal" };
+            //     myRootSegment.objects.Add(rightGoalPost);
+            // }
+            // rightGoalPost.position.Add(new Position(rightPost.position));
+            // rightGoalPost.velocity.Add(new Velocity(Vector3.zero));
+            // rightGoalPost.orientation.Add(new Orientation(rightPost));
         }
     }
     

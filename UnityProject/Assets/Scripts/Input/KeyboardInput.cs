@@ -807,7 +807,7 @@ public class KeyboardInput : NetworkBehaviour
             
             // Wait for the recording to be processed with a timeout
             float startTime = Time.time;
-            float timeout = 15f;
+            float timeout = 30f;
         
             Debug.Log("CLIENT: Waiting for video to be processed...");
         
@@ -863,7 +863,7 @@ public class KeyboardInput : NetworkBehaviour
             dotCount = 0;
         
             float startTime = Time.time;
-            float timeout = 15f;
+            float timeout = 30f;
         
             while (!jsonToLLM.HasClientReceivedAllData() && (Time.time - startTime < timeout))
             {
@@ -882,7 +882,7 @@ public class KeyboardInput : NetworkBehaviour
             dotCount = 0;
 
             startTime = Time.time;
-            timeout = 15f; // Longer timeout for video saving
+            timeout = 30f; // Longer timeout for video saving
 
             while (!jsonToLLM.HasClientSavedVideo() && (Time.time - startTime < timeout))
             {
@@ -910,7 +910,7 @@ public class KeyboardInput : NetworkBehaviour
             int chunkDotCount = 0;
         
             float startTime = Time.time;
-            float timeout = 15f; // Increase timeout for longer recordings
+            float timeout = 30f; // Increase timeout for longer recordings
         
             // Client waits for both dictionary chunks and annotations
             while ((!jsonToLLM.AreAllChunksReceived() || !AreAnnotationsSynced()) && (Time.time - startTime < timeout))
@@ -966,11 +966,11 @@ public class KeyboardInput : NetworkBehaviour
         if (rb == null) return;
         if (timelineManager.Paused) return;
         
-        // float horizontalInput = Input.GetAxis("Horizontal");
-        // float verticalInput = Input.GetAxis("Vertical");
+        float horizontalInput = Input.GetAxis("Horizontal");
+        float verticalInput = Input.GetAxis("Vertical");
         
-        float horizontalInput = 0f;
-        float verticalInput = 0f;
+        // float horizontalInput = 0f;
+        // float verticalInput = 0f;
         
         Vector3 forwardDirection = transform.forward;
         movement = (forwardDirection * verticalInput + transform.right * horizontalInput).normalized * moveSpeed;
