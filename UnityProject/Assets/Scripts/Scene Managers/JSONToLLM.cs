@@ -200,7 +200,7 @@ public class JSONToLLM : NetworkBehaviour
     public void PopulateSegment()
     {
         // Debug.LogError("in populate segment");
-        PopulateSceneObjects();
+        // PopulateSceneObjects();
         myRootSegment.timestep = timelineManager.TimeIndex;
     }
     
