@@ -10,7 +10,7 @@ import random
 
 # Ego (center midfielder) at origin
 pi = 3.1415
-ego = new Human at (0, 0, 0), facing toward (0, 0, 0), with team "blue"
+ego = new Human at (0, 0, 0), with team "blue"
 
 # Wingers
 left_winger_angle = 90 + Uniform(0, 10)  # degrees from y-axis, 90 is positive x-axis (left), variance +/-10
@@ -39,7 +39,7 @@ right_striker_y = striker_dist * cos(right_striker_angle * pi / 180)
 right_striker = new Player at (right_striker_x, right_striker_y, 0), facing toward ego, with name "RightStriker", with team "blue"
 
 # Ball at ego's feet
-ball = new Ball at (0, 1, 0)
+ball = new Ball at (0, 1.1, 0)
 
 # Defenders: each assigned to one attacker, at a distance and angle in front of them, facing ego
 # Helper function for defender placement
