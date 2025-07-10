@@ -159,7 +159,7 @@ public class JSONToLLM : MonoBehaviour
     // Called in FixedUpdate if isLogging = true
     public void PopulateSegment()
     {
-        PopulateSceneObjects();
+        // PopulateSceneObjects();
         myRootSegment.timestep = timelineManager.TimeIndex;
     }
     
