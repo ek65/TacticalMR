@@ -111,6 +111,7 @@ behavior Print(o):
 
 behavior Speak(input : str):
     take SpeakAction(input)
+    do Idle() for 1 seconds
     take StopAction()
 
 behavior Explain(input : str):

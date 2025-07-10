@@ -26,7 +26,7 @@ behavior OpponentFollowCoach():
         do Idle() for 0.1 seconds
 
 # Place teammate (AI) at origin
-teammate = new Player at (0, 0, 0), with name "teammate", with team "green", with behavior TeammatePass()
+teammate = new Player at (0, 0, 0), with name "teammate", with team "blue", with behavior TeammatePass()
 
 # Place coach (human) in front of teammate
 ego = new Coach ahead of teammate by coach_start_dist, with name "Coach", with team "blue", with behavior CoachBehavior()
