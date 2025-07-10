@@ -97,10 +97,12 @@ behavior ApproachGoal(v):
         dist = distance from self to v
 
 behavior DribbleTo(v):
-    dist = 1000
-    while not (dist < 0.5):
-        take DribbleToAction(v)
-        dist = distance from self to v
+    if self.gameObject.ballPossession:
+        do MoveTo(v, "Dribble To")
+    # dist = 1000
+    # while not (dist < 0.5):
+    #     take DribbleToAction(v)
+    #     dist = distance from self to v
 
 behavior SetPlayerSpeed(s):
     take SetPlayerSpeedAction(s)
