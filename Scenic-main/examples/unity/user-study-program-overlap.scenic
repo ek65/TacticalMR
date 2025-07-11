@@ -30,13 +30,13 @@ behavior DefenderBehavior():
     
 
 teammate = new Player at (0, 0, 0),
-      with behavior TeammateBehavior(), with name "teammate"
+      with behavior TeammateBehavior(), with name "teammate", with team "blue"
 
 ball = new Ball ahead of teammate by 1
 
 ego = new Coach at (ego_x_distance, ego_y_distance, 0), with name "Coach", with team "blue", with behavior CoachBehavior()
 
 opponent = new Player at (0, Uniform(4, 6), 0), with name "opponent",
-            with behavior DefenderBehavior()
+            with behavior DefenderBehavior(), with team "red"
 
 goal = new Goal at (0, 17, 0)
