@@ -18,12 +18,14 @@ behavior TeammatePass():
     do Idle()
 
 behavior OpponentFollowCoach():
-    do Idle() for 0.5 seconds  # Wait for coach to start checking
+    do Idle() for 1.0 seconds  # Wait for coach to start checking
     speed = float(opponent_speed)
     do SetPlayerSpeed(speed)
     while True:
-        do MoveToBehavior(ego.position)
-        do Idle() for 0.1 seconds
+        if distance from self to coach > 2.0:
+            do MoveToBehavior(coach.position, distance=2.0)
+        else:
+            do Idle() for 0.1 seconds
 
 # Place teammate (AI) at origin
 teammate = new Player at (0, 0, 0), with name "teammate", with team "blue", with behavior TeammatePass()

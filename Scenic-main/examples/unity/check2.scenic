@@ -21,28 +21,30 @@ behavior TeammatePass():
     do GetBallPossession(ball)
     print("got ball")
     do Idle() for 1.0 seconds
-    do Pass(coach)
+    do Pass(ego)
     do Idle()
 
 behavior OpponentFollowCoach():
-    do Idle() for 0.5 seconds  # Wait for coach to start checking
+    do Idle() for 1.0 seconds  # Wait for coach to start checking
     speed = float(opponent_speed)
     do SetPlayerSpeed(speed)
     while True:
-        do MoveToBehavior(coach.position)
-        do Idle() for 0.1 seconds
+        if distance from self to coach > 2.0:
+            do MoveToBehavior(coach.position, distance=2.0)
+        else:
+            do Idle() for 0.1 seconds
 
 # Place teammate (AI) at origin
-teammate = new Player at (0, 0, 0), with name "teammate", with team "green", with behavior TeammatePass()
+teammate = new Player at (0, 0, 0), with name "teammate", with team "blue", with behavior TeammatePass()
 
 # Place coach (human) in front of teammate
-coach = new Human ahead of teammate by coach_start_dist, with name "coach", with team "blue"
+ego = new Human ahead of teammate by coach_start_dist, with name "coach", with team "blue"
 
 # Place opponent ahead of coach (further from goal than coach)
-opponent = new Player ahead of coach by opponent_dist, facing toward coach, with name "opponent", with team "red", with behavior OpponentFollowCoach()
+opponent = new Player ahead of ego by opponent_dist, facing toward ego, with name "opponent", with team "red", with behavior OpponentFollowCoach()
 
 # Ball at teammate's feet
 ball = new Ball ahead of teammate by 0.5
 
-goal = new Goal at (0, 10, 0)
-
+goal = new Goal at (0, 15, 0)
+terminate when (ego.gameObject.stopButton)
