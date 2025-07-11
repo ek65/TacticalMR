@@ -29,8 +29,8 @@ behavior OpponentFollowCoach():
     speed = float(opponent_speed)
     do SetPlayerSpeed(speed)
     while True:
-        if distance from self to coach > 2.0:
-            do MoveToBehavior(coach.position, distance=2.0)
+        if distance from self to ego > 2.0:
+            do MoveToBehavior(ego.position, distance=2.0)
         else:
             do Idle() for 0.1 seconds
 
