@@ -26,7 +26,11 @@ behavior TeammateBehavior():
 behavior DefenderBehavior():
     do Idle() for 1 seconds
     do Idle() until ego.position.y > 1
-    do Follow(ego) until ego.gameObject.ballPossession
+    while True:
+        if distance from self to ego > 2.0:
+            do MoveToBehavior(ego.position, distance=2.0)
+        else:
+            do Idle() for 0.1 seconds   
     
 
 teammate = new Player at (0, 0, 0),
