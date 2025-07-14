@@ -46,5 +46,6 @@ opponent = new Player ahead of ego by opponent_dist, facing toward ego, with nam
 # Ball at teammate's feet
 ball = new Ball ahead of teammate by 0.5
 
-goal = new Goal at (0, 15, 0)
+goal = new Goal at (0, 17, 0)
+
 terminate when (ego.gameObject.stopButton)
