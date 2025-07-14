@@ -49,6 +49,9 @@ public class HumanInterface : MonoBehaviour
     BallOwnership ballOwnership;
     public GameObject closestPlayerInDirection;
     
+    private Vector3 lastPosition;
+    public Vector3 velocity;
+    
     public string behavior = "Idle";
     public string currAction = "No Action"; // just for debugging to see what actions function is being called
     private KeyboardInput keyboardInput;
@@ -59,11 +62,6 @@ public class HumanInterface : MonoBehaviour
     
     public bool ally;
     public Renderer shirt;
-    
-    // Add these new fields for velocity tracking
-    private Vector3 previousPosition;
-    private float previousTime;
-    public Vector3 currentVelocity = Vector3.zero;
     
     // Start is called before the first frame update
     void Start()
@@ -96,10 +94,6 @@ public class HumanInterface : MonoBehaviour
         
         forwardArrow = SpawnArrow(this.transform.position, transform.forward * 8.5f);
         forwardArrow.SetActive(false);
-        
-        // Initialize velocity tracking
-        previousPosition = transform.position;
-        previousTime = Time.time;
     }
 
     // Update is called once per frame
@@ -132,8 +126,8 @@ public class HumanInterface : MonoBehaviour
             forwardArrow.SetActive(false);
         }
         
-        // Calculate velocity every frame
-        CalculateVelocity();
+        velocity = (transform.position - lastPosition) / Time.deltaTime;
+        lastPosition = transform.position;
 
         // string currResponse = "";
         // // if (chatBehaviour.sentences.Length > 0)
@@ -189,29 +183,6 @@ public class HumanInterface : MonoBehaviour
         //     arrowSpawned = false;
         // }
 
-    }
-    
-    private void CalculateVelocity()
-    {
-        Vector3 currentPosition = transform.position;
-        float currentTime = Time.time;
-        float deltaTime = currentTime - previousTime;
-        
-        // Ensure we have a meaningful time difference (at least one frame)
-        if (deltaTime > 0.001f)
-        {
-            currentVelocity = (currentPosition - previousPosition) / deltaTime;
-            
-            // Update previous values for next frame
-            previousPosition = currentPosition;
-            previousTime = currentTime;
-        }
-    }
-    
-    // Getter method for external access to velocity
-    public Vector3 GetVelocity()
-    {
-        return currentVelocity;
     }
     
     private void OnCollisionEnter(Collision other)

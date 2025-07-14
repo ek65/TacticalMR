@@ -302,7 +302,7 @@ public class ActionAPI : MonoBehaviour
             if (humanInterface != null)
             {
                 // For human players, get their current velocity
-                Vector3 velocity = humanInterface.GetVelocity();
+                Vector3 velocity = humanInterface.velocity;
             
                 // Prediction time - how far ahead to predict (adjust this value as needed)
                 float predictionTime = 0.7f; // 0.7 seconds ahead
