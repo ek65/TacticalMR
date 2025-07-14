@@ -1,3 +1,55 @@
+from scenic.simulators.unity.actions import *
+from scenic.simulators.unity.behaviors import *
+from scenic.simulators.unity.constraints import *
+model scenic.simulators.unity.model
+import trimesh
+from scenic.core.regions import MeshVolumeRegion
+import random
+
+lambda_target_MoveWideRight = lambda self: InZone({'obj': 'Coach', 'zone': 'C2'})
+lambda_target_MoveWideLeft = lambda self: InZone({'obj': 'Coach', 'zone': 'A2'})
+lambda_target_MoveForwardForPass = lambda self: HeightRelation({'obj':'Coach', 'ref':'teammate', 'relation':'ahead', 'vertical_threshold':{'avg':1.0}})
+lambda_target_MoveToGoal = lambda self: HeightRelation({'obj':'Coach', 'ref':'goal', 'relation':'ahead', 'vertical_threshold':{'avg':-2.0}})
+
+lambda_termination_MoveWide = lambda self: InZone({'obj': 'Coach', 'zone': 'C2'})
+lambda_termination_MoveWideLeft = lambda self: InZone({'obj': 'Coach', 'zone': 'A2'})
+lambda_termination_MoveForwardForPass = lambda self: HeightRelation({'obj':'Coach', 'ref':'teammate', 'relation':'ahead', 'vertical_threshold':{'avg':1.0}})
+lambda_termination_MoveToGoal = lambda self: HeightRelation({'obj':'Coach', 'ref':'goal', 'relation':'ahead', 'vertical_threshold':{'avg':-2.0}})
+
+lambda_precondition_Wide = lambda self: True
+lambda_precondition_Forward = lambda self: True
+
+behavior CoachBehavior():
+    # 1. Get available for pass when teammate is under pressure
+    do Speak("Teammate is under pressure, move wide right for the pass.")
+    do MoveTo(lambda_target_MoveWideRight) until lambda_termination_MoveWide(self)
+    # 2. Wait for pass to Coach
+    do Speak("Hold position and wait for the pass from your teammate.")
+    do Wait()
+    # 3. Receive the ball; get possession
+    do Speak("Gain possession after receiving the ball.")
+    do GetBallPossession()
+    # 4. Move forward to get away from opponent and prepare for through pass
+    do Speak("Opponent is pressing, move ahead to be available for a through pass.")
+    do MoveTo(lambda_target_MoveForwardForPass) until lambda_termination_MoveForwardForPass(self)
+    # 5. Pass to the teammate making the run
+    do Speak("Make a through pass to the teammate.")
+    do Pass('teammate')
+    # Optional: Wait momentarily after pass
+    do Speak("Wait a bit for the next phase.")
+    do Wait()
+
+class MoveWideRightConstraint(Constraint):
+    def __call__(self, scene, sample):
+        zone_constraint = InZone({'obj': 'Coach', 'zone': 'C2'})
+        return zone_constraint(scene, sample)
+
+lambda_target = lambda self: MoveWideRightConstraint({})
+
+lambda_termination = lambda self: InZone({'obj': 'Coach', 'zone': 'C2'})
+
+lambda_precondition = lambda self: True
+
 
 
 def movesToward(player1, player2):

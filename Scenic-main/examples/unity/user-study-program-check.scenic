@@ -1,12 +1,5 @@
-from scenic.simulators.unity.actions import *
-from scenic.simulators.unity.behaviors import *
-model scenic.simulators.unity.model
 
-from scenic.core.regions import MeshVolumeRegion
 
-import trimesh
-import random
-import math
 
 # Parameters for variance
 coach_start_dist = Uniform(5, 8)  # initial distance from teammate
@@ -20,7 +13,7 @@ behavior TeammatePass():
     do Idle() for 1.0 seconds  # Give coach time to start 
     do GetBallPossession(ball)
     print("got ball")
-    do Idle() for 1.0 seconds
+    do Idle() for 5.0 seconds
     do Pass(ego)
     do Idle()
 
@@ -38,7 +31,7 @@ behavior OpponentFollowCoach():
 teammate = new Player at (0, 0, 0), with name "teammate", with team "blue", with behavior TeammatePass()
 
 # Place coach (human) in front of teammate
-ego = new Human ahead of teammate by coach_start_dist, with name "coach", with team "blue"
+ego = new Coach ahead of teammate by coach_start_dist, with name "Coach", with team "blue", with behavior CoachBehavior()
 
 # Place opponent ahead of coach (further from goal than coach)
 opponent = new Player ahead of ego by opponent_dist, facing toward ego, with name "opponent", with team "red", with behavior OpponentFollowCoach()
@@ -47,5 +40,3 @@ opponent = new Player ahead of ego by opponent_dist, facing toward ego, with nam
 ball = new Ball ahead of teammate by 0.5
 
 goal = new Goal at (0, 17, 0)
-
-terminate when (ego.gameObject.stopButton)

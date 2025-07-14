@@ -1,3 +1,59 @@
+from scenic.simulators.unity.actions import *
+from scenic.simulators.unity.behaviors import *
+from scenic.simulators.unity.constraints import *
+model scenic.simulators.unity.model
+import trimesh
+from scenic.core.regions import MeshVolumeRegion
+import random
+
+A0 = HasBallPossession({'player': 'Coach'})
+P0 = HasPathToPass({'passer': 'Coach', 'receiver': 'teammate', 'path_width': {'avg': 1.0, 'std': 0.1}})
+M0 = MovingTowards({'obj': 'opponent', 'ref': 'teammate'})
+
+def λ_goal(scene, sample):
+    # destination is the goal
+    goals = findObj('goal', scene.objects)
+    if not goals:
+        return False
+    goal = goals[0]
+    dx = sample[0] - goal.position.x
+    dy = sample[1] - goal.position.y
+    return dx*dx + dy*dy <= 0.25
+
+def λ_safe(scene, sample):
+    # destination far from the opponent
+    opps = findObj('opponent', scene.objects)
+    if not opps:
+        return False
+    opp = opps[0]
+    dx = sample[0] - opp.position.x
+    dy = sample[1] - opp.position.y
+    return dx*dx + dy*dy >= 25
+
+behavior CoachBehavior():
+    # Loop until we shoot
+    while True:
+        # If we don't have the ball, get possession
+        if not A0:
+            do Speak("Get possession of the ball")
+            take GetBallPossession()
+        # If opponent is pressuring the teammate, go shoot
+        elif A0 and M0:
+            do Speak("Run toward goal to take a shot")
+            take MoveTo(λ_goal)
+            do Speak("Shoot the ball now")
+            take Shoot()
+            break
+        # If we have a clear pass, pass to teammate
+        elif A0 and P0:
+            do Speak("Pass the ball to your teammate")
+            take Pass("teammate")
+            do Speak("Wait for the next play")
+            take Wait()
+        # Otherwise create space for a safe pass
+        else:
+            do Speak("Move away from opponent for a clear pass")
+            take MoveTo(λ_safe)
 
 
 def movesToward(player1, player2):

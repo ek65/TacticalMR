@@ -1,4 +1,5 @@
 from scenic.simulators.unity.actions import *
+from scenic.simulators.unity.constraints import *
 from enum import Enum
 model scenic.simulators.unity.model
 from scenic.core.vectors import Orientation, Vector
@@ -112,6 +113,7 @@ behavior Print(o):
 
 behavior Speak(input : str):
     take SpeakAction(input)
+    do Idle() for 1 seconds
     take StopAction()
 
 behavior Explain(input : str):
@@ -153,20 +155,20 @@ def sample_target(scene, prev_target, λ_dest) -> Vector:
     # print(f"sample: {sample}")
     return sample
 
-# MARK: MoveTo
-behavior MoveTo(λ_dest):
-    scene = simulation()
-    sample = Vector(0, 0)
-    sample = sample_target(scene, sample, λ_dest)
-    timestep = 0.3
-    # print(f"sample: {sample}")
-    while (distance from self to sample > 0.5):
-        # print('moving to', sample)
-        do MoveToBehavior(sample) for timestep seconds
-        scene = simulation()
-        sample = sample_target(scene, sample, λ_dest)
-        # print(f"sample: {sample}")
-    do Idle() for 1 seconds
+# # MARK: MoveTo
+# behavior MoveTo(λ_dest):
+#     scene = simulation()
+#     sample = Vector(0, 0)
+#     sample = sample_target(scene, sample, λ_dest)
+#     timestep = 0.3
+#     # print(f"sample: {sample}")
+#     while (distance from self to sample > 0.5):
+#         # print('moving to', sample)
+#         do MoveToBehavior(sample) for timestep seconds
+#         scene = simulation()
+#         sample = sample_target(scene, sample, λ_dest)
+#         # print(f"sample: {sample}")
+#     do Idle() for 1 seconds
 
 # # MARK: moveTo
 # behavior moveTo(player: Player, target: Coordinate, ref: list, speed: Speed):
@@ -251,7 +253,7 @@ behavior orientArms(player: Player, angle: int, target: Object = None):
     player (Player): The player whose arms are being oriented.
     angle (int): The angle to which the player's
         arms should be raised.
-    target (Object, optional): The target to point the arms towards
+    target (moect, optional): The target to point the arms towards
     Returns:
     None: The function modifies the player's posture but does not return any value.
     """
@@ -302,3 +304,112 @@ behavior MoveToRobot(v, lookAtTarget = None, distance = 0.5, status=""):
         else:
             take MoveToRobotAction(v.position, status)
         dist = distance from self to v
+
+# behavior MoveTo(λ_dest):
+#     scene = simulation()
+#     sample = Vector(0, 0)
+#     sample = sample_target(scene, sample, λ_dest)
+#     timestep = 0.3
+#     # print(f"sample: {sample}")
+#     while (distance from self to sample > 0.5):
+#         # print('moving to', sample)
+#         do MoveToBehavior(sample) for timestep seconds
+#         scene = simulation()
+#         sample = sample_target(scene, sample, λ_dest)
+#         # print(f"sample: {sample}")
+#     do Idle() for 1 seconds
+
+# -------------------------------
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+def location(vec):
+    return vec.x + cols / 2, -vec.y + rows / 2
+
+def bool_sample(vec, dist, min=0.1):
+
+    max_val = dist.max()
+    if max_val > 0:
+        dist = dist / max_val
+
+    x = builtins.min(builtins.max(int(vec[0]), 0), cols - 1)
+    y = builtins.min(builtins.max(int(vec[1]), 0), rows - 1)
+
+    sample = (y, x)
+    value = dist[sample]
+
+    return value > min
+
+rows, cols = 34, 20
+i, j = np.indices((rows, cols))
+
+def sample_from(dist, _min=0.4):
+
+    print(dist)
+
+    max_val = dist.max()
+    if max_val > 0:
+        dist = dist / max_val
+
+    filtered = np.where(dist >= _min, dist, 0.0)
+    
+    total = filtered.sum()
+    if total == 0:
+        #filtered += epsilon
+        flat = np.ones(dist.size, dtype=np.float64) / dist.size
+    else:
+        probs = filtered / total
+        flat = probs.ravel()
+    
+    #probs = filtered / total
+    #flat = probs.ravel()
+    
+    idx = np.random.choice(flat.size, p=flat)
+    coord = np.unravel_index(idx, dist.shape)
+    
+    print(f"coord: {coord}, dist.shape: {dist.shape}, idx: {idx}")
+    x, y = int(coord[1]), int(coord[0])
+    print('real sampled', x, y)
+    sample = Vector(x - cols / 2, rows / 2 - y)
+    print('Sampled', sample)
+
+    return sample
+    
+
+
+#behavior MoveTo(dist):
+#    sample = sample_from(dist)
+#    dt = 0.2
+#    while (distance from self to sample > 0.5):
+#        print('moving to', sample)
+#        do MoveToBehavior(sample) for dt seconds
+#       if not bool_sample(location(sample), dist):
+#            sample = sample_from(dist)
+#    do Idle() for 1 seconds
+
+
+behavior MoveTo(param):
+    # --- try the “param is a distribution” path ---
+    try:
+        sample  = sample_from(param)
+        dynamic = True
+        dist    = param
+    # if sample_from isn’t defined for this type, assume it’s already a goal
+    except Exception:
+        sample  = param
+        dynamic = False
+
+    dt = 0.2
+    # loop until we get within 0.5 units of our current target
+    while (distance from self to sample) > 0.5:
+        do MoveToBehavior(sample) for dt seconds
+        # if it was a distribution, re-sample whenever we leave its support
+        if dynamic and not bool_sample(location(sample), dist):
+            sample = sample_from(dist)
+
+    # once we’ve arrived, pause for a bit
+    do Idle() for 1 seconds
+
+behavior ReceiveBall():
+    do Idle() until self.gameObject.ballPossession

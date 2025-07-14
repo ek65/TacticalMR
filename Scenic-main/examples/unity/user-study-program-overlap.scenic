@@ -1,16 +1,11 @@
-from scenic.simulators.unity.actions import *
-from scenic.simulators.unity.behaviors import *
-model scenic.simulators.unity.model
 
-from scenic.core.regions import MeshVolumeRegion
 
-import trimesh
-import random
+
 
 opponent_y_distance = Uniform(3, 5)
 opponent_x_distance = Uniform(-2, 2)
 ego_x_distance = Uniform(-2, 2)
-ego_y_distance = Uniform(-2, -4)
+ego_y_distance = Uniform(-1, -2)
 
 # Ensure teammate and opponent are on the same side
 #require (opponent_x_distance < 0 and ego_x_distance < 0) or (opponent_x_distance >= 0 and ego_x_distance >= 0)
@@ -28,24 +23,20 @@ behavior TeammateBehavior():
     do Idle() for 2 seconds
     
 
-behavior OpponentBehavior():
+behavior DefenderBehavior():
     do Idle() for 1 seconds
     do Idle() until ego.position.y > 1
-    while True:
-        if distance from self to ego > 2.0:
-            do MoveToBehavior(ego.position, distance=2.0)
-        else:
-            do Idle() for 0.1 seconds    
+    do Follow(ego) until ego.gameObject.ballPossession
+    
 
 teammate = new Player at (0, 0, 0),
       with behavior TeammateBehavior(), with name "teammate", with team "blue"
 
 ball = new Ball ahead of teammate by 1
 
-ego = new Human at (ego_x_distance, ego_y_distance, 0), with name "coach", with team "blue"
+ego = new Coach at (ego_x_distance, ego_y_distance, 0), with name "Coach", with team "blue", with behavior CoachBehavior()
 
 opponent = new Player at (0, Uniform(4, 6), 0), with name "opponent",
-            with behavior OpponentBehavior(), with team "red"
+            with behavior DefenderBehavior(), with team "red"
 
 goal = new Goal at (0, 17, 0)
-terminate when (ego.gameObject.stopButton)
