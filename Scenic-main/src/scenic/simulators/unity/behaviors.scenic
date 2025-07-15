@@ -99,7 +99,7 @@ behavior ApproachGoal(v):
 
 behavior DribbleTo(v):
     if self.gameObject.ballPossession:
-        do MoveTo(v, "Dribble To")
+        do MoveTo(v)
     # dist = 1000
     # while not (dist < 0.5):
     #     take DribbleToAction(v)
@@ -112,6 +112,7 @@ behavior Print(o):
     take PrintAction(o)
 
 behavior Speak(input : str):
+    do Idle() for 1 seconds
     take SpeakAction(input)
     do Idle() for 1 seconds
     take StopAction()

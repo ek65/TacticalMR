@@ -38,7 +38,7 @@ behavior OpponentFollowCoach():
 teammate = new Player at (0, 0, 0), with name "teammate", with team "blue", with behavior TeammatePass()
 
 # Place coach (human) in front of teammate
-ego = new Human ahead of teammate by coach_start_dist, with name "coach", with team "blue"
+ego = new Human ahead of teammate by coach_start_dist, with name "Coach", with team "blue"
 
 # Place opponent ahead of coach (further from goal than coach)
 opponent = new Player ahead of ego by opponent_dist, facing toward ego, with name "opponent", with team "red", with behavior OpponentFollowCoach()

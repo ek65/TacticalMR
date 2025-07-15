@@ -1,3 +1,56 @@
+from scenic.simulators.unity.actions import *
+from scenic.simulators.unity.behaviors import *
+from scenic.simulators.unity.constraints import *
+model scenic.simulators.unity.model
+import trimesh
+from scenic.core.regions import MeshVolumeRegion
+import random
+
+behavior CoachBehavior():
+    do Idle() for 3 seconds
+    do Speak("Okay, I've received the ball. Time to look up and find the best option to move us forward.")
+    do GetBallPossession(ball)
+    do Speak("I'll wait for a clear passing lane to one of our attackers to open up.")
+    do Idle() until λ_precondition_0(simulation(), None)
+    if λ_precondition_LS(simulation(), None):
+        do Speak("The left striker is open! I'm sending the ball to him to progress the attack.")
+        do Pass(LeftStriker, λ_termination=λ_termination_pass(simulation(), None))
+    elif λ_precondition_RS(simulation(), None):
+        do Speak("I see a clear path to the right striker. Let's get the ball to him quickly.")
+        do Pass(RightStriker, λ_termination=λ_termination_pass(simulation(), None))
+    elif λ_precondition_RW(simulation(), None):
+        do Speak("The strikers are marked. I'll make a safe pass to the right winger to build up play.")
+        do Pass(RightWinger, λ_termination=λ_termination_pass(simulation(), None))
+    else:
+        do Speak("No one is open. I'll hold the ball and protect it until a teammate gets free.")
+        do Idle()
+    do Idle()
+
+A1_pre_LS_path = HasPath({'obj1': 'Coach', 'obj2': 'LeftStriker', 'path_width': {'avg': 1.5, 'std': 0.1}})
+A2_pre_LS_height = HeightRelation({'obj': 'LeftStriker', 'relation': 'above', 'ref': 'Coach'})
+A1_pre_RS_path = HasPath({'obj1': 'Coach', 'obj2': 'RightStriker', 'path_width': {'avg': 1.5, 'std': 0.1}})
+A2_pre_RS_height = HeightRelation({'obj': 'RightStriker', 'relation': 'above', 'ref': 'Coach'})
+A1_pre_RW_path = HasPath({'obj1': 'Coach', 'obj2': 'RightWinger', 'path_width': {'avg': 1.5, 'std': 0.1}})
+A1_term_pass_poss = HasBallPossession({'player': 'Coach'})
+
+def λ_precondition_LS(scene, sample):
+	return A1_pre_LS_path.bool(simulation()) and A2_pre_LS_height.bool(simulation())
+
+def λ_precondition_RS(scene, sample):
+	return A1_pre_RS_path.bool(simulation()) and A2_pre_RS_height.bool(simulation())
+
+def λ_precondition_RW(scene, sample):
+	return A1_pre_RW_path.bool(simulation())
+
+def λ_precondition_0(scene, sample):
+	return λ_precondition_LS(scene, sample) or λ_precondition_RS(scene, sample) or λ_precondition_RW(scene, sample)
+
+def λ_termination_pass(scene, sample):
+	return not A1_term_pass_poss.bool(simulation())
+
+def λ_target_unused():
+    return None
+
 
 
 

@@ -1,6 +1,92 @@
+from scenic.simulators.unity.actions import *
+from scenic.simulators.unity.behaviors import *
+from scenic.simulators.unity.constraints import *
+model scenic.simulators.unity.model
+import trimesh
+from scenic.core.regions import MeshVolumeRegion
+import random
+
+behavior CoachBehavior():
+    do Idle() for 3 seconds
+
+    do Speak("Let's get ball possession and scan for passing options.")
+    do GetBallPossession(ball)
+
+    do Speak("Wait until we have the ball under control.")
+    do Idle() until λ_precondition_possession(simulation(), None)
+
+    do Speak("Check for best open attacker to pass forward efficiently.")
+    do Idle() until λ_precondition_pass(simulation(), None)
+
+    if λ_precondition_striker(simulation(), None):
+        do Speak("We have a clear passing lane to RightStriker. Pass to RightStriker to progress quickly.")
+        do Pass(RightStriker)
+        do Speak("Wait to see RightStriker receive the ball.")
+        do Idle() until λ_termination_striker(simulation(), None)
+
+    elif λ_precondition_winger(simulation(), None):
+        do Speak("No open high striker, right winger is available. Pass to RightWinger into open space.")
+        do Pass(RightWinger)
+        do Speak("Wait to see RightWinger receive the ball.")
+        do Idle() until λ_termination_winger(simulation(), None)
+
+    else:
+        do Speak("No clear forward pass, remain idle to reassess.")
+        do Idle() for 2 seconds
+
+    do Idle()
 
 
+# Constraint Instances
 
+A_possession = HasBallPossession({'player': 'Coach'})
+
+A_path_RS = HasPath({
+    'obj1': 'Coach',
+    'obj2': 'RightStriker',
+    'path_width': {'avg': 2.0, 'std': 0.1}
+})
+
+A_path_RW = HasPath({
+    'obj1': 'Coach',
+    'obj2': 'RightWinger',
+    'path_width': {'avg': 2.0, 'std': 0.1}
+})
+
+A_RS_open = InZone({'player': 'RightStriker', 'zone': 'C4'})
+A_RW_open = InZone({'player': 'RightWinger', 'zone': 'A4'})
+
+# [FIX] Switched from HasPath to MakePass for better alignment with passability logic
+A_pass_RS = MakePass({'player': 'Coach'})
+A_pass_RW = MakePass({'player': 'Coach'})
+
+A_receive_RS = HasBallPossession({'player': 'RightStriker'})
+A_receive_RW = HasBallPossession({'player': 'RightWinger'})
+
+
+# Lambda Functions
+
+def λ_precondition_possession(scene, sample):
+    return A_possession.bool(simulation())
+
+def λ_precondition_pass(scene, sample):
+    return (
+        (A_pass_RS.bool(simulation()) and A_RS_open.bool(simulation())) or
+        (A_pass_RW.bool(simulation()) and A_RW_open.bool(simulation()))
+    )
+
+def λ_precondition_striker(scene, sample):
+    return A_pass_RS.bool(simulation()) and A_RS_open.bool(simulation())
+
+def λ_precondition_winger(scene, sample):
+    return A_pass_RW.bool(simulation()) and A_RW_open.bool(simulation())
+
+def λ_termination_striker(scene, sample):
+    return A_receive_RS.bool(simulation()) or not A_possession.bool(simulation())
+
+def λ_termination_winger(scene, sample):
+    return A_receive_RW.bool(simulation()) or not A_possession.bool(simulation())
+    
 # Ego (center midfielder) at origin
 pi = 3.1415
 ego = new Coach at (0, 0, 0), facing toward (0, 0, 0), with team "blue", with behavior CoachBehavior()

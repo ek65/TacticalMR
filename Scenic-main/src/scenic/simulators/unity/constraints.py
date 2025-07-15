@@ -387,7 +387,7 @@ class HasPath(Constraint):
         passer = findObj(self.passerID, scene.objects)
 
         if not passer:
-            return false()
+            return False
         
         dist = self.dist(scene)
         sample = location(passer[0].position)
@@ -547,7 +547,7 @@ class InZone(Constraint):
         obj = findObj(self.objID, scene.objects)
 
         if not obj:
-            return false()
+            return False
         
         dist = self.dist(scene)
         sample = location(obj[0].position)
