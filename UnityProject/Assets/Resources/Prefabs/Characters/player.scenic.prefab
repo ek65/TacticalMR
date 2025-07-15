@@ -3202,8 +3202,8 @@ MonoBehaviour:
   centerBackingField: 1
   locked: 0
   lockWhenNotMoving: 1
-  agentTimeHorizon: 5
-  obstacleTimeHorizon: 2
+  agentTimeHorizon: 10
+  obstacleTimeHorizon: 5
   maxNeighbours: 10
   layer: 1
   collidesWith: -1
