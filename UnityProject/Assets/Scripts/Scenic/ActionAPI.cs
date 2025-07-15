@@ -281,7 +281,7 @@ public class ActionAPI : MonoBehaviour
         {
             return;
         }
-        // find closest player in objectsList.scenicPlayers and objectsList.humanPlayers to destinationPosition within .5 meters
+        // find closest player in objectsList.scenicPlayers and objectsList.humanPlayers to destinationPosition within 5 meters
         ObjectsList objectList = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<ObjectsList>();
         List<GameObject> allPlayers = objectList.scenicPlayers.Concat(objectList.humanPlayers).ToList();
         GameObject closestPlayer = null;
@@ -289,7 +289,7 @@ public class ActionAPI : MonoBehaviour
         foreach (GameObject player in allPlayers)
         {
             float distance = Vector3.Distance(player.transform.position, destinationPosition);
-            if (distance < closestDistance && distance < 0.5f)
+            if (distance < closestDistance && distance < 5f)
             {
                 closestDistance = distance;
                 closestPlayer = player;
@@ -305,7 +305,7 @@ public class ActionAPI : MonoBehaviour
                 Vector3 velocity = humanInterface.velocity;
             
                 // Prediction time - how far ahead to predict (adjust this value as needed)
-                float predictionTime = 0.7f; // 0.7 seconds ahead
+                float predictionTime = 0.3f;
             
                 // Only use horizontal velocity (ignore Y component for ground movement)
                 velocity.y = 0;
