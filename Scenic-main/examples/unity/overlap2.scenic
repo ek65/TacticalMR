@@ -28,21 +28,24 @@ behavior TeammateBehavior():
     do Idle() for 2 seconds
     
 
-behavior DefenderBehavior():
+behavior OpponentBehavior():
     do Idle() for 1 seconds
     do Idle() until ego.position.y > 1
-    do Follow(ego) until ego.gameObject.ballPossession
-    
+    while True:
+        if distance from self to ego > 2.0:
+            do MoveToBehavior(ego.position, distance=2.0)
+        else:
+            do Idle() for 0.1 seconds    
 
 teammate = new Player at (0, 0, 0),
       with behavior TeammateBehavior(), with name "teammate", with team "blue"
 
 ball = new Ball ahead of teammate by 1
 
-ego = new Human at (ego_x_distance, ego_y_distance, 0), with name "coach"
+ego = new Human at (ego_x_distance, ego_y_distance, 0), with name "coach", with team "blue"
 
-opponent = new Player at (0, Uniform(4, 6), 0), facing toward ball, with name "defender1",
-            with behavior DefenderBehavior(), with team "red"
+opponent = new Player at (0, Uniform(4, 6), 0), with name "opponent",
+            with behavior OpponentBehavior(), with team "red"
 
-goal = new Goal at (0, 15, 0)
+goal = new Goal at (0, 17, 0)
 terminate when (ego.gameObject.stopButton)

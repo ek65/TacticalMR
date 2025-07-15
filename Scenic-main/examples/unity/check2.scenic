@@ -29,8 +29,8 @@ behavior OpponentFollowCoach():
     speed = float(opponent_speed)
     do SetPlayerSpeed(speed)
     while True:
-        if distance from self to coach > 2.0:
-            do MoveToBehavior(coach.position, distance=2.0)
+        if distance from self to ego > 2.0:
+            do MoveToBehavior(ego.position, distance=2.0)
         else:
             do Idle() for 0.1 seconds
 
@@ -46,5 +46,6 @@ opponent = new Player ahead of ego by opponent_dist, facing toward ego, with nam
 # Ball at teammate's feet
 ball = new Ball ahead of teammate by 0.5
 
-goal = new Goal at (0, 15, 0)
+goal = new Goal at (0, 17, 0)
+
 terminate when (ego.gameObject.stopButton)

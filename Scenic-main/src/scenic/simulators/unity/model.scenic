@@ -6,7 +6,8 @@ from scenic.simulators.unity.simulator import UnitySimulator
 from scenic.simulators.unity.client import gameObject
 from scenic.core.vectors import Orientation, Vector
 param unity_map = None
-param address = '10.41.245.255'
+# param address = '10.57.155.29'
+param address = 'localhost'
 param port = 5555
 param timeout = 10
 param timestep = .1
@@ -88,32 +89,6 @@ class GoalKeeper(Player):
 
 #goalpost
 
-# --------------------
-# MARK: Robot Scenario Models
-# --------------------
-class Robot(UnityObject):
-    gameObjectType : "robot"
-    width : 1.0
-    length : 1.0
-    height : 1.0
-    name : "Robot"
-
-class RobotHuman(UnityObject):
-    gameObjectType : "RobotCoach"
-    team : "blue"
-    width : 1.0
-    length : 1.0
-    height : 1.0
-    name : "RobotHuman"
-
-class NPC(UnityObject):
-    gameObjectType : "npc"
-    width : 1.0
-    length : 1.0
-    height : 1.0
-    name : "NPC"
-
-
 # human controlled
 class Human(UnityObject):
     gameObjectType : "human"
@@ -128,17 +103,29 @@ class Human(UnityObject):
 # system controlled
 class Coach(Human):
     systemControlled : True
-    
-
-class RobotCoach(RobotHuman):
-    systemControlled : True
-    
 
 class AIAgent(UnityObject):
     gameObjectType : "aiAgent"
     width : 1.0
     length : 1.0
     height : 1.0
+
+# --------------------
+# MARK: Robot Scenario Models
+# --------------------
+class Robot(UnityObject):
+    gameObjectType : "robot"
+    width : 1.0
+    length : 1.0
+    height : 1.0
+    name : "Robot"
+
+class NPC(UnityObject):
+    gameObjectType : "npc"
+    width : 1.0
+    length : 1.0
+    height : 1.0
+    name : "NPC"
 
 # MARK: movingTowards
 def isMovingTowards(refObject: UnityObject, targetObject: UnityObject) -> bool:

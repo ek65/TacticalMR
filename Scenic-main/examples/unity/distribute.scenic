@@ -10,7 +10,7 @@ import random
 
 # Ego (center midfielder) at origin
 pi = 3.1415
-ego = new Human at (0, 0, 0), with team "blue"
+ego = new Human at (0, 0, 0), facing toward (0, 0, 0), with team "blue"
 
 # Wingers
 left_winger_angle = 90 + Uniform(0, 10)  # degrees from y-axis, 90 is positive x-axis (left), variance +/-10
@@ -19,11 +19,11 @@ winger_dist = Uniform(6,8)
 
 left_winger_x = winger_dist * sin(left_winger_angle * pi / 180)
 left_winger_y = winger_dist * cos(left_winger_angle * pi / 180)
-left_winger = new Player at (left_winger_x, left_winger_y, 0), facing toward ego, with name "LeftWinger", with team "blue"
+left_winger = new Player at (left_winger_x, left_winger_y, 0), facing toward ego, with name "RightWinger", with team "blue"
 
 right_winger_x = winger_dist * sin(right_winger_angle * pi / 180)
 right_winger_y = winger_dist * cos(right_winger_angle * pi / 180)
-right_winger = new Player at (right_winger_x, right_winger_y, 0), facing toward ego, with name "RightWinger", with team "blue"
+right_winger = new Player at (right_winger_x, right_winger_y, 0), facing toward ego, with name "LeftWinger", with team "blue"
 
 # Strikers
 left_striker_angle = -Uniform(8, 20)
@@ -39,7 +39,7 @@ right_striker_y = striker_dist * cos(right_striker_angle * pi / 180)
 right_striker = new Player at (right_striker_x, right_striker_y, 0), facing toward ego, with name "RightStriker", with team "blue"
 
 # Ball at ego's feet
-ball = new Ball at (0, 1.1, 0)
+ball = new Ball at (0, 1, 0)
 
 # Defenders: each assigned to one attacker, at a distance and angle in front of them, facing ego
 # Helper function for defender placement
@@ -75,5 +75,5 @@ defender5_x = right_striker.position.x + defender5_dist * sin(defender5_angle * 
 defender5_y = right_striker.position.y + defender5_dist * cos(defender5_angle * pi / 180)
 defender5 = new Player at (defender5_x, defender5_y, 0), facing toward ego, with team "red", with name "Defender5"
 
-# terminate after 10 seconds
+goal = new Goal at (0, 17, 0)
 terminate when (ego.gameObject.stopButton)
