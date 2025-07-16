@@ -150,22 +150,14 @@ public class GameManager : NetworkBehaviour, INetworkRunnerCallbacks
 				NetworkObject hostNetworkPlayer = runner.Spawn(_playerPrefab, spawnPosition, Quaternion.identity, player);
 				
 				// Hide host's own networked player mesh locally
-				// // hostNetworkPlayer.gameObject.SetActive(false);
-				// Transform hostTransform = hostNetworkPlayer.gameObject.transform;
-				// Transform childWithTag = null;
-				// for (int i = 0; i < hostTransform.childCount; i++)
-				// {
-				// 	if (hostTransform.GetChild(i).CompareTag("NetworkedPlayerMesh"))
-				// 	{
-				// 		childWithTag = hostTransform.GetChild(i);
-				// 		break;
-				// 	}
-				// }
-				//
-				// if (childWithTag != null)
-				// {
-				// 	childWithTag.gameObject.SetActive(false);
-				// }
+				// hostNetworkPlayer.gameObject.SetActive(false);
+				Transform hostTransform = hostNetworkPlayer.gameObject.transform;
+				Transform playerMesh = hostTransform.FindChildRecursive("Armature_Mesh");
+				
+				if (playerMesh != null)
+				{
+					playerMesh.gameObject.GetComponent<SkinnedMeshRenderer>().enabled = false;
+				}
 				
 				
 				_spawnedCharacters.Add(player, hostNetworkPlayer);
