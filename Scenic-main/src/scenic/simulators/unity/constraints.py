@@ -1,5 +1,6 @@
 from scenic.core.vectors import Vector
 from scenic.core.object_types import OrientedPoint, Point
+from shapely.geometry import LineString, Point
 import numpy as np
 import builtins
 
@@ -18,6 +19,9 @@ def isEgo(id):
 
 def sigmoid(x):
     return 1 / (1 + np.exp(-x))
+
+# def sigmoid(x):
+#     return 1 / (1 + np.exp(-5 * x))  # sharper transition
 
 def location(vec):
     return vec.x + cols / 2, -vec.y + rows / 2 #ask about coordinate system
@@ -251,20 +255,20 @@ class HorizontalRelation(Constraint):
 
         return bool_sample(sample, dist)
 
-
-# MARK: HasPath  
-class HasPath(Constraint):
+class HasPath:
     def __init__(self, args):
         self.passerID = args.get('obj1', None)
         self.receiverID = args.get('obj2', None)
         self.radius = args.get('path_width', None)
         self.radiusAvg = self.radius.get('avg', 0.0)
         self.radiusStd = self.radius.get('std', 1.0)
+        self.path_width = np.random.normal(loc=self.radius['avg'], scale=self.radius['std'],size=1)
+        print("Path width: ", self.path_width)
+ 
 
-    def dist(self, scene, ego=False):
-
+    def bool(self, scene, ego=False):
         if ego and not (isEgo(self.passerID) or isEgo(self.receiverID)):
-            return true()
+            return False
 
         passer = findObj(self.passerID, scene.objects)
         receiver = findObj(self.receiverID, scene.objects)
@@ -272,127 +276,32 @@ class HasPath(Constraint):
         obstacles = []
         for obj in scene.objects:
             # TODO: Should check for team
-            if 'opponent' in obj.name.lower() or 'defender' in obj.name.lower():
-                obstacles.append(location(obj.position))
+
+            if hasattr(obj, "team") and obj.team.lower() == 'red':
+                obstacles.append(obj)
 
         if not (passer and receiver):
-            return false()
+            return False
         
         xp, yp = location(passer[0].position)
         xr, yr = location(receiver[0].position)
-
-        print((xp, yp), (xr, yr), obstacles, self.radiusAvg, self.radiusStd)
-
-        safety_p = self.make_dist((xp, yp), (xr, yr), obstacles, self.radiusAvg, self.radiusStd)
-        safety_r = self.make_dist((xr, yr), (xp, yp), obstacles, self.radiusAvg, self.radiusStd)
-            
-        #return safety_p * safety_r
-        return np.minimum(safety_p, safety_r)
-    
-#     def make_dist(self, start, end, obstacles, radius, dev=None):
-# 
-#         if dev is None:
-#             dev = radius / 3.0
-# 
-#         T_x, T_y = end
-# 
-#         v_x, v_y = T_y - i, T_x - j
-#         norm_v = np.sqrt(v_x**2 + v_y**2) + epsilon
-# 
-#         safety = np.ones((rows, cols))
-#         
-#         for (O_y, O_x) in obstacles:
-# 
-#             w_x, w_y = O_x - i, O_y - j
-#             
-#             dot = w_x * v_x + w_y * v_y
-#             t = dot / (norm_v**2)
-#             
-#             d = np.where(t < 0, 
-#                         np.sqrt((O_x - i)**2 + (O_y - j)**2),
-#                         np.where(t > 1, 
-#                                 np.sqrt((O_x - T_x)**2 + (O_y - T_y)**2),
-#                                 np.abs(v_x * w_y - v_y * w_x) / norm_v))
-# 
-#             opponent_safety = sigmoid((d - radius) / dev)
-#             safety = np.minimum(safety, opponent_safety)
-#             
-#         return safety
-
-
-    def make_dist(self, start, end, obstacles, radius, dev=None):
-        import numpy as np
-    
-        # DEBUG: Log input
-        print("=== make_dist DEBUG START ===")
-        print(f"Start: {start}, End: {end}, Radius: {radius}, Dev: {dev}, Obstacles: {obstacles}")
-    
-        if dev is None:
-            dev = radius / 3.0
-            print(f"Computed dev = {dev} from radius")
-    
-        # Global vars assumed defined outside class
-        global rows, cols, i, j
-        T_x, T_y = end
-        S_x, S_y = start
-    
-        # Vector from each point (j, i) to the target
-        v_x = T_x - j  # X component of direction vector to end
-        v_y = T_y - i  # Y component
-        norm_v = np.sqrt(v_x**2 + v_y**2) + 1e-6  # Avoid divide-by-zero
-    
-        # DEBUG: Log vector field
-        print("Vector field to end computed.")
-    
-        # Initial safety map (start with all safe)
-        safety = np.ones((rows, cols))
-    
-        for obstacle_index, (O_y, O_x) in enumerate(obstacles):
-            print(f"Processing obstacle {obstacle_index} at ({O_x}, {O_y})")
-    
-            # Vector from point (j, i) to obstacle
-            w_x = O_x - j
-            w_y = O_y - i
-    
-            dot = w_x * v_x + w_y * v_y
-            t = dot / (norm_v**2)
-    
-            # Compute distance from obstacle to segment
-            d = np.where(
-                t < 0,
-                np.sqrt((O_x - j) ** 2 + (O_y - i) ** 2),  # Closest to start
-                np.where(
-                    t > 1,
-                    np.sqrt((O_x - T_x) ** 2 + (O_y - T_y) ** 2),  # Closest to end
-                    np.abs(v_x * w_y - v_y * w_x) / norm_v  # Perpendicular distance
-                )
-            )
-    
-            # Apply sigmoid safety dropoff
-            opponent_safety = sigmoid((d - radius) / dev)
-            safety = np.minimum(safety, opponent_safety)
-    
-            # DEBUG: Show stats for current obstacle
-            print(f"Min dist: {np.min(d):.3f}, Max dist: {np.max(d):.3f}")
-            print(f"Min safety: {np.min(opponent_safety):.3f}, Max safety: {np.max(opponent_safety):.3f}")
-    
-        print("Final safety map stats:")
-        print(f"Min: {np.min(safety):.3f}, Max: {np.max(safety):.3f}")
-        print("=== make_dist DEBUG END ===")
-    
-        return safety
-    
-    def bool(self, scene):
-
-        passer = findObj(self.passerID, scene.objects)
-
-        if not passer:
-            return False
         
-        dist = self.dist(scene)
-        sample = location(passer[0].position)
+        #print("############INFO################")
+        #print((xp, yp), (xr, yr), obstacles, self.radiusAvg, self.radiusStd)
 
-        return bool_sample(sample, dist, min=0.4)
+        line = LineString([(xp, yp), (xr, yr)])
+        print("Line: ", line)
+        
+        for obstacle in obstacles:
+            x_obstacle, y_obstacle = location(obstacle.position)
+            p = Point(x_obstacle, y_obstacle)
+            dist = p.distance(line)
+            print("Distance: ", dist)
+            print("Trying to pass to: ", self.receiverID)
+            if dist < self.path_width:
+                return False
+
+        return True
     
 
 # MARK: DistanceTo  

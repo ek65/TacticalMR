@@ -193,9 +193,11 @@ behavior getTo(destination):
         # take MoveToAction(destination)
         take MoveToLookAtBallWithSpeed(destination, 2.0)
 
-behavior GetBallPossession(ball):
+behavior MoveToBallAndGetPossession(ball):
     while not self.gameObject.ballPossession:
         take MoveToAction(ball.position)
+    
+    do Idle() for 1.0 seconds
 
 
 behavior moveToLookAtBall(player: Player, target: Coordinate, ref: list, speed: Speed):
@@ -412,5 +414,5 @@ behavior MoveTo(param):
     # once we’ve arrived, pause for a bit
     do Idle() for 1 seconds
 
-behavior ReceiveBall():
+behavior StopAndReceiveBall():
     do Idle() until self.gameObject.ballPossession
