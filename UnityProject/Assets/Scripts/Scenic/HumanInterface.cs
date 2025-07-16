@@ -49,6 +49,9 @@ public class HumanInterface : MonoBehaviour
     BallOwnership ballOwnership;
     public GameObject closestPlayerInDirection;
     
+    private Vector3 lastPosition;
+    public Vector3 velocity;
+    
     public string behavior = "Idle";
     public string currAction = "No Action"; // just for debugging to see what actions function is being called
     private KeyboardInput keyboardInput;
@@ -122,6 +125,9 @@ public class HumanInterface : MonoBehaviour
         {
             forwardArrow.SetActive(false);
         }
+        
+        velocity = (transform.position - lastPosition) / Time.deltaTime;
+        lastPosition = transform.position;
 
         // string currResponse = "";
         // // if (chatBehaviour.sentences.Length > 0)

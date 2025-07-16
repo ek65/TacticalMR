@@ -281,7 +281,7 @@ public class ActionAPI : MonoBehaviour
         {
             return;
         }
-        // find closest player in objectsList.scenicPlayers and objectsList.humanPlayers to destinationPosition within .5 meters
+        // find closest player in objectsList.scenicPlayers and objectsList.humanPlayers to destinationPosition within 5 meters
         ObjectsList objectList = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<ObjectsList>();
         List<GameObject> allPlayers = objectList.scenicPlayers.Concat(objectList.humanPlayers).ToList();
         GameObject closestPlayer = null;
@@ -289,7 +289,7 @@ public class ActionAPI : MonoBehaviour
         foreach (GameObject player in allPlayers)
         {
             float distance = Vector3.Distance(player.transform.position, destinationPosition);
-            if (distance < closestDistance && distance < 0.5f)
+            if (distance < closestDistance && distance < 5f)
             {
                 closestDistance = distance;
                 closestPlayer = player;
@@ -297,8 +297,46 @@ public class ActionAPI : MonoBehaviour
         }
         if (closestPlayer != null)
         {
-            // set destinationPosition to closestPlayer's target moving position
-            destinationPosition = closestPlayer.GetComponent<AIDestinationSetter>().target.position;
+            // Check if the closest player is human-controlled
+            HumanInterface humanInterface = closestPlayer.GetComponent<HumanInterface>();
+            if (humanInterface != null)
+            {
+                // For human players, get their current velocity
+                Vector3 velocity = humanInterface.velocity;
+            
+                // Prediction time - how far ahead to predict (adjust this value as needed)
+                float predictionTime = 0.3f;
+            
+                // Only use horizontal velocity (ignore Y component for ground movement)
+                velocity.y = 0;
+            
+                // Only predict if the player is actually moving (velocity magnitude > threshold)
+                if (velocity.magnitude > 0.1f) // 0.1 units per second threshold
+                {
+                    // Calculate predicted position
+                    Vector3 predictedPosition = closestPlayer.transform.position + (velocity * predictionTime);
+                    destinationPosition = predictedPosition;
+                }
+                else
+                {
+                    // If player is not moving much, just pass to their current position
+                    destinationPosition = closestPlayer.transform.position;
+                }
+            }
+            else
+            {
+                // For AI players, use the existing logic with AIDestinationSetter
+                AIDestinationSetter aiDestinationSetter = closestPlayer.GetComponent<AIDestinationSetter>();
+                if (aiDestinationSetter != null)
+                {
+                    destinationPosition = aiDestinationSetter.target.position;
+                }
+                else
+                {
+                    // Fallback: use current position
+                    destinationPosition = closestPlayer.transform.position;
+                }
+            }
         }
         
         
