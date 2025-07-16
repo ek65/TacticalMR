@@ -635,7 +635,7 @@ public class ActionAPI : MonoBehaviour
                 hI.isMoving = true;
             
                 // normalize speed then *2 for anim values
-                float velz = aiNav.velocity.magnitude / playerRunningSpeed * 2;
+                float velz = aiNav.velocity.magnitude;
             
                 // Debug.LogError(velz);
                 selfPlayer.GetComponent<Animator>().SetFloat("VelZ", velz);
@@ -654,9 +654,8 @@ public class ActionAPI : MonoBehaviour
                 pI.isMoving = true;
             
                 // normalize speed then *2 for anim values
-                float velz = aiNav.velocity.magnitude / playerRunningSpeed * 2;
+                float velz = aiNav.velocity.magnitude;
             
-                // Debug.LogError(velz);
                 selfPlayer.GetComponent<Animator>().SetFloat("VelZ", velz);
 
                 // yield return StartCoroutine(MovementLerp2(Destiny));
@@ -699,7 +698,7 @@ public class ActionAPI : MonoBehaviour
                 hI.isMoving = true;
             
                 // normalize speed then *2 for anim values
-                float velz = aiNav.velocity.magnitude / playerRunningSpeed * 2;
+                float velz = aiNav.velocity.magnitude;
             
                 // Debug.LogError(velz);
                 selfPlayer.GetComponent<Animator>().SetFloat("VelZ", velz);
@@ -718,7 +717,7 @@ public class ActionAPI : MonoBehaviour
                 pI.isMoving = true;
             
                 // normalize speed then *2 for anim values
-                float velz = aiNav.velocity.magnitude / playerRunningSpeed * 2;
+                float velz = aiNav.velocity.magnitude;
             
                 // Debug.LogError(velz);
                 selfPlayer.GetComponent<Animator>().SetFloat("VelZ", velz);
