@@ -487,6 +487,12 @@ public class HumanInterface : MonoBehaviour
         source.PlayOneShot(source.clip);
     }
     
+    public IEnumerator SetIsMovingTrue()
+    {
+        yield return new WaitForSeconds(0.5f);
+        isMoving = true;
+    }
+    
     public void SetTransform(Vector3 pos)
     {
         Debug.LogError("In SetTransform: " + pos);

@@ -632,7 +632,7 @@ public class ActionAPI : MonoBehaviour
             HumanInterface hI = this.gameObject.GetComponent<HumanInterface>();
             while (destSetter.target.position != this.gameObject.transform.position)
             {
-                hI.isMoving = true;
+                StartCoroutine(hI.SetIsMovingTrue());
             
                 // normalize speed then *2 for anim values
                 float velz = aiNav.velocity.magnitude;
@@ -651,7 +651,7 @@ public class ActionAPI : MonoBehaviour
             PlayerInterface pI = this.gameObject.GetComponent<PlayerInterface>();
             while (destSetter.target.position != this.gameObject.transform.position)
             {
-                pI.isMoving = true;
+                StartCoroutine(pI.SetIsMovingTrue());
             
                 // normalize speed then *2 for anim values
                 float velz = aiNav.velocity.magnitude;
@@ -695,7 +695,7 @@ public class ActionAPI : MonoBehaviour
             HumanInterface hI = this.gameObject.GetComponent<HumanInterface>();
             while (destSetter.target.position != this.gameObject.transform.position)
             {
-                hI.isMoving = true;
+                StartCoroutine(hI.SetIsMovingTrue());
             
                 // normalize speed then *2 for anim values
                 float velz = aiNav.velocity.magnitude;
@@ -714,7 +714,7 @@ public class ActionAPI : MonoBehaviour
             PlayerInterface pI = this.gameObject.GetComponent<PlayerInterface>();
             while (destSetter.target.position != this.gameObject.transform.position)
             {
-                pI.isMoving = true;
+                StartCoroutine(pI.SetIsMovingTrue());
             
                 // normalize speed then *2 for anim values
                 float velz = aiNav.velocity.magnitude;
