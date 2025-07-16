@@ -200,7 +200,7 @@ public class JSONToLLM : NetworkBehaviour
     public void PopulateSegment()
     {
         // Debug.LogError("in populate segment");
-        // PopulateSceneObjects();
+        PopulateSceneObjects();
         myRootSegment.timestep = timelineManager.TimeIndex;
     }
     
@@ -318,15 +318,15 @@ public class JSONToLLM : NetworkBehaviour
             myRootSegment.objects.Add(ballData);
         }
         
-        if (objectsList.ballObject != null)
-        {
-            var ballGO = objectsList.ballObject;
-
-            ballData.position.Add(new Position(ballGO.transform.position));
-            ballData.orientation.Add(new Orientation(ballGO.transform));
-            Rigidbody ballRB = ballGO.GetComponent<Rigidbody>();
-            ballData.velocity.Add(new Velocity(ballRB.velocity));
-        }
+        // if (objectsList.ballObject != null)
+        // {
+        //     var ballGO = objectsList.ballObject;
+        //
+        //     ballData.position.Add(new Position(ballGO.transform.position));
+        //     ballData.orientation.Add(new Orientation(ballGO.transform));
+        //     Rigidbody ballRB = ballGO.GetComponent<Rigidbody>();
+        //     ballData.velocity.Add(new Velocity(ballRB.velocity));
+        // }
 
         // goal
         Goal goalData2 = (Goal)myRootSegment.objects.Find(obj => obj is Goal g && g.id == "goal");
@@ -336,40 +336,40 @@ public class JSONToLLM : NetworkBehaviour
             myRootSegment.objects.Add(goalData2);
         }
 
-        if (objectsList.goalObject != null)
-        {
-            var goalGO = objectsList.goalObject;
-            
-            Vector3 zeroVector = Vector3.zero;
-            goalData2.velocity.Add(new Velocity(zeroVector));
-            goalData2.position.Add(new Position(goalGO.transform.position));
-            goalData2.orientation.Add(new Orientation(goalGO.transform));
-            
-            // Transform leftPost = goalGO.transform.Find("goal_leftpost");
-            // Transform rightPost = goalGO.transform.Find("goal_rightpost");
-            //
-            // Goal leftGoalPost = (Goal)myRootSegment.objects
-            //     .Find(obj => obj is Goal g && g.id == "goal_leftpost");
-            // if (leftGoalPost == null)
-            // {
-            //     leftGoalPost = new Goal { id = "goal_leftpost", type = "Goal" };
-            //     myRootSegment.objects.Add(leftGoalPost);
-            // }
-            // leftGoalPost.position.Add(new Position(leftPost.position));
-            // leftGoalPost.velocity.Add(new Velocity(Vector3.zero));
-            // leftGoalPost.orientation.Add(new Orientation(leftPost));
-            //
-            // Goal rightGoalPost = (Goal)myRootSegment.objects
-            //     .Find(obj => obj is Goal g && g.id == "goal_rightpost");
-            // if (rightGoalPost == null)
-            // {
-            //     rightGoalPost = new Goal { id = "goal_rightpost", type = "Goal" };
-            //     myRootSegment.objects.Add(rightGoalPost);
-            // }
-            // rightGoalPost.position.Add(new Position(rightPost.position));
-            // rightGoalPost.velocity.Add(new Velocity(Vector3.zero));
-            // rightGoalPost.orientation.Add(new Orientation(rightPost));
-        }
+        // if (objectsList.goalObject != null)
+        // {
+        //     var goalGO = objectsList.goalObject;
+        //     
+        //     Vector3 zeroVector = Vector3.zero;
+        //     goalData2.velocity.Add(new Velocity(zeroVector));
+        //     goalData2.position.Add(new Position(goalGO.transform.position));
+        //     goalData2.orientation.Add(new Orientation(goalGO.transform));
+        //     
+        //     // Transform leftPost = goalGO.transform.Find("goal_leftpost");
+        //     // Transform rightPost = goalGO.transform.Find("goal_rightpost");
+        //     //
+        //     // Goal leftGoalPost = (Goal)myRootSegment.objects
+        //     //     .Find(obj => obj is Goal g && g.id == "goal_leftpost");
+        //     // if (leftGoalPost == null)
+        //     // {
+        //     //     leftGoalPost = new Goal { id = "goal_leftpost", type = "Goal" };
+        //     //     myRootSegment.objects.Add(leftGoalPost);
+        //     // }
+        //     // leftGoalPost.position.Add(new Position(leftPost.position));
+        //     // leftGoalPost.velocity.Add(new Velocity(Vector3.zero));
+        //     // leftGoalPost.orientation.Add(new Orientation(leftPost));
+        //     //
+        //     // Goal rightGoalPost = (Goal)myRootSegment.objects
+        //     //     .Find(obj => obj is Goal g && g.id == "goal_rightpost");
+        //     // if (rightGoalPost == null)
+        //     // {
+        //     //     rightGoalPost = new Goal { id = "goal_rightpost", type = "Goal" };
+        //     //     myRootSegment.objects.Add(rightGoalPost);
+        //     // }
+        //     // rightGoalPost.position.Add(new Position(rightPost.position));
+        //     // rightGoalPost.velocity.Add(new Velocity(Vector3.zero));
+        //     // rightGoalPost.orientation.Add(new Orientation(rightPost));
+        // }
     }
     
     private void AddOrUpdatePlayer(GameObject playerGO, string type, string behaviorOverride = null)
@@ -390,36 +390,36 @@ public class JSONToLLM : NetworkBehaviour
             myRootSegment.objects.Add(existingPlayer);
         }
         
-        Transform _transform = playerGO.transform;
-        if (type == "Coach" && playerGO.GetComponent<HumanInterface>().isVR)
-        {
-            _transform = playerGO.GetComponent<HumanInterface>().vrTransform;
-        }
-
-        existingPlayer.position.Add(new Position(_transform.position));
-        
-        Vector3 velocity = (type == "Coach")
-            ? keyboard.movement
-            : playerGO.GetComponent<PlayerInterface>().currVelocity;
-
-        if (type == "Coach" && playerGO.GetComponent<HumanInterface>().isVR)
-        {
-            velocity = playerGO.GetComponent<HumanInterface>().velocity;
-        }
-        
-        existingPlayer.velocity.Add(new Velocity(velocity));
-        existingPlayer.orientation.Add(new Orientation(_transform));
-
-        bool hasBall = false;
-        if (type == "Coach")
-        {
-            hasBall = playerGO.GetComponent<HumanInterface>().ballPossession;
-        }
-        else
-        {
-            hasBall = playerGO.GetComponent<PlayerInterface>().ballPossession;
-        }
-        existingPlayer.ballPossession.Add(hasBall);
+        // Transform _transform = playerGO.transform;
+        // if (type == "Coach" && playerGO.GetComponent<HumanInterface>().isVR)
+        // {
+        //     _transform = playerGO.GetComponent<HumanInterface>().vrTransform;
+        // }
+        //
+        // existingPlayer.position.Add(new Position(_transform.position));
+        //
+        // Vector3 velocity = (type == "Coach")
+        //     ? keyboard.movement
+        //     : playerGO.GetComponent<PlayerInterface>().currVelocity;
+        //
+        // if (type == "Coach" && playerGO.GetComponent<HumanInterface>().isVR)
+        // {
+        //     velocity = playerGO.GetComponent<HumanInterface>().velocity;
+        // }
+        //
+        // existingPlayer.velocity.Add(new Velocity(velocity));
+        // existingPlayer.orientation.Add(new Orientation(_transform));
+        //
+        // bool hasBall = false;
+        // if (type == "Coach")
+        // {
+        //     hasBall = playerGO.GetComponent<HumanInterface>().ballPossession;
+        // }
+        // else
+        // {
+        //     hasBall = playerGO.GetComponent<PlayerInterface>().ballPossession;
+        // }
+        // existingPlayer.ballPossession.Add(hasBall);
     }
     
     
