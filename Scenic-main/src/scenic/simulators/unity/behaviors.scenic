@@ -118,8 +118,8 @@ behavior DribbleTo(v):
 
 # Max player speed is 5
 behavior SetPlayerSpeed(s):
-    if (s > 5):
-        s = 5
+    if (s > 5.0):
+        s = 5.0
     take SetPlayerSpeedAction(s)
 
 behavior Print(o):
