@@ -733,3 +733,24 @@ class Overlap(Constraint):
         # sample at the player's actual location
         sample = location(player[0].position)
         return bool_sample(sample, dist)
+
+# MARK: IsMoving
+class IsMoving(Constraint):
+    def __init__(self, args):
+        self.playerID = args.get('player', None)
+
+    def dist(self, scene, ego=False):
+
+        if ego and not isEgo(self.playerID):
+            return true()
+        
+        return true() if self.bool(scene) else false()
+        
+    def bool(self, scene):
+        
+        player = findObj(self.playerID, scene.objects)
+        
+        if not player:
+            return False
+        
+        return player[0].gameObject.isMoving
