@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "com.arongranberg.astar": "5.4.1",
     "com.github-glitchenzo.nugetforunity": "https://github.com/GlitchEnzo/NuGetForUnity.git?path=/src/NuGetForUnity",
     "com.meta.movement": "https://github.com/oculus-samples/Unity-Movement.git",
     "com.meta.xr.sdk.all": "60.0.0",
@@ -67,6 +68,13 @@
       "scopes": [
         "com.openai",
         "com.utilities"
+      ]
+    },
+    {
+      "name": "A* Pathfinding Project",
+      "url": "https://arongranberg.com/packages/310377804cf37063b06ea3b13c2218856877e13e6287b/",
+      "scopes": [
+        "com.arongranberg.astar"
       ]
     }
   ]
