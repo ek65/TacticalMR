@@ -170,10 +170,10 @@ public class HumanInterface : NetworkBehaviour
             t2.gameObject.SetActive(false);
         }
 
-        if (isViewer)
-        {
-            t.SetActive(false);
-        }
+        // if (isViewer)
+        // {
+        //     t.SetActive(false);
+        // }
         t2.gameObject.SetActive(false);
     }
     
