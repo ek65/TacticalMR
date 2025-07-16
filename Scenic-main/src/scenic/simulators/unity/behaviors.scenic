@@ -89,7 +89,18 @@ behavior MoveToBehavior(v, lookAtTarget = None, distance = 0.2, status=""):
         do LookAt(lookAtTarget)
     else:
         do LookAt(v)
-    
+
+behavior WalkTo(v, lookAtTarget = None, distance = 0.2, status=""):
+    do SetPlayerSpeed(2)
+    do MoveToBehavior(v, lookAtTarget, distance, status)
+
+behavior JogTo(v, lookAtTarget = None, distance = 0.2, status=""):
+    do SetPlayerSpeed(3.5)
+    do MoveToBehavior(v, lookAtTarget, distance, status)
+
+behavior SprintTo(v, lookAtTarget = None, distance = 0.2, status=""):
+    do SetPlayerSpeed(5)
+    do MoveToBehavior(v, lookAtTarget, distance, status)
 
 behavior ApproachGoal(v):
     dist = 1000
@@ -105,7 +116,10 @@ behavior DribbleTo(v):
     #     take DribbleToAction(v)
     #     dist = distance from self to v
 
+# Max player speed is 5
 behavior SetPlayerSpeed(s):
+    if (s > 5):
+        s = 5
     take SetPlayerSpeedAction(s)
 
 behavior Print(o):
