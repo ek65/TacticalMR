@@ -47,7 +47,7 @@ class SetPlayerSpeedAction(Action):
         self.actionName = "SetPlayerSpeed"
         
         if not isinstance(speed, float):
-            raise RuntimeError("spped must be a float")
+            raise RuntimeError("speed must be a float")
         self.speed = speed
 
     def applyTo(self, obj, sim):

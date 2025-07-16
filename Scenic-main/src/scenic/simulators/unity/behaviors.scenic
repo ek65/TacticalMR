@@ -50,8 +50,8 @@ behavior Pass(target, slow=False):
     elif checkIfString(target):
         target = [obj for obj in scene.objects if obj.name.lower() == target][0].position # converts string into object reference
         # print("elif case")
-    # print(f"Passing to {target}")
-    # print(f"type: {type(target)}")
+    print(f"Passing to {target}")
+    print(f"type: {type(target)}")
 
     if slow:
         take GroundPassSlowAction(target, "Pass Ball")
@@ -414,8 +414,13 @@ behavior MoveTo(param):
         dist    = param
     # if sample_from isn’t defined for this type, assume it’s already a goal
     except Exception:
-        sample  = param
-        dynamic = False
+        if checkIfString(target):
+            param = [obj for obj in scene.objects if obj.name.lower() == param][0].position # converts string into object reference
+            sample  = param
+            dynamic = False
+        else:
+            sample  = param
+            dynamic = False
 
     dt = 0.2
     # loop until we get within 0.5 units of our current target
