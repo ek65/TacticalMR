@@ -424,6 +424,7 @@ class gameObject:
     stopButton : bool
     pause:bool
     ballPossession : bool
+    isMoving : bool
     
     actionDict : dict
 
@@ -442,6 +443,7 @@ class gameObject:
         self.stopButton = False
         self.pause = False
         self.ballPossession = False
+        self.isMoving = False
         self.actionDict = {}
         self.behavior = ""
         self.name = ""
@@ -491,6 +493,7 @@ class gameObject:
         self.stopButton = data.movement_data.stopButton
         self.pause = data.movement_data.pause
         self.ballPossession = data.movement_data.ballPossession
+        self.isMoving = data.movement_data.isMoving
         # self.heldByHuman = data.movement_data.heldByHuman
         # self.heldByScenic = data.movement_data.heldByScenic
         self.behavior = data.movement_data.behavior
@@ -643,6 +646,7 @@ class MovementData:
     stopButton: bool
     pause: bool
     ballPossession: bool
+    isMoving: bool
     heldByHuman: bool
     heldByScenic: bool
     behavior: str
@@ -657,10 +661,11 @@ class MovementData:
         stopButton = from_bool(obj.get("stopButton"))
         pause = from_bool(obj.get("pause"))
         ballPossession = from_bool(obj.get("ballPossession"))
+        isMoving = from_bool(obj.get("isMoving"))
         heldByHuman = from_bool(obj.get("heldByHuman"))
         heldByScenic = from_bool(obj.get("heldByScenic"))
         behavior = obj.get("behavior")
-        return MovementData(transform, speed, velocity, angular_velocity, rotation, stopButton, pause, ballPossession, heldByHuman, heldByScenic, behavior)
+        return MovementData(transform, speed, velocity, angular_velocity, rotation, stopButton, pause, ballPossession, isMoving, heldByHuman, heldByScenic, behavior)
 
     def to_dict(self) -> dict:
         result: dict = {}
@@ -672,6 +677,7 @@ class MovementData:
         result["stopButton"] = from_bool(self.stopButton)
         result["pause"] = from_bool(self.pause)
         result["ballPossession"] = from_bool(self.ballPossession)
+        result["isMoving"] = from_bool(self.isMoving)
         result["heldByHuman"] = from_bool(self.heldByHuman)
         result["heldByScenic"] = from_bool(self.heldByScenic)
         result["behavior"] = self.behavior

@@ -22,6 +22,7 @@ public class PlayerInterface : MonoBehaviour
     public float force;
     public float distToBall;
     public GameObject goal;
+    public bool isMoving;
     public bool ballPossession;
     public Transform ballPosition;
     private KeyboardInput keyboardInput;

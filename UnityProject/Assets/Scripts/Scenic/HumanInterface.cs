@@ -40,7 +40,8 @@ public class HumanInterface : MonoBehaviour
     
     public float distToBall;
     public Vector3 ballOnTheGround;
-    
+
+    public bool isMoving;
     public bool ballPossession;
     public GameObject ball;
     public Transform ballPosition;
