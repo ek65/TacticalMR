@@ -150,7 +150,11 @@ public class InstantiateScenicObject
                 {
                     addedGameObject = objectList.humanPlayers[0];
                     HumanInterface hI = addedGameObject.GetComponent<HumanInterface>();
-                    hI.SetObjectName(name);
+                    // Hardcoding "Coach" name here because the name string seems to be empty
+                    // TODO: look into fixing this so we don't have to hardcode the string
+                    addedGameObject.name = "Coach";
+                    // Debug.LogError("name0: " + name);
+                    hI.SetObjectName("Coach");
                     
                     Fade f = objectList.humanPlayers[0].GetComponent<Fade>();
                     ExitScenario e = objectList.humanPlayers[0].GetComponent<ExitScenario>();
