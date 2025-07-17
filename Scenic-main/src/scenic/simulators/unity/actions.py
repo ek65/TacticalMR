@@ -76,7 +76,7 @@ class MoveToWithSpeed(Action):
         obj.gameObject.DoAction(self.actionName, self.position, self.speed)
 
 class MoveToLookAtBallWithSpeed(Action):
-    def __init__(self, obj):
+    def __init__(self, obj, speed):
         self.actionName = "MoveToPosLookAtBall"
         self.behavior = ""
 

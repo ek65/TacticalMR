@@ -10,7 +10,7 @@ import random
 behavior CoachBehavior():
     do Speak("I'm waiting for the pass, ready to receive the ball.")
     # do ReceiveBall()
-    do GetBallPossession(ball)
+    do MoveToBallAndGetPossession(ball)
     do Speak("I have possession. Now I'm looking for the best passing option.")
     
     if λ_precondition_pass_to_RS(simulation(), None):

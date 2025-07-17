@@ -546,7 +546,7 @@ class Pressure(Constraint):
 class MakePass(Constraint):
     def __init__(self, args={}):
         self.player = args.get('player', None)
-
+    
     def dist(self, scene, ego=False):
 
         if ego and not isEgo(self.player):
