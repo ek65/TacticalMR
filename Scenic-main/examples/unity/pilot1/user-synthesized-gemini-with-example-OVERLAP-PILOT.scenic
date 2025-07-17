@@ -11,7 +11,7 @@ behavior CoachBehavior():
     do Speak("We're on a 2v1 attack. I'll make an overlapping run to give my teammate a passing option.")
     do MoveTo(λ_target0()) until λ_termination0(simulation(), None)
     do Speak("Teammate sees me, making the pass. I'll receive it and assess.")
-    do ReceiveBall()
+    do StopAndReceiveBall()
     do Speak("I have possession. Decide now: pass to my teammate or shoot?")
     do Idle() until λ_precondition1(simulation(), None) or C4.bool(simulation())
     if λ_precondition1(simulation(), None):
@@ -53,7 +53,7 @@ behavior Follow(obj):
 
 behavior TeammateBehavior():
     do Idle() for 1 seconds
-    do GetBallPossession(ball)
+    do MoveToBallAndGetPossession(ball)
     do Idle() until ego.position.y > 2
     do Pass(ego, slow=False) until (distance from opponent to ego) <= 3
     do DribbleTo(goal) until (distance from opponent to ego) > 3

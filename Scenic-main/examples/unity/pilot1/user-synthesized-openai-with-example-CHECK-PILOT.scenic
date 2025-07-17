@@ -13,7 +13,7 @@ behavior CoachBehavior():
     do Speak("Wait until teammate is ready to pass.")
     do Idle() until λ_precondition_0(simulation(), None)
     do Speak("Get in position to receive the ball.")
-    do ReceiveBall()
+    do StopAndReceiveBall()
     do Speak("Wait until possession of the ball is secured.")
     do Idle() until λ_precondition_1(simulation(), None)
     do Speak("Make a quick pass back to teammate as the shooting lane opens.")
@@ -74,7 +74,7 @@ opponent_speed = Uniform(5, 7)        # opponent's movement speed
 # Behaviors
 behavior TeammatePass():
     do Idle() for 1.0 seconds  # Give coach time to start 
-    do GetBallPossession(ball)
+    do MoveToBallAndGetPossession(ball)
     print("got ball")
     do Idle() for 5.0 seconds
     do Pass(ego)

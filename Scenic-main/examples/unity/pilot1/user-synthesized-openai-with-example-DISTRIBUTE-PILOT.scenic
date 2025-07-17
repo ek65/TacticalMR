@@ -11,7 +11,7 @@ behavior CoachBehavior():
     do Speak("Stay aware and be ready to receive the ball.")
     do Idle() until λ_precondition_0(simulation(), None)
     do Speak("Quickly get ball possession and assess your options.")
-    do GetBallPossession(ball)
+    do MoveToBallAndGetPossession(ball)
     do Speak("Pause until you have the ball securely.")
     do Idle() until λ_precondition_1(simulation(), None)
     if λ_precondition2_highest(simulation(), None):

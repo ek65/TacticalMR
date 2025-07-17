@@ -10,7 +10,7 @@ import random
 behavior CoachBehavior():
     do Idle() for 3 seconds
     do Speak("I'm waiting to receive the ball to initiate the play.")
-    do ReceiveBall()
+    do StopAndReceiveBall()
     do Speak("Now that I have the ball, I will look for an open teammate to pass to.")
     do Idle() until λ_precondition_any_pass(simulation(), None)
     if λ_precondition_1(simulation(), None):
