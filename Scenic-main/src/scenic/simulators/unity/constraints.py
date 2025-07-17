@@ -106,24 +106,26 @@ Constraint.__or__ = lambda self, other: CompositeConstraint(self, other, 'OR')
 Constraint.__invert__ = lambda self: NegationConstraint(self)
 
 
-# MARK: CloseTo
-class CloseTo(Constraint): # Checked for graceful failure
+# MARK: CloseTo/Pressure
+class Pressure(Constraint): # Checked for graceful failure
     def __init__(self, args):
-        self.obj = args.get('obj', None)
-        self.ref = args.get('ref', None)
-        self.max = args.get('max', None)
+        self.obj = args.get('player1', None)
+        self.ref = args.get('player2', None)
+        self.max = {'avg': 3.0, 'std': 1.0}
+        self.max_avg = 3.0
+        self.max_std = 1.0
 
-        if isinstance(self.max, (int, float)):
-            self.max_avg = self.max
-            self.max_std = 1.0
-        elif self.max is not None:
-            self.max = args.get('max', None)
-            self.max_avg = self.max.get('avg', 3.0)
-            self.max_std = self.max.get('std', 1.0) #should be using std
-        else:
-            self.max = {'avg': 3.0, 'std': 1.0}
-            self.max_avg = 3.0
-            self.max_std = 1.0
+#         if isinstance(self.max, (int, float)):
+#             self.max_avg = self.max
+#             self.max_std = 1.0
+#         elif self.max is not None:
+#             self.max = args.get('max', None)
+#             self.max_avg = self.max.get('avg', 3.0)
+#             self.max_std = self.max.get('std', 1.0) #should be using std
+#         else:
+#             self.max = {'avg': 3.0, 'std': 1.0}
+#             self.max_avg = 3.0
+#             self.max_std = 1.0
 
     def dist(self, scene, ego=False):
 
@@ -135,11 +137,11 @@ class CloseTo(Constraint): # Checked for graceful failure
         if not ref:
             return false()
         
-        print('close to', ref[0].position)
+#         print('close to', ref[0].position)
         x, y = location(ref[0].position)
         radius = self.max_avg
 
-        print('close to', x, y, radius)
+#         print('close to', x, y, radius)
 
         distances = np.sqrt((i - y)**2 + (j - x)**2)
         close_to = np.exp(-distances**2 / (2 * radius**2)) + epsilon 
@@ -181,7 +183,7 @@ class HeightRelation(Constraint):
         if ref:
             x, y = location(ref[0].position)
         else:
-            x, y = location(Vector(0, 0))
+            x, y = location(obj.position)
         
         mirror = (self.relation == 'below')
 
@@ -200,7 +202,7 @@ class HeightRelation(Constraint):
         obj = findObj(self.objID, scene.objects)
 
         if not obj:
-            return false()
+            return False
         
         dist = self.dist(scene)
         sample = location(obj[0].position)
@@ -229,7 +231,7 @@ class HorizontalRelation(Constraint):
         if ref:
             x, y = location(ref[0].position)
         else:
-            x, y = location(Vector(0, 0))
+            x, y = location(obj.position)
         
         mirror = (self.relation == 'right')
 
@@ -248,7 +250,7 @@ class HorizontalRelation(Constraint):
         obj = findObj(self.objID, scene.objects)
 
         if not obj:
-            return false()
+            return False
         
         dist = self.dist(scene)
         sample = location(obj[0].position)
@@ -263,7 +265,7 @@ class HasPath:
         self.radiusAvg = self.radius.get('avg', 0.0)
         self.radiusStd = self.radius.get('std', 1.0)
         self.path_width = np.random.normal(loc=self.radius['avg'], scale=self.radius['std'],size=1)
-        print("Path width: ", self.path_width)
+#         print("Path width: ", self.path_width)
  
 
     def bool(self, scene, ego=False):
@@ -290,14 +292,14 @@ class HasPath:
         #print((xp, yp), (xr, yr), obstacles, self.radiusAvg, self.radiusStd)
 
         line = LineString([(xp, yp), (xr, yr)])
-        print("Line: ", line)
+#         print("Line: ", line)
         
         for obstacle in obstacles:
             x_obstacle, y_obstacle = location(obstacle.position)
             p = Point(x_obstacle, y_obstacle)
             dist = p.distance(line)
-            print("Distance: ", dist)
-            print("Trying to pass to: ", self.receiverID)
+#             print("Distance: ", dist)
+#             print("Trying to pass to: ", self.receiverID)
             if dist < self.path_width:
                 return False
 
@@ -514,32 +516,32 @@ class MovingTowards(Constraint):
     
 
 # MARK: Pressure
-class Pressure(Constraint):
-    def __init__(self, args={}):
-        self.player1 = args.get('player1', None)
-        self.player2 = args.get('player2', None)
-
-    def dist(self, scene, ego=False):
-
-        if ego and not isEgo(self.player1):
-            return true()
-        
-        return true() if self.bool(scene) else false()
-
-    def bool(self, scene):
-
-        player1 = findObj(self.player1, scene.objects)
-        player2 = findObj(self.player2, scene.objects)
-
-        if not (player1 and player2):
-            return False
-
-        behav = player1[0].gameObject.behavior.lower()
-        name = player2[0].name.lower()
-
-        if 'follow' in behav and name in behav:
-            return True
-        return False
+# class Pressure(Constraint):
+#     def __init__(self, args={}):
+#         self.player1 = args.get('player1', None)
+#         self.player2 = args.get('player2', None)
+# 
+#     def dist(self, scene, ego=False):
+# 
+#         if ego and not isEgo(self.player1):
+#             return true()
+#         
+#         return true() if self.bool(scene) else false()
+# 
+#     def bool(self, scene):
+# 
+#         player1 = findObj(self.player1, scene.objects)
+#         player2 = findObj(self.player2, scene.objects)
+# 
+#         if not (player1 and player2):
+#             return False
+# 
+#         behav = player1[0].gameObject.behavior.lower()
+#         name = player2[0].name.lower()
+# 
+#         if 'follow' in behav and name in behav:
+#             return True
+#         return False
     
 
 # MARK: MakePass
@@ -575,8 +577,12 @@ class AtAngle(Constraint):
         self.playerID = args.get('player', None)
         self.ballID   = args.get('ball',   None)
         # left/right parameter dicts
+#         self.direction = args.get('direction', )
+#         self.theta = args.get('theta', {'avg':45., 'std':15.})
+#         self.dist = args.get('dist', {'avg':3., 'std':1.})
         self.left  = args.get('left',  {'theta':{'avg':45., 'std':15.}, 'dist':{'avg':3., 'std':1.}})
         self.right = args.get('right', {'theta':{'avg':45., 'std':15.}, 'dist':{'avg':3., 'std':1.}})
+        
 
         lt = self.left['theta'];   ld = self.left['dist']
         rt = self.right['theta'];  rd = self.right['dist']
@@ -692,7 +698,7 @@ class Overlap(Constraint):
         v1x = Gx - Bx;  v1y = Gy - By
         # determine side by opponent
         cross_o = v1x*(Oy - By) - v1y*(Ox - Bx)
-        side = 'left' if cross_o > 0 else 'right'
+        side = 'left' if cross_o > 0 else 'rightH'
 
         return self.make_dist((Bx, By), (v1x, v1y), side)
 
