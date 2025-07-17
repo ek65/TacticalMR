@@ -157,7 +157,7 @@ BlendTree:
   - serializedVersion: 2
     m_Motion: {fileID: 7400000, guid: cab84b1b10b8a4e44b11bfbe9c2e2e5b, type: 2}
     m_Threshold: 0.09375001
-    m_Position: {x: 0, y: 1}
+    m_Position: {x: 0, y: 2.5}
     m_TimeScale: 1
     m_CycleOffset: 0
     m_DirectBlendParameter: VelX
@@ -165,7 +165,7 @@ BlendTree:
   - serializedVersion: 2
     m_Motion: {fileID: 7400000, guid: 2ce4e7315c5a15b468862abdd46da8de, type: 2}
     m_Threshold: 0.18750001
-    m_Position: {x: 0, y: 2}
+    m_Position: {x: 0, y: 5}
     m_TimeScale: 1
     m_CycleOffset: 0
     m_DirectBlendParameter: VelX
