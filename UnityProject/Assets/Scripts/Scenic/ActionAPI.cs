@@ -547,7 +547,7 @@ public class ActionAPI : NetworkBehaviour
                     Vector3 velocity = humanInterface.velocity;
                 
                     // Prediction time - how far ahead to predict (adjust this value as needed)
-                    float predictionTime = 0.7f;
+                    float predictionTime = 0.3f;
                 
                     // Only use horizontal velocity (ignore Y component for ground movement)
                     velocity.y = 0;
