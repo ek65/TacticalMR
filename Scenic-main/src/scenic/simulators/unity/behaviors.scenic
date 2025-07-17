@@ -89,7 +89,18 @@ behavior MoveToBehavior(v, lookAtTarget = None, distance = 0.2, status=""):
         do LookAt(lookAtTarget)
     else:
         do LookAt(v)
-    
+
+behavior WalkTo(v, lookAtTarget = None, distance = 0.2, status=""):
+    do SetPlayerSpeed(2)
+    do MoveToBehavior(v, lookAtTarget, distance, status)
+
+behavior JogTo(v, lookAtTarget = None, distance = 0.2, status=""):
+    do SetPlayerSpeed(3.5)
+    do MoveToBehavior(v, lookAtTarget, distance, status)
+
+behavior SprintTo(v, lookAtTarget = None, distance = 0.2, status=""):
+    do SetPlayerSpeed(5)
+    do MoveToBehavior(v, lookAtTarget, distance, status)
 
 behavior ApproachGoal(v):
     dist = 1000
@@ -99,19 +110,23 @@ behavior ApproachGoal(v):
 
 behavior DribbleTo(v):
     if self.gameObject.ballPossession:
-        do MoveTo(v, "Dribble To")
+        do MoveTo(v)
     # dist = 1000
     # while not (dist < 0.5):
     #     take DribbleToAction(v)
     #     dist = distance from self to v
 
+# Max player speed is 5
 behavior SetPlayerSpeed(s):
+    if (s > 5.0):
+        s = 5.0
     take SetPlayerSpeedAction(s)
 
 behavior Print(o):
     take PrintAction(o)
 
 behavior Speak(input : str):
+    do Idle() for 1 seconds
     take SpeakAction(input)
     do Idle() for 1 seconds
     take StopAction()
@@ -192,9 +207,11 @@ behavior getTo(destination):
         # take MoveToAction(destination)
         take MoveToLookAtBallWithSpeed(destination, 2.0)
 
-behavior GetBallPossession(ball):
+behavior MoveToBallAndGetPossession(ball):
     while not self.gameObject.ballPossession:
         take MoveToAction(ball.position)
+    
+    do Idle() for 1.0 seconds
 
 
 behavior moveToLookAtBall(player: Player, target: Coordinate, ref: list, speed: Speed):
@@ -411,5 +428,5 @@ behavior MoveTo(param):
     # once we’ve arrived, pause for a bit
     do Idle() for 1 seconds
 
-behavior ReceiveBall():
+behavior StopAndReceiveBall():
     do Idle() until self.gameObject.ballPossession
