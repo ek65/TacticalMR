@@ -40,7 +40,8 @@ public class HumanInterface : MonoBehaviour
     
     public float distToBall;
     public Vector3 ballOnTheGround;
-    
+
+    public bool isMoving;
     public bool ballPossession;
     public GameObject ball;
     public Transform ballPosition;
@@ -49,6 +50,10 @@ public class HumanInterface : MonoBehaviour
     BallOwnership ballOwnership;
     public GameObject closestPlayerInDirection;
     
+    private Queue<Vector3> positionHistory = new Queue<Vector3>();
+    private Queue<float> timeHistory = new Queue<float>();
+    private int maxHistoryFrames = 5; // Average over 5 frames
+    private float minDeltaTime = 0.01f; // Minimum deltaTime to consider
     private Vector3 lastPosition;
     public Vector3 velocity;
     
@@ -125,9 +130,8 @@ public class HumanInterface : MonoBehaviour
         {
             forwardArrow.SetActive(false);
         }
-        
-        velocity = (transform.position - lastPosition) / Time.deltaTime;
-        lastPosition = transform.position;
+
+        CalculateSmoothedVelocity();
 
         // string currResponse = "";
         // // if (chatBehaviour.sentences.Length > 0)
@@ -183,6 +187,51 @@ public class HumanInterface : MonoBehaviour
         //     arrowSpawned = false;
         // }
 
+    }
+    
+    private void CalculateSmoothedVelocity()
+    {
+        // Add current position and time to history
+        positionHistory.Enqueue(transform.position);
+        timeHistory.Enqueue(Time.time);
+        
+        // Remove old entries if we exceed max frames
+        while (positionHistory.Count > maxHistoryFrames)
+        {
+            positionHistory.Dequeue();
+            timeHistory.Dequeue();
+        }
+        
+        // Calculate velocity if we have enough history
+        if (positionHistory.Count >= 2)
+        {
+            Vector3[] positions = positionHistory.ToArray();
+            float[] times = timeHistory.ToArray();
+            
+            Vector3 oldestPosition = positions[0];
+            float oldestTime = times[0];
+            Vector3 currentPosition = positions[positions.Length - 1];
+            float currentTime = times[times.Length - 1];
+            
+            float deltaTime = currentTime - oldestTime;
+            
+            if (deltaTime > minDeltaTime)
+            {
+                velocity = (currentPosition - oldestPosition) / deltaTime;
+            }
+            else
+            {
+                // If deltaTime is too small, keep previous velocity or set to zero
+                if (velocity.magnitude < 0.01f) // Very small velocity threshold
+                {
+                    velocity = Vector3.zero;
+                }
+            }
+        }
+        else
+        {
+            velocity = Vector3.zero;
+        }
     }
     
     private void OnCollisionEnter(Collision other)
@@ -484,6 +533,12 @@ public class HumanInterface : MonoBehaviour
     public void PlayAudioClip()
     {
         source.PlayOneShot(source.clip);
+    }
+    
+    public IEnumerator SetIsMovingTrue()
+    {
+        yield return new WaitForSeconds(0.5f);
+        isMoving = true;
     }
     
     public void SetTransform(Vector3 pos)

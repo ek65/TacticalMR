@@ -142,6 +142,7 @@ public class JSONStatusMaker : MonoBehaviour
             pData.movementData.speed = velo.magnitude;
             HumanInterface hI = player.GetComponent<HumanInterface>();
             pData.movementData.ballPossession = hI.ballPossession;
+            pData.movementData.isMoving = hI.isMoving;
             pData.movementData.behavior = hI.behavior;
             
             // rotation stuff for VR camera, not needed for now
@@ -153,6 +154,7 @@ public class JSONStatusMaker : MonoBehaviour
         {
             PlayerInterface pI = player.GetComponent<PlayerInterface>();
             pData.movementData.ballPossession = pI.ballPossession;
+            pData.movementData.isMoving = pI.isMoving;
             pData.movementData.behavior = pI.behavior;
             Vector3 velo = pI.currVelocity;
             Vector3ToJsonClass(velo, pData.movementData.velocity);
@@ -252,6 +254,7 @@ public class JSONStatusMaker : MonoBehaviour
             stopButton = false;
             pause = false;
             ballPossession = false;
+            isMoving = false;
             heldByHuman = false;
             heldByScenic = false;
             behavior = "";
@@ -264,6 +267,7 @@ public class JSONStatusMaker : MonoBehaviour
         public bool stopButton { get; set; }
         public bool pause { get; set; }
         public bool ballPossession { get; set; }
+        public bool isMoving { get; set; }
         public bool heldByHuman { get; set; }
         public bool heldByScenic { get; set; }
         public string behavior { get; set; }

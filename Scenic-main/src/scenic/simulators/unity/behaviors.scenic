@@ -50,8 +50,8 @@ behavior Pass(target, slow=False):
     elif checkIfString(target):
         target = [obj for obj in scene.objects if obj.name.lower() == target][0].position # converts string into object reference
         # print("elif case")
-    # print(f"Passing to {target}")
-    # print(f"type: {type(target)}")
+    print(f"Passing to {target}")
+    print(f"type: {type(target)}")
 
     if slow:
         take GroundPassSlowAction(target, "Pass Ball")
@@ -89,7 +89,18 @@ behavior MoveToBehavior(v, lookAtTarget = None, distance = 0.2, status=""):
         do LookAt(lookAtTarget)
     else:
         do LookAt(v)
-    
+
+behavior WalkTo(v, lookAtTarget = None, distance = 0.2, status=""):
+    do SetPlayerSpeed(2)
+    do MoveToBehavior(v, lookAtTarget, distance, status)
+
+behavior JogTo(v, lookAtTarget = None, distance = 0.2, status=""):
+    do SetPlayerSpeed(3.5)
+    do MoveToBehavior(v, lookAtTarget, distance, status)
+
+behavior SprintTo(v, lookAtTarget = None, distance = 0.2, status=""):
+    do SetPlayerSpeed(5)
+    do MoveToBehavior(v, lookAtTarget, distance, status)
 
 behavior ApproachGoal(v):
     dist = 1000
@@ -105,7 +116,10 @@ behavior DribbleTo(v):
     #     take DribbleToAction(v)
     #     dist = distance from self to v
 
+# Max player speed is 5
 behavior SetPlayerSpeed(s):
+    if (s > 5.0):
+        s = 5.0
     take SetPlayerSpeedAction(s)
 
 behavior Print(o):
@@ -400,8 +414,13 @@ behavior MoveTo(param):
         dist    = param
     # if sample_from isn’t defined for this type, assume it’s already a goal
     except Exception:
-        sample  = param
-        dynamic = False
+        if checkIfString(target):
+            param = [obj for obj in scene.objects if obj.name.lower() == param][0].position # converts string into object reference
+            sample  = param
+            dynamic = False
+        else:
+            sample  = param
+            dynamic = False
 
     dt = 0.2
     # loop until we get within 0.5 units of our current target

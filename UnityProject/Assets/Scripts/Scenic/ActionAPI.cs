@@ -289,7 +289,7 @@ public class ActionAPI : MonoBehaviour
         foreach (GameObject player in allPlayers)
         {
             float distance = Vector3.Distance(player.transform.position, destinationPosition);
-            if (distance < closestDistance && distance < 5f)
+            if (distance < closestDistance && distance < 2f)
             {
                 closestDistance = distance;
                 closestPlayer = player;
@@ -297,8 +297,10 @@ public class ActionAPI : MonoBehaviour
         }
         if (closestPlayer != null)
         {
+            Debug.LogError("IN HERE: " + closestPlayer);
             // Check if the closest player is human-controlled
             HumanInterface humanInterface = closestPlayer.GetComponent<HumanInterface>();
+            PlayerInterface playerInterface = closestPlayer.GetComponent<PlayerInterface>();
             if (humanInterface != null)
             {
                 // For human players, get their current velocity
@@ -323,9 +325,33 @@ public class ActionAPI : MonoBehaviour
                     destinationPosition = closestPlayer.transform.position;
                 }
             }
+            else if (playerInterface != null)
+            {
+                // For AI players, get their current velocity
+                Vector3 velocity = playerInterface.currVelocity;
+            
+                // Prediction time - how far ahead to predict (adjust this value as needed)
+                float predictionTime = 0.7f;
+            
+                // Only use horizontal velocity (ignore Y component for ground movement)
+                velocity.y = 0;
+            
+                // Only predict if the player is actually moving (velocity magnitude > threshold)
+                if (velocity.magnitude > 0.1f) // 0.1 units per second threshold
+                {
+                    // Calculate predicted position
+                    Vector3 predictedPosition = closestPlayer.transform.position + (velocity * predictionTime);
+                    destinationPosition = predictedPosition;
+                }
+                else
+                {
+                    // If player is not moving much, just pass to their current position
+                    destinationPosition = closestPlayer.transform.position;
+                }
+            }
             else
             {
-                // For AI players, use the existing logic with AIDestinationSetter
+                // Otherwise, for AI players, pass to target destination position as fallback
                 AIDestinationSetter aiDestinationSetter = closestPlayer.GetComponent<AIDestinationSetter>();
                 if (aiDestinationSetter != null)
                 {
@@ -624,17 +650,45 @@ public class ActionAPI : MonoBehaviour
     {
         GameObject selfPlayer = this.gameObject;
         destSetter.target.position = Destiny;
-        while (destSetter.target.position != this.gameObject.transform.position)
-        {
-            // normalize speed then *2 for anim values
-            float velz = aiNav.velocity.magnitude / playerRunningSpeed * 2;
-            
-            // Debug.LogError(velz);
-            selfPlayer.GetComponent<Animator>().SetFloat("VelZ", velz);
 
-            // yield return StartCoroutine(MovementLerp2(Destiny));
-            yield return null;
+        if (this.gameObject.CompareTag("human"))
+        {
+            HumanInterface hI = this.gameObject.GetComponent<HumanInterface>();
+            while (destSetter.target.position != this.gameObject.transform.position)
+            {
+                StartCoroutine(hI.SetIsMovingTrue());
+            
+                // normalize speed then *2 for anim values
+                float velz = aiNav.velocity.magnitude;
+            
+                // Debug.LogError(velz);
+                selfPlayer.GetComponent<Animator>().SetFloat("VelZ", velz);
+
+                // yield return StartCoroutine(MovementLerp2(Destiny));
+                yield return null;
+            }
+
+            hI.isMoving = false;
         }
+        else
+        {
+            PlayerInterface pI = this.gameObject.GetComponent<PlayerInterface>();
+            while (destSetter.target.position != this.gameObject.transform.position)
+            {
+                StartCoroutine(pI.SetIsMovingTrue());
+            
+                // normalize speed then *2 for anim values
+                float velz = aiNav.velocity.magnitude;
+            
+                selfPlayer.GetComponent<Animator>().SetFloat("VelZ", velz);
+
+                // yield return StartCoroutine(MovementLerp2(Destiny));
+                yield return null;
+            }
+
+            pI.isMoving = false;
+        }
+        
         
         // selfPlayer.GetComponent<NavMeshAgent>().enabled = false; // Deactivate Agent 
         // selfPlayer.GetComponentInChildren<NavMeshObstacle>().enabled = true;
@@ -659,18 +713,44 @@ public class ActionAPI : MonoBehaviour
         }
         GameObject selfPlayer = this.gameObject;
         destSetter.target.position = Destiny;
-        while (destSetter.target.position != this.gameObject.transform.position)
-        {
-            // should normalize speed then *2 for anim values
-            
-            float horizontalInput = aiNav.velocity.x;
-            float verticalInput = aiNav.velocity.z;
-            
-            selfPlayer.GetComponent<Animator>().SetFloat("VelZ", verticalInput);
-            selfPlayer.GetComponent<Animator>().SetFloat("VelX", horizontalInput);
 
-            // yield return StartCoroutine(MovementLerp2(Destiny));
-            yield return null;
+        if (this.gameObject.CompareTag("human"))
+        {
+            HumanInterface hI = this.gameObject.GetComponent<HumanInterface>();
+            while (destSetter.target.position != this.gameObject.transform.position)
+            {
+                StartCoroutine(hI.SetIsMovingTrue());
+            
+                // normalize speed then *2 for anim values
+                float velz = aiNav.velocity.magnitude;
+            
+                // Debug.LogError(velz);
+                selfPlayer.GetComponent<Animator>().SetFloat("VelZ", velz);
+
+                // yield return StartCoroutine(MovementLerp2(Destiny));
+                yield return null;
+            }
+
+            hI.isMoving = false;
+        }
+        else
+        {
+            PlayerInterface pI = this.gameObject.GetComponent<PlayerInterface>();
+            while (destSetter.target.position != this.gameObject.transform.position)
+            {
+                StartCoroutine(pI.SetIsMovingTrue());
+            
+                // normalize speed then *2 for anim values
+                float velz = aiNav.velocity.magnitude;
+            
+                // Debug.LogError(velz);
+                selfPlayer.GetComponent<Animator>().SetFloat("VelZ", velz);
+
+                // yield return StartCoroutine(MovementLerp2(Destiny));
+                yield return null;
+            }
+
+            pI.isMoving = false;
         }
         aiNav.updateRotation = true;
         yield return null;

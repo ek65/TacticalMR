@@ -22,6 +22,7 @@ public class PlayerInterface : MonoBehaviour
     public float force;
     public float distToBall;
     public GameObject goal;
+    public bool isMoving;
     public bool ballPossession;
     public Transform ballPosition;
     private KeyboardInput keyboardInput;
@@ -161,6 +162,12 @@ public class PlayerInterface : MonoBehaviour
         canKickBall = false;
         yield return new WaitForSeconds(2.5f);
         canKickBall = true;
+    }
+    
+    public IEnumerator SetIsMovingTrue()
+    {
+        yield return new WaitForSeconds(0.5f);
+        isMoving = true;
     }
 
     public void ApplyMovement(ScenicMovementData data)
