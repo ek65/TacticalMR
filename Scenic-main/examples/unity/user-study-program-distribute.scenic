@@ -67,3 +67,4 @@ defender5_dist = Uniform(1,2)
 defender5_x = RightStriker.position.x + defender5_dist * sin(defender5_angle * pi / 180)
 defender5_y = RightStriker.position.y + defender5_dist * cos(defender5_angle * pi / 180)
 defender5 = new Player at (defender5_x, defender5_y, 0), facing toward ego, with team "red", with name "defender5"
+terminate when (ego.gameObject.stopButton)
