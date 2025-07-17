@@ -890,6 +890,12 @@ public class HumanInterface : NetworkBehaviour
         source.PlayOneShot(source.clip);
     }
     
+    public IEnumerator SetIsMovingTrue()
+    {
+        yield return new WaitForSeconds(0.5f);
+        isMoving = true;
+    }
+    
     public void SetTransform(Vector3 pos, Quaternion rot)
     {
         // Debug.LogError("In SetTransform: " + pos);

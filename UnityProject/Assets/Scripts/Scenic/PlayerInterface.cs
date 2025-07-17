@@ -263,6 +263,12 @@ public class PlayerInterface : NetworkBehaviour
         canKickBall = true;
     }
 
+    public IEnumerator SetIsMovingTrue()
+    {
+        yield return new WaitForSeconds(0.5f);
+        isMoving = true;
+    }
+    
     public void ApplyMovement(ScenicMovementData data)
     {
         localTick += 1;
