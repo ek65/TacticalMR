@@ -13,11 +13,11 @@ behavior CoachBehavior():
     do Speak("Idle until the defender closes you down or you are close to the defender.")
     do Idle() until λ_precondition0(simulation(), None)
     do Speak("Get possession of the ball and be decisive.")
-    do GetBallPossession(ball)
+    do MoveToBallAndGetPossession(ball)
     do Speak("Idle until you have the ball and are pressured.")
     do Idle() until λ_precondition1(simulation(), None)
     do Speak("Receive the ball and look for a chance to shoot.")
-    do ReceiveBall()
+    do StopAndReceiveBall()
     do Speak("Idle until defender is pressuring you or path is blocked.")
     do Idle() until λ_termination0(simulation(), None)
     do Speak("Pass the ball back to teammate for a better chance.")
@@ -59,7 +59,7 @@ behavior Follow(obj):
 
 behavior TeammateBehavior():
     do Idle() for 1 seconds
-    do GetBallPossession(ball)
+    do MoveToBallAndGetPossession(ball)
     do Idle() until ego.position.y > 2
     do Pass(ego, slow=False) until (distance from opponent to ego) <= 3
     do DribbleTo(goal) until (distance from opponent to ego) > 3

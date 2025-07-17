@@ -8,44 +8,48 @@ import random
 
 behavior CoachBehavior():
     do Idle() for 3 seconds
-    do Speak("Stay aware and be ready to receive the ball.")
+    do Speak("Okay, I've received the ball. Time to look up and find the best option to move us forward.")
+    do GetBallPossession(ball)
+    do Speak("I'll wait for a clear passing lane to one of our attackers to open up.")
     do Idle() until λ_precondition_0(simulation(), None)
-    do Speak("Quickly get ball possession and assess your options.")
-    do MoveToBallAndGetPossession(ball)
-    do Speak("Pause until you have the ball securely.")
-    do Idle() until λ_precondition_1(simulation(), None)
-    if λ_precondition2_highest(simulation(), None):
-        do Speak("Pass to the most advanced striker for fastest progression.")
-        do Pass(RightStriker)
-    elif λ_precondition2_horizontal(simulation(), None):
-        do Speak("Pass horizontal to your open teammate for one-two build-up.")
-        do Pass(RightWinger)
+    if λ_precondition_LS(simulation(), None):
+        do Speak("The left striker is open! I'm sending the ball to him to progress the attack.")
+        do Pass(LeftStriker, λ_termination=λ_termination_pass(simulation(), None))
+    elif λ_precondition_RS(simulation(), None):
+        do Speak("I see a clear path to the right striker. Let's get the ball to him quickly.")
+        do Pass(RightStriker, λ_termination=λ_termination_pass(simulation(), None))
+    elif λ_precondition_RW(simulation(), None):
+        do Speak("The strikers are marked. I'll make a safe pass to the right winger to build up play.")
+        do Pass(RightWinger, λ_termination=λ_termination_pass(simulation(), None))
     else:
-        do Speak("If blocked, seek alternative open teammates.")
-        do Pass(LeftStriker)
-    do Speak("Hold and observe after passing.")
+        do Speak("No one is open. I'll hold the ball and protect it until a teammate gets free.")
+        do Idle()
     do Idle()
 
-A1precondition_0 = HasBallPossession({'player': 'Coach'})
-A1precondition_1 = HasBallPossession({'player': 'Coach'})
-A1precondition_2_high = HasPath({'obj1': 'Coach', 'obj2': 'RightStriker', 'path_width': {'avg': 1.5, 'std': 0.2}})
-A1precondition_2_horizontal = HasPath({'obj1': 'Coach', 'obj2': 'RightWinger', 'path_width': {'avg': 1.5, 'std': 0.2}})
-A1precondition_2_left = HasPath({'obj1': 'Coach', 'obj2': 'LeftStriker', 'path_width': {'avg': 1.5, 'std': 0.2}})
+A1_pre_LS_path = HasPath({'obj1': 'Coach', 'obj2': 'LeftStriker', 'path_width': {'avg': 1.5, 'std': 0.1}})
+A2_pre_LS_height = HeightRelation({'obj': 'LeftStriker', 'relation': 'above', 'ref': 'Coach'})
+A1_pre_RS_path = HasPath({'obj1': 'Coach', 'obj2': 'RightStriker', 'path_width': {'avg': 1.5, 'std': 0.1}})
+A2_pre_RS_height = HeightRelation({'obj': 'RightStriker', 'relation': 'above', 'ref': 'Coach'})
+A1_pre_RW_path = HasPath({'obj1': 'Coach', 'obj2': 'RightWinger', 'path_width': {'avg': 1.5, 'std': 0.1}})
+A1_term_pass_poss = HasBallPossession({'player': 'Coach'})
+
+def λ_precondition_LS(scene, sample):
+	return A1_pre_LS_path.bool(simulation()) and A2_pre_LS_height.bool(simulation())
+
+def λ_precondition_RS(scene, sample):
+	return A1_pre_RS_path.bool(simulation()) and A2_pre_RS_height.bool(simulation())
+
+def λ_precondition_RW(scene, sample):
+	return A1_pre_RW_path.bool(simulation())
 
 def λ_precondition_0(scene, sample):
-    return A1precondition_0.bool(simulation())
+	return λ_precondition_LS(scene, sample) or λ_precondition_RS(scene, sample) or λ_precondition_RW(scene, sample)
 
-def λ_precondition_1(scene, sample):
-    return A1precondition_1.bool(simulation())
+def λ_termination_pass(scene, sample):
+	return not A1_term_pass_poss.bool(simulation())
 
-def λ_precondition2_highest(scene, sample):
-    return A1precondition_2_high.bool(simulation())
-
-def λ_precondition2_horizontal(scene, sample):
-    return (not A1precondition_2_high.bool(simulation())) and A1precondition_2_horizontal.bool(simulation())
-
-def λ_precondition2_left(scene, sample):
-    return (not A1precondition_2_high.bool(simulation())) and (not A1precondition_2_horizontal.bool(simulation())) and A1precondition_2_left.bool(simulation())
+def λ_target_unused():
+    return None
 
 
 
@@ -81,7 +85,7 @@ right_striker_y = striker_dist * cos(right_striker_angle * pi / 180)
 RightStriker = new Player at (right_striker_x, right_striker_y, 0), facing toward ego, with name "RightStriker", with team "blue"
 
 # Ball at ego's feet
-ball = new Ball at (0, 1, 0)
+ball = new Ball at (0, .2, 0)
 
 # Defenders: each assigned to one attacker, at a distance and angle in front of them, facing ego
 # Helper function for defender placement

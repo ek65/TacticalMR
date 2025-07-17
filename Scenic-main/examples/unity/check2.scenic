@@ -18,7 +18,7 @@ opponent_speed = Uniform(5, 7)        # opponent's movement speed
 # Behaviors
 behavior TeammatePass():
     do Idle() for 1.0 seconds  # Give coach time to start 
-    do GetBallPossession(ball)
+    do MoveToBallAndGetPossession(ball)
     print("got ball")
     do Idle() for 1.0 seconds
     do Pass(ego)
@@ -38,7 +38,7 @@ behavior OpponentFollowCoach():
 teammate = new Player at (0, 0, 0), with name "teammate", with team "blue", with behavior TeammatePass()
 
 # Place coach (human) in front of teammate
-ego = new Human ahead of teammate by coach_start_dist, with name "coach", with team "blue"
+ego = new Human ahead of teammate by coach_start_dist, with name "Coach", with team "blue"
 
 # Place opponent ahead of coach (further from goal than coach)
 opponent = new Player ahead of ego by opponent_dist, facing toward ego, with name "opponent", with team "red", with behavior OpponentFollowCoach()

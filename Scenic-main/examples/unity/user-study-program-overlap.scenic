@@ -16,7 +16,7 @@ behavior Follow(obj):
 
 behavior TeammateBehavior():
     do Idle() for 1 seconds
-    do GetBallPossession(ball)
+    do MoveToBallAndGetPossession(ball)
     do Idle() until ego.position.y > 2
     do Pass(ego, slow=False) until (distance from opponent to ego) <= 3
     do DribbleTo(goal) until (distance from opponent to ego) > 3
@@ -44,3 +44,4 @@ opponent = new Player at (0, Uniform(4, 6), 0), with name "opponent",
             with behavior DefenderBehavior(), with team "red"
 
 goal = new Goal at (0, 17, 0)
+terminate when (ego.gameObject.stopButton)

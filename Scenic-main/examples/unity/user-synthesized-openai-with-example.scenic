@@ -8,59 +8,44 @@ import random
 
 behavior CoachBehavior():
     do Idle() for 3 seconds
-    do Speak("Let’s move wide and pull the defender away from the center.")
+    do Speak("Move to the side to pull the defender out and open the goal")
     do MoveTo(λ_target0())
-    do Speak("Wait until teammate is ready to pass.")
+    do Speak("Wait until you are in position to receive the ball from teammate")
     do Idle() until λ_precondition_0(simulation(), None)
-    do Speak("Get in position to receive the ball.")
+    do Speak("Stop and receive ball from teammate")
     do StopAndReceiveBall()
-    do Speak("Wait until possession of the ball is secured.")
+    do Speak("Wait until you have ball possession but are under pressure")
     do Idle() until λ_precondition_1(simulation(), None)
-    do Speak("Make a quick pass back to teammate as the shooting lane opens.")
-    do Pass(teammate)
-    do Speak("Wait until teammate receives the ball.")
+    do Speak("Pass to teammate, return the ball to exploit open shot")
+    do Pass('teammmate')
+    do Speak("Wait until teammate shoots to goal")
     do Idle() until λ_precondition_2(simulation(), None)
-    do Speak("Let’s shoot! Give the teammate a chance to score.")
-    do Idle() until λ_precondition_3(simulation(), None)
-    do Shoot(goal)
     do Idle()
 
-A1target_0 = DistanceTo({'from': 'Coach', 'to': 'center_zone', 'min': {'avg': 6.5, 'std': 0.7}, 'max': None, 'operator': 'greater_than'})
-A1precondition_0 = MakePass({'player': 'teammate'})
+A1target_0 = Overlap({
+    'player': 'Coach',
+    'ball': 'ball',
+    'goal': 'goal',
+    'opponent': 'opponent',
+    'theta': {'avg': 35.0, 'std': 5.0},
+    'dist': {'avg': 7.0, 'std': 1.0}
+})
+A1precondition_0 = MakePass({'player': 'teammmate'})
 A1precondition_1 = HasBallPossession({'player': 'Coach'})
-A1precondition_2 = HasBallPossession({'player': 'teammate'})
-A1precondition_3 = HasPath({'obj1': 'teammate', 'obj2': 'goal', 'path_width': {'avg': 2.1, 'std': 0.1}})
+A2precondition_1 = Pressure({'player1': 'opponent', 'player2': 'Coach'})
+A1precondition_2 = Shoot({'goal': 'goal', 'player': 'teammmate'})
 
 def λ_target0():
     return A1target_0.dist(simulation(), ego=True)
 
-def λ_termination_MoveTo():
-    # Terminate move when sufficiently far from the center zone (not necessarily in best passing position yet).
-    return λ_target0()  # triggers as soon as that threshold is met
-
 def λ_precondition_0(scene, sample):
     return A1precondition_0.bool(simulation())
 
-def λ_termination_ReceiveBall():
-    # Terminate receive when possession is gained (does not imply full readiness)
-    return A1precondition_1.bool(simulation())
-
 def λ_precondition_1(scene, sample):
-    return A1precondition_1.bool(simulation())
-
-def λ_termination_Pass():
-    # Terminate pass after action (not outcome)
-    return True
+    return A1precondition_1.bool(simulation()) and A2precondition_1.bool(simulation())
 
 def λ_precondition_2(scene, sample):
     return A1precondition_2.bool(simulation())
-
-def λ_termination_WaitForTeammate():
-    # Terminate when shooting lane appears (before actual shot)
-    return A1precondition_3.bool(simulation())
-
-def λ_precondition_3(scene, sample):
-    return A1precondition_3.bool(simulation())
 
 
 
@@ -83,7 +68,7 @@ behavior TeammatePass():
 behavior OpponentFollowCoach():
     do Idle() for 1.0 seconds  # Wait for coach to start checking
     speed = float(opponent_speed)
-    do SetPlayerSpeed(speed)
+    #do SetPlayerSpeed(speed)
     while True:
         if distance from self to ego > 2.0:
             do MoveToBehavior(ego.position, distance=2.0)

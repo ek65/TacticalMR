@@ -10,7 +10,7 @@ import random
 behavior CoachBehavior():
     do Speak("I'm waiting for the pass, ready to receive the ball.")
     # do ReceiveBall()
-    do GetBallPossession(ball)
+    do MoveToBallAndGetPossession(ball)
     do Speak("I have possession. Now I'm looking for the best passing option.")
     
     if λ_precondition_pass_to_RS(simulation(), None):
@@ -51,22 +51,22 @@ behavior CoachBehavior():
 # === Constraints ===
 A1precondition_pass_to_RS = HasPath({
     'obj1': 'Coach', 'obj2': 'RightStriker',
-    'path_width': {'avg': 2.5, 'std': 0.5}
+    'path_width': {'avg': 1.0, 'std': 0.25}
 })
 
 A1precondition_pass_to_LS = HasPath({
     'obj1': 'Coach', 'obj2': 'LeftStriker',
-    'path_width': {'avg': 2.5, 'std': 0.5}
+    'path_width': {'avg': 1.0, 'std': 0.25}
 })
 
 A1precondition_pass_to_LW = HasPath({
     'obj1': 'Coach', 'obj2': 'LeftWinger',
-    'path_width': {'avg': 2.5, 'std': 0.5}
+    'path_width': {'avg': 0.75, 'std': 0.5}
 })
 
 A1precondition_pass_to_RW = HasPath({
     'obj1': 'Coach', 'obj2': 'RightWinger',
-    'path_width': {'avg': 2.5, 'std': 0.5}
+    'path_width': {'avg': 0.75, 'std': 0.5}
 })
 
 # Reduced support distance (from 6.0 to 4.0)
@@ -162,28 +162,28 @@ defender1_angle = Uniform(-10, 10)
 defender1_dist = Uniform(2,4)
 defender1_x = ego.position.x + defender1_dist * sin(defender1_angle * pi / 180)
 defender1_y = ego.position.y + defender1_dist * cos(defender1_angle * pi / 180)
-defender1 = new Player at (defender1_x, defender1_y, 0), facing toward ego, with team "red", with name "Defender1"
+defender1 = new Player at (defender1_x, defender1_y, 0), facing toward ego, with team "red", with name "defender"
 
 defender2_angle = Uniform(-30, 30)
 defender2_dist = Uniform(1,2)
 defender2_x = LeftWinger.position.x + defender2_dist * sin(defender2_angle * pi / 180)
 defender2_y = LeftWinger.position.y + defender2_dist * cos(defender2_angle * pi / 180)
-defender2 = new Player at (defender2_x, defender2_y, 0), facing toward ego, with team "red", with name "Defender2"
+defender2 = new Player at (defender2_x, defender2_y, 0), facing toward ego, with team "red", with name "defender"
 
 defender3_angle = Uniform(-30, 30)
 defender3_dist = Uniform(1,2)
 defender3_x = RightWinger.position.x + defender3_dist * sin(defender3_angle * pi / 180)
 defender3_y = RightWinger.position.y + defender3_dist * cos(defender3_angle * pi / 180)
-defender3 = new Player at (defender3_x, defender3_y, 0), facing toward ego, with team "red", with name "Defender3"
+defender3 = new Player at (defender3_x, defender3_y, 0), facing toward ego, with team "red", with name "defender"
 
 defender4_angle = Uniform(-30, 30)
 defender4_dist = Uniform(1,2)
 defender4_x = LeftStriker.position.x + defender4_dist * sin(defender4_angle * pi / 180)
 defender4_y = LeftStriker.position.y + defender4_dist * cos(defender4_angle * pi / 180)
-defender4 = new Player at (defender4_x, defender4_y, 0), facing toward ego, with team "red", with name "Defender4"
+defender4 = new Player at (defender4_x, defender4_y, 0), facing toward ego, with team "red", with name "defender"
 
 defender5_angle = Uniform(-30, 30)
 defender5_dist = Uniform(1,2)
 defender5_x = RightStriker.position.x + defender5_dist * sin(defender5_angle * pi / 180)
 defender5_y = RightStriker.position.y + defender5_dist * cos(defender5_angle * pi / 180)
-defender5 = new Player at (defender5_x, defender5_y, 0), facing toward ego, with team "red", with name "Defender5"
+defender5 = new Player at (defender5_x, defender5_y, 0), facing toward ego, with team "red", with name "defender"

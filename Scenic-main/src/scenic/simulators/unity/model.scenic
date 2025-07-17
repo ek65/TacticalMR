@@ -92,9 +92,9 @@ class GoalKeeper(Player):
 # human controlled
 class Human(UnityObject):
     gameObjectType : "human"
-    width : 1.0
+    width : 0.1
     length : 2.0
-    height : 1.0
+    height : 0.1
     team : "blue"
     path : None
     name : "Coach"
@@ -103,6 +103,7 @@ class Human(UnityObject):
 # system controlled
 class Coach(Human):
     systemControlled : True
+    name: "Coach"
 
 class AIAgent(UnityObject):
     gameObjectType : "aiAgent"

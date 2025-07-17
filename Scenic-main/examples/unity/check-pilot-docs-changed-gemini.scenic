@@ -6,11 +6,26 @@ import trimesh
 from scenic.core.regions import MeshVolumeRegion
 import random
 
-A1target_0 = AtAngle(player='coach', ball='ball', left={'theta': {'avg': 38.5, 'std': 4.3}, 'dist': {'avg': 8.0, 'std': 0.8}}, right=None)
-A1termination_0 = MakePass(player='teammate')
-A1precondition_1 = HasBallPossession(player='coach')
-A2precondition_1 = Pressure(player1='opponent', player2='coach')
-A3precondition_1 = HasPath(obj1='coach', obj2='teammate', path_width={'avg': 2.0, 'std': 0.5})
+behavior CoachBehavior():
+    do Idle() for 3 seconds
+    do Speak("I'll move to the side to pull the defender away and create space for a pass.")
+    do MoveTo(λ_target0()) until λ_termination0(simulation(), None)
+    do Speak("The defender is following me. I'll wait here for the pass from my teammate.")
+    do Idle() until λ_precondition1(simulation(), None)
+    do Speak("Receiving the pass now that my teammate has made it.")
+    do ReceiveBall() until λ_termination1(simulation(), None)
+    do Speak("I have the ball and the defender is closing in. I'll pass it back to my open teammate.")
+    do Idle() until λ_precondition2(simulation(), None)
+    do Pass(teammate)
+    do Idle()
+
+A1target_0 = AtAngle({'player': 'coach', 'ball': 'ball', 'left': {'theta': {'avg': 32.3, 'std': 6.4}, 'dist': {'avg': 6.8, 'std': 0.5}}, 'right': {'theta': {'avg': 32.3, 'std': 6.4}, 'dist': {'avg': 6.8, 'std': 0.5}}})
+A1termination_0 = Pressure({'player1': 'opponent', 'player2': 'Coach'})
+A1precondition_1 = MakePass({'player': 'teammate'})
+A1termination_1 = MovingTowards({'obj': 'opponent', 'ref': 'Coach'})
+A1precondition_2 = HasBallPossession({'player': 'Coach'})
+A2precondition_2 = Pressure({'player1': 'opponent', 'player2': 'Coach'})
+A3precondition_2 = HasPath({'obj1': 'teammate', 'obj2': 'goal', 'path_width': {'avg': 3.0, 'std': 0.5}})
 
 def λ_target0():
     return A1target_0.dist(simulation(), ego=True)
@@ -19,24 +34,13 @@ def λ_termination0(scene, sample):
     return A1termination_0.bool(simulation())
 
 def λ_precondition1(scene, sample):
-    return (A1precondition_1.bool(simulation()) and
-            A2precondition_1.bool(simulation()) and
-            A3precondition_1.bool(simulation()))
+    return A1precondition_1.bool(simulation())
 
-behavior CoachBehavior():
-    do Idle() for 3 seconds
+def λ_termination1(scene, sample):
+    return A1termination_1.bool(simulation())
 
-    do Speak("I'll move to the side to pull the defender away and create an open lane for my teammate.")
-    do MoveTo(λ_target0()) until λ_termination0(simulation(), None)
-
-    do Speak("The pass is on its way. I'm getting in position to receive the ball.")
-    do StopAndReceiveBall()
-
-    do Speak("The defender is closing me down, but my teammate has a clear shot. I'll pass it back.")
-    do Idle() until λ_precondition1(simulation(), None)
-    do Pass(teammate)
-
-    do Idle()
+def λ_precondition2(scene, sample):
+    return A1precondition_2.bool(simulation()) and A2precondition_2.bool(simulation()) and A3precondition_2.bool(simulation())
 
 
 
@@ -50,7 +54,7 @@ opponent_speed = Uniform(5, 7)        # opponent's movement speed
 # Behaviors
 behavior TeammatePass():
     do Idle() for 1.0 seconds  # Give coach time to start 
-    do MoveToBallAndGetPossession(ball)
+    do GetBallPossession(ball)
     print("got ball")
     do Idle() for 5.0 seconds
     do Pass(ego)

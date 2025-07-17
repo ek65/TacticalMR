@@ -110,7 +110,7 @@ behavior ApproachGoal(v):
 
 behavior DribbleTo(v):
     if self.gameObject.ballPossession:
-        do MoveTo(v)
+        do MoveToBehavior(v)
     # dist = 1000
     # while not (dist < 0.5):
     #     take DribbleToAction(v)
