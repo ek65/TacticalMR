@@ -11,7 +11,7 @@ opponent_speed = Uniform(5, 7)        # opponent's movement speed
 # Behaviors
 behavior TeammatePass():
     do Idle() for 1.0 seconds  # Give coach time to start 
-    do GetBallPossession(ball)
+    do MoveToBallAndGetPossession(ball)
     print("got ball")
     do Idle() for 5.0 seconds
     do Pass(ego)
