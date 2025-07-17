@@ -25,6 +25,7 @@ public class PlayerInterface : NetworkBehaviour
     public float force;
     public float distToBall;
     public GameObject goal;
+    public bool isMoving;
     // public bool ballPossession;
     [Networked] public NetworkBool ballPossession { get; set; }
     public Transform ballPosition;

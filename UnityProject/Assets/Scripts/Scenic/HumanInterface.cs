@@ -47,7 +47,8 @@ public class HumanInterface : NetworkBehaviour
     
     public float distToBall;
     public Vector3 ballOnTheGround;
-    
+
+    public bool isMoving;
     // public bool ballPossession;
     [Networked] public NetworkBool ballPossession { get; set; }
     public GameObject ball;
