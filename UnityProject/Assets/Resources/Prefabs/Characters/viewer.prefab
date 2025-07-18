@@ -7626,6 +7626,7 @@ MonoBehaviour:
   explanation: 
   distToBall: 0
   ballOnTheGround: {x: 0, y: 0, z: 0}
+  isMoving: 0
   _ballPossession:
     _value: 0
   ball: {fileID: 0}
@@ -15495,7 +15496,7 @@ MonoBehaviour:
         m_Calls:
         - m_Target: {fileID: -597261438230882058}
           m_TargetAssemblyTypeName: ControllerInput, Assembly-CSharp
-          m_MethodName: HandleControllerRestart
+          m_MethodName: HandleControllerSegment
           m_Mode: 1
           m_Arguments:
             m_ObjectArgument: {fileID: 0}
