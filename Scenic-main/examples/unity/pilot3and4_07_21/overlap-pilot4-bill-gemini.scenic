@@ -1,3 +1,37 @@
+from scenic.simulators.unity.actions import *
+from scenic.simulators.unity.behaviors import *
+from scenic.simulators.unity.constraints import *
+model scenic.simulators.unity.model
+import trimesh
+from scenic.core.regions import MeshVolumeRegion
+import random
+
+A1_target_overlap = Overlap({'player': 'Coach', 'ball': 'ball', 'goal': 'goal', 'opponent': 'opponent', 'theta': {'avg': 40.0, 'std': 5.0}, 'dist': {'avg': 5.0, 'std': 1.0}})
+A1_pre_receive = MakePass({'player': 'teammate'})
+A1_pre_shoot = HasPath({'obj1': 'Coach', 'obj2': 'goal', 'path_width': {'avg': 3.0, 'std': 0.5}})
+A2_pre_shoot = HasBallPossession({'player': 'Coach'})
+
+def λ_target_overlap():
+	return A1_target_overlap.dist(simulation(), ego=True)
+
+def λ_precondition_receive(scene, sample):
+	return A1_pre_receive.bool(simulation())
+
+def λ_precondition_shoot(scene, sample):
+	return A1_pre_shoot.bool(simulation()) and A2_pre_shoot.bool(simulation())
+
+behavior CoachBehavior():
+	do Idle() for 3 seconds
+	do Speak("Your teammate is blocked. I'm moving to overlap and create a passing lane.")
+	do MoveTo(λ_target_overlap())
+	do Speak("Okay, I'm in position. Waiting for your pass.")
+	do Idle() until λ_precondition_receive(simulation(), None)
+	do StopAndReceiveBall()
+	do Speak("Got the ball. I will shoot when I have a clear path to the goal.")
+	do Idle() until λ_precondition_shoot(simulation(), None)
+	do Speak("The path is clear! I'm taking the shot!")
+	do Shoot(goal)
+	do Idle()
 
 
 
