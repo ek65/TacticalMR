@@ -207,9 +207,9 @@ behavior getTo(destination):
         # take MoveToAction(destination)
         take MoveToLookAtBallWithSpeed(destination, 2.0)
 
-behavior MoveToBallAndGetPossession(ball):
+behavior MoveToBallAndGetPossession():
     while not self.gameObject.ballPossession:
-        take MoveToAction(ball.position)
+        do MoveTo("ball")
     
     do Idle() for 1.0 seconds
 
@@ -414,7 +414,9 @@ behavior MoveTo(param):
         dist    = param
     # if sample_from isn’t defined for this type, assume it’s already a goal
     except Exception:
-        if checkIfString(target):
+        scene = simulation()
+
+        if checkIfString(param):
             param = [obj for obj in scene.objects if obj.name.lower() == param][0].position # converts string into object reference
             sample  = param
             dynamic = False
