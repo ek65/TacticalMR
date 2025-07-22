@@ -573,6 +573,9 @@ public class HumanInterface : MonoBehaviour
     public void ResetHuman()
     {
         LosePossession();
+        triggerPass = false;
+        isMoving = false;
+        xPos = Vector3.zero;
         ballPossession = false;
         actionAPI.alreadyInAnimation = false;
         actionAPI.SetAnimController("Movement");

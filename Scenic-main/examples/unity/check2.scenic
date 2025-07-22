@@ -15,13 +15,24 @@ coach_check_angle = Uniform(-45, 45)  # angle of check (degrees)
 opponent_dist = Uniform(1, 5)         # distance behind coach
 opponent_speed = Uniform(5, 7)        # opponent's movement speed
 
+xPos = Vector(0, 0, 0)
+triggerPass = False
+
 # Behaviors
 behavior TeammatePass():
-    do Idle() for 1.0 seconds  # Give coach time to start 
-    do MoveToBallAndGetPossession()
-    print("got ball")
-    do Idle() for 1.0 seconds
-    do Pass(ego)
+    global xPos
+    global triggerPass
+
+    try:
+        do Idle() for 1.0 seconds  # Give coach time to start 
+        do MoveToBallAndGetPossession()
+        print("got ball")
+        do Idle()
+    interrupt when ego.gameObject.triggerPass:
+        print("trigger pass")
+        do Idle() for 1.0 seconds
+        do Pass(ego)
+    
     do Idle()
 
 behavior OpponentFollowCoach():
