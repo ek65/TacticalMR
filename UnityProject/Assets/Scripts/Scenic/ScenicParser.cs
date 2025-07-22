@@ -266,8 +266,8 @@ public class ScenicParser
         [JsonProperty("isMoving")]
         public bool IsMoving { get; set; }
         
-        [JsonProperty("xPos")]
-        public List<float> XPos { get; set; }
+        [JsonProperty("xMark")]
+        public List<float> xMark { get; set; }
         
         [JsonProperty("triggerPass")]
         public bool TriggerPass { get; set; }

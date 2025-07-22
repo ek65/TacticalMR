@@ -63,7 +63,7 @@ public class GroundSelection : MonoBehaviour, IPointerClickHandler, IPointerEnte
         GameObject human = GameObject.FindGameObjectWithTag("human");
         if (human != null)
         {
-            human.GetComponent<HumanInterface>().xPos = Vector3.zero;
+            human.GetComponent<HumanInterface>().xMark = Vector3.zero;
         }
         Destroy(placedGroundHighlighter);
     }

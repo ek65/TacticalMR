@@ -42,7 +42,7 @@ public class HumanInterface : MonoBehaviour
     public Vector3 ballOnTheGround;
 
     public bool isMoving;
-    public Vector3 xPos;
+    public Vector3 xMark;
     public bool triggerPass;
     public bool ballPossession;
     public GameObject ball;
@@ -575,7 +575,7 @@ public class HumanInterface : MonoBehaviour
         LosePossession();
         triggerPass = false;
         isMoving = false;
-        xPos = Vector3.zero;
+        xMark = Vector3.zero;
         ballPossession = false;
         actionAPI.alreadyInAnimation = false;
         actionAPI.SetAnimController("Movement");

@@ -358,7 +358,7 @@ public class KeyboardInput : MonoBehaviour
             GameObject human = GameObject.FindGameObjectWithTag("human");
             if (human != null)
             {
-                human.GetComponent<HumanInterface>().xPos = clickedPosition;
+                human.GetComponent<HumanInterface>().xMark = clickedPosition;
             }
             
             annotation.Add(clickOrder, clickedPosition);
