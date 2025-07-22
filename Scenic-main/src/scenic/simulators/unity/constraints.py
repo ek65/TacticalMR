@@ -153,7 +153,7 @@ class Pressure(Constraint): # Checked for graceful failure
         obj = findObj(self.obj, scene.objects)
 
         if not obj:
-            return false()
+            return False
         
         dist = self.dist(scene)
         sample = location(obj[0].position)
