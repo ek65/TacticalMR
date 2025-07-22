@@ -5,6 +5,8 @@ model scenic.simulators.unity.model
 import trimesh
 from scenic.core.regions import MeshVolumeRegion
 import random
+####HEADER ENDS####
+
 
 A1_overlap = Overlap({
     'player': 'Coach',
@@ -97,7 +99,7 @@ behavior CoachBehavior():
 
 
 
-
+####Environment Behavior START####
 opponent_y_distance = Uniform(3, 5)
 opponent_x_distance = Uniform(-2, 2)
 ego_x_distance = Uniform(-2, 2)
