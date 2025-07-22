@@ -1,3 +1,62 @@
+from scenic.simulators.unity.actions import *
+from scenic.simulators.unity.behaviors import *
+from scenic.simulators.unity.constraints import *
+model scenic.simulators.unity.model
+import trimesh
+from scenic.core.regions import MeshVolumeRegion
+import random
+
+A1_precondition_pass_LS = HasPath({'obj1': 'Coach', 'obj2': 'LeftStriker', 'path_width': {'avg': 3.0, 'std': 0.5}})
+A1_precondition_pass_LW = HasPath({'obj1': 'Coach', 'obj2': 'LeftWinger', 'path_width': {'avg': 3.0, 'std': 0.5}})
+A1_precondition_pass_RS = HasPath({'obj1': 'Coach', 'obj2': 'RightStriker', 'path_width': {'avg': 3.0, 'std': 0.5}})
+A1_target_LS = AtAngle({'player': 'Coach', 'ball': 'ball', 'left': {'theta': {'avg': 45, 'std': 5}, 'dist': {'avg': 3.5, 'std': 0.5}}})
+A1_target_LW = AtAngle({'player': 'Coach', 'ball': 'ball', 'right': {'theta': {'avg': 30, 'std': 5}, 'dist': {'avg': 6, 'std': 1}}})
+A1_target_RS = AtAngle({'player': 'Coach', 'ball': 'ball', 'right': {'theta': {'avg': 60, 'std': 5}, 'dist': {'avg': 4, 'std': 1}}})
+
+def λ_target_LS():
+	return A1_target_LS.dist(simulation(), ego=True)
+
+def λ_target_LW():
+	return A1_target_LW.dist(simulation(), ego=True)
+
+def λ_target_RS():
+	return A1_target_RS.dist(simulation(), ego=True)
+
+def λ_precondition_pass_LS(scene, sample):
+	return A1_precondition_pass_LS.bool(simulation())
+
+def λ_precondition_pass_LW(scene, sample):
+	return A1_precondition_pass_LW.bool(simulation())
+
+def λ_precondition_pass_possible(scene, sample):
+	return A1_precondition_pass_LS.bool(simulation()) or A1_precondition_pass_LW.bool(simulation()) or A1_precondition_pass_RS.bool(simulation())
+
+behavior CoachBehavior():
+	do Idle() for 3 seconds
+	do Speak("I'll wait until there's a clear passing lane to a teammate before starting the play.")
+	do Idle() until λ_precondition_pass_possible(simulation(), None)
+	if λ_precondition_pass_LS(simulation(), None):
+		do Speak("The Left Striker is open. I will pass the ball to them now.")
+		do Pass(LeftStriker)
+		do Speak("Now, I'll move to create a good return passing angle for the Left Striker.")
+		do MoveTo(λ_target_LS())
+		do Speak("I'm in a good spot. I will stop and wait for a possible return pass.")
+		do StopAndReceiveBall()
+	elif λ_precondition_pass_LW(simulation(), None):
+		do Speak("The Left Winger has space. I am passing to them.")
+		do Pass(LeftWinger)
+		do Speak("I will move into the gap between defenders to provide support.")
+		do MoveTo(λ_target_LW())
+		do Speak("Okay, I'm now an option for the Left Winger. I will wait.")
+		do StopAndReceiveBall()
+	else:
+		do Speak("The Right Striker is open on the other side. I'm passing the ball.")
+		do Pass(RightStriker)
+		do Speak("I'll move up and right to give the Right Striker a passing option back.")
+		do MoveTo(λ_target_RS())
+		do Speak("I am now available for a pass. I'll stop here and wait.")
+		do StopAndReceiveBall()
+	do Idle()
 ####Environment Behavior START####
 
 

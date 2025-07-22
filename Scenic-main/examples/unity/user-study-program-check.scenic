@@ -1,4 +1,4 @@
-
+####Environment Behavior START####
 
 
 # Parameters for variance
@@ -16,7 +16,7 @@ behavior TeammatePass():
     do Idle() for 10.0 seconds
     do Pass(ego)
     do Idle()
-
+####Environment Behavior START####
 behavior OpponentFollowCoach():
     do Idle() for 1.0 seconds  # Wait for coach to start checking
     speed = float(opponent_speed)

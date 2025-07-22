@@ -6,34 +6,30 @@ import trimesh
 from scenic.core.regions import MeshVolumeRegion
 import random
 
-A_move_away = DistanceTo({'from': 'Coach', 'to': 'opponent', 'min': {'avg': 5.0, 'std': 1.0}, 'operator': 'greater_than'})
-A_receive_path = HasPath({'obj1': 'teammate', 'obj2': 'Coach', 'path_width': {'avg': 2.0, 'std': 0.5}})
-A_is_pressured = Pressure({'player1': 'opponent', 'player2': 'Coach'})
-A_has_shot_path = HasPath({'obj1': 'Coach', 'obj2': 'goal', 'path_width': {'avg': 2.0, 'std': 0.5}})
+A1_target_0 = AtAngle({'player': 'Coach', 'ball': 'ball', 'left': {'theta': {'avg': 30.0, 'std': 5.0}, 'dist': {'avg': 7.0, 'std': 1.0}}, 'right': {'theta': {'avg': 30.0, 'std': 5.0}, 'dist': {'avg': 7.0, 'std': 1.0}}})
+A1_precondition_0 = HasPath({'obj1': 'Coach', 'obj2': 'goal', 'path_width': {'avg': 2.0, 'std': 0.2}})
+A2_precondition_0 = DistanceTo({'from': 'Coach', 'to': 'opponent', 'min': {'avg': 1.8, 'std': 0.3}, 'max': None, 'operator': 'greater_than'})
 
 def λ_target0():
-	cond = A_move_away and A_receive_path
-	return cond.dist(simulation(), ego=True)
+    return A1_target_0.dist(simulation(), ego=True)
 
-def λ_precondition_shoot(scene, sample):
-	return (not A_is_pressured.bool(simulation())) and A_has_shot_path.bool(simulation())
+def λ_precondition_0(scene, sample):
+    return A1_precondition_0.bool(simulation()) and A2_precondition_0.bool(simulation())
 
 behavior CoachBehavior():
-	do Idle() for 3 seconds
-	do Speak("I'll move away from the defender to create space and a clear passing lane for my teammate.")
-	do MoveTo(λ_target0())
-	do Speak("Now that I'm in a good position, I'll stop and wait for the pass.")
-	do StopAndReceiveBall()
-	do Speak("I have the ball. Now I'll check if I should shoot or pass back.")
-	do Idle() until HasBallPossession({'player': 'Coach'}).bool(simulation())
-	if λ_precondition_shoot(simulation(), None):
-		do Speak("The defender is far enough away and I have a clear shot. I'm going for the goal!")
-		do Shoot(goal)
-	else:
-		do Speak("The defender is too close. The safest option is to pass it back to my teammate.")
-		do Pass(teammate)
-	do Idle()
-
+    do Idle() for 3 seconds
+    do Speak("I'll move to create an angle for a pass and get some space from the defender.")
+    do MoveTo(λ_target0())
+    do Speak("I'm in position now, waiting for the ball from my teammate.")
+    do StopAndReceiveBall()
+    if λ_precondition_0(simulation(), None):
+        do Speak("The path to the goal is clear and I have enough space. I'm going to shoot.")
+        do Shoot(goal)
+    else:
+        do Speak("The defender is too close or blocking the shot. I'll pass it back safely.")
+        do Pass(teammate)
+    do Idle()
+####Environment Behavior START####
 
 
 # Parameters for variance
@@ -51,7 +47,7 @@ behavior TeammatePass():
     do Idle() for 10.0 seconds
     do Pass(ego)
     do Idle()
-
+####Environment Behavior START####
 behavior OpponentFollowCoach():
     do Idle() for 1.0 seconds  # Wait for coach to start checking
     speed = float(opponent_speed)

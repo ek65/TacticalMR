@@ -1,3 +1,46 @@
+from scenic.simulators.unity.actions import *
+from scenic.simulators.unity.behaviors import *
+from scenic.simulators.unity.constraints import *
+model scenic.simulators.unity.model
+import trimesh
+from scenic.core.regions import MeshVolumeRegion
+import random
+
+A1_precondition_has_ball = HasBallPossession({'player': 'Coach'})
+A1_precondition_pass_to_RightStriker = HasPath({'obj1': 'Coach', 'obj2': 'RightStriker', 'path_width': {'avg': 3.0, 'std': 0.5}})
+A1_precondition_pass_to_LeftStriker = HasPath({'obj1': 'Coach', 'obj2': 'LeftStriker', 'path_width': {'avg': 3.0, 'std': 0.5}})
+A1_precondition_pass_to_RightWinger = HasPath({'obj1': 'Coach', 'obj2': 'RightWinger', 'path_width': {'avg': 3.0, 'std': 0.5}})
+
+def λ_precondition_has_ball():
+    return A1_precondition_has_ball.bool(simulation())
+
+def λ_precondition_pass_to_RightStriker():
+    return A1_precondition_pass_to_RightStriker.bool(simulation())
+
+def λ_precondition_pass_to_LeftStriker():
+    return A1_precondition_pass_to_LeftStriker.bool(simulation())
+
+def λ_precondition_pass_to_RightWinger():
+    return A1_precondition_pass_to_RightWinger.bool(simulation())
+
+behavior CoachBehavior():
+    do Idle() for 3 seconds
+    do Speak("I need to get possession of the ball to start the play.")
+    do MoveToBallAndGetPossession()
+    do Idle() until λ_precondition_has_ball()
+    if λ_precondition_pass_to_RightStriker():
+        do Speak("I see a clear path to the right striker. I will pass to him to advance the attack.")
+        do Pass(RightStriker)
+    elif λ_precondition_pass_to_LeftStriker():
+        do Speak("The left striker is open. Passing to him is the best option to move forward.")
+        do Pass(LeftStriker)
+    elif λ_precondition_pass_to_RightWinger():
+        do Speak("Both strikers are covered. I will pass to the right winger to build up from the side.")
+        do Pass(RightWinger)
+    else:
+        do Speak("All my passing options are currently blocked. I'll wait for an opportunity.")
+        do Idle()
+    do Idle()
 ####Environment Behavior START####
 
 
