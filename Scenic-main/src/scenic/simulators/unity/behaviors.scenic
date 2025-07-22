@@ -48,7 +48,8 @@ behavior Pass(target, slow=False):
         target = target.position
         # print("UnityObj")
     elif checkIfString(target):
-        target = [obj for obj in scene.objects if obj.name.lower() == target][0].position # converts string into object reference
+        #print([obj.name for obj in scene.objects])
+        target = [obj for obj in scene.objects if obj.name.lower() == target.lower()][0].position # converts string into object reference
         # print("elif case")
     print(f"Passing to {target}")
     print(f"type: {type(target)}")

@@ -51,7 +51,7 @@ behavior Follow(obj):
 behavior TeammateBehavior():
     do Idle() for 1 seconds
     do MoveToBallAndGetPossession()
-    do Idle() for 10 seconds
+    do Idle() for 7 seconds
     do Idle() until ego.position.y > 2
     do Pass(ego, slow=False) until (distance from opponent to ego) <= 3
     do DribbleTo(goal) until (distance from opponent to ego) > 3
