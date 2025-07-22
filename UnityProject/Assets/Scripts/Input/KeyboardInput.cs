@@ -327,6 +327,12 @@ public class KeyboardInput : MonoBehaviour
         if (Physics.Raycast(ray, out RaycastHit hit))
         {
             GameObject clickedObject = hit.collider.gameObject;
+            GameObject human = GameObject.FindGameObjectWithTag("human");
+            if (human != null && clickedObject.GetComponent<PlayerInterface>().ballPossession)
+            {
+                StartCoroutine(human.GetComponent<HumanInterface>().SetTriggerPass());
+            }
+            
             annotation.Add(clickOrder, clickedObject);
             annotationDescriptions.Add(clickOrder, GetDescriptionAnnotation(clickedObject));
             objectToKey[clickedObject] = clickOrder;
@@ -345,6 +351,12 @@ public class KeyboardInput : MonoBehaviour
         if (Physics.Raycast(ray, out RaycastHit hit))
         {
             Vector3 clickedPosition = hit.point;
+            GameObject human = GameObject.FindGameObjectWithTag("human");
+            if (human != null)
+            {
+                human.GetComponent<HumanInterface>().xPos = clickedPosition;
+            }
+            
             annotation.Add(clickOrder, clickedPosition);
             annotationDescriptions.Add(clickOrder, $"(Position at {clickedPosition})");
 

@@ -22,11 +22,6 @@ public class OutlineSelection : MonoBehaviour, IPointerClickHandler, IPointerEnt
         if (keyboardInput.canClick)
         {
             // stayOutlined = !stayOutlined;
-            GameObject human = GameObject.FindGameObjectWithTag("human");
-            if (human != null)
-            {
-                StartCoroutine(human.GetComponent<HumanInterface>().SetTriggerPass());
-            }
             keyboardInput.HandleAnnotationClick();
         }
     }

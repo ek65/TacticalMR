@@ -74,11 +74,6 @@ public class GroundSelection : MonoBehaviour, IPointerClickHandler, IPointerEnte
             GameObject go = Instantiate(newGroundHighlighter, raycastHit.point, Quaternion.identity);
             placedGroundHighlighter = go;
             go.GetComponent<Collider>().enabled = true;
-            GameObject human = GameObject.FindGameObjectWithTag("human");
-            if (human != null)
-            {
-                human.GetComponent<HumanInterface>().xPos = raycastHit.point;
-            }
             keyboardInput.HandlePositionClick();
         }
     }
