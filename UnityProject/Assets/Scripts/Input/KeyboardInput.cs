@@ -107,17 +107,17 @@ public class KeyboardInput : MonoBehaviour
         }
 
         // Annotation clicks
-        if (canClick)
-        {
-            if (isAnnotationMode && Input.GetMouseButtonDown(0))
-            {
-                StartCoroutine(HandleClickWithDelay(HandleAnnotationMode));
-            }
-            if (isPositionMode && Input.GetMouseButtonDown(0))
-            {
-                StartCoroutine(HandleClickWithDelay(HandlePositionMode));
-            }
-        }
+        // if (canClick)
+        // {
+        //     if (isAnnotationMode && Input.GetMouseButtonDown(0))
+        //     {
+        //         StartCoroutine(HandleClickWithDelay(HandleAnnotationMode));
+        //     }
+        //     if (isPositionMode && Input.GetMouseButtonDown(0))
+        //     {
+        //         StartCoroutine(HandleClickWithDelay(HandlePositionMode));
+        //     }
+        // }
 
         // Debug: Press K 
         if (Input.GetKeyDown(KeyCode.K))
@@ -185,6 +185,11 @@ public class KeyboardInput : MonoBehaviour
                 // Increment click order for next annotation
                 clickOrder++;
             }
+            
+            // clear ground highlights upon pause
+            GroundSelection groundSelection = GameObject.FindGameObjectWithTag("Ground")
+                .GetComponent<GroundSelection>();
+            groundSelection.ClearGroundHighlights();
         
             timelineManager.Pause();
         }
@@ -322,6 +327,12 @@ public class KeyboardInput : MonoBehaviour
         if (Physics.Raycast(ray, out RaycastHit hit))
         {
             GameObject clickedObject = hit.collider.gameObject;
+            GameObject human = GameObject.FindGameObjectWithTag("human");
+            if (human != null && clickedObject.GetComponent<PlayerInterface>().ballPossession)
+            {
+                StartCoroutine(human.GetComponent<HumanInterface>().SetTriggerPass());
+            }
+            
             annotation.Add(clickOrder, clickedObject);
             annotationDescriptions.Add(clickOrder, GetDescriptionAnnotation(clickedObject));
             objectToKey[clickedObject] = clickOrder;
@@ -340,6 +351,12 @@ public class KeyboardInput : MonoBehaviour
         if (Physics.Raycast(ray, out RaycastHit hit))
         {
             Vector3 clickedPosition = hit.point;
+            GameObject human = GameObject.FindGameObjectWithTag("human");
+            if (human != null)
+            {
+                human.GetComponent<HumanInterface>().xPos = clickedPosition;
+            }
+            
             annotation.Add(clickOrder, clickedPosition);
             annotationDescriptions.Add(clickOrder, $"(Position at {clickedPosition})");
 
