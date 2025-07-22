@@ -31,7 +31,7 @@ behavior TeammatePass():
     interrupt when ego.gameObject.triggerPass:
         print("trigger pass")
         do Idle() for 1.0 seconds
-        do Pass(ego)
+        do Pass(ego.gameObject.xPos)
     
     do Idle()
 
