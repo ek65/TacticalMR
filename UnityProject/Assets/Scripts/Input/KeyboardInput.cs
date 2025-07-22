@@ -328,9 +328,13 @@ public class KeyboardInput : MonoBehaviour
         {
             GameObject clickedObject = hit.collider.gameObject;
             GameObject human = GameObject.FindGameObjectWithTag("human");
-            if (human != null && clickedObject.GetComponent<PlayerInterface>().ballPossession)
+            if (human != null)
             {
-                StartCoroutine(human.GetComponent<HumanInterface>().SetTriggerPass());
+                // if clicked object is playerInterface and has ball possession, then trigger pass
+                if (clickedObject.GetComponent<PlayerInterface>() && clickedObject.GetComponent<PlayerInterface>().ballPossession)
+                {
+                    StartCoroutine(human.GetComponent<HumanInterface>().SetTriggerPass());
+                }
             }
             
             annotation.Add(clickOrder, clickedObject);
