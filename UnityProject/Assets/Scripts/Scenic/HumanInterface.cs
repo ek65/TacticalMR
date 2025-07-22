@@ -42,6 +42,8 @@ public class HumanInterface : MonoBehaviour
     public Vector3 ballOnTheGround;
 
     public bool isMoving;
+    public Vector3 xPos;
+    public bool triggerPass;
     public bool ballPossession;
     public GameObject ball;
     public Transform ballPosition;
@@ -121,6 +123,8 @@ public class HumanInterface : MonoBehaviour
 
         if (ballPossession)
         {
+            // make sure teammate does not pass when human has ball
+            triggerPass = false;
             forwardArrow.SetActive(true);
             ArrowGenerator arrow = forwardArrow.GetComponentInChildren<ArrowGenerator>();
             arrow.SetOrigin(this.transform.position);
@@ -232,6 +236,14 @@ public class HumanInterface : MonoBehaviour
         {
             velocity = Vector3.zero;
         }
+    }
+    
+    // triggerPass should be disabled after it is set true
+    public IEnumerator SetTriggerPass()
+    {
+        triggerPass = true;
+        yield return new WaitForSeconds(0.1f);
+        triggerPass = false;
     }
     
     private void OnCollisionEnter(Collision other)
