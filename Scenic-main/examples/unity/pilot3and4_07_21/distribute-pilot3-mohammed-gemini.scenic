@@ -5,6 +5,8 @@ model scenic.simulators.unity.model
 import trimesh
 from scenic.core.regions import MeshVolumeRegion
 import random
+####HEADER ENDS####
+
 
 precondition_has_ball = HasBallPossession({'player': 'Coach'})
 precondition_path_to_striker = HasPath({'obj1': 'Coach', 'obj2': 'LeftStriker', 'path_width': {'avg': 1.5, 'std': 0.25}})
@@ -61,7 +63,7 @@ behavior CoachBehavior():
 	do Idle()
 
 
-
+####Environment Behavior START####
 # Ego (center midfielder) at origin
 pi = 3.1415
 ego = new Coach at (0, 0, 0), facing toward (0, 0, 0), with team "blue", with behavior CoachBehavior()

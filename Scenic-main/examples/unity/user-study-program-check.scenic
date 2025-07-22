@@ -1,6 +1,6 @@
 
 
-
+####Environment Behavior START####
 # Parameters for variance
 coach_start_dist = Uniform(5, 8)  # initial distance from teammate
 coach_check_dist = Uniform(4, 6)   # how much closer coach checks

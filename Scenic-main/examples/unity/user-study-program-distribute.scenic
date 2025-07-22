@@ -1,5 +1,6 @@
 
 
+####Environment Behavior START####
 
 # Ego (center midfielder) at origin
 pi = 3.1415

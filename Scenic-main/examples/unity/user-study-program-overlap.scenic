@@ -1,6 +1,7 @@
 
 
 
+####Environment Behavior START####
 
 opponent_y_distance = Uniform(3, 5)
 opponent_x_distance = Uniform(-2, 2)

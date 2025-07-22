@@ -5,6 +5,8 @@ model scenic.simulators.unity.model
 import trimesh
 from scenic.core.regions import MeshVolumeRegion
 import random
+####HEADER ENDS####
+
 
 A1target_0 = HasBallPossession({'player': 'Coach'})
 A2target_1 = HasPath({'obj1': 'Coach', 'obj2': 'LeftWinger', 'path_width': {'avg': 2.0, 'std': 0.2}})
@@ -42,6 +44,7 @@ behavior CoachBehavior():
 
 
 
+####Environment Behavior START####
 
 # Ego (center midfielder) at origin
 pi = 3.1415

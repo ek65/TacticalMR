@@ -6,21 +6,50 @@ import trimesh
 from scenic.core.regions import MeshVolumeRegion
 import random
 ####HEADER ENDS####
-
-
 # Constraint Instantiations
-path_to_LeftStriker = HasPath({'obj1': 'Coach', 'obj2': 'LeftStriker', 'path_width': {'avg': 2.5, 'std': 0.5}})
-path_to_RightStriker = HasPath({'obj1': 'Coach', 'obj2': 'RightStriker', 'path_width': {'avg': 2.5, 'std': 0.5}})
-path_to_LeftWinger = HasPath({'obj1': 'Coach', 'obj2': 'LeftWinger', 'path_width': {'avg': 2.5, 'std': 0.5}})
-path_to_RightWinger = HasPath({'obj1': 'Coach', 'obj2': 'RightWinger', 'path_width': {'avg': 2.5, 'std': 0.5}})
+
+# COACH'S FEEDBACK: The model was too conservative in determining if a path was blocked.
+# It decided no one was open, but the coach indicated that the Right Striker and both Wingers
+# were viable passing options even with defenders in the vicinity.
+# CHANGE: Reduced the 'path_width' average from 2.5 to 1.5 for all HasPath constraints.
+# This makes the check less strict, requiring defenders to be closer to the passing
+# lane to be considered an obstruction, aligning with the coach's assessment.
+
+path_to_LeftStriker = HasPath({
+    'obj1': 'Coach',
+    'obj2': 'LeftStriker',
+    'path_width': {'avg': 1.5, 'std': 0.5}
+})
+path_to_RightStriker = HasPath({
+    'obj1': 'Coach',
+    'obj2': 'RightStriker',
+    'path_width': {'avg': 1.5, 'std': 0.5}
+})
+path_to_LeftWinger = HasPath({
+    'obj1': 'Coach',
+    'obj2': 'LeftWinger',
+    'path_width': {'avg': 1.5, 'std': 0.5}
+})
+path_to_RightWinger = HasPath({
+    'obj1': 'Coach',
+    'obj2': 'RightWinger',
+    'path_width': {'avg': 1.5, 'std': 0.5}
+})
 
 precondition_LeftStriker_has_ball = HasBallPossession({'player': 'LeftStriker'})
+precondition_RightStriker_has_ball = HasBallPossession({'player': 'RightStriker'})
 precondition_RightWinger_has_ball = HasBallPossession({'player': 'RightWinger'})
 precondition_LeftWinger_has_ball = HasBallPossession({'player': 'LeftWinger'})
 
-target_for_support = AtAngle({'player': 'Coach', 'ball': 'ball', 'left': {'theta': {'avg': 50, 'std': 5}, 'dist': {'avg': 8, 'std': 1}}, 'right': {'theta': {'avg': 50, 'std': 5}, 'dist': {'avg': 8, 'std': 1}}})
+target_for_support = AtAngle({
+    'player': 'Coach',
+    'ball': 'ball',
+    'left': {'theta': {'avg': 50, 'std': 5}, 'dist': {'avg': 8, 'std': 1}},
+    'right': {'theta': {'avg': 50, 'std': 5}, 'dist': {'avg': 8, 'std': 1}}
+})
 
 # Lambda Functions
+
 def λ_path_to_LS_is_clear():
     return path_to_LeftStriker.bool(simulation())
 
@@ -36,6 +65,9 @@ def λ_path_to_RW_is_clear():
 def λ_precondition_LS_has_ball():
     return precondition_LeftStriker_has_ball.bool(simulation())
 
+def λ_precondition_RS_has_ball():
+    return precondition_RightStriker_has_ball.bool(simulation())
+
 def λ_precondition_RW_has_ball():
     return precondition_RightWinger_has_ball.bool(simulation())
 
@@ -48,40 +80,44 @@ def λ_target_support_position():
 behavior CoachBehavior():
     do Idle() for 3 seconds
     do Speak("I have the ball. I need to scan the field and find an open teammate for a pass.")
-    
-    if not λ_path_to_LS_is_clear() and not λ_path_to_RS_is_clear():
-        if λ_path_to_RW_is_clear():
-            do Speak("The strikers are covered. I'll pass it to the Right Winger on the flank.")
-            do Pass(RightWinger)
-            do Speak("Now I'll wait for the winger to receive the ball before moving.")
-            do Idle() until λ_precondition_RW_has_ball()
-            do Speak("Great, now I'll move into a supporting position for the Right Winger.")
-            do MoveTo(λ_target_support_position())
-        elif λ_path_to_LW_is_clear():
-            do Speak("Both strikers are marked by defenders. I see the Left Winger is open.")
-            do Pass(LeftWinger)
-            do Speak("I need to wait for the Left Winger to secure the ball.")
-            do Idle() until λ_precondition_LW_has_ball()
-            do Speak("Okay, now I will reposition to act as a support player.")
-            do MoveTo(λ_target_support_position())
-        else:
-            do Speak("All my forward passing options are blocked. I'll hold onto the ball for now.")
-            do Idle()
-    elif λ_path_to_LS_is_clear():
+
+    if λ_path_to_LS_is_clear():
         do Speak("The defender isn't covering the Left Striker. That's my best option.")
         do Pass(LeftStriker)
         do Speak("I'll wait until the striker has possession.")
         do Idle() until λ_precondition_LS_has_ball()
         do Speak("Now that he has the ball, I will move to give him a passing option.")
         do MoveTo(λ_target_support_position())
+    elif λ_path_to_RS_is_clear():
+        do Speak("The Right Striker is open. I'll make the pass.")
+        do Pass(RightStriker)
+        do Speak("I'll wait until the striker has possession.")
+        do Idle() until λ_precondition_RS_has_ball()
+        do Speak("Now that he has the ball, I will move to give him a passing option.")
+        do MoveTo(λ_target_support_position())
+    elif λ_path_to_RW_is_clear():
+        do Speak("The strikers are covered. I'll pass it to the Right Winger on the flank.")
+        do Pass(RightWinger)
+        do Speak("Now I'll wait for the winger to receive the ball before moving.")
+        do Idle() until λ_precondition_RW_has_ball()
+        do Speak("Great, now I'll move into a supporting position for the Right Winger.")
+        do MoveTo(λ_target_support_position())
+    elif λ_path_to_LW_is_clear():
+        do Speak("Both strikers are marked by defenders. I see the Left Winger is open.")
+        do Pass(LeftWinger)
+        do Speak("I need to wait for the Left Winger to secure the ball.")
+        do Idle() until λ_precondition_LW_has_ball()
+        do Speak("Okay, now I will reposition to act as a support player.")
+        do MoveTo(λ_target_support_position())
     else:
-        do Speak("There are no clear passing lanes right now. I'll wait for an opportunity.")
+        do Speak("All my forward passing options are blocked. I'll hold onto the ball for now.")
         do Idle()
 
     do Idle()
 
 
 ####Environment Behavior START####
+
 # Ego (center midfielder) at origin
 pi = 3.1415
 ego = new Coach at (0, 0, 0), facing toward (0, 0, 0), with team "blue", with behavior CoachBehavior()

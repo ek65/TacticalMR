@@ -5,6 +5,8 @@ model scenic.simulators.unity.model
 import trimesh
 from scenic.core.regions import MeshVolumeRegion
 import random
+####HEADER ENDS####
+
 
 A1_target_0 = Overlap({'player': 'Coach', 'ball': 'ball', 'goal': 'goal', 'opponent': 'opponent', 'theta': {'avg': 50.0, 'std': 5.0}, 'dist': {'avg': 5.7, 'std': 0.5}})
 A1_term_0 = MakePass({'player': 'teammate'})
@@ -59,7 +61,7 @@ behavior CoachBehavior():
 
 
 
-
+####Environment Behavior START####
 opponent_y_distance = Uniform(3, 5)
 opponent_x_distance = Uniform(-2, 2)
 ego_x_distance = Uniform(-2, 2)

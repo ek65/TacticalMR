@@ -5,6 +5,8 @@ model scenic.simulators.unity.model
 import trimesh
 from scenic.core.regions import MeshVolumeRegion
 import random
+####HEADER ENDS####
+
 
 behavior CoachBehavior():
     do Idle() for 3 seconds
@@ -71,6 +73,7 @@ def λ_termination4(past_position, current_position):
 
 
 
+####Environment Behavior START####
 
 # Parameters for variance
 coach_start_dist = Uniform(5, 8)  # initial distance from teammate
