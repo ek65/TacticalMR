@@ -7,21 +7,106 @@ from scenic.core.regions import MeshVolumeRegion
 import random
 ####HEADER ENDS####
 A1_precondition_has_ball = HasBallPossession({'player': 'Coach'})
-A1_precondition_pass_to_RightStriker = HasPath({'obj1': 'Coach', 'obj2': 'RightStriker', 'path_width': {'avg': 3.0, 'std': 0.5}})
-A1_precondition_pass_to_LeftStriker = HasPath({'obj1': 'Coach', 'obj2': 'LeftStriker', 'path_width': {'avg': 3.0, 'std': 0.5}})
-A1_precondition_pass_to_RightWinger = HasPath({'obj1': 'Coach', 'obj2': 'RightWinger', 'path_width': {'avg': 3.0, 'std': 0.5}})
+
+# CODE CHANGE: The coach's feedback indicated that the original path width of 3.0 meters was too conservative,
+# causing the agent to incorrectly believe clear passing lanes were blocked.
+# I have reduced the 'avg' path_width to 1.5 meters for all passing options to make the check less strict,
+# aligning with the coach's assessment of the scene.
+A1_precondition_pass_to_RightStriker = HasPath({
+    'obj1': 'Coach',
+    'obj2': 'RightStriker',
+    'path_width': {'avg': 1.5, 'std': 0.5}
+})
+A1_precondition_pass_to_LeftStriker = HasPath({
+    'obj1': 'Coach',
+    'obj2': 'LeftStriker',
+    'path_width': {'avg': 1.5, 'std': 0.5}
+})
+A1_precondition_pass_to_RightWinger = HasPath({
+    'obj1': 'Coach',
+    'obj2': 'RightWinger',
+    'path_width': {'avg': 1.5, 'std': 0.5}
+})
+# CODE CHANGE: Added a HasPath constraint for the LeftWinger. The coach's feedback
+# indicated that both wingers are valid passing options when the strikers are covered.
+A1_precondition_pass_to_LeftWinger = HasPath({
+    'obj1': 'Coach',
+    'obj2': 'LeftWinger',
+    'path_width': {'avg': 1.5, 'std': 0.5}
+})
+
+# CODE CHANGE: Added DistanceTo constraints for moving to support each potential pass
+# receiver. The coach specified moving to a position close to the teammate after passing,
+# "within five feet" (approx. 1.5m). A 'within' range of 1.5m to 4.5m is used to
+# define a reasonable supporting area that is close but not overlapping.
+A2_support_RightStriker = DistanceTo({
+    'from': 'Coach',
+    'to': 'RightStriker',
+    'operator': 'within',
+    'min': {'avg': 1.5, 'std': 0.5},
+    'max': {'avg': 4.5, 'std': 0.5}
+})
+A2_support_LeftStriker = DistanceTo({
+    'from': 'Coach',
+    'to': 'LeftStriker',
+    'operator': 'within',
+    'min': {'avg': 1.5, 'std': 0.5},
+    'max': {'avg': 4.5, 'std': 0.5}
+})
+A2_support_RightWinger = DistanceTo({
+    'from': 'Coach',
+    'to': 'RightWinger',
+    'operator': 'within',
+    'min': {'avg': 1.5, 'std': 0.5},
+    'max': {'avg': 4.5, 'std': 0.5}
+})
+A2_support_LeftWinger = DistanceTo({
+    'from': 'Coach',
+    'to': 'LeftWinger',
+    'operator': 'within',
+    'min': {'avg': 1.5, 'std': 0.5},
+    'max': {'avg': 4.5, 'std': 0.5}
+})
+
 
 def λ_precondition_has_ball():
     return A1_precondition_has_ball.bool(simulation())
 
+
 def λ_precondition_pass_to_RightStriker():
     return A1_precondition_pass_to_RightStriker.bool(simulation())
+
 
 def λ_precondition_pass_to_LeftStriker():
     return A1_precondition_pass_to_LeftStriker.bool(simulation())
 
+
 def λ_precondition_pass_to_RightWinger():
     return A1_precondition_pass_to_RightWinger.bool(simulation())
+
+
+# CODE CHANGE: Added lambda for the new LeftWinger pass precondition.
+def λ_precondition_pass_to_LeftWinger():
+    return A1_precondition_pass_to_LeftWinger.bool(simulation())
+
+
+# CODE CHANGE: Added lambdas for the new support position constraints.
+# These return a distribution of points for the MoveTo action.
+def λ_support_RightStriker():
+    return A2_support_RightStriker.dist(simulation(), ego=True)
+
+
+def λ_support_LeftStriker():
+    return A2_support_LeftStriker.dist(simulation(), ego=True)
+
+
+def λ_support_RightWinger():
+    return A2_support_RightWinger.dist(simulation(), ego=True)
+
+
+def λ_support_LeftWinger():
+    return A2_support_LeftWinger.dist(simulation(), ego=True)
+
 
 behavior CoachBehavior():
     do Idle() for 3 seconds
@@ -31,18 +116,35 @@ behavior CoachBehavior():
     if λ_precondition_pass_to_RightStriker():
         do Speak("I see a clear path to the right striker. I will pass to him to advance the attack.")
         do Pass(RightStriker)
+        # CODE CHANGE: Per coach feedback, the agent now moves to support the teammate after a pass.
+        do Speak("Now I will move to support the right striker.")
+        do MoveTo(λ_support_RightStriker())
     elif λ_precondition_pass_to_LeftStriker():
         do Speak("The left striker is open. Passing to him is the best option to move forward.")
         do Pass(LeftStriker)
+        # CODE CHANGE: Per coach feedback, the agent now moves to support the teammate after a pass.
+        do Speak("Now I will move to support the left striker.")
+        do MoveTo(λ_support_LeftStriker())
     elif λ_precondition_pass_to_RightWinger():
         do Speak("Both strikers are covered. I will pass to the right winger to build up from the side.")
         do Pass(RightWinger)
+        # CODE CHANGE: Per coach feedback, the agent now moves to support the teammate after a pass.
+        do Speak("Now I will move to support the right winger.")
+        do MoveTo(λ_support_RightWinger())
+    # CODE CHANGE: Added a pass option to the LeftWinger, as coach's feedback indicated both wingers were open.
+    elif λ_precondition_pass_to_LeftWinger():
+        do Speak("Both strikers are covered. I will pass to the left winger to build up from the side.")
+        do Pass(LeftWinger)
+        # CODE CHANGE: Per coach feedback, the agent now moves to support the teammate after a pass.
+        do Speak("Now I will move to support the left winger.")
+        do MoveTo(λ_support_LeftWinger())
     else:
         do Speak("All my passing options are currently blocked. I'll wait for an opportunity.")
         do Idle()
     do Idle()
 ####Environment Behavior START####
 
+####Environment Behavior START####
 
 # Ego (center midfielder) at origin
 pi = 3.1415

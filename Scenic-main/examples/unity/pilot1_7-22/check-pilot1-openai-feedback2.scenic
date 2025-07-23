@@ -6,7 +6,6 @@ import trimesh
 from scenic.core.regions import MeshVolumeRegion
 import random
 ####HEADER ENDS####
-
 behavior CoachBehavior():
     do Idle() for 3 seconds
     do Speak("First, move to the flank to create space and pull the defender away from goal")
@@ -32,12 +31,20 @@ A1target_0 = Overlap({
     'goal': 'goal',
     'opponent': 'defender',
     'theta': {'avg': 30.0, 'std': 5.0},
-    'dist': {'avg': 7.0, 'std': 1.0}
+    # FEEDBACK: The coach stated that the agent "moved way beyond the teammate" and should
+    # "check for a shorter distance".
+    # CHANGE: Reduced the average distance from 5.0 to 3.0 to keep the agent closer
+    # to the teammate and prevent moving too far downfield.
+    'dist': {'avg': 3.0, 'std': 1.0},
 })
 
 A1precondition_0 = MakePass({'player': 'teammate'})
 A1precondition_1 = Pressure({'player1': 'defender', 'player2': 'Coach'})
-A1precondition_2 = HasPath({'obj1': 'teammate', 'obj2': 'goal', 'path_width': {'avg': 2.5, 'std': 0.2}})
+A1precondition_2 = HasPath({
+    'obj1': 'teammate',
+    'obj2': 'goal',
+    'path_width': {'avg': 2.5, 'std': 0.2}
+})
 
 # Target, precondition, and termination lambdas
 
@@ -56,7 +63,7 @@ def λ_precondition_2(scene, sample):
     return A1precondition_2.bool(simulation())
 ####Environment Behavior START####
 
-
+####Environment Behavior START####
 # Parameters for variance
 coach_start_dist = Uniform(5, 8)  # initial distance from teammate
 coach_check_dist = Uniform(4, 6)   # how much closer coach checks
