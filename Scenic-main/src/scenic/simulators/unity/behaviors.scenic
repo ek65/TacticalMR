@@ -407,7 +407,7 @@ def sample_from(dist, _min=0.4):
 #    do Idle() for 1 seconds
 
 
-behavior MoveTo(param):
+behavior MoveTo(param, doPass: bool = False):
     # --- try the “param is a distribution” path ---
     try:
         sample  = sample_from(param)
@@ -424,6 +424,15 @@ behavior MoveTo(param):
         else:
             sample  = param
             dynamic = False
+
+    # only set these values if coach called moveTo
+    if (self == ego):
+        # set xMark to the sample position
+        ego.xMark = sample
+        print(f"MoveTo: xMark set to {ego.xMark}")
+        # set triggerPass to doPass
+        ego.triggerPass = doPass
+        print(f"MoveTo: triggerPass set to {ego.triggerPass}")
 
     dt = 0.2
     # loop until we get within 0.5 units of our current target
