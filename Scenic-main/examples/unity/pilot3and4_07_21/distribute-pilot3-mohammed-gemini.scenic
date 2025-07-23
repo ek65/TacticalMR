@@ -1,7 +1,69 @@
-####Environment Behavior START####
+from scenic.simulators.unity.actions import *
+from scenic.simulators.unity.behaviors import *
+from scenic.simulators.unity.constraints import *
+model scenic.simulators.unity.model
+import trimesh
+from scenic.core.regions import MeshVolumeRegion
+import random
+####HEADER ENDS####
+
+
+precondition_has_ball = HasBallPossession({'player': 'Coach'})
+precondition_path_to_striker = HasPath({'obj1': 'Coach', 'obj2': 'LeftStriker', 'path_width': {'avg': 1.5, 'std': 0.25}})
+precondition_path_to_left_winger = HasPath({'obj1': 'Coach', 'obj2': 'LeftWinger', 'path_width': {'avg': 1.5, 'std': 0.25}})
+target_move_upfield = HeightRelation({'obj': 'Coach', 'relation': 'above', 'ref': None, 'height_threshold': {'avg': 8.0, 'std': 1.0}})
+target_move_to_space = DistanceTo({'from': 'Coach', 'to': 'Defender1', 'min': {'avg': 5.0, 'std': 1.0}, 'operator': 'greater_than'})
+termination_striker_has_ball = HasBallPossession({'player': 'LeftStriker'})
+termination_left_winger_has_ball = HasBallPossession({'player': 'LeftWinger'})
+termination_right_winger_has_ball = HasBallPossession({'player': 'RightWinger'})
+
+def λ_precondition_has_ball():
+	return precondition_has_ball.bool(simulation())
+
+def λ_precondition_path_to_striker():
+	return precondition_path_to_striker.bool(simulation())
+
+def λ_precondition_path_to_left_winger():
+	return precondition_path_to_left_winger.bool(simulation())
+
+def λ_target_move_into_space():
+	cond = target_move_upfield and target_move_to_space
+	return cond.dist(simulation(), ego=True)
+
+def λ_termination_striker_ball_received():
+	return termination_striker_has_ball.bool(simulation())
+
+def λ_termination_lw_ball_received():
+	return termination_left_winger_has_ball.bool(simulation())
+
+def λ_termination_rw_ball_received():
+	return termination_right_winger_has_ball.bool(simulation())
+
+behavior CoachBehavior():
+	do Idle() for 3 seconds
+	do Speak("I'm starting in midfield. I need to get the ball to initiate the play.")
+	do MoveToBallAndGetPossession()
+	do Speak("Now that I have possession, I will evaluate the defensive pressure to make my decision.")
+	do Idle() until λ_precondition_has_ball()
+	if λ_precondition_path_to_striker():
+		do Speak("The defense is giving me space. I'll make an ambitious pass to the striker.")
+		do Pass(LeftStriker)
+		do Speak("Now I'll run into the open space to provide a follow-up option.")
+		do MoveTo(λ_target_move_into_space()) until λ_termination_striker_ball_received()
+	elif λ_precondition_path_to_left_winger():
+		do Speak("The defender is too close to pass to the striker. I'll play it safe to the left winger.")
+		do Pass(LeftWinger)
+		do Speak("After the pass, I'm making a run forward to create space and be ready for a return.")
+		do MoveTo(λ_target_move_into_space()) until λ_termination_lw_ball_received()
+	else:
+		do Speak("The left side is crowded. I'll pass to the right winger to exploit space there.")
+		do Pass(RightWinger)
+		do Speak("I'm moving into the space behind the defender to receive a quick one-two pass.")
+		do MoveTo(λ_target_move_into_space()) until λ_termination_rw_ball_received()
+	do Idle()
+
 
 ####Environment Behavior START####
-
 # Ego (center midfielder) at origin
 pi = 3.1415
 ego = new Coach at (0, 0, 0), facing toward (0, 0, 0), with team "blue", with behavior CoachBehavior()

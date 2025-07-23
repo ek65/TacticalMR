@@ -1,6 +1,77 @@
-####Environment Behavior START####
+from scenic.simulators.unity.actions import *
+from scenic.simulators.unity.behaviors import *
+from scenic.simulators.unity.constraints import *
+model scenic.simulators.unity.model
+import trimesh
+from scenic.core.regions import MeshVolumeRegion
+import random
 
-####Environment Behavior START####
+behavior CoachBehavior():
+    do Idle() for 3 seconds
+    do Speak("I'm in midfield with the ball, assessing my options based on the defender's pressure.")
+    do MoveToBallAndGetPossession()
+    do Speak("I have the ball, now I'll look for a passing lane.")
+    #do Idle() until λ_precondition_pass_options()
+    if λ_precondition_path_to_LS():
+        do Speak("The defender gave me space, so I'll make an ambitious pass to the striker.")
+        do Pass(LeftStriker)
+        do Idle() until λ_precondition_LS_has_ball()
+        do Speak("Now I'll make a run to support the striker and create a scoring opportunity.")
+        do MoveTo(λ_target_fwd())
+    elif λ_precondition_path_to_LW():
+        do Speak("The defender is too close for a forward pass, so I'll play it safe to the left winger.")
+        do Pass(LeftWinger)
+        do Idle() until λ_precondition_LW_has_ball()
+        do Speak("I'll move into the open space to be an option for a return pass.")
+        do MoveTo(λ_target_fwd())
+    else:
+        do Speak("I'll exploit the space behind the defender by passing to my right winger.")
+        do Pass(RightWinger)
+        do Idle() until λ_precondition_RW_has_ball()
+        do Speak("Now I'll run behind the defender to receive a quick one-two pass in a dangerous area.")
+        do MoveTo(λ_target_behind_d1())
+    do Idle()
+
+C_path_to_LS = HasPath({'obj1': 'Coach', 'obj2': 'LeftStriker', 'path_width': {'avg': 3.0, 'std': 0.5}})
+C_path_to_LW = HasPath({'obj1': 'Coach', 'obj2': 'LeftWinger', 'path_width': {'avg': 3.0, 'std': 0.5}})
+C_path_to_RW = HasPath({'obj1': 'Coach', 'obj2': 'RightWinger', 'path_width': {'avg': 3.0, 'std': 0.5}})
+C_LS_has_ball = HasBallPossession({'player': 'LeftStriker'})
+C_LW_has_ball = HasBallPossession({'player': 'LeftWinger'})
+C_RW_has_ball = HasBallPossession({'player': 'RightWinger'})
+C_move_target_fwd = HeightRelation({'obj': 'Coach', 'relation': 'above', 'ref': 'Coach', 'height_threshold': {'avg': 7.0, 'std': 1.0}})
+C_move_target_behind_d1 = HeightRelation({'obj': 'Coach', 'relation': 'above', 'ref': 'Defender1', 'height_threshold': {'avg': 4.0, 'std': 1.0}})
+
+def λ_target_fwd():
+    return C_move_target_fwd.dist(simulation(), ego=True)
+
+def λ_target_behind_d1():
+    return C_move_target_behind_d1.dist(simulation(), ego=True)
+
+def λ_precondition_path_to_LS():
+    return C_path_to_LS.bool(simulation())
+
+def λ_precondition_path_to_LW():
+    return C_path_to_LW.bool(simulation())
+
+def λ_precondition_path_to_RW():
+    return C_path_to_RW.bool(simulation())
+
+def λ_precondition_pass_options():
+    return C_path_to_LS.bool(simulation()) or C_path_to_LW.bool(simulation()) or C_path_to_RW.bool(simulation())
+
+def λ_precondition_LS_has_ball():
+    return C_LS_has_ball.bool(simulation())
+
+def λ_precondition_LW_has_ball():
+    return C_LW_has_ball.bool(simulation())
+
+def λ_precondition_RW_has_ball():
+    return C_RW_has_ball.bool(simulation())
+
+def λ_termination():
+    return False
+
+
 
 # Ego (center midfielder) at origin
 pi = 3.1415

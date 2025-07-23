@@ -1,6 +1,71 @@
-####Environment Behavior START####
+from scenic.simulators.unity.actions import *
+from scenic.simulators.unity.behaviors import *
+from scenic.simulators.unity.constraints import *
+model scenic.simulators.unity.model
+import trimesh
+from scenic.core.regions import MeshVolumeRegion
+import random
 
-####Environment Behavior START####
+behavior CoachBehavior():
+    do Idle() for 3 seconds
+    do Speak("Prepare for the pass, get in position.")
+    # Wait for Coach to have ball possession (after teammate passes and Coach receives)
+    do Idle() until λ_precondition_0(simulation(), None)
+    do Speak("Move to receive the ball and get possession.")
+    do MoveToBallAndGetPossession()
+    do Speak("Analyze the defenders, look for open passing lane.")
+    do Idle() until λ_precondition_1(simulation(), None)
+    do Speak("Pass to left striker, he is open on the left.")
+    do Pass('LeftStriker')
+    do Speak("Show to make yourself available for a pass back.")
+    do Idle() until λ_precondition_2(simulation(), None)
+    do Speak("Move into position to receive return pass from LeftStriker.")
+    do MoveTo(λ_target2())
+    do Speak("Stop and become a good passing option for LeftStriker.")
+    do StopAndReceiveBall()
+    do Idle()
+
+# Constraints for behaviors
+
+# Precondition 0: Coach can move only after teammate passed and Coach receives the ball (Coach gets possession)
+A1precondition_0 = HasBallPossession({'player': 'Coach'})
+
+# Precondition 1: Coach should have clear passing path to LeftStriker (no defender between Coach and LeftStriker)
+A1precondition_1 = HasPath({'obj1': 'Coach', 'obj2': 'LeftStriker', 'path_width': {'avg': 2.5, 'std': 0.2}})
+
+# Precondition 2: Wait until LeftStriker receives the ball, then move to open angle/space
+A1precondition_2 = HasBallPossession({'player': 'LeftStriker'})
+
+# After the pass, create an angle to receive a pass from LeftStriker, away from Defender1 and Defender4.
+A1target_2 = AtAngle({
+    'player': 'Coach',
+    'ball': 'ball',
+    'left': {
+        'theta': {'avg': 50.0, 'std': 5.0},
+        'dist': {'avg': 5.0, 'std': 0.3}
+    },
+    'right': {
+        'theta': {'avg': 50.0, 'std': 5.0},
+        'dist': {'avg': 5.0, 'std': 0.3}
+    }
+})
+
+# Lambda functions
+
+def λ_precondition_0(scene, sample):
+    return A1precondition_0.bool(simulation())
+
+def λ_precondition_1(scene, sample):
+    return A1precondition_1.bool(simulation())
+
+def λ_precondition_2(scene, sample):
+    return A1precondition_2.bool(simulation())
+
+def λ_target2():
+    return A1target_2.dist(simulation(), ego=True)
+
+
+
 
 # Ego (center midfielder) at origin
 pi = 3.1415

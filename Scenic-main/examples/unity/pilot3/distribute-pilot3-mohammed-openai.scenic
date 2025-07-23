@@ -1,6 +1,63 @@
-####Environment Behavior START####
+from scenic.simulators.unity.actions import *
+from scenic.simulators.unity.behaviors import *
+from scenic.simulators.unity.constraints import *
+model scenic.simulators.unity.model
+import trimesh
+from scenic.core.regions import MeshVolumeRegion
+import random
 
-####Environment Behavior START####
+behavior CoachBehavior():
+    do Idle() for 3 seconds
+    do Speak("I've received the ball in midfield. Let's make a decision here.")
+    do MoveToBallAndGetPossession()
+    do Speak("Look for supporting options. Wait until we have possession.")
+    do Idle() until λ_precondition_possession(simulation(), None)
+    do Speak("The defender is close, so let’s play it safe to the left winger.")
+    do Pass(LeftWinger)
+    do Speak("Wait for the pass to be received by the LeftWinger.")
+    do Idle() until λ_precondition_leftwinger_possession(simulation(), None)
+    do Speak("Now, make a run into the half-space to support the next move.")
+    do MoveTo(λ_target_halfspace())
+    do Speak("Behavior finished; wait and scan for next options.")
+    do Idle()
+
+# Constraints for coach having possession
+A1precondition_possession = HasBallPossession({'player': 'Coach'})
+def λ_precondition_possession(scene, sample):
+    return A1precondition_possession.bool(simulation())
+
+# Wait for left winger to get the ball
+A1precondition_leftwinger_possession = HasBallPossession({'player': 'LeftWinger'})
+def λ_precondition_leftwinger_possession(scene, sample):
+    return A1precondition_leftwinger_possession.bool(simulation())
+
+# Define the half-space between wingers and strikers
+A1target_halfspace = DistanceTo({
+    'from': 'Coach',
+    'to': 'goal',
+    'min': {'avg': 12.0, 'std': 1.0},
+    'max': {'avg': 25.0, 'std': 2.0},
+    'operator': 'within'
+})
+A2target_halfspace = HeightRelation({
+    'obj': 'Coach',
+    'relation': 'above',
+    'ref': 'LeftWinger',
+    'height_threshold': {'avg': 3.0, 'std': 0.5}
+})
+A3target_halfspace = HeightRelation({
+    'obj': 'Coach',
+    'relation': 'below',
+    'ref': 'LeftStriker',
+    'height_threshold': {'avg': 2.0, 'std': 0.5}
+})
+
+def λ_target_halfspace():
+    cond = A1target_halfspace and A2target_halfspace and A3target_halfspace
+    return cond.dist(simulation(), ego=True)
+
+
+
 
 # Ego (center midfielder) at origin
 pi = 3.1415

@@ -99,6 +99,8 @@ class Human(UnityObject):
     path : None
     name : "Coach"
     systemControlled : False
+    xMark : Vector(0, 0, 0)  # Position of the X mark on the field
+    triggerPass : False  # Indicates whether the coach has told the teammate to pass
 
 # system controlled
 class Coach(Human):

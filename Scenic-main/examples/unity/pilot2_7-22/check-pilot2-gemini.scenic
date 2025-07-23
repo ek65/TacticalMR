@@ -6,38 +6,30 @@ import trimesh
 from scenic.core.regions import MeshVolumeRegion
 import random
 
-C1_target0 = Overlap({'player': 'Coach', 'ball': 'ball', 'goal': 'goal', 'opponent': 'opponent', 'theta': {'avg': 42.5, 'std': 5.0}, 'dist': {'avg': 8.0, 'std': 1.0}})
-C1_term0 = MakePass({'player': 'teammate'})
-C1_precondition1 = HasBallPossession({'player': 'Coach'})
-C2_precondition1 = Pressure({'player1': 'opponent', 'player2': 'Coach'})
-C3_precondition1 = HasPath({'obj1': 'Coach', 'obj2': 'teammate', 'path_width': {'avg': 2.0, 'std': 0.5}})
+A1_target_0 = AtAngle({'player': 'Coach', 'ball': 'ball', 'left': {'theta': {'avg': 30.0, 'std': 5.0}, 'dist': {'avg': 7.0, 'std': 1.0}}, 'right': {'theta': {'avg': 30.0, 'std': 5.0}, 'dist': {'avg': 7.0, 'std': 1.0}}})
+A1_precondition_0 = HasPath({'obj1': 'Coach', 'obj2': 'goal', 'path_width': {'avg': 2.0, 'std': 0.2}})
+A2_precondition_0 = DistanceTo({'from': 'Coach', 'to': 'opponent', 'min': {'avg': 1.8, 'std': 0.3}, 'max': None, 'operator': 'greater_than'})
 
 def λ_target0():
-    return C1_target0.dist(simulation(), ego=True)
+    return A1_target_0.dist(simulation(), ego=True)
 
-def λ_termination0():
-    return C1_term0.bool(simulation())
-
-def λ_precondition1(scene, sample):
-    return C1_precondition1.bool(simulation()) and C2_precondition1.bool(simulation()) and C3_precondition1.bool(simulation())
+def λ_precondition_0(scene, sample):
+    return A1_precondition_0.bool(simulation()) and A2_precondition_0.bool(simulation())
 
 behavior CoachBehavior():
     do Idle() for 3 seconds
-    do Speak("I'll pull the defender to the side, to create a better shot for my teammate by opening up the goal.")
-    do MoveTo(λ_target0()) until λ_termination0()
-    do Speak("My teammate is passing the ball, so I will stop and receive it.")
+    do Speak("I'll move to create an angle for a pass and get some space from the defender.")
+    do MoveTo(λ_target0())
+    do Speak("I'm in position now, waiting for the ball from my teammate.")
     do StopAndReceiveBall()
-    print('Has Ball')
-    print(C1_precondition1.bool(simulation()))
-    print('Pressure')
-    print(C2_precondition1.bool(simulation()))
-    print('Has Path')
-    print(C3_precondition1.bool(simulation()))
-    do Idle() until λ_precondition1(simulation(), None)
-    do Speak("Now that the defender is on me, I will pass back to my open teammate.")
-    do Pass(teammate)
+    if λ_precondition_0(simulation(), None):
+        do Speak("The path to the goal is clear and I have enough space. I'm going to shoot.")
+        do Shoot(goal)
+    else:
+        do Speak("The defender is too close or blocking the shot. I'll pass it back safely.")
+        do Pass(teammate)
     do Idle()
-
+####Environment Behavior START####
 
 
 # Parameters for variance
@@ -50,16 +42,16 @@ opponent_speed = Uniform(5, 7)        # opponent's movement speed
 # Behaviors
 behavior TeammatePass():
     do Idle() for 1.0 seconds  # Give coach time to start 
-    do MoveToBallAndGetPossession(ball)
+    do MoveToBallAndGetPossession()
     print("got ball")
-    do Idle() for 5.0 seconds
+    do Idle() for 10.0 seconds
     do Pass(ego)
     do Idle()
-
+####Environment Behavior START####
 behavior OpponentFollowCoach():
     do Idle() for 1.0 seconds  # Wait for coach to start checking
     speed = float(opponent_speed)
-    # do SetPlayerSpeed(speed)
+    do SetPlayerSpeed(speed)
     while True:
         if distance from self to ego > 2.0:
             do MoveToBehavior(ego.position, distance=2.0)
@@ -79,3 +71,4 @@ opponent = new Player ahead of ego by opponent_dist, facing toward ego, with nam
 ball = new Ball ahead of teammate by 0.5
 
 goal = new Goal at (0, 17, 0)
+terminate when (ego.gameObject.stopButton)

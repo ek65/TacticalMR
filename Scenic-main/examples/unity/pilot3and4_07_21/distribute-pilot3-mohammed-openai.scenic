@@ -1,4 +1,48 @@
-####Environment Behavior START####
+from scenic.simulators.unity.actions import *
+from scenic.simulators.unity.behaviors import *
+from scenic.simulators.unity.constraints import *
+model scenic.simulators.unity.model
+import trimesh
+from scenic.core.regions import MeshVolumeRegion
+import random
+####HEADER ENDS####
+
+
+A1target_0 = HasBallPossession({'player': 'Coach'})
+A2target_1 = HasPath({'obj1': 'Coach', 'obj2': 'LeftWinger', 'path_width': {'avg': 2.0, 'std': 0.2}})
+A3target_1 = DistanceTo({'from': 'Coach', 'to': 'LeftWinger', 'min': {'avg': 8.0, 'std': 0.5}, 'max': {'avg': 18.0, 'std': 1.0}, 'operator': 'within'})
+A1precondition_2 = HasBallPossession({'player': 'LeftWinger'})
+A1target_3 = DistanceTo({'from': 'Coach', 'to': 'ball', 'min': {'avg': 6.0, 'std': 0.3}, 'max': {'avg': 12.0, 'std': 0.5}, 'operator': 'within'})
+
+
+def λ_target0():
+    return A1target_0.bool(simulation())
+
+def λ_target1():
+    cond = A2target_1 and A3target_1
+    return cond.dist(simulation(), ego=True)
+
+def λ_precondition_2(scene, sample):
+    return A1precondition_2.bool(simulation())
+
+def λ_target3():
+    return A1target_3.dist(simulation(), ego=True)
+
+behavior CoachBehavior():
+    do Idle() for 3 seconds
+    do Speak("Get ready—possess the ball and scan for passing options.")
+    do MoveToBallAndGetPossession()
+    do Speak("Look for a safe pass option to the left winger.")
+    do Idle() until λ_target0()
+    do Speak("Pass the ball quickly to the LeftWinger to avoid pressure.")
+    do Pass(LeftWinger)
+    do Speak("Wait for LeftWinger to receive the ball before moving.")
+    do Idle() until λ_precondition_2(simulation(), None)
+    do Speak("Move into half-space to open up and provide an option.")
+    do MoveTo(λ_target3())
+    do Idle()
+
+
 
 ####Environment Behavior START####
 

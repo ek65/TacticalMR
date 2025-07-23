@@ -48,7 +48,8 @@ behavior Pass(target, slow=False):
         target = target.position
         # print("UnityObj")
     elif checkIfString(target):
-        target = [obj for obj in scene.objects if obj.name.lower() == target][0].position # converts string into object reference
+        #print([obj.name for obj in scene.objects])
+        target = [obj for obj in scene.objects if obj.name.lower() == target.lower()][0].position # converts string into object reference
         # print("elif case")
     print(f"Passing to {target}")
     print(f"type: {type(target)}")
@@ -207,9 +208,9 @@ behavior getTo(destination):
         # take MoveToAction(destination)
         take MoveToLookAtBallWithSpeed(destination, 2.0)
 
-behavior MoveToBallAndGetPossession(ball):
+behavior MoveToBallAndGetPossession():
     while not self.gameObject.ballPossession:
-        take MoveToAction(ball.position)
+        do MoveTo("ball")
     
     do Idle() for 1.0 seconds
 
@@ -406,7 +407,7 @@ def sample_from(dist, _min=0.4):
 #    do Idle() for 1 seconds
 
 
-behavior MoveTo(param):
+behavior MoveTo(param, doPass: bool = False):
     # --- try the “param is a distribution” path ---
     try:
         sample  = sample_from(param)
@@ -414,13 +415,24 @@ behavior MoveTo(param):
         dist    = param
     # if sample_from isn’t defined for this type, assume it’s already a goal
     except Exception:
-        if checkIfString(target):
+        scene = simulation()
+
+        if checkIfString(param):
             param = [obj for obj in scene.objects if obj.name.lower() == param][0].position # converts string into object reference
             sample  = param
             dynamic = False
         else:
             sample  = param
             dynamic = False
+
+    # only set these values if coach called moveTo
+    if (self == ego):
+        # set xMark to the sample position
+        ego.xMark = sample
+        print(f"MoveTo: xMark set to {ego.xMark}")
+        # set triggerPass to doPass
+        ego.triggerPass = doPass
+        print(f"MoveTo: triggerPass set to {ego.triggerPass}")
 
     dt = 0.2
     # loop until we get within 0.5 units of our current target

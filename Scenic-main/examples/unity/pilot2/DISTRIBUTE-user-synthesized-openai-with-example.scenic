@@ -1,6 +1,56 @@
-####Environment Behavior START####
+from scenic.simulators.unity.actions import *
+from scenic.simulators.unity.behaviors import *
+from scenic.simulators.unity.constraints import *
+model scenic.simulators.unity.model
+import trimesh
+from scenic.core.regions import MeshVolumeRegion
+import random
 
-####Environment Behavior START####
+behavior CoachBehavior():
+    do Idle() for 3 seconds
+    do Speak("Get open to receive the pass from teammate.")
+    do MoveToBallAndGetPossession()
+    do Speak("Wait until you have ball possession.")
+    do Idle() until λ_precondition_0(simulation(), None)
+    do Speak("Look for open passing opportunity to teammate.")
+    do Pass('teammate')
+    do Speak("Wait until you regain possession from teammate.")
+    do Idle() until λ_precondition_1(simulation(), None)
+    do Speak("Create angle to receive ball in space away from defenders.")
+    do MoveTo(λ_target2())
+    do Speak("Wait until you receive the ball back from teammate.")
+    do Idle() until λ_precondition_2(simulation(), None)
+    do Speak("Take a shot at the goal when defenders cannot block.")
+    do Shoot(goal)
+    do Idle()
+
+A1precondition_0 = HasBallPossession({'player': 'Coach'})
+A1precondition_1 = HasBallPossession({'player': 'Coach'})
+A1precondition_2 = HasBallPossession({'player': 'Coach'})
+
+A1target_2 = AtAngle({
+    'player': 'Coach', 
+    'ball': 'ball',
+    'left': {
+        'theta': {'avg': 38.0, 'std': 3.0},
+        'dist': {'avg': 7.5, 'std': 0.7}
+    }
+})
+
+def λ_precondition_0(scene, sample):
+    return A1precondition_0.bool(simulation())
+
+def λ_precondition_1(scene, sample):
+    return A1precondition_1.bool(simulation())
+
+def λ_precondition_2(scene, sample):
+    return A1precondition_2.bool(simulation())
+
+def λ_target2():
+    return A1target_2.dist(simulation(), ego=True)
+
+
+
 
 # Ego (center midfielder) at origin
 pi = 3.1415
