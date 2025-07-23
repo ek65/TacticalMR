@@ -7,65 +7,148 @@ from scenic.core.regions import MeshVolumeRegion
 import random
 ####HEADER ENDS####
 A1HasBallPossession = HasBallPossession({'player': 'Coach'})
-A1HasPath_LS = HasPath({'obj1': 'Coach', 'obj2': 'LeftStriker', 'path_width': {'avg': 2.4, 'std': 0.2}})
-A1HasPath_RW = HasPath({'obj1': 'Coach', 'obj2': 'RightWinger', 'path_width': {'avg': 2.4, 'std': 0.2}})
-A1HasPath_RS = HasPath({'obj1': 'Coach', 'obj2': 'RightStriker', 'path_width': {'avg': 2.4, 'std': 0.2}})
-A1HasPath_High = HasPath({'obj1': 'Coach', 'obj2': 'HighestPlayer', 'path_width': {'avg': 2.4, 'std': 0.2}})
-A1HasPath_Horiz = HasPath({'obj1': 'Coach', 'obj2': 'HorizontalPlayer', 'path_width': {'avg': 2.3, 'std': 0.2}})
-A1HasPath_SafeStriker = HasPath({'obj1': 'Coach', 'obj2': 'SafeStriker', 'path_width': {'avg': 2.4, 'std': 0.2}})
-A1HasPath_BestStriker = HasPath({'obj1': 'Coach', 'obj2': 'BestStriker', 'path_width': {'avg': 2.4, 'std': 0.2}})
-A1HasPath_ClearStriker = HasPath({'obj1': 'Coach', 'obj2': 'ClearStriker', 'path_width': {'avg': 2.4, 'std': 0.2}})
-A1HasPath_Forward = HasPath({'obj1': 'Coach', 'obj2': 'ForwardPlayer', 'path_width': {'avg': 2.4, 'std': 0.2}})
-A1HasPath_Striker = HasPath({'obj1': 'Coach', 'obj2': 'Striker', 'path_width': {'avg': 2.4, 'std': 0.2}})
-A1HasPath_LeftAvail = HasPath({'obj1': 'Coach', 'obj2': 'LeftAvailable', 'path_width': {'avg': 2.4, 'std': 0.2}})
-A1HasPath_RightAvail = HasPath({'obj1': 'Coach', 'obj2': 'RightAvailable', 'path_width': {'avg': 2.4, 'std': 0.2}})
-A1HasPath_HorizAvail = HasPath({'obj1': 'Coach', 'obj2': 'HorizontalAvailable', 'path_width': {'avg': 2.3, 'std': 0.2}})
-A1HasPath_StrikerSingle = HasPath({'obj1': 'Coach', 'obj2': 'SingleStriker', 'path_width': {'avg': 2.4, 'std': 0.2}})
+A1HasPath_LS = HasPath({
+    'obj1': 'Coach',
+    'obj2': 'LeftStriker',
+    'path_width': {'avg': 2.4, 'std': 0.2}
+})
+A1HasPath_RW = HasPath({
+    'obj1': 'Coach',
+    'obj2': 'RightWinger',
+    'path_width': {'avg': 2.4, 'std': 0.2}
+})
+A1HasPath_RS = HasPath({
+    'obj1': 'Coach',
+    'obj2': 'RightStriker',
+    'path_width': {'avg': 2.4, 'std': 0.2}
+})
+A1HasPath_High = HasPath({
+    'obj1': 'Coach',
+    'obj2': 'HighestPlayer',
+    'path_width': {'avg': 2.4, 'std': 0.2}
+})
+A1HasPath_Horiz = HasPath({
+    'obj1': 'Coach',
+    'obj2': 'HorizontalPlayer',
+    'path_width': {'avg': 2.3, 'std': 0.2}
+})
+A1HasPath_SafeStriker = HasPath({
+    'obj1': 'Coach',
+    'obj2': 'SafeStriker',
+    'path_width': {'avg': 2.4, 'std': 0.2}
+})
+A1HasPath_BestStriker = HasPath({
+    'obj1': 'Coach',
+    'obj2': 'BestStriker',
+    'path_width': {'avg': 2.4, 'std': 0.2}
+})
+A1HasPath_ClearStriker = HasPath({
+    'obj1': 'Coach',
+    'obj2': 'ClearStriker',
+    'path_width': {'avg': 2.4, 'std': 0.2}
+})
+A1HasPath_Forward = HasPath({
+    'obj1': 'Coach',
+    'obj2': 'ForwardPlayer',
+    'path_width': {'avg': 2.4, 'std': 0.2}
+})
+A1HasPath_Striker = HasPath({
+    'obj1': 'Coach',
+    'obj2': 'Striker',
+    'path_width': {'avg': 2.4, 'std': 0.2}
+})
+A1HasPath_LeftAvail = HasPath({
+    'obj1': 'Coach',
+    'obj2': 'LeftAvailable',
+    'path_width': {'avg': 2.4, 'std': 0.2}
+})
+A1HasPath_RightAvail = HasPath({
+    'obj1': 'Coach',
+    'obj2': 'RightAvailable',
+    'path_width': {'avg': 2.4, 'std': 0.2}
+})
+A1HasPath_HorizAvail = HasPath({
+    'obj1': 'Coach',
+    'obj2': 'HorizontalAvailable',
+    'path_width': {'avg': 2.3, 'std': 0.2}
+})
+A1HasPath_StrikerSingle = HasPath({
+    'obj1': 'Coach',
+    'obj2': 'SingleStriker',
+    'path_width': {'avg': 2.4, 'std': 0.2}
+})
 
 A1MakePass_LS = MakePass({'player': 'Coach'})
 A1MakePass_RW = MakePass({'player': 'Coach'})
 A1MakePass_RS = MakePass({'player': 'Coach'})
 A1MakePass_High = MakePass({'player': 'Coach'})
 
+
 def λ_termination_MoveToBestPass(scene, sample):
     # Terminate if situation changes (not the goal of pass itself): e.g., defender closes path or Coach loses possession
-    return not A1HasBallPossession.bool(simulation()) or \
-           (not A1HasPath_ClearStriker.bool(simulation()) and 
-            not A1HasPath_Forward.bool(simulation()))
-           
+    return (
+        not A1HasBallPossession.bool(simulation()) or
+        (
+            not A1HasPath_ClearStriker.bool(simulation()) and
+            not A1HasPath_Forward.bool(simulation())
+        )
+    )
+
+
 def λ_target_pass_clearStriker():
     return A1HasPath_ClearStriker.dist(simulation(), ego=True)
+
+
 def λ_target_pass_RS():
     return A1HasPath_RS.dist(simulation(), ego=True)
+
+
 def λ_target_pass_RW():
     return A1HasPath_RW.dist(simulation(), ego=True)
+
+
 def λ_target_pass_LS():
     return A1HasPath_LS.dist(simulation(), ego=True)
+
+
 def λ_target_pass_High():
     return A1HasPath_High.dist(simulation(), ego=True)
+
+
 def λ_target_pass_Horiz():
     return A1HasPath_Horiz.dist(simulation(), ego=True)
+
 
 def λ_target_pass_Striker():
     return A1HasPath_Striker.dist(simulation(), ego=True)
 
+
 def λ_precondition_hasPossession(scene, sample):
     return A1HasBallPossession.bool(simulation())
 
+
 def λ_precondition_forwardClear(scene, sample):
-    return A1HasPath_ClearStriker.bool(simulation()) or \
-           A1HasPath_Forward.bool(simulation())
+    return (
+        A1HasPath_ClearStriker.bool(simulation()) or
+        A1HasPath_Forward.bool(simulation())
+    )
+
 
 def λ_precondition_highest(scene, sample):
     return A1HasPath_High.bool(simulation())
 
+
 def λ_precondition_horiz_and_other(scene, sample):
-    return A1HasPath_Horiz.bool(simulation()) or \
-           A1HasPath_HorizAvail.bool(simulation())
+    return (
+        A1HasPath_Horiz.bool(simulation()) or
+        A1HasPath_HorizAvail.bool(simulation())
+    )
+
 
 def λ_termination_idle(scene, sample):
     # As an intermediate step, terminate when ball is possessed or possession changes
     return not A1HasBallPossession.bool(simulation())
+
 
 behavior CoachBehavior():
     do Idle() for 3 seconds
@@ -81,11 +164,22 @@ behavior CoachBehavior():
         do Speak("Forward pass not open; look to horizontal teammate.")
         do Pass(HorizontalPlayer)
     else:
-        do Speak("If none clear, seek safest available striker or hold the ball.")
-        do Idle() until λ_termination_idle(simulation(), None)
+        # CHANGE: The original code would idle here, failing to make a pass.
+        # The coach's feedback was to find a secondary option, like a winger,
+        # instead of just holding the ball. This new logic implements that.
+        do Speak("Forward options are blocked. If not open, play your right or left winger.")
+        if A1HasPath_RightAvail.bool(simulation()):
+            do Pass(RightWinger)
+        elif A1HasPath_LeftAvail.bool(simulation()):
+            do Pass(LeftWinger)
+        else:
+            # Only hold the ball if no other passing options exist.
+            do Speak("All passing options are covered. Holding the ball.")
+            do Idle() until λ_termination_idle(simulation(), None)
     do Idle()
 ####Environment Behavior START####
 
+####Environment Behavior START####
 
 # Ego (center midfielder) at origin
 pi = 3.1415

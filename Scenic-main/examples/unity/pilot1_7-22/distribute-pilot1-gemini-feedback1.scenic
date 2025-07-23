@@ -7,21 +7,43 @@ from scenic.core.regions import MeshVolumeRegion
 import random
 ####HEADER ENDS####
 A1_precondition_has_ball = HasBallPossession({'player': 'Coach'})
-A1_precondition_pass_to_RightStriker = HasPath({'obj1': 'Coach', 'obj2': 'RightStriker', 'path_width': {'avg': 3.0, 'std': 0.5}})
-A1_precondition_pass_to_LeftStriker = HasPath({'obj1': 'Coach', 'obj2': 'LeftStriker', 'path_width': {'avg': 3.0, 'std': 0.5}})
-A1_precondition_pass_to_RightWinger = HasPath({'obj1': 'Coach', 'obj2': 'RightWinger', 'path_width': {'avg': 3.0, 'std': 0.5}})
+
+# CODE CHANGE: The coach's feedback indicated that the original path width of 3.0 meters was too conservative,
+# causing the agent to incorrectly believe clear passing lanes were blocked.
+# I have reduced the 'avg' path_width to 1.5 meters for all passing options to make the check less strict,
+# aligning with the coach's assessment of the scene.
+A1_precondition_pass_to_RightStriker = HasPath({
+    'obj1': 'Coach',
+    'obj2': 'RightStriker',
+    'path_width': {'avg': 1.5, 'std': 0.5}
+})
+A1_precondition_pass_to_LeftStriker = HasPath({
+    'obj1': 'Coach',
+    'obj2': 'LeftStriker',
+    'path_width': {'avg': 1.5, 'std': 0.5}
+})
+A1_precondition_pass_to_RightWinger = HasPath({
+    'obj1': 'Coach',
+    'obj2': 'RightWinger',
+    'path_width': {'avg': 1.5, 'std': 0.5}
+})
+
 
 def λ_precondition_has_ball():
     return A1_precondition_has_ball.bool(simulation())
 
+
 def λ_precondition_pass_to_RightStriker():
     return A1_precondition_pass_to_RightStriker.bool(simulation())
+
 
 def λ_precondition_pass_to_LeftStriker():
     return A1_precondition_pass_to_LeftStriker.bool(simulation())
 
+
 def λ_precondition_pass_to_RightWinger():
     return A1_precondition_pass_to_RightWinger.bool(simulation())
+
 
 behavior CoachBehavior():
     do Idle() for 3 seconds
@@ -43,6 +65,7 @@ behavior CoachBehavior():
     do Idle()
 ####Environment Behavior START####
 
+####Environment Behavior START####
 
 # Ego (center midfielder) at origin
 pi = 3.1415

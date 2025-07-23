@@ -6,43 +6,94 @@ import trimesh
 from scenic.core.regions import MeshVolumeRegion
 import random
 ####HEADER ENDS####
-A1_precondition_has_ball = HasBallPossession({'player': 'Coach'})
-A1_precondition_pass_to_RightStriker = HasPath({'obj1': 'Coach', 'obj2': 'RightStriker', 'path_width': {'avg': 3.0, 'std': 0.5}})
-A1_precondition_pass_to_LeftStriker = HasPath({'obj1': 'Coach', 'obj2': 'LeftStriker', 'path_width': {'avg': 3.0, 'std': 0.5}})
-A1_precondition_pass_to_RightWinger = HasPath({'obj1': 'Coach', 'obj2': 'RightWinger', 'path_width': {'avg': 3.0, 'std': 0.5}})
+precondition_has_ball = HasBallPossession({'player': 'Coach'})
+precondition_path_to_striker = HasPath({
+    'obj1': 'Coach',
+    'obj2': 'LeftStriker',
+    'path_width': {'avg': 1.5, 'std': 0.25}
+})
+precondition_path_to_left_winger = HasPath({
+    'obj1': 'Coach',
+    'obj2': 'LeftWinger',
+    'path_width': {'avg': 1.5, 'std': 0.25}
+})
+target_move_upfield = HeightRelation({
+    'obj': 'Coach',
+    'relation': 'above',
+    'ref': None,
+    'height_threshold': {'avg': 8.0, 'std': 1.0}
+})
+target_move_to_space = DistanceTo({
+    'from': 'Coach',
+    'to': 'Defender1',
+    'min': {'avg': 5.0, 'std': 1.0},
+    'operator': 'greater_than'
+})
+termination_striker_has_ball = HasBallPossession({'player': 'LeftStriker'})
+termination_left_winger_has_ball = HasBallPossession({'player': 'LeftWinger'})
+termination_right_winger_has_ball = HasBallPossession({'player': 'RightWinger'})
+
 
 def λ_precondition_has_ball():
-    return A1_precondition_has_ball.bool(simulation())
+    return precondition_has_ball.bool(simulation())
 
-def λ_precondition_pass_to_RightStriker():
-    return A1_precondition_pass_to_RightStriker.bool(simulation())
 
-def λ_precondition_pass_to_LeftStriker():
-    return A1_precondition_pass_to_LeftStriker.bool(simulation())
+def λ_precondition_path_to_striker():
+    return precondition_path_to_striker.bool(simulation())
 
-def λ_precondition_pass_to_RightWinger():
-    return A1_precondition_pass_to_RightWinger.bool(simulation())
+
+def λ_precondition_path_to_left_winger():
+    return precondition_path_to_left_winger.bool(simulation())
+
+
+def λ_target_move_into_space():
+    cond = target_move_upfield and target_move_to_space
+    return cond.dist(simulation(), ego=True)
+
+
+def λ_termination_striker_ball_received():
+    return termination_striker_has_ball.bool(simulation())
+
+
+def λ_termination_lw_ball_received():
+    return termination_left_winger_has_ball.bool(simulation())
+
+
+def λ_termination_rw_ball_received():
+    return termination_right_winger_has_ball.bool(simulation())
+
 
 behavior CoachBehavior():
     do Idle() for 3 seconds
-    do Speak("I need to get possession of the ball to start the play.")
+    do Speak("I'm starting in midfield. I need to get the ball to initiate the play.")
     do MoveToBallAndGetPossession()
+    do Speak("Now that I have possession, I will evaluate the defensive pressure to make my decision.")
     do Idle() until λ_precondition_has_ball()
-    if λ_precondition_pass_to_RightStriker():
-        do Speak("I see a clear path to the right striker. I will pass to him to advance the attack.")
-        do Pass(RightStriker)
-    elif λ_precondition_pass_to_LeftStriker():
-        do Speak("The left striker is open. Passing to him is the best option to move forward.")
+    if λ_precondition_path_to_striker():
+        do Speak("The defense is giving me space. I'll make an ambitious pass to the striker.")
         do Pass(LeftStriker)
-    elif λ_precondition_pass_to_RightWinger():
-        do Speak("Both strikers are covered. I will pass to the right winger to build up from the side.")
-        do Pass(RightWinger)
+        do Speak("Now I'll run into the open space to provide a follow-up option.")
+        # BUGFIX: Removed the 'until' condition which terminated the MoveTo action prematurely.
+        # The coach should complete the run to the supporting position after the pass.
+        do MoveTo(λ_target_move_into_space())
+    elif λ_precondition_path_to_left_winger():
+        do Speak("The defender is too close to pass to the striker. I'll play it safe to the left winger.")
+        do Pass(LeftWinger)
+        do Speak("After the pass, I'm making a run forward to create space and be ready for a return.")
+        # BUGFIX: Removed the 'until' condition which terminated the MoveTo action prematurely.
+        # The coach should complete the run to the supporting position after the pass.
+        do MoveTo(λ_target_move_into_space())
     else:
-        do Speak("All my passing options are currently blocked. I'll wait for an opportunity.")
-        do Idle()
+        do Speak("The left side is crowded. I'll pass to the right winger to exploit space there.")
+        do Pass(RightWinger)
+        do Speak("I'm moving into the space behind the defender to receive a quick one-two pass.")
+        # BUGFIX: Removed the 'until' condition which terminated the MoveTo action prematurely.
+        # The coach should complete the run to the supporting position after the pass.
+        do MoveTo(λ_target_move_into_space())
     do Idle()
 ####Environment Behavior START####
 
+####Environment Behavior START####
 
 # Ego (center midfielder) at origin
 pi = 3.1415
