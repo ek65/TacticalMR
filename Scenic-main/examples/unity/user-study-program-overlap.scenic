@@ -24,8 +24,10 @@ behavior TeammateBehavior():
         ego.triggerPass = False
         do Idle() until ego.position.y > 2
         do Pass(ego.xMark)
-        do Idle() until (distance from opponent to ego) <= 3
-        do DribbleTo(goal) until (distance from opponent to ego) > 3
+        do Idle() for 1 seconds
+        if self.gameObject.ballPossession:
+            do Idle() until (distance from opponent to ego) <= 3
+            do DribbleTo(goal) until (distance from opponent to ego) > 3
     
     do Idle()
     
