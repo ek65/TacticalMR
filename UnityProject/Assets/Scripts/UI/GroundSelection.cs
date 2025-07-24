@@ -122,6 +122,11 @@ public class GroundSelection : MonoBehaviour, IPointerClickHandler, IPointerEnte
     {
         if (keyboardInput.canClick)
         {
+            if (placedGroundHighlighter != null)
+            {
+                Destroy(placedGroundHighlighter);
+            }
+            
             // GameObject go = Instantiate(newGroundHighlighter, raycastHit.point, Quaternion.identity);
             NetworkRunner runner = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>()._runner;
             NetworkObject temp = runner.Spawn(newGroundHighlighter, raycastHit.point, Quaternion.identity);

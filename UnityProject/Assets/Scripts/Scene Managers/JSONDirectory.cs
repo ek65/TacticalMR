@@ -297,6 +297,11 @@ public class JSONDirectory : NetworkBehaviour
         //     yield return new WaitForSeconds(0.5f);
         // }
         yield return new WaitForSeconds(0.5f);
+        
+        GroundSelection groundSelection = GameObject.FindGameObjectWithTag("Ground")
+            .GetComponent<GroundSelection>();
+        groundSelection.ClearGroundHighlights();
+        
         // adding this reset here in case, it also resets in ObjectsList.cs in Reset()
         keyboardInput.timelineManager.Unpause();
         keyboardInput.exitScenario.EndScenario();
