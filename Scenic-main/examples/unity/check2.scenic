@@ -22,7 +22,7 @@ behavior TeammatePass():
         do MoveToBallAndGetPossession()
         print("got ball")
         do Idle()
-    interrupt when ego.gameObject.triggerPass:
+    interrupt when ego.gameObject.triggerPass and self.gameObject.ballPossession:
         print("trigger pass")
         do Idle() for 1.0 seconds
         do Pass(ego.gameObject.xMark)

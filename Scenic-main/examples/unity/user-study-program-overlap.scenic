@@ -16,13 +16,17 @@ behavior Follow(obj):
         do MoveToBehavior(obj, distance = 2, status = f"Follow {obj.name}")
 
 behavior TeammateBehavior():
-    do Idle() for 1 seconds
-    do MoveToBallAndGetPossession()
-    do Idle() for 10 seconds
-    do Idle() until ego.position.y > 2
-    do Pass(ego, slow=False) until (distance from opponent to ego) <= 3
-    do DribbleTo(goal) until (distance from opponent to ego) > 3
-    do Idle() for 2 seconds
+    try:
+        do Idle() for 1 seconds
+        do MoveToBallAndGetPossession()
+        do Idle()
+    interrupt when ego.triggerPass and self.gameObject.ballPossession:
+        do Idle() until ego.position.y > 2
+        do Pass(ego.xMark)
+        do Idle() until (distance from opponent to ego) <= 3
+        do DribbleTo(goal) until (distance from opponent to ego) > 3
+    
+    do Idle()
     
 
 behavior DefenderBehavior():
@@ -40,7 +44,12 @@ teammate = new Player at (0, 0, 0),
 
 ball = new Ball ahead of teammate by 1
 
-ego = new Coach at (ego_x_distance, ego_y_distance, 0), with name "Coach", with team "blue", with behavior CoachBehavior()
+ego = new Coach at (ego_x_distance, ego_y_distance, 0),
+    with name "Coach",
+    with team "blue",
+    with behavior CoachBehavior(),
+    with xMark Vector(0, 0, 0),  # Set initial xMark position
+    with triggerPass False  # Initialize triggerPass to False
 
 opponent = new Player at (0, Uniform(4, 6), 0), with name "opponent",
             with behavior DefenderBehavior(), with team "red"

@@ -15,11 +15,12 @@ behavior TeammatePass():
         do MoveToBallAndGetPossession()
         print("got ball")
         do Idle()
-    interrupt when ego.gameObject.triggerPass:
+    interrupt when ego.triggerPass and self.gameObject.ballPossession:
+        ego.triggerPass = False
         print("trigger pass")
         do Idle() for 1.0 seconds
-        do Pass(ego.gameObject.xMark)
-    
+        do Pass(ego.xMark)
+
     do Idle()
 
 ####Environment Behavior START####
