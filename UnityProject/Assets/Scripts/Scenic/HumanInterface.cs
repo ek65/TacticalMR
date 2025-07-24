@@ -49,6 +49,8 @@ public class HumanInterface : NetworkBehaviour
     public Vector3 ballOnTheGround;
 
     public bool isMoving;
+    public Vector3 xMark;
+    public bool triggerPass;
     // public bool ballPossession;
     [Networked] public NetworkBool ballPossession { get; set; }
     public GameObject ball;
@@ -227,6 +229,9 @@ public class HumanInterface : NetworkBehaviour
         {
             if (gm.isHost)
             {
+                // make sure teammate does not pass when human has ball
+                triggerPass = false;
+                
                 forwardArrow.GetComponentInChildren<ArrowGenerator>().RPC_SetActiveState(true);
                 // forwardArrow.SetActive(true);
                 ArrowGenerator arrow = forwardArrow.GetComponentInChildren<ArrowGenerator>();
@@ -249,7 +254,7 @@ public class HumanInterface : NetworkBehaviour
         {
             if (gm.isHost)
             {
-                // forwardArrow.SetActive(false);
+                forwardArrow.SetActive(false);
                 forwardArrow.GetComponentInChildren<ArrowGenerator>().RPC_SetActiveState(false);
             }
         }
@@ -404,6 +409,14 @@ public class HumanInterface : NetworkBehaviour
             ObjectsList objectList = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<ObjectsList>();
             objectList.humanPlayers.Add(this.gameObject);
         }
+    }
+    
+    // triggerPass should be disabled after it is set true
+    public IEnumerator SetTriggerPass()
+    {
+        triggerPass = true;
+        yield return new WaitForSeconds(0.1f);
+        triggerPass = false;
     }
     
     private void OnCollisionEnter(Collision other)
@@ -983,6 +996,9 @@ public class HumanInterface : NetworkBehaviour
     public void ResetHuman()
     {
         LosePossession();
+        triggerPass = false;
+        isMoving = false;
+        xMark = Vector3.zero;
         ballPossession = false;
         
         if (actionAPI)

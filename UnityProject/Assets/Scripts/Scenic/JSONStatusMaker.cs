@@ -160,6 +160,8 @@ public class JSONStatusMaker : MonoBehaviour
             pData.movementData.speed = velo.magnitude;
             pData.movementData.ballPossession = hI.ballPossession;
             pData.movementData.isMoving = hI.isMoving;
+            Vector3ToJsonClass(hI.xMark, pData.movementData.xMark);
+            pData.movementData.triggerPass = hI.triggerPass;
             pData.movementData.behavior = hI.behavior.Value;
             
         }
@@ -272,6 +274,8 @@ public class JSONStatusMaker : MonoBehaviour
             pause = false;
             ballPossession = false;
             isMoving = false;
+            xMark = new Vector3Json();
+            triggerPass = false;
             heldByHuman = false;
             heldByScenic = false;
             behavior = "";
@@ -285,6 +289,8 @@ public class JSONStatusMaker : MonoBehaviour
         public bool pause { get; set; }
         public bool ballPossession { get; set; }
         public bool isMoving { get; set; }
+        public Vector3Json xMark { get; set; }
+        public bool triggerPass { get; set; }
         public bool heldByHuman { get; set; }
         public bool heldByScenic { get; set; }
         public string behavior { get; set; }

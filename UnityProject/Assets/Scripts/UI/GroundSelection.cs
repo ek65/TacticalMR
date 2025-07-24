@@ -10,7 +10,7 @@ public class GroundSelection : MonoBehaviour, IPointerClickHandler, IPointerEnte
 {
     public GameObject groundHighlighter;
     public GameObject newGroundHighlighter;
-    public List<GameObject> placedGroundHighlighters;
+    public GameObject placedGroundHighlighter;
 
     private Camera cam;
     private RaycastHit raycastHit;
@@ -22,7 +22,6 @@ public class GroundSelection : MonoBehaviour, IPointerClickHandler, IPointerEnte
     {
         cam = Camera.main;
         keyboardInput = GameObject.FindGameObjectWithTag("keyboard").GetComponent<KeyboardInput>();
-        placedGroundHighlighters= new List<GameObject>();
     }
 
     private void Update()
@@ -41,6 +40,7 @@ public class GroundSelection : MonoBehaviour, IPointerClickHandler, IPointerEnte
             {
                 if (raycastHit.transform.gameObject.CompareTag("Ground"))
                 {
+                    Debug.LogError("test");
                     groundHighlighter.transform.position = raycastHit.point;
                 }
         
@@ -57,6 +57,7 @@ public class GroundSelection : MonoBehaviour, IPointerClickHandler, IPointerEnte
         if (human != null && human.GetComponent<HumanInterface>().isVR && !human.GetComponent<HumanInterface>().isViewer)
         {
             Ray ray = GameObject.FindGameObjectWithTag("RightRay").GetComponent<RayInteractor>().Ray;
+            groundHighlighter.GetComponent<Collider>().enabled = false;
             if (Physics.Raycast(ray, out raycastHit))
             {
                 if (raycastHit.transform.gameObject.CompareTag("Ground"))
@@ -71,11 +72,12 @@ public class GroundSelection : MonoBehaviour, IPointerClickHandler, IPointerEnte
     
     public void ClearGroundHighlights()
     {
-        foreach (GameObject go in placedGroundHighlighters)
+        GameObject human = GameObject.FindGameObjectWithTag("human");
+        if (human != null)
         {
-            Destroy(go);
+            human.GetComponent<HumanInterface>().xMark = Vector3.zero;
         }
-        placedGroundHighlighters.Clear();
+        Destroy(placedGroundHighlighter);
     }
 
     public void OnPointerClick(PointerEventData eventData)
@@ -85,8 +87,12 @@ public class GroundSelection : MonoBehaviour, IPointerClickHandler, IPointerEnte
         {
             if (keyboardInput.canClick)
             {
+                if (placedGroundHighlighter != null)
+                {
+                    Destroy(placedGroundHighlighter);
+                }
                 GameObject go = Instantiate(newGroundHighlighter, raycastHit.point, Quaternion.identity);
-                placedGroundHighlighters.Add(go);
+                placedGroundHighlighter = go;
                 go.GetComponent<Collider>().enabled = true;
                 keyboardInput.HandlePositionClick();
             }
@@ -122,8 +128,8 @@ public class GroundSelection : MonoBehaviour, IPointerClickHandler, IPointerEnte
             
             GameObject go = temp.gameObject;
             
-            placedGroundHighlighters.Add(go);
-            // go.GetComponent<Collider>().enabled = true;
+            placedGroundHighlighter = go;
+            go.GetComponent<Collider>().enabled = true;
             RPC_RayClick(temp);
             keyboardInput.HandlePositionClick();
         }

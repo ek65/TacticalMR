@@ -7643,6 +7643,7 @@ MonoBehaviour:
   explanation: 
   distToBall: 0
   ballOnTheGround: {x: 0, y: 0, z: 0}
+  isMoving: 0
   _ballPossession:
     _value: 0
   ball: {fileID: 0}

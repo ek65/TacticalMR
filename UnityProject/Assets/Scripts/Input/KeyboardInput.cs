@@ -194,6 +194,11 @@ public class KeyboardInput : NetworkBehaviour
                 // Increment click order for next annotation
                 clickOrder++;
             }
+            
+            // clear ground highlights upon pause
+            GroundSelection groundSelection = GameObject.FindGameObjectWithTag("Ground")
+                .GetComponent<GroundSelection>();
+            groundSelection.ClearGroundHighlights();
         
             timelineManager.Pause();
         }
@@ -403,6 +408,17 @@ public class KeyboardInput : NetworkBehaviour
         if (Physics.Raycast(ray, out RaycastHit hit))
         {
             GameObject clickedObject = hit.collider.gameObject;
+            GameObject human = GameObject.FindGameObjectWithTag("human");
+            if (human != null)
+            {
+                // if clicked object is playerInterface and has ball possession, then trigger pass
+                if (clickedObject.GetComponent<PlayerInterface>() &&
+                    clickedObject.GetComponent<PlayerInterface>().ballPossession)
+                {
+                    StartCoroutine(human.GetComponent<HumanInterface>().SetTriggerPass());
+                }
+            }
+
             annotation.Add(clickOrder, clickedObject);
             annotationDescriptions.Add(clickOrder, GetDescriptionAnnotation(clickedObject));
             objectToKey[clickedObject] = clickOrder;
@@ -449,6 +465,12 @@ public class KeyboardInput : NetworkBehaviour
         if (Physics.Raycast(ray, out RaycastHit hit))
         {
             Vector3 clickedPosition = hit.point;
+            GameObject human = GameObject.FindGameObjectWithTag("human");
+            if (human != null)
+            {
+                human.GetComponent<HumanInterface>().xMark = clickedPosition;
+            }
+
             annotation.Add(clickOrder, clickedPosition);
             annotationDescriptions.Add(clickOrder, $"(Position at {clickedPosition})");
 
