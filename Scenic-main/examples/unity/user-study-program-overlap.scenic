@@ -21,6 +21,7 @@ behavior TeammateBehavior():
         do MoveToBallAndGetPossession()
         do Idle()
     interrupt when ego.triggerPass and self.gameObject.ballPossession:
+        ego.triggerPass = False
         do Idle() until ego.position.y > 2
         do Pass(ego.xMark)
         do Idle() until (distance from opponent to ego) <= 3
