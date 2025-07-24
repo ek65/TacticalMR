@@ -1,0 +1,66 @@
+{
+  "states": [
+    {
+      "id": 1,
+      "name": "MoveTo(\u03bb_target_check())",
+      "description": "Check diagonally to get into a better passing lane."
+    },
+    {
+      "id": 2,
+      "name": "MoveToBallAndGetPossession()",
+      "description": "Go to the ball and get possession after teammate's pass."
+    },
+    {
+      "id": 3,
+      "name": "Pass(teammate)",
+      "description": "Pass to teammate who is now in good position."
+    },
+    {
+      "id": 4,
+      "name": "MoveTo(\u03bb_target_goal())",
+      "description": "Move close to goal to create shooting opportunity."
+    },
+    {
+      "id": 5,
+      "name": "Shoot(goal)",
+      "description": "Take a shot at the goal."
+    }
+  ],
+  "transitions": [
+    {
+      "id": 1001,
+      "from": 0,
+      "to": 1,
+      "condition": "after 3 seconds",
+      "description": "Initial Transition"
+    },
+    {
+      "id": 1002,
+      "from": 1,
+      "to": 2,
+      "condition": "until \u03bb_precondition_teampass(simulation(), None)",
+      "description": "Wait until teammate passes to you after you check."
+    },
+    {
+      "id": 1003,
+      "from": 2,
+      "to": 3,
+      "condition": "\u03bb_precondition_opponent_in_front(simulation(), None)",
+      "description": "Decide: pass back to teammate or dribble depending on opponent. Pass to teammate who is now in good position."
+    },
+    {
+      "id": 1004,
+      "from": 2,
+      "to": 4,
+      "condition": "else",
+      "description": "Decide: pass back to teammate or dribble depending on opponent. Move close to goal to create shooting opportunity."
+    },
+    {
+      "id": 1005,
+      "from": 4,
+      "to": 5,
+      "condition": "until \u03bb_precondition_can_shoot(simulation(), None)",
+      "description": "Wait until you are close to goal and can shoot. Take a shot at the goal."
+    }
+  ]
+}
