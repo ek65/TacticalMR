@@ -22,7 +22,7 @@ behavior TeammateBehavior():
         do Idle()
     interrupt when ego.triggerPass and self.gameObject.ballPossession:
         ego.triggerPass = False
-        do Idle() until ego.position.y > 2
+        do Idle() for 1 seconds
         do Pass(ego.xMark)
         do Idle() for 1 seconds
         if self.gameObject.ballPossession:
