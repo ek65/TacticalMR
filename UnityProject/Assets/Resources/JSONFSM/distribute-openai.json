@@ -1,0 +1,30 @@
+{
+  "states": [
+    {
+      "id": 1,
+      "name": "Pass(RightStriker)",
+      "description": "prepare to pass to the most forward open striker"
+    },
+    {
+      "id": 2,
+      "name": "MoveTo(\u03bb_target2())",
+      "description": "move forward to support and provide a passing option"
+    }
+  ],
+  "transitions": [
+    {
+      "id": 1001,
+      "from": 0,
+      "to": 1,
+      "condition": "after 3 seconds and until \u03bb_precondition_0(simulation(), None)",
+      "description": "Initial Transition. I have the ball. Evaluating best passing option now."
+    },
+    {
+      "id": 1002,
+      "from": 1,
+      "to": 2,
+      "condition": "until \u03bb_precondition_1(simulation(), None)",
+      "description": "move up to support the striker after pass"
+    }
+  ]
+}

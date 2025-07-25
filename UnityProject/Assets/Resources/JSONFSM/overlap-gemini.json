@@ -1,0 +1,68 @@
+{
+  "states": [
+    {
+      "id": 1,
+      "name": "MoveTo(\u03bb_target0())",
+      "description": "My teammate is blocked, so I'll overlap to create a passing option for him."
+    },
+    {
+      "id": 2,
+      "name": "StopAndReceiveBall()",
+      "description": "Now I'll wait for my teammate to pass me the ball."
+    },
+    {
+      "id": 3,
+      "name": "Pass(teammate)",
+      "description": "The opponent is close. I will wait for a clear path and pass back to my teammate."
+    },
+    {
+      "id": 4,
+      "name": "Shoot(goal)",
+      "description": "I have space and a clear shot at the goal, so I will take it."
+    }
+  ],
+  "transitions": [
+    {
+      "id": 1001,
+      "from": 0,
+      "to": 1,
+      "condition": "after 3 seconds",
+      "description": "Initial Transition"
+    },
+    {
+      "id": 1002,
+      "from": 1,
+      "to": 2,
+      "condition": true,
+      "description": "Now I'll wait for my teammate to pass me the ball."
+    },
+    {
+      "id": 1003,
+      "from": 2,
+      "to": 3,
+      "condition": "\u03bb_precondition1()",
+      "description": "Okay, I have the ball. I'll check if the opponent is pressuring me. The opponent is close. I will wait for a clear path and pass back to my teammate."
+    },
+    {
+      "id": 1004,
+      "from": 3,
+      "to": 3,
+      "condition": "until \u03bb_precondition2()",
+      "description": "The opponent is close. I will wait for a clear path and pass back to my teammate."
+    },
+    {
+      "id": 1005,
+      "from": 2,
+      "to": 4,
+      "condition": "else",
+      "description": "Okay, I have the ball. I'll check if the opponent is pressuring me. I have space and a clear shot at the goal, so I will take it."
+    },
+    {
+      "id": 1006,
+      "from": 4,
+      "to": 4,
+      "condition": "until \u03bb_precondition3()",
+      "description": "I have space and a clear shot at the goal, so I will take it."
+    }
+  ]
+}

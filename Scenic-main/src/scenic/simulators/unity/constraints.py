@@ -267,7 +267,8 @@ class HasPath:
         self.path_width = np.random.normal(loc=self.radius['avg'], scale=self.radius['std'],size=1)
 #         print("Path width: ", self.path_width)
  
-
+    def dist(self, scene, ego=False):
+        return true() if self.bool(scene) else false() 
     def bool(self, scene, ego=False):
         if ego and not (isEgo(self.passerID) or isEgo(self.receiverID)):
             return False

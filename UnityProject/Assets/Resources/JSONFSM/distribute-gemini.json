@@ -1,0 +1,106 @@
+{
+  "states": [
+    {
+      "id": 1,
+      "name": "MoveToBallAndGetPossession()",
+      "description": "I'm the center mid with the ball. I need to find an open teammate to pass to."
+    },
+    {
+      "id": 2,
+      "name": "Pass(RightStriker)",
+      "description": "My right striker is open and the most forward. I'll pass to them."
+    },
+    {
+      "id": 3,
+      "name": "Pass(LeftStriker)",
+      "description": "My left striker is open and the most forward. I'll pass to them."
+    },
+    {
+      "id": 4,
+      "name": "Pass(RightWinger)",
+      "description": "The right winger is open, so I'll make the pass to them."
+    },
+    {
+      "id": 5,
+      "name": "Pass(LeftWinger)",
+      "description": "The left winger is open, so I'll pass to them."
+    },
+    {
+      "id": 6,
+      "name": "MoveTo(\u03bb_target_0())",
+      "description": "Now that I have passed the ball, I will move to a supporting position."
+    }
+  ],
+  "transitions": [
+    {
+      "id": 1001,
+      "from": 0,
+      "to": 1,
+      "condition": "after 3 seconds",
+      "description": "Initial Transition"
+    },
+    {
+      "id": 1002,
+      "from": 1,
+      "to": 2,
+      "condition": "\u03bb_precondition_0()",
+      "description": "My right striker is open and the most forward. I'll pass to them."
+    },
+    {
+      "id": 1003,
+      "from": 1,
+      "to": 3,
+      "condition": "\u03bb_precondition_1()",
+      "description": "My left striker is open and the most forward. I'll pass to them."
+    },
+    {
+      "id": 1004,
+      "from": 1,
+      "to": 4,
+      "condition": "\u03bb_precondition_2()",
+      "description": "The right winger is open, so I'll make the pass to them."
+    },
+    {
+      "id": 1005,
+      "from": 1,
+      "to": 5,
+      "condition": "\u03bb_precondition_3()",
+      "description": "The left winger is open, so I'll pass to them."
+    },
+    {
+      "id": 1006,
+      "from": 1,
+      "to": 1,
+      "condition": "else",
+      "description": "No one is open for a pass right now. I will wait."
+    },
+    {
+      "id": 1007,
+      "from": 2,
+      "to": 6,
+      "condition": "until \u03bb_precondition_4()",
+      "description": "Now that I have passed the ball, I will move to a supporting position."
+    },
+    {
+      "id": 1008,
+      "from": 3,
+      "to": 6,
+      "condition": "until \u03bb_precondition_4()",
+      "description": "Now that I have passed the ball, I will move to a supporting position."
+    },
+    {
+      "id": 1009,
+      "from": 4,
+      "to": 6,
+      "condition": "until \u03bb_precondition_4()",
+      "description": "Now that I have passed the ball, I will move to a supporting position."
+    },
+    {
+      "id": 1010,
+      "from": 5,
+      "to": 6,
+      "condition": "until \u03bb_precondition_4()",
+      "description": "Now that I have passed the ball, I will move to a supporting position."
+    }
+  ]
+}

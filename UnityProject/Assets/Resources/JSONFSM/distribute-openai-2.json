@@ -1,0 +1,130 @@
+{
+  "states": [
+    {
+      "id": 1,
+      "name": "Pass(RightStriker)",
+      "description": "prepare to pass to the right striker"
+    },
+    {
+      "id": 2,
+      "name": "MoveTo(\u03bb_target2_RS())",
+      "description": "move forward to support and provide a passing option"
+    },
+    {
+      "id": 3,
+      "name": "Pass(LeftStriker)",
+      "description": "prepare to pass to the left striker"
+    },
+    {
+      "id": 4,
+      "name": "MoveTo(\u03bb_target2_LS())",
+      "description": "move forward to support and provide a passing option"
+    },
+    {
+      "id": 5,
+      "name": "Pass(RightWinger)",
+      "description": "Strikers covered, passing to right winger"
+    },
+    {
+      "id": 6,
+      "name": "MoveTo(\u03bb_target2_RW())",
+      "description": "move forward to support and provide a passing option"
+    },
+    {
+      "id": 7,
+      "name": "Pass(LeftWinger)",
+      "description": "Strikers covered, passing to left winger"
+    },
+    {
+      "id": 8,
+      "name": "MoveTo(\u03bb_target2_LW())",
+      "description": "move forward to support and provide a passing option"
+    }
+  ],
+  "transitions": [
+    {
+      "id": 1001,
+      "from": 0,
+      "to": 1,
+      "condition": "after 3 seconds and until \u03bb_precondition_0(simulation(), None) and \u03bb_precondition_pass_RS(scene, sample)",
+      "description": "Initial Transition. I have the ball. Evaluating best passing option now."
+    },
+    {
+      "id": 1002,
+      "from": 1,
+      "to": 2,
+      "condition": "until \u03bb_precondition_1_RS(simulation(), None)",
+      "description": "move up to support the striker after pass"
+    },
+    {
+      "id": 1003,
+      "from": 2,
+      "to": 2,
+      "condition": true,
+      "description": ""
+    },
+    {
+      "id": 1004,
+      "from": 0,
+      "to": 3,
+      "condition": "after 3 seconds and until \u03bb_precondition_0(simulation(), None) and \u03bb_precondition_pass_LS(scene, sample)",
+      "description": "Initial Transition. I have the ball. Evaluating best passing option now."
+    },
+    {
+      "id": 1005,
+      "from": 3,
+      "to": 4,
+      "condition": "until \u03bb_precondition_1_LS(simulation(), None)",
+      "description": "move up to support the striker after pass"
+    },
+    {
+      "id": 1006,
+      "from": 4,
+      "to": 4,
+      "condition": true,
+      "description": ""
+    },
+    {
+      "id": 1007,
+      "from": 0,
+      "to": 5,
+      "condition": "after 3 seconds and until \u03bb_precondition_0(simulation(), None) and \u03bb_precondition_pass_RW(scene, sample)",
+      "description": "Initial Transition. I have the ball. Evaluating best passing option now."
+    },
+    {
+      "id": 1008,
+      "from": 5,
+      "to": 6,
+      "condition": "until \u03bb_precondition_1_RW(simulation(), None)",
+      "description": "move up to support the winger after pass"
+    },
+    {
+      "id": 1009,
+      "from": 6,
+      "to": 6,
+      "condition": true,
+      "description": ""
+    },
+    {
+      "id": 1010,
+      "from": 0,
+      "to": 7,
+      "condition": "after 3 seconds and until \u03bb_precondition_0(simulation(), None) and \u03bb_precondition_pass_LW(scene, sample)",
+      "description": "Initial Transition. I have the ball. Evaluating best passing option now."
+    },
+    {
+      "id": 1011,
+      "from": 7,
+      "to": 8,
+      "condition": "until \u03bb_precondition_1_LW(simulation(), None)",
+      "description": "move up to support the winger after pass"
+    },
+    {
+      "id": 1012,
+      "from": 8,
+      "to": 8,
+      "condition": true,
+      "description": ""
+    }
+  ]
+}
