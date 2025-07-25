@@ -1,3 +1,62 @@
+from scenic.simulators.unity.actions import *
+from scenic.simulators.unity.behaviors import *
+from scenic.simulators.unity.constraints import *
+model scenic.simulators.unity.model
+import trimesh
+from scenic.core.regions import MeshVolumeRegion
+import random
+####HEADER ENDS####
+
+C1_target0 = Overlap({
+    'player': 'Coach',
+    'ball': 'ball',
+    'goal': 'goal',
+    'opponent': 'opponent',
+    'theta': {'avg': 90.0, 'std': 20.0},
+    'dist': {'avg': 8.0, 'std': 1.0}
+})
+
+C1_termination0 = MovingTowards({'obj': 'opponent', 'ref': 'Coach'})
+
+C1_precondition_pass = MakePass({'player': 'teammate'})
+
+C1_precondition_pass_back = HasPath({
+    'obj1': 'teammate',
+    'obj2': 'goal',
+    'path_width': {'avg': 4.0, 'std': 0.5}
+})
+
+def λ_target0():
+    return C1_target0.dist(simulation(), ego=True)
+
+def λ_termination0(scene, sample):
+    return C1_termination0.bool(simulation())
+
+def λ_precondition_pass(scene, sample):
+    return C1_precondition_pass.bool(simulation())
+
+def λ_precondition_pass_back(scene, sample):
+    return C1_precondition_pass_back.bool(simulation())
+
+behavior CoachBehavior():
+    do Idle() for 3 seconds
+
+    do Speak("I'll move to the side to pull the defender out and create an open passing lane.")
+    do MoveTo(λ_target0()) until λ_termination0(simulation(), None)
+
+    do Speak("The defender is following me. Now, I'll wait here for the pass from my teammate.")
+    do Idle() until λ_precondition_pass(simulation(), None)
+
+    do Speak("Here comes the pass. I am moving to intercept the ball and get possession.")
+    do MoveToBallAndGetPossession()
+
+    do Speak("Now I have the ball. I will wait until my teammate gets an open line to the goal.")
+    do Idle() until λ_precondition_pass_back(simulation(), None)
+
+    do Speak("My teammate is open! I'm passing the ball back to them for the shot.")
+    do Pass(teammate)
+    
+    do Idle()
 ####Environment Behavior START####
 
 ####Environment Behavior START####

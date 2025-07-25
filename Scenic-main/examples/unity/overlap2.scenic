@@ -25,10 +25,12 @@ behavior TeammateBehavior():
         do MoveToBallAndGetPossession()
         do Idle()
     interrupt when ego.gameObject.triggerPass and self.gameObject.ballPossession:
-        do Idle() until ego.position.y > 2
+        do Idle() for 1 seconds
         do Pass(ego.gameObject.xMark)
-        do Idle() until (distance from opponent to ego) <= 3
-        do DribbleTo(goal) until (distance from opponent to ego) > 3
+        do Idle() for 1 seconds
+        if self.gameObject.ballPossession:
+            do Idle() until (distance from opponent to ego) <= 3
+            do DribbleTo(goal) until (distance from opponent to ego) > 3
     
     do Idle()
     
@@ -37,8 +39,8 @@ behavior OpponentBehavior():
     do Idle() for 1 seconds
     do Idle() until ego.position.y > 1
     while True:
-        if distance from self to ego > 2.0:
-            do MoveToBehavior(ego.position, distance=2.0)
+        if distance from self to ego > 3.5:
+            do MoveToBehavior(ego.position, distance=3.5)
         else:
             do Idle() for 0.1 seconds    
 
