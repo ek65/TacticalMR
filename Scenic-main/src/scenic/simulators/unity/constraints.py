@@ -265,7 +265,7 @@ class HasPath:
         self.radiusAvg = self.radius.get('avg', 0.0)
         self.radiusStd = self.radius.get('std', 1.0)
         self.path_width = np.random.normal(loc=self.radius['avg'], scale=self.radius['std'],size=1)
-#         print("Path width: ", self.path_width)
+        #print("Path width: ", self.path_width)
  
 
     def bool(self, scene, ego=False):
@@ -298,9 +298,10 @@ class HasPath:
             x_obstacle, y_obstacle = location(obstacle.position)
             p = Point(x_obstacle, y_obstacle)
             dist = p.distance(line)
+            #print(dist)
 #             print("Distance: ", dist)
 #             print("Trying to pass to: ", self.receiverID)
-            if dist < self.path_width:
+            if dist < self.path_width and yp <= y_obstacle <= yr:
                 return False
 
         return True
