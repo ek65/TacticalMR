@@ -7586,6 +7586,7 @@ GameObject:
   - component: {fileID: 7668797452144117548}
   - component: {fileID: -495734267399706489}
   - component: {fileID: -597261438230882058}
+  - component: {fileID: -5125676999579808348}
   m_Layer: 0
   m_Name: player.human VR
   m_TagString: human
@@ -7644,6 +7645,8 @@ MonoBehaviour:
   distToBall: 0
   ballOnTheGround: {x: 0, y: 0, z: 0}
   isMoving: 0
+  xMark: {x: 0, y: 0, z: 0}
+  triggerPass: 0
   _ballPossession:
     _value: 0
   ball: {fileID: 0}
@@ -8019,6 +8022,33 @@ MonoBehaviour:
   movementForce: 4
   cam: {fileID: 0}
   playerDirection: {x: 0, y: 0, z: 0}
+--- !u!114 &-5125676999579808348
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2387709620973680648}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 560112f876f5746c780eca0d404e7139, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  version: 1073741824
+  radiusBackingField: 1
+  heightBackingField: 2
+  centerBackingField: 1
+  locked: 0
+  lockWhenNotMoving: 1
+  agentTimeHorizon: 10
+  obstacleTimeHorizon: 5
+  maxNeighbours: 10
+  layer: 1
+  collidesWith: 0
+  wallAvoidForce: 1
+  wallAvoidFalloff: 1
+  priority: 0.5
+  debug: 0
 --- !u!1 &2398280796132604254
 GameObject:
   m_ObjectHideFlags: 0
