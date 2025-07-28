@@ -9,7 +9,7 @@ import random
 behavior CoachBehavior():
     do Idle() for 3 seconds
     # do Speak("First, move to the flank to create space and pull the defender away from goal")
-    do MoveTo(λ_target0(), True)
+    do MoveTo(Vector(0, -2, 0), True)
     # do Speak("Wait to receive the ball from your teammate")
     do Idle() until λ_precondition_0(simulation(), None)
     # do Speak("Receive and stop with the ball")
