@@ -614,6 +614,14 @@ public class ActionAPI : NetworkBehaviour
                 if (human != null)
                 {
                     destinationPosition = human.transform.position;
+                    if (human.GetComponent<HumanInterface>() != null)
+                    {
+                        HumanInterface humanInterface = human.GetComponent<HumanInterface>();
+                        if (humanInterface.isVR)
+                        {
+                            destinationPosition = humanInterface.vrTransform.position;
+                        }
+                    }
                 }
                 else
                 {
