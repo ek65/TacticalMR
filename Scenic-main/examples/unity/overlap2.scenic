@@ -20,18 +20,22 @@ behavior Follow(obj):
         do MoveToBehavior(obj, distance = 2, status = f"Follow {obj.name}")
 
 behavior TeammateBehavior():
+    # Double checking gotBall to ensure the pass is triggered correctly
+    # since MoveToBallAndGetPossession() might get interrupted
+    gotBall = False
     try:
         do Idle() for 1 seconds
         do MoveToBallAndGetPossession()
+        gotBall = True
         do Idle()
-    interrupt when ego.gameObject.triggerPass and self.gameObject.ballPossession:
+    interrupt when ego.gameObject.triggerPass and self.gameObject.ballPossession and gotBall:
         do Idle() for 1 seconds
         do Pass(ego.gameObject.xMark)
         do Idle() for 1 seconds
         if self.gameObject.ballPossession:
             do Idle() until (distance from opponent to ego) <= 3
             do DribbleTo(goal) until (distance from opponent to ego) > 3
-        
+    
     do Idle()
     
 

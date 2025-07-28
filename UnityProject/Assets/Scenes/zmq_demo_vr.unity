@@ -2234,13 +2234,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1764de1de43cc4d19af52679d3eaae06, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  version: 1
+  version: 1073741824
   desiredSimulationFPS: 20
   workerThreads: 2
   doubleBuffering: 0
+  hardCollisions: 1
   symmetryBreakingBias: 0.2
   movementPlane: 0
-  drawObstacles: 1
+  useNavmeshAsObstacle: 0
+  drawQuadtree: 0
 --- !u!114 &527469075
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2253,12 +2255,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 78396926cbbfc4ac3b48fc5fc34a87d1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  version: 1
+  version: 1073741824
   data:
-    dataString: UEsDBBQAAAgIAACAn+srMFor5AEAAMYDAAALACQAZ3JhcGgwLmpzb24KACAAAAAAAAEAGAAAgD7V3rGdAQCAPtXesZ0BAIA+1d6xnQGVU8Fu2zAM/RXD561wktpZd1wadIclGeweig47MBJtC5WlTJaSNEH+fZRsJy6wy06yHvkexUf6HLMaDDCLJgcuXBt/jaafophpZbUzKzgujdFmQFHKQpyQrsmdBw4g32Ar8TuKqrZ91gAupGi2ITUltIFjIfXOc2dJd1/yCn+gqmxNYBZAoXKshFZ9lQAiF1abZyGxRyfTLwTbHngJiskIeSUkDYhr0fN8VyXIFgkyKHEPyj4Z2NWFMyUwXGnudeNHvdY2xz9OGIx9LrRkDCkutJSCo/FC1jgcx1bY1h8rDJFnNAaE+mfIII7EWK+fD/FHtCCk77Xzqn2j73MU70E6/9RpmkUX3zJUqy7467e/dhULaHZXt2a+rrZgydZO5OiHQuh7f578GeRKbRjyb9op3i5Qkdz/MPqCfX52JdwlyaQnTZKO1tb64I3bOCuFwpsTPrCmcSy0Usj8m8fWDrR+bjeaQjDY2oIOVm+UfH95HdFQ+X1cw74h7sJZK1R141ZO8I/uxmlWPqTzDLPZ/UOSzuafZ2U5Se8Txsv5djLlPA5dCCWsAPmT9KUdvKEdV6OHQRMUc2Q02yhsnV8tbuDwJE6NHm2BUKUuGG2G2nQa17ZpJ0CSu3wZ/oUCQwueGp8v8eUvUEsDBBQAAAgIAACAn+uWQYrLbwAAAHoAAAAJACQAbWV0YS5qc29uCgAgAAAAAAABABgAAIA+1d6xnQEAgD7V3rGdAQCAPtXesZ0Bq1YqSy0qzszPU7JSMNEz0jO00FFQSi9KLMgoBooYgjilmSkgdrSSqVmapam5WaqZsYmlgamxua5xWpqhqYlBckqaeZKhUUqKUixQfUllQapfYm4qRE9AYklGWmZeSmZeul5QanJicYk7yHCl2FoAUEsBAi0AFAAACAgAAICf6yswWivkAQAAxgMAAAsAJAAAAAAAAAAAAAAAAAAAAGdyYXBoMC5qc29uCgAgAAAAAAABABgAAIA+1d6xnQEAgD7V3rGdAQCAPtXesZ0BUEsBAi0AFAAACAgAAICf65ZBistvAAAAegAAAAkAJAAAAAAAAAAAAAAAMQIAAG1ldGEuanNvbgoAIAAAAAAAAQAYAACAPtXesZ0BAIA+1d6xnQEAgD7V3rGdAVBLBQYAAAAAAgACALgAAADrAgAAAAA=
-    upgradeData: 
+    dataString: UEsDBBQAAAgIAACAn+vGzx6RUQIAALsEAAALACQAZ3JhcGgwLmpzb24KACAAAAAAAAEAGAAAgD7V3rGdAQCAPtXesZ0BAIA+1d6xnQGVVE1v2zAM/SuBz1vhJHW69rik6w79GOICKzrswEi0LVSWMklOmgb57yVlO3GHXXYS/MhHkY9P3ieiAgcioFuCVI1PrkaTT6NEWBNs4+7g9do563oUtc7VG9JnesbAFvQLrDR+R1VWocvqwblW9SqmZoTW8Jpru2buNG2/r2WJt2jKUBE4i6AySyyVNd0tEUSpgnWPSmOHjidfCA4d8BQrpgPkmZAsIo1H5vFUBWiPBK3R3cIO3Z2VqlACAt3G8V+/KShVjcYTQlG+KVn0wHSRUHwF4qV0tjHy0cEGnYeV0irsOPVnNzbnOdS4ARNuHKyrvHEFCDyWtPc2LPFPo1zMFVZrFNxGjiEoU3I3+wHcE2PbninraueV8LlAwxHTaP0XOlmccB3HBf/CdUfJBnTDrEk2Gx1YNSi7YJTAgSczkIpzakBJvvFqFFyDw9gd+uqDqsfIIzoHyvwz5BAHxUKb2VqnhvXCbo2Heq1Jgm/kyOi6aScQN7LsCy0wgNKd26yZt0ode+KxeTBnQ9xuO/YrO5HQXXe+8RkFKKwTKL/yVv0cDd3xP4zOk13+7Eg4S9NxRxqnLc1XdstdPjSBhsSTFBy4py3PrTHtzofa9rTORyeaQXDoQ06HqB6M3j09D2ho2I33sKmJO2+itU7cslHyox+SbFZcZhcznE3PL9NsevF5WhTj7DwVsrhYjSdSJnEKZVRQoH9QfR16behhm0FjUMeKSxS0s1F8Bexb6WB7o95qO7CBMoXNBVnDPLQ1jmPTrkGTuvI6/gAGryPZH5LDO1BLAwQUAAAICAAAgJ/rqgdoPG4AAAB5AAAACQAkAG1ldGEuanNvbgoAIAAAAAAAAQAYAACAPtXesZ0BAIA+1d6xnQEAgD7V3rGdAatWKkstKs7Mz1OyUjDVM9az0FFQSi9KLMgoBgoYgjilmSkgdrSSqVmapam5WaqZsYmlgamxua5xWpqhqYlBckqaeZKhUUqKUixQfUllQapfYm4qRE9AYklGWmZeSmZeul5QanJicYk7yHCl2FoAUEsBAi0AFAAACAgAAICf68bPHpFRAgAAuwQAAAsAJAAAAAAAAAAAAAAAAAAAAGdyYXBoMC5qc29uCgAgAAAAAAABABgAAIA+1d6xnQEAgD7V3rGdAQCAPtXesZ0BUEsBAi0AFAAACAgAAICf66oHaDxuAAAAeQAAAAkAJAAAAAAAAAAAAAAAngIAAG1ldGEuanNvbgoAIAAAAAAAAQAYAACAPtXesZ0BAIA+1d6xnQEAgD7V3rGdAVBLBQYAAAAAAgACALgAAABXAwAAAAA=
     file_cachedStartup: {fileID: 0}
-    data_cachedStartup: 
     cacheStartup: 0
   showNavGraphs: 1
   showUnwalkableNodes: 1
@@ -2281,8 +2281,7 @@ MonoBehaviour:
     _ConnectionLowLerp: {r: 0, g: 1, b: 0, a: 0.5}
     _ConnectionHighLerp: {r: 1, g: 0, b: 0, a: 0.5}
     _MeshEdgeColor: {r: 0, g: 0, b: 0, a: 0.5}
-    _AreaColors:
-    - {r: 0, g: 0, b: 0, a: 0}
+    _AreaColors: []
   tagNames:
   - Basic Ground
   - 1
@@ -2322,6 +2321,8 @@ MonoBehaviour:
   maxFrameTime: 10
   batchGraphUpdates: 0
   graphUpdateBatchingInterval: 0.2
+  navmeshUpdates:
+    updateInterval: 0
   euclideanEmbedding:
     mode: 0
     seed: 0
@@ -2685,13 +2686,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _interpolationDataSource: 3
-  autoIsHost: 1
-  isHost: 0
+  autoIsHost: 0
+  isHost: 1
   _ObserverCamera: {fileID: 11567817}
   _runner: {fileID: 0}
   sessionNum: 0
   _playerPrefab:
-    RawGuidValue: b3a53b9f699dd4beebd53d0802fbc75b
+    RawGuidValue: 18f8c9fb7de7b46649e844db67081e42
   ZMQManagerObject: {fileID: 777379925808647183}
 --- !u!4 &590246860
 Transform:
@@ -10759,7 +10760,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 777379923757108249, guid: 666baf2eca0804901807bbe20b856a51, type: 3}
       propertyPath: ip
-      value: 10.41.115.199
+      value: localhost
       objectReference: {fileID: 0}
     - target: {fileID: 777379925808647185, guid: 666baf2eca0804901807bbe20b856a51, type: 3}
       propertyPath: recordingNum

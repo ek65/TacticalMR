@@ -8,34 +8,34 @@ import random
 
 behavior CoachBehavior():
     do Idle() for 3 seconds
-    # do Speak("Move into space to create a passing option for your teammate")
-    do MoveTo(λ_target0(), True)
-    # do Speak("Wait until teammate passes you the ball")
+    do Speak("Move into space to create a passing option for your teammate")
+    do MoveTo(λ_target0())
+    do Speak("Wait until teammate passes you the ball")
     do Idle() until λ_precondition_0(simulation(), None)
-    # do Speak("Move to ball and get possession")
+    do Speak("Move to ball and get possession")
     do MoveToBallAndGetPossession()
-    # do Speak("Wait until you receive the ball")
+    do Speak("Wait until you receive the ball")
     do Idle() until λ_precondition_1(simulation(), None)
     if λ_precondition_2(simulation(), None):
-        # do Speak("Opponent is following closely, fake one way and go the other")
+        do Speak("Opponent is following closely, fake one way and go the other")
         do MoveTo(λ_target1())
-        # do Speak("Prepare for shot after creating space")
+        do Speak("Prepare for shot after creating space")
         do Idle() until λ_termination_0(simulation(), None)
-        # do Speak("Now, shoot to goal")
+        do Speak("Now, shoot to goal")
         do Shoot(goal)
     elif λ_precondition_3(simulation(), None):
-        # do Speak("Opponent is at medium distance, stop and play a safe pass back")
+        do Speak("Opponent is at medium distance, stop and play a safe pass back")
         do StopAndReceiveBall()
-        # do Speak("Wait for control, then pass back to teammate")
+        do Speak("Wait for control, then pass back to teammate")
         do Idle() until λ_termination_1(simulation(), None)
-        # do Speak("Pass to your teammate")
+        do Speak("Pass to your teammate")
         do Pass(teammate)
     else:
-        # do Speak("Opponent far, turn and face goal for shot or pass")
+        do Speak("Opponent far, turn and face goal for shot or pass")
         do MoveTo(λ_target2())
-        # do Speak("Wait for chance to shoot or pass")
+        do Speak("Wait for chance to shoot or pass")
         do Idle() until λ_termination_2(simulation(), None)
-        # do Speak("Take the shot if opportunity arises")
+        do Speak("Take the shot if opportunity arises")
         do Shoot(goal)
     do Idle()
 
@@ -109,24 +109,6 @@ behavior TeammatePass():
     do Pass(ego)
     do Idle()
 
-behavior TeammatePass():
-    try:
-        do Idle() for 1.0 seconds  # Give coach time to start 
-        do MoveToBallAndGetPossession()
-        print("got ball")
-        while True:
-            do Idle() for 0.1 seconds
-            print("trigger pass val: " + str(ego.triggerPass))
-        do Idle()
-    interrupt when ego.triggerPass and self.gameObject.ballPossession:
-        print("trigger pass1: " + str(ego.triggerPass))
-        ego.triggerPass = False  # Reset triggerPass
-        print("trigger pass2: " + str(ego.triggerPass))
-        do Idle() for 1.0 seconds
-        do Pass(ego.xMark)
-
-    do Idle()
-
 behavior OpponentFollowCoach():
     do Idle() for 1.0 seconds  # Wait for coach to start checking
     speed = float(opponent_speed)
@@ -141,12 +123,7 @@ behavior OpponentFollowCoach():
 teammate = new Player at (0, 0, 0), with name "teammate", with team "blue", with behavior TeammatePass()
 
 # Place coach (human) in front of teammate
-ego = new Coach ahead of teammate by coach_start_dist, 
-    with name "Coach", 
-    with team "blue", 
-    with behavior CoachBehavior(),
-    with xMark Vector(0, 0, 0),  # Set initial xMark position
-    with triggerPass False  # Initialize triggerPass to False
+ego = new Coach ahead of teammate by coach_start_dist, with name "Coach", with team "blue", with behavior CoachBehavior()
 
 # Place opponent ahead of coach (further from goal than coach)
 opponent = new Player ahead of ego by opponent_dist, facing toward ego, with name "opponent", with team "red", with behavior OpponentFollowCoach()
@@ -155,5 +132,4 @@ opponent = new Player ahead of ego by opponent_dist, facing toward ego, with nam
 ball = new Ball ahead of teammate by 0.5
 
 goal = new Goal at (0, 17, 0)
-
 terminate when (ego.gameObject.stopButton)

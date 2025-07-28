@@ -135,7 +135,7 @@ public class InstantiateScenicObject
                 }
                 //scenicPlayer.GetComponent<NetworkObject>().Spawn();
                 HumanInterface hI = addedGameObject.GetComponent<HumanInterface>();
-                hI.RPC_InstantiateValues();
+                hI.RPC_InstantiateValues(isAlly: true);
                 hI.SetObjectName("Coach");
                 addedGameObject.name = "Coach";
                 

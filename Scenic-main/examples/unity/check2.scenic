@@ -17,12 +17,16 @@ opponent_speed = Uniform(5, 7)        # opponent's movement speed
 
 # Behaviors
 behavior TeammatePass():
+    # Double checking gotBall to ensure the pass is triggered correctly
+    # since MoveToBallAndGetPossession() might get interrupted
+    gotBall = False
     try:
         do Idle() for 1.0 seconds  # Give coach time to start 
         do MoveToBallAndGetPossession()
         print("got ball")
+        gotBall = True
         do Idle()
-    interrupt when ego.gameObject.triggerPass and self.gameObject.ballPossession:
+    interrupt when ego.gameObject.triggerPass and self.gameObject.ballPossession and gotBall:
         print("trigger pass")
         do Idle() for 1.0 seconds
         do Pass(ego.gameObject.xMark)

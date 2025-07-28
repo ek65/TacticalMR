@@ -154,7 +154,6 @@ def λ_precondition4(scene, sample):
 
 def λ_termination4(past_position, current_position):
     return False
-####Environment Behavior START####
 
 ####Environment Behavior START####
 # Parameters for variance
