@@ -27,7 +27,7 @@ behavior TeammateBehavior():
         gotBall = True
         do Idle()
     interrupt when (not passed and self.gameObject.ballPossession and gotBall and ego.gameObject.triggerPass):
-        do Idle() for 1.0 seconds
+        do Idle() for 0.5 seconds
         do Pass(ego.gameObject.xMark)
         do Idle() for 0.5 seconds
         take StopAction()
