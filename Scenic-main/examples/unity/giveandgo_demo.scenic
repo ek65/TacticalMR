@@ -21,19 +21,20 @@ A = HasPath({'obj1': 'teammate', 'obj2': 'coach', 'path_width':{'avg': 2, 'std':
 
 behavior TeammateBehavior():
     passed = False
+    gotBall = False
     try:
-        do MoveToBallAndGetPossession(ball)
+        do MoveToBallAndGetPossession()
+        gotBall = True
         do Idle()
-    interrupt when (not passed and self.gameObject.ballPossession):
-        do Idle() for 2.5 seconds
-        do Pass(ego, slow=False)
+    interrupt when (not passed and self.gameObject.ballPossession and gotBall and ego.gameObject.triggerPass):
+        do Idle() for 1.0 seconds
+        do Pass(ego.gameObject.xMark)
         do Idle() for 0.5 seconds
         take StopAction()
         point = new Point at (0,10,0)
-        # do MoveToBehavior(point) until MakePass({'player': 'coach'})(simulation(), None)
-        # do Idle() for 1 seconds
-        # do MoveToBallAndGetPossession(ball)
-        # do Shoot(goal)
+        do MoveToBehavior(point)
+        do Idle() until self.gameObject.ballPossession
+        do Shoot(goal)
         passed = True
 
 teammate = new Player at (0,0), 
