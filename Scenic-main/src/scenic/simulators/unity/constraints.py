@@ -284,8 +284,8 @@ class HasPath:
                 obstacles.append(obj)
 
         if not (passer and receiver):
-            return False
-        
+            raise ValueError(f'Pass constraint requires passer and receiver objects to match the names defined in the program. Got: {passer}, {receiver}')
+
         xp, yp = location(passer[0].position)
         xr, yr = location(receiver[0].position)
         
@@ -508,7 +508,7 @@ class MovingTowards(Constraint):
         ref = findObj(self.refID, scene.objects)
 
         if not (obj and ref):
-            return False
+            raise ValueError(f'MovingTowards constraint requires obj and ref objects to match the names defined in the program. Got: {obj}, {ref}')
 
         distance = lambda pos1, pos2: np.sqrt((pos1.x - pos2.x) ** 2 + (pos1.y - pos2.y) ** 2)
         current_distance = distance(obj[0].position, ref[0].position)
@@ -603,7 +603,7 @@ class AtAngle(Constraint):
         player = findObj(self.playerID, scene.objects)
         ball   = findObj(self.ballID,   scene.objects)
         if not (player and ball):
-            return false()
+            raise ValueError(f'AtAngle constraint requires player and ball objects to match the names defined in the program. Got: {player}, {ball}')
 
         # grid coords for vector math
         P_x, P_y = location(player[0].position)
@@ -690,7 +690,7 @@ class Overlap(Constraint):
         goal    = findObj(self.goalID,     scene.objects)
         opponent= findObj(self.opponentID, scene.objects)
         if not (ball and goal and opponent):
-            return false()
+            raise ValueError(f'Overlap constraint requires ball, goal, and opponent objects to match the names defined in the program. Got: {ball}, {goal}, {opponent}')
 
         Bx, By = location(ball[0].position)
         Gx, Gy = location(goal[0].position)
