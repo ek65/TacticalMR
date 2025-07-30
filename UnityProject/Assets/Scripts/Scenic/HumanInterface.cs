@@ -445,6 +445,7 @@ public class HumanInterface : NetworkBehaviour
         {
             if (other.collider.CompareTag("ball") && canPossessBall && ballOwnership.heldByScenic == false && !ballPossession)
             {
+                LogReceiveBall();
                 GainPossession(other.gameObject);
             }
         }
@@ -452,7 +453,7 @@ public class HumanInterface : NetworkBehaviour
     
     public void ForciblyGainPossession()
     {
-        if (ballOwnership.heldByScenic && canPossessBall && distToBall < 1f)
+        if (ballOwnership.heldByScenic && canPossessBall && distToBall < 1.5f)
         {
             // Debug.LogError("forcibly get ball");
             LogIntercept();
@@ -468,7 +469,8 @@ public class HumanInterface : NetworkBehaviour
         
         keyboardInput.annotation.Add(keyboardInput.clickOrder, new Dictionary<string, string>
         {
-            { "type", "Intercept" }
+            { "type", "Intercept" },
+            { "player", this.name }
         });
 
         keyboardInput.annotationTimes.Add(interceptID, interceptTime);
@@ -720,7 +722,6 @@ public class HumanInterface : NetworkBehaviour
     
     private void GainPossession(GameObject other)
     {
-        LogReceiveBall();
         int layerIgnoreBallCollision = LayerMask.NameToLayer("PlayerBall");
         this.gameObject.layer = layerIgnoreBallCollision;
         if (isVR && !isViewer)

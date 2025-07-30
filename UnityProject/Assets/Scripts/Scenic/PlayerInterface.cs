@@ -181,14 +181,14 @@ public class PlayerInterface : NetworkBehaviour
         {
             if (other.collider.CompareTag("ball") && canPossessBall && !ballPossession)
             {
-                GainPossession(other);
+                LogReceiveBall();
+                GainPossession(other.gameObject);
             }
         }
     }
     
-    private void GainPossession(Collision other)
+    private void GainPossession(GameObject other)
     {
-        LogReceiveBall();
         int layerIgnoreBallCollision = LayerMask.NameToLayer("PlayerBall");
         this.gameObject.layer = layerIgnoreBallCollision;
         
@@ -200,6 +200,34 @@ public class PlayerInterface : NetworkBehaviour
         ballOwnership.SetHumanOwnership(false);
         ballOwnership.SetBallOwner(this.gameObject);
         actionAPI.ReceiveBall(other.transform.position);
+    }
+    
+    public void ForciblyGainPossession()
+    {
+        if (ballOwnership.heldByScenic && canPossessBall && distToBall < 1.5f)
+        {
+            // Debug.LogError("forcibly get ball");
+            LogIntercept();
+            ballOwnership.ballOwner.GetComponent<PlayerInterface>().LosePossession();
+            GainPossession(ball);
+        }
+    }
+    
+    private void LogIntercept()
+    {
+        int interceptID = keyboardInput.clickOrder;
+        float interceptTime = jsonToLLM.time;
+        
+        keyboardInput.annotation.Add(keyboardInput.clickOrder, new Dictionary<string, string>
+        {
+            { "type", "Intercept" },
+            { "player", this.name }
+        });
+
+        keyboardInput.annotationTimes.Add(interceptID, interceptTime);
+        Debug.Log($"Intercept action recorded with ID {interceptID} at time: {interceptTime}");
+        keyboardInput.clickOrder++; 
+        // RPC_LogIntercept();
     }
     
     private void LogReceiveBall()

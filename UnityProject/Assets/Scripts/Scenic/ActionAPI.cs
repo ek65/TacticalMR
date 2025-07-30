@@ -480,6 +480,23 @@ public class ActionAPI : NetworkBehaviour
             }
         }
     }
+    
+    public void InterceptBall(Vector3 interceptFrom)
+    {
+        HumanInterface hI = this.GetComponent<HumanInterface>();
+        PlayerInterface pI = this.GetComponent<PlayerInterface>();
+        if (pI)
+        {
+            pI.ForciblyGainPossession();
+        } else if (hI)
+        {
+            if (hI.isVR)
+            {
+                return;
+            }
+            hI.ForciblyGainPossession();
+        }
+    }
 
     public void LookAt(Vector3 lookAtPosition)
     {
