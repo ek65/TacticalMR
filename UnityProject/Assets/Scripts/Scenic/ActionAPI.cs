@@ -244,6 +244,19 @@ public class ActionAPI : MonoBehaviour
         stopMovement = true;
         StartCoroutine(LookTowards(receiveFrom, "Receive"));
     }
+    
+    public void InterceptBall(Vector3 interceptFrom)
+    {
+        HumanInterface hI = this.GetComponent<HumanInterface>();
+        PlayerInterface pI = this.GetComponent<PlayerInterface>();
+        if (pI)
+        {
+            pI.ForciblyGainPossession();
+        } else if (hI)
+        {
+            hI.ForciblyGainPossession();
+        }
+    }
 
     public void LookAt(Vector3 lookAtPosition)
     {

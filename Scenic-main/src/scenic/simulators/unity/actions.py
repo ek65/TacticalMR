@@ -202,6 +202,12 @@ class BallHeaderShootAction(Action):
 #         else:
 #             obj.gameObject.DoAction(self.actionName, self.position)
 
+class InterceptBallAction(Action):
+    def __init__(self):
+        self.actionName = "InterceptBall"
+    def applyTo(self, obj, sim):
+        obj.gameObject.DoAction(self.actionName)
+
 class TackleBallAction(Action):
     def __init__(self, obj):
         self.actionName = "TackleBall"

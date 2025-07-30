@@ -250,13 +250,14 @@ public class HumanInterface : MonoBehaviour
     {
         if (other.collider.CompareTag("ball") && canPossessBall && ballOwnership.heldByScenic == false && !ballPossession)
         {
+            LogReceiveBall();
             GainPossession(other.gameObject);
         }
     }
     
     public void ForciblyGainPossession()
     {
-        if (ballOwnership.heldByScenic && canPossessBall && distToBall < 1f)
+        if (ballOwnership.heldByScenic && canPossessBall && distToBall < 1.5f)
         {
             // Debug.LogError("forcibly get ball");
             LogIntercept();
@@ -311,7 +312,8 @@ public class HumanInterface : MonoBehaviour
         
         keyboardInput.annotation.Add(keyboardInput.clickOrder, new Dictionary<string, string>
         {
-            { "type", "Intercept" }
+            { "type", "Intercept" },
+            { "player", this.name }
         });
 
         keyboardInput.annotationTimes.Add(interceptID, interceptTime);
@@ -397,8 +399,6 @@ public class HumanInterface : MonoBehaviour
     
     private void GainPossession(GameObject other) 
     {
-        LogReceiveBall();
-        
         int layerIgnoreBallCollision = LayerMask.NameToLayer("PlayerBall");
         this.gameObject.layer = layerIgnoreBallCollision;
         
