@@ -24,6 +24,7 @@ GameObject:
   - component: {fileID: 5165444320970056813}
   - component: {fileID: 6948227321459368142}
   - component: {fileID: 1013472801024758017}
+  - component: {fileID: 3132594742406168483}
   m_Layer: 6
   m_Name: soccer_ball
   m_TagString: ball
@@ -393,6 +394,19 @@ MonoBehaviour:
     RotTeleportRadians: 1.5
   UseLegacySharedModeInterpolation: 0
   TargetInterpolationDelay: 0.03
+--- !u!114 &3132594742406168483
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 321828648448824057}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ebfac9dd07a9e4142afda84b7921e44f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  destination: {x: 0, y: 0, z: 0}
 --- !u!1 &7625300658249437402
 GameObject:
   m_ObjectHideFlags: 0

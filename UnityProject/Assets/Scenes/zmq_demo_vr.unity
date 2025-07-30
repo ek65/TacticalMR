@@ -2686,13 +2686,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _interpolationDataSource: 3
-  autoIsHost: 1
-  isHost: 0
+  autoIsHost: 0
+  isHost: 1
   _ObserverCamera: {fileID: 11567817}
   _runner: {fileID: 0}
   sessionNum: 0
   _playerPrefab:
-    RawGuidValue: b3a53b9f699dd4beebd53d0802fbc75b
+    RawGuidValue: 18f8c9fb7de7b46649e844db67081e42
   ZMQManagerObject: {fileID: 777379925808647183}
 --- !u!4 &590246860
 Transform:
@@ -10760,7 +10760,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 777379923757108249, guid: 666baf2eca0804901807bbe20b856a51, type: 3}
       propertyPath: ip
-      value: 10.43.112.10
+      value: localhost
       objectReference: {fileID: 0}
     - target: {fileID: 777379925808647185, guid: 666baf2eca0804901807bbe20b856a51, type: 3}
       propertyPath: recordingNum

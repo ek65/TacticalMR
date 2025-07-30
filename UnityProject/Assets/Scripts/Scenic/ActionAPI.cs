@@ -1541,6 +1541,9 @@ public class ActionAPI : NetworkBehaviour
             hI.LosePossession();
         }
         
+        GameObject ball = GameObject.FindGameObjectWithTag("ball");
+        ball.GetComponent<SoccerBall>().destination = finalPos;
+        
         Vector3 ballMotionVector = finalPos - soccerBall.transform.position;
         Vector3 forceDirection = new(ballMotionVector.x, aerialOffset, ballMotionVector.z);
         Debug.Log("force vector: " + forceDirection);
