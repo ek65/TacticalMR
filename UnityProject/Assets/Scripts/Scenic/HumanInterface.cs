@@ -428,7 +428,7 @@ public class HumanInterface : NetworkBehaviour
         keyboardInput.annotation.Add(eventID, new Dictionary<string, object>
         {
             { "type", "TriggerPass" },
-            { "player", teammate.name }
+            { "from", teammate.name }
         });
         Debug.Log(keyboardInput.annotation);
     
