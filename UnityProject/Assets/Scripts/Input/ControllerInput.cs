@@ -186,8 +186,6 @@ public class ControllerInput : MonoBehaviour
         {
             return;
         }
-        HumanInterface humanInterface = this.GetComponent<HumanInterface>();
-        humanInterface.ShootGoal();
         
         GameObject human = GameObject.FindGameObjectWithTag("human");
         GameObject ball = GameObject.FindGameObjectWithTag("ball");
