@@ -2268,7 +2268,7 @@ MonoBehaviour:
   manualDebugFloorRoof: 0
   showSearchTree: 0
   unwalkableNodeDebugSize: 0.3
-  logPathResults: 1
+  logPathResults: 0
   maxNearestNodeDistance: 100
   scanOnStartup: 1
   fullGetNearestSearch: 0
@@ -2686,13 +2686,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _interpolationDataSource: 3
-  autoIsHost: 0
-  isHost: 1
+  autoIsHost: 1
+  isHost: 0
   _ObserverCamera: {fileID: 11567817}
   _runner: {fileID: 0}
   sessionNum: 0
   _playerPrefab:
-    RawGuidValue: 18f8c9fb7de7b46649e844db67081e42
+    RawGuidValue: b3a53b9f699dd4beebd53d0802fbc75b
   ZMQManagerObject: {fileID: 777379925808647183}
 --- !u!4 &590246860
 Transform:
@@ -10704,7 +10704,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 278377970342781417, guid: 666baf2eca0804901807bbe20b856a51, type: 3}
       propertyPath: drillID
-      value: overlap
+      value: overlap-gautham
       objectReference: {fileID: 0}
     - target: {fileID: 278377970342781417, guid: 666baf2eca0804901807bbe20b856a51, type: 3}
       propertyPath: participantID
@@ -10760,7 +10760,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 777379923757108249, guid: 666baf2eca0804901807bbe20b856a51, type: 3}
       propertyPath: ip
-      value: localhost
+      value: 10.43.112.10
       objectReference: {fileID: 0}
     - target: {fileID: 777379925808647185, guid: 666baf2eca0804901807bbe20b856a51, type: 3}
       propertyPath: recordingNum
@@ -11028,7 +11028,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &8470417336864511574
 Transform:
   m_ObjectHideFlags: 0
@@ -11103,7 +11103,7 @@ MonoBehaviour:
   DestroyWhenStateAuthorityLeaves: 0
   AllowStateAuthorityOverride: 1
   AoiPositionSource: {fileID: 0}
-  Flags: 2561
+  Flags: 133633
   NetworkGuid:
     RawGuidValue: ac9956f1bbc74e6abd1d337a69168894
   NestedObjects: []
