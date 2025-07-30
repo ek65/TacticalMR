@@ -180,6 +180,30 @@ public class ControllerInput : MonoBehaviour
         humanInterface.ShootGoal();
     }
     
+    public void HandleControllerTriggerPass()
+    {
+        if (tlManager.Paused)
+        {
+            return;
+        }
+        HumanInterface humanInterface = this.GetComponent<HumanInterface>();
+        humanInterface.ShootGoal();
+        
+        GameObject human = GameObject.FindGameObjectWithTag("human");
+        GameObject ball = GameObject.FindGameObjectWithTag("ball");
+        GameObject playerWithBall = ball.transform.root.gameObject;
+        PlayerInterface playerWithBallPI = playerWithBall.GetComponent<PlayerInterface>();
+        if (playerWithBall && playerWithBallPI && playerWithBallPI.ally && human != null)
+        {
+            // teammate has ball possession, then trigger pass
+            if (playerWithBallPI &&
+                playerWithBallPI.ballPossession)
+            {
+                StartCoroutine(human.GetComponent<HumanInterface>().SetTriggerPass(playerWithBall));
+            }
+        }
+    }
+    
     private void ControllerPackaging(InputAction.CallbackContext ctx)
     {
         if (tlManager.Paused) return;

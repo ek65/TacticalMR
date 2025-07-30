@@ -408,16 +408,6 @@ public class KeyboardInput : NetworkBehaviour
         if (Physics.Raycast(ray, out RaycastHit hit))
         {
             GameObject clickedObject = hit.collider.gameObject;
-            GameObject human = GameObject.FindGameObjectWithTag("human");
-            if (human != null)
-            {
-                // if clicked object is playerInterface and has ball possession, then trigger pass
-                if (clickedObject.GetComponent<PlayerInterface>() &&
-                    clickedObject.GetComponent<PlayerInterface>().ballPossession)
-                {
-                    StartCoroutine(human.GetComponent<HumanInterface>().SetTriggerPass());
-                }
-            }
 
             annotation.Add(clickOrder, clickedObject);
             annotationDescriptions.Add(clickOrder, GetDescriptionAnnotation(clickedObject));

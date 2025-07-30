@@ -15517,7 +15517,7 @@ MonoBehaviour:
   - Title: Pause
     Button: 1
     ButtonMode: 0
-    InputActionReference: {fileID: -7222465138875598189, guid: b277640baaf59410a972a670edd870f9, type: 3}
+    InputActionReference: {fileID: 0}
     Callback:
       m_PersistentCalls:
         m_Calls:
@@ -15536,7 +15536,7 @@ MonoBehaviour:
   - Title: Segment
     Button: 2
     ButtonMode: 0
-    InputActionReference: {fileID: -7222465138875598189, guid: b277640baaf59410a972a670edd870f9, type: 3}
+    InputActionReference: {fileID: 0}
     Callback:
       m_PersistentCalls:
         m_Calls:
@@ -15555,7 +15555,7 @@ MonoBehaviour:
   - Title: Restart
     Button: 8421376
     ButtonMode: 0
-    InputActionReference: {fileID: -7222465138875598189, guid: b277640baaf59410a972a670edd870f9, type: 3}
+    InputActionReference: {fileID: 0}
     Callback:
       m_PersistentCalls:
         m_Calls:
@@ -15574,7 +15574,7 @@ MonoBehaviour:
   - Title: Pass
     Button: 4
     ButtonMode: 0
-    InputActionReference: {fileID: -7222465138875598189, guid: b277640baaf59410a972a670edd870f9, type: 3}
+    InputActionReference: {fileID: 0}
     Callback:
       m_PersistentCalls:
         m_Calls:
@@ -15590,16 +15590,16 @@ MonoBehaviour:
             m_StringArgument: 
             m_BoolArgument: 0
           m_CallState: 2
-  - Title: ThroughPass
+  - Title: ShootGoal
     Button: 8
     ButtonMode: 0
-    InputActionReference: {fileID: -7222465138875598189, guid: b277640baaf59410a972a670edd870f9, type: 3}
+    InputActionReference: {fileID: 0}
     Callback:
       m_PersistentCalls:
         m_Calls:
         - m_Target: {fileID: -597261438230882058}
           m_TargetAssemblyTypeName: ControllerInput, Assembly-CSharp
-          m_MethodName: HandleControllerThroughPass
+          m_MethodName: HandleControllerShoot
           m_Mode: 1
           m_Arguments:
             m_ObjectArgument: {fileID: 0}
@@ -15609,16 +15609,16 @@ MonoBehaviour:
             m_StringArgument: 
             m_BoolArgument: 0
           m_CallState: 2
-  - Title: ShootGoal
+  - Title: TriggerPass
     Button: 8192
     ButtonMode: 0
-    InputActionReference: {fileID: -7222465138875598189, guid: b277640baaf59410a972a670edd870f9, type: 3}
+    InputActionReference: {fileID: 0}
     Callback:
       m_PersistentCalls:
         m_Calls:
         - m_Target: {fileID: -597261438230882058}
           m_TargetAssemblyTypeName: ControllerInput, Assembly-CSharp
-          m_MethodName: HandleControllerShoot
+          m_MethodName: HandleControllerTriggerPass
           m_Mode: 1
           m_Arguments:
             m_ObjectArgument: {fileID: 0}

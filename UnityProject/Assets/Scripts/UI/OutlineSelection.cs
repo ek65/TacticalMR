@@ -53,7 +53,7 @@ public class OutlineSelection : NetworkBehaviour, IPointerClickHandler, IPointer
     public void OnRayEnter()
     {
         // outline.enabled = true;
-        RPC_RayEnter();
+        // RPC_RayEnter();
     }
     
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
