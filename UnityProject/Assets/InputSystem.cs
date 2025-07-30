@@ -82,7 +82,7 @@ public partial class @InputSystem: IInputActionCollection2, IDisposable
                     ""initialStateCheck"": false
                 },
                 {
-                    ""name"": ""ThroughPass"",
+                    ""name"": ""TriggerPass"",
                     ""type"": ""Button"",
                     ""id"": ""227cc767-8841-464d-a7f7-b5e18d610680"",
                     ""expectedControlType"": ""Button"",
@@ -174,7 +174,7 @@ public partial class @InputSystem: IInputActionCollection2, IDisposable
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""ThroughPass"",
+                    ""action"": ""TriggerPass"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -202,7 +202,7 @@ public partial class @InputSystem: IInputActionCollection2, IDisposable
         m_PlayerControls_Segment = m_PlayerControls.FindAction("Segment", throwIfNotFound: true);
         m_PlayerControls_Intercept = m_PlayerControls.FindAction("Intercept", throwIfNotFound: true);
         m_PlayerControls_Pass = m_PlayerControls.FindAction("Pass", throwIfNotFound: true);
-        m_PlayerControls_ThroughPass = m_PlayerControls.FindAction("ThroughPass", throwIfNotFound: true);
+        m_PlayerControls_TriggerPass = m_PlayerControls.FindAction("TriggerPass", throwIfNotFound: true);
         m_PlayerControls_ShootGoal = m_PlayerControls.FindAction("ShootGoal", throwIfNotFound: true);
     }
 
@@ -271,7 +271,7 @@ public partial class @InputSystem: IInputActionCollection2, IDisposable
     private readonly InputAction m_PlayerControls_Segment;
     private readonly InputAction m_PlayerControls_Intercept;
     private readonly InputAction m_PlayerControls_Pass;
-    private readonly InputAction m_PlayerControls_ThroughPass;
+    private readonly InputAction m_PlayerControls_TriggerPass;
     private readonly InputAction m_PlayerControls_ShootGoal;
     public struct PlayerControlsActions
     {
@@ -283,7 +283,7 @@ public partial class @InputSystem: IInputActionCollection2, IDisposable
         public InputAction @Segment => m_Wrapper.m_PlayerControls_Segment;
         public InputAction @Intercept => m_Wrapper.m_PlayerControls_Intercept;
         public InputAction @Pass => m_Wrapper.m_PlayerControls_Pass;
-        public InputAction @ThroughPass => m_Wrapper.m_PlayerControls_ThroughPass;
+        public InputAction @TriggerPass => m_Wrapper.m_PlayerControls_TriggerPass;
         public InputAction @ShootGoal => m_Wrapper.m_PlayerControls_ShootGoal;
         public InputActionMap Get() { return m_Wrapper.m_PlayerControls; }
         public void Enable() { Get().Enable(); }
@@ -312,9 +312,9 @@ public partial class @InputSystem: IInputActionCollection2, IDisposable
             @Pass.started += instance.OnPass;
             @Pass.performed += instance.OnPass;
             @Pass.canceled += instance.OnPass;
-            @ThroughPass.started += instance.OnThroughPass;
-            @ThroughPass.performed += instance.OnThroughPass;
-            @ThroughPass.canceled += instance.OnThroughPass;
+            @TriggerPass.started += instance.OnTriggerPass;
+            @TriggerPass.performed += instance.OnTriggerPass;
+            @TriggerPass.canceled += instance.OnTriggerPass;
             @ShootGoal.started += instance.OnShootGoal;
             @ShootGoal.performed += instance.OnShootGoal;
             @ShootGoal.canceled += instance.OnShootGoal;
@@ -340,9 +340,9 @@ public partial class @InputSystem: IInputActionCollection2, IDisposable
             @Pass.started -= instance.OnPass;
             @Pass.performed -= instance.OnPass;
             @Pass.canceled -= instance.OnPass;
-            @ThroughPass.started -= instance.OnThroughPass;
-            @ThroughPass.performed -= instance.OnThroughPass;
-            @ThroughPass.canceled -= instance.OnThroughPass;
+            @TriggerPass.started -= instance.OnTriggerPass;
+            @TriggerPass.performed -= instance.OnTriggerPass;
+            @TriggerPass.canceled -= instance.OnTriggerPass;
             @ShootGoal.started -= instance.OnShootGoal;
             @ShootGoal.performed -= instance.OnShootGoal;
             @ShootGoal.canceled -= instance.OnShootGoal;
@@ -371,7 +371,7 @@ public partial class @InputSystem: IInputActionCollection2, IDisposable
         void OnSegment(InputAction.CallbackContext context);
         void OnIntercept(InputAction.CallbackContext context);
         void OnPass(InputAction.CallbackContext context);
-        void OnThroughPass(InputAction.CallbackContext context);
+        void OnTriggerPass(InputAction.CallbackContext context);
         void OnShootGoal(InputAction.CallbackContext context);
     }
 }

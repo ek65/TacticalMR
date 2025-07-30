@@ -239,11 +239,30 @@ public class HumanInterface : MonoBehaviour
     }
     
     // triggerPass should be disabled after it is set true
-    public IEnumerator SetTriggerPass()
+    public IEnumerator SetTriggerPass(GameObject teammate)
     {
         triggerPass = true;
+        LogTriggerPass(teammate);
         yield return new WaitForSeconds(0.1f);
         triggerPass = false;
+    }
+    
+    private void LogTriggerPass(GameObject teammate)
+    {
+        int eventID = keyboardInput.clickOrder;
+        float eventTime = jsonToLLM.time;
+    
+        keyboardInput.annotation.Add(eventID, new Dictionary<string, object>
+        {
+            { "type", "TriggerPass" },
+            { "from", teammate.name }
+        });
+        Debug.Log(keyboardInput.annotation);
+    
+        keyboardInput.annotationDescriptions.Add(eventID, $"(Coach told {teammate.name} to pass the ball)");
+        Debug.Log($"Added trigger pass to annotations at {eventTime:F2}s, key {eventTime}");
+        keyboardInput.annotationTimes.Add(eventID, eventTime);
+        keyboardInput.clickOrder++;
     }
     
     private void OnCollisionEnter(Collision other)

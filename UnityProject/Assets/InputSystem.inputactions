@@ -60,7 +60,7 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "ThroughPass",
+                    "name": "TriggerPass",
                     "type": "Button",
                     "id": "227cc767-8841-464d-a7f7-b5e18d610680",
                     "expectedControlType": "Button",
@@ -152,7 +152,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "ThroughPass",
+                    "action": "TriggerPass",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },

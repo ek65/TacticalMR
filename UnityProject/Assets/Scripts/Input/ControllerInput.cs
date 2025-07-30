@@ -45,7 +45,7 @@ public class ControllerInput : MonoBehaviour
         inputSystem.PlayerControls.Segment.performed += ControllerSegment; // X Button
         inputSystem.PlayerControls.Intercept.performed += ControllerIntercept; // Left Trigger
         inputSystem.PlayerControls.Pass.performed += ControllerPass; // Right Trigger
-        inputSystem.PlayerControls.ThroughPass.performed += ControllerThroughPass; // Right Bumper
+        inputSystem.PlayerControls.TriggerPass.performed += ControllerTriggerPass; // Right Bumper
         inputSystem.PlayerControls.ShootGoal.performed += ControllerShoot; // Left Shoulder
         inputSystem.PlayerControls.Enable();
     }
@@ -57,7 +57,7 @@ public class ControllerInput : MonoBehaviour
         inputSystem.PlayerControls.Segment.performed -= ControllerSegment;
         inputSystem.PlayerControls.Intercept.performed -= ControllerIntercept;
         inputSystem.PlayerControls.Pass.performed -= ControllerPass;
-        inputSystem.PlayerControls.ThroughPass.performed -= ControllerThroughPass;
+        inputSystem.PlayerControls.TriggerPass.performed -= ControllerTriggerPass;
         inputSystem.PlayerControls.ShootGoal.performed -= ControllerShoot; // Left Shoulder
         inputSystem.PlayerControls.Disable();
     }
@@ -132,6 +132,28 @@ public class ControllerInput : MonoBehaviour
         }
         HumanInterface humanInterface = this.GetComponent<HumanInterface>();
         humanInterface.ThroughPass();
+    }
+    
+    private void ControllerTriggerPass(InputAction.CallbackContext ctx)
+    {
+        if (tlManager.Paused)
+        {
+            return;
+        }
+        
+        GameObject human = GameObject.FindGameObjectWithTag("human");
+        GameObject ball = GameObject.FindGameObjectWithTag("ball");
+        GameObject playerWithBall = ball.transform.root.gameObject;
+        PlayerInterface playerWithBallPI = playerWithBall.GetComponent<PlayerInterface>();
+        if (playerWithBall && playerWithBallPI && playerWithBallPI.ally && human != null)
+        {
+            // teammate has ball possession, then trigger pass
+            if (playerWithBallPI &&
+                playerWithBallPI.ballPossession)
+            {
+                StartCoroutine(human.GetComponent<HumanInterface>().SetTriggerPass(playerWithBall));
+            }
+        }
     }
     
     private void Movement()
