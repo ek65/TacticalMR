@@ -109,56 +109,63 @@ Constraint.__invert__ = lambda self: NegationConstraint(self)
 # MARK: CloseTo/Pressure
 class Pressure(Constraint): # Checked for graceful failure
     def __init__(self, args):
-        self.obj = args.get('player1', None)
-        self.ref = args.get('player2', None)
-        self.max = {'avg': 3.0, 'std': 1.0}
-        self.max_avg = 3.0
-        self.max_std = 1.0
-
-#         if isinstance(self.max, (int, float)):
-#             self.max_avg = self.max
-#             self.max_std = 1.0
-#         elif self.max is not None:
-#             self.max = args.get('max', None)
-#             self.max_avg = self.max.get('avg', 3.0)
-#             self.max_std = self.max.get('std', 1.0) #should be using std
-#         else:
-#             self.max = {'avg': 3.0, 'std': 1.0}
-#             self.max_avg = 3.0
-#             self.max_std = 1.0
+        self.player1 = args.get('player1', None)
+        self.player2 = args.get('player2', None)
+        self.radius = 2.0  # 2 meter radius
 
     def dist(self, scene, ego=False):
-
-        if ego and not isEgo(self.obj):
+        if ego and not isEgo(self.player1):
             return true()
         
-        ref = findObj(self.ref, scene.objects)
+        player1 = findObj(self.player1, scene.objects)
+        player2 = findObj(self.player2, scene.objects)
 
-        if not ref:
+        if not (player1 and player2):
             return false()
         
-#         print('close to', ref[0].position)
-        x, y = location(ref[0].position)
-        radius = self.max_avg
-
-#         print('close to', x, y, radius)
-
-        distances = np.sqrt((i - y)**2 + (j - x)**2)
-        close_to = np.exp(-distances**2 / (2 * radius**2)) + epsilon 
-
-        return close_to
+        # Calculate distance using grid-based location like DistanceTo
+        x1, y1 = location(player1[0].position)
+        x2, y2 = location(player2[0].position)
+        distance = np.sqrt((x1 - x2)**2 + (y1 - y2)**2)
+        
+        # Check if moving towards
+        x1_prev, y1_prev = location(player1[0].prevPosition)
+        x2_prev, y2_prev = location(player2[0].prevPosition)
+        prev_distance = np.sqrt((x1_prev - x2_prev)**2 + (y1_prev - y2_prev)**2)
+        moving_towards = prev_distance > distance
+        
+        # Return true if within radius OR moving towards
+        if distance <= self.radius or (moving_towards and distance <= self.radius + 2):
+            return true()
+        else:
+            return false()
     
     def bool(self, scene):
+        player1 = findObj(self.player1, scene.objects)
+        player2 = findObj(self.player2, scene.objects)
 
-        obj = findObj(self.obj, scene.objects)
-
-        if not obj:
+        if not (player1 and player2):
             return False
         
-        dist = self.dist(scene)
-        sample = location(obj[0].position)
-
-        return bool_sample(sample, dist)
+        # Calculate distance using grid-based location like DistanceTo
+        x1, y1 = location(player1[0].position)
+        x2, y2 = location(player2[0].position)
+        distance = np.sqrt((x1 - x2)**2 + (y1 - y2)**2)
+        
+        # Check if moving towards
+        x1_prev, y1_prev = location(player1[0].prevPosition)
+        x2_prev, y2_prev = location(player2[0].prevPosition)
+        prev_distance = np.sqrt((x1_prev - x2_prev)**2 + (y1_prev - y2_prev)**2)
+        moving_towards = prev_distance > distance
+        
+        print('distance', distance)
+        print('radius', self.radius)
+        print('p1_pos', player1[0].position)
+        print('p2_pos', player2[0].position)
+        print('moving_towards', moving_towards)
+        
+        # Return true if within radius OR moving towards
+        return distance <= self.radius or (moving_towards and distance <= self.radius + 2)
 
     
 # MARK: HeightRelation
@@ -190,7 +197,7 @@ class HeightRelation(Constraint):
         offset = self.threshold_avg
         dev = self.threshold_std
 
-        print('height relation', self.relation, y, offset, dev)
+        # print('height relation', self.relation, y, offset, dev)
 
         distances = (y + offset - i) if mirror else (i - y + offset) 
         height_relation = 1 - np.clip(distances / (dev if dev > 0 else 1), 0, 1) + epsilon
@@ -238,7 +245,7 @@ class HorizontalRelation(Constraint):
         offset = self.threshold_avg
         dev = self.threshold_std
 
-        print('side relation', self.relation, mirror, x, offset, dev)
+        # print('side relation', self.relation, mirror, x, offset, dev)
 
         distances = (x + offset - j) if mirror else (j - x + offset) 
         side_relation = 1 - np.clip(distances / (dev if dev > 0 else 1), 0, 1) + epsilon
@@ -274,7 +281,9 @@ class HasPath:
             return False
 
         passer = findObj(self.passerID, scene.objects)
+        # print('passer', passer[0].name)
         receiver = findObj(self.receiverID, scene.objects)
+        # print('receiver', receiver[0].name)
 
         obstacles = []
         for obj in scene.objects:
@@ -282,6 +291,8 @@ class HasPath:
 
             if hasattr(obj, "team") and obj.team.lower() == 'red':
                 obstacles.append(obj)
+
+        # print('obstacles', obstacles[0].name)
 
         if not (passer and receiver):
             raise ValueError(f'Pass constraint requires passer and receiver objects to match the names defined in the program.')
@@ -296,13 +307,20 @@ class HasPath:
 #         print("Line: ", line)
         
         for obstacle in obstacles:
+            # print('obstacle', obstacle.name)
             x_obstacle, y_obstacle = location(obstacle.position)
             p = Point(x_obstacle, y_obstacle)
             dist = p.distance(line)
+            # print(dist)
             #print(dist)
 #             print("Distance: ", dist)
 #             print("Trying to pass to: ", self.receiverID)
-            if dist < self.path_width and yp <= y_obstacle <= yr:
+            # print('dist<self.path_width', dist < self.path_width)
+            # print('yp <= y_obstacle <= yr', yp <= y_obstacle <= yr)
+            # print('yp', yp)
+            # print('y_obstacle', y_obstacle)
+            # print('yr', yr)
+            if dist < self.path_width and (yp <= y_obstacle <= yr or yr <= y_obstacle <= yp):
                 return False
 
         return True
@@ -339,7 +357,7 @@ class DistanceTo(Constraint):
         x, y = location(ref[0].position)
         distances = np.sqrt((i - y)**2 + (j - x)**2)
 
-        print('distance to', x, y, self.minAvg, self.maxAvg, self.operator)
+        # print('distance to', x, y, self.minAvg, self.maxAvg, self.operator)
 
         if self.operator == 'within':
             mu = (self.minAvg + self.maxAvg) / 2.0
@@ -432,14 +450,14 @@ class InZone(Constraint):
         if not self.zone:
             return false()
         
-        print('in zone', self.zone)
+        # print('in zone', self.zone)
 
         if isinstance(self.zone, list):
             zone_str = self.zone[0]
         else:
             zone_str = self.zone
 
-        print('zone', zone_str, zone_str[0], zone_str[1])
+        # print('zone', zone_str, zone_str[0], zone_str[1])
         
         zone_x = self.zone_x_labels.index(zone_str[0])
         zone_y = int(zone_str[1]) - 1
@@ -610,7 +628,7 @@ class AtAngle(Constraint):
         B_x, B_y = location(ball[0].position)
 
         # compute the 2D angle+distance field
-        print(self.make_dist((P_x, P_y), (B_x, B_y)))
+        # print(self.make_dist((P_x, P_y), (B_x, B_y)))
         return self.make_dist((P_x, P_y), (B_x, B_y))
 
     def make_dist(self, player_pos, ball_pos):

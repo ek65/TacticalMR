@@ -1,0 +1,78 @@
+{
+  "states": [
+    {
+      "id": 1,
+      "name": "Pass(RightStriker)",
+      "description": "Right striker is open. Pass to right striker immediately."
+    },
+    {
+      "id": 2,
+      "name": "MoveTo(\u03bb_target_support_space(), False)",
+      "description": "Make a supporting run to open space after the pass."
+    },
+    {
+      "id": 3,
+      "name": "StopAndReceiveBall()",
+      "description": "Receive ball from right striker."
+    },
+    {
+      "id": 4,
+      "name": "Shoot(goal)",
+      "description": "Attempt shot on goal after receiving ball."
+    },
+    {
+      "id": 5,
+      "name": "Pass(LeftWinger)",
+      "description": "Pass to left winger."
+    },
+    {
+      "id": 6,
+      "name": "MoveTo(\u03bb_target_support_space_lw(), False)",
+      "description": "Move to a supporting position for the left winger."
+    }
+  ],
+  "transitions": [
+    {
+      "id": 1001,
+      "from": 0,
+      "to": 1,
+      "condition": "after 3 seconds and until \u03bb_precondition_0(simulation(), None) and \u03bb_precondition_1(simulation(), None)",
+      "description": "Initial Transition"
+    },
+    {
+      "id": 1002,
+      "from": 1,
+      "to": 2,
+      "condition": "until \u03bb_precondition_2(simulation(), None)",
+      "description": "Wait until right striker receives the ball."
+    },
+    {
+      "id": 1003,
+      "from": 2,
+      "to": 3,
+      "condition": "until \u03bb_precondition_3(simulation(), None)",
+      "description": "Wait to see if right striker passes back, clear lane needed. Receive ball from right striker."
+    },
+    {
+      "id": 1004,
+      "from": 3,
+      "to": 4,
+      "condition": true,
+      "description": "Attempt shot on goal after receiving ball."
+    },
+    {
+      "id": 1005,
+      "from": 0,
+      "to": 5,
+      "condition": "after 3 seconds and until \u03bb_precondition_0(simulation(), None) and not \u03bb_precondition_1(simulation(), None) and \u03bb_precondition_6(simulation(), None)",
+      "description": "Deep option not open; check if left winger can receive. Pass to left winger."
+    },
+    {
+      "id": 1006,
+      "from": 5,
+      "to": 6,
+      "condition": "until \u03bb_precondition_4(simulation(), None)",
+      "description": "Wait until left winger receives the ball. Move to a supporting position for the left winger."
+    }
+  ]
+}

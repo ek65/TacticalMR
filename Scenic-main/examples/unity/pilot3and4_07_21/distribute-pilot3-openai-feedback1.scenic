@@ -6,47 +6,31 @@ import trimesh
 from scenic.core.regions import MeshVolumeRegion
 import random
 ####HEADER ENDS####
-A1target_0 = HasBallPossession({'player': 'Coach'})
-A2target_1 = HasPath({
-    'obj1': 'Coach',
-    'obj2': 'LeftWinger',
-    'path_width': {'avg': 2.0, 'std': 0.2}
-})
-A3target_1 = DistanceTo({
-    'from': 'Coach',
-    'to': 'LeftWinger',
-    'min': {'avg': 8.0, 'std': 0.5},
-    'max': {'avg': 18.0, 'std': 1.0},
-    'operator': 'within'
-})
-A1precondition_2 = HasBallPossession({'player': 'LeftWinger'})
-A1target_3 = DistanceTo({
-    'from': 'Coach',
-    'to': 'ball',
-    'min': {'avg': 6.0, 'std': 0.3},
-    'max': {'avg': 12.0, 'std': 0.5},
-    'operator': 'within'
-})
 
-# COMMENT: Added new constraints for other potential pass targets to support dynamic decision-making based on coach feedback.
-path_to_LS = HasPath({
-    'obj1': 'Coach',
-    'obj2': 'LeftStriker',
-    'path_width': {'avg': 2.0, 'std': 0.2}
-})
-path_to_RS = HasPath({
-    'obj1': 'Coach',
-    'obj2': 'RightStriker',
-    'path_width': {'avg': 2.0, 'std': 0.2}
-})
-path_to_RW = HasPath({
-    'obj1': 'Coach',
-    'obj2': 'RightWinger',
-    'path_width': {'avg': 2.0, 'std': 0.2}
-})
-possession_LS = HasBallPossession({'player': 'LeftStriker'})
-possession_RS = HasBallPossession({'player': 'RightStriker'})
-possession_RW = HasBallPossession({'player': 'RightWinger'})
+A1target_0 = HasBallPossession({'player': 'Coach'})
+A2target_1 = HasPath({'obj1': 'Coach', 'obj2': 'LeftWinger',
+                      'path_width': {'avg': 2.0, 'std': 0.2}})
+A3target_1 = DistanceTo({'from': 'Coach', 'to': 'LeftWinger',
+                        'min': {'avg': 8.0, 'std': 0.5},
+                        'max': {'avg': 18.0, 'std': 1.0},
+                        'operator': 'within'})
+A1precondition_2 = HasBallPossession({'player': 'LeftWinger'})
+A1target_3 = DistanceTo({'from': 'Coach', 'to': 'ball',
+                        'min': {'avg': 6.0, 'std': 0.3},
+                        'max': {'avg': 12.0, 'std': 0.5},
+                        'operator': 'within'})
+
+# Added constraints to check for open paths and possession for other players,
+# enabling more dynamic decision-making as per the coach's feedback.
+A_path_LS = HasPath({'obj1': 'Coach', 'obj2': 'LeftStriker',
+                     'path_width': {'avg': 2.0, 'std': 0.2}})
+A_path_RS = HasPath({'obj1': 'Coach', 'obj2': 'RightStriker',
+                     'path_width': {'avg': 2.0, 'std': 0.2}})
+A_path_RW = HasPath({'obj1': 'Coach', 'obj2': 'RightWinger',
+                     'path_width': {'avg': 2.0, 'std': 0.2}})
+A_poss_LS = HasBallPossession({'player': 'LeftStriker'})
+A_poss_RS = HasBallPossession({'player': 'RightStriker'})
+A_poss_RW = HasBallPossession({'player': 'RightWinger'})
 
 
 def λ_target0():
@@ -54,95 +38,90 @@ def λ_target0():
 
 
 def λ_target1():
-    # This function is unused in the original or fixed behavior. Kept to preserve original structure.
     cond = A2target_1 and A3target_1
     return cond.dist(simulation(), ego=True)
 
 
 def λ_precondition_2(scene, sample):
-    # This function's calling pattern in the original code was incorrect. It is now renamed to λ_possession_LW for the conditional logic.
     return A1precondition_2.bool(simulation())
-
-
-# COMMENT: Added new lambda functions for path and possession checks, using correct Scenic syntax (zero-argument functions for `until` conditions).
-def λ_path_to_LS():
-    return path_to_LS.bool(simulation())
-
-
-def λ_path_to_RS():
-    return path_to_RS.bool(simulation())
-
-
-def λ_path_to_LW():
-    return A2target_1.bool(simulation())  # Using the original constraint for LW path check
-
-
-def λ_path_to_RW():
-    return path_to_RW.bool(simulation())
-
-
-def λ_possession_LS():
-    return possession_LS.bool(simulation())
-
-
-def λ_possession_RS():
-    return possession_RS.bool(simulation())
-
-
-def λ_possession_LW():
-    return A1precondition_2.bool(simulation())  # Using the original constraint for LW possession check
-
-
-def λ_possession_RW():
-    return possession_RW.bool(simulation())
 
 
 def λ_target3():
     return A1target_3.dist(simulation(), ego=True)
 
 
+# Added lambda functions to evaluate the new path and possession constraints.
+# These are used in the updated CoachBehavior to decide which player to pass to.
+def λ_path_to_LS():
+    return A_path_LS.bool(simulation())
+
+
+def λ_path_to_RS():
+    return A_path_RS.bool(simulation())
+
+
+def λ_path_to_LW():
+    return A2target_1.bool(simulation())
+
+
+def λ_path_to_RW():
+    return A_path_RW.bool(simulation())
+
+
+def λ_precondition_LS(scene, sample):
+    return A_poss_LS.bool(simulation())
+
+
+def λ_precondition_RS(scene, sample):
+    return A_poss_RS.bool(simulation())
+
+
+def λ_precondition_RW(scene, sample):
+    return A_poss_RW.bool(simulation())
+
+
 behavior CoachBehavior():
     do Idle() for 3 seconds
     do Speak("Get ready—possess the ball and scan for passing options.")
     do MoveToBallAndGetPossession()
-    # COMMENT: Changed narration to reflect new scanning behavior.
-    do Speak("Scan for an open teammate, prioritizing strikers.")
+
+    # Wait until the coach has possession before deciding on the next action.
     do Idle() until λ_target0()
+    do Speak("I have the ball, now checking for passing options.")
 
-    # COMMENT: Replaced the fixed pass to LeftWinger with a conditional block.
-    # The coach now checks for open players based on the feedback's preference order:
-    # 1. Strikers (Left, then Right)
-    # 2. Wingers (Left, then Right)
-    pass_target = None
-    possession_checker = None
-
+    # Modified the behavior to include conditional passing logic based on feedback.
+    # The coach now prioritizes passing to an open striker, and falls back to
+    # passing to a winger if the strikers are blocked by defenders.
     if λ_path_to_LS():
-        pass_target = LeftStriker
-        possession_checker = λ_possession_LS
+        do Speak("Clear path to Left Striker. Passing now.")
+        do Pass(LeftStriker)
+        do Speak("Waiting for Left Striker to receive the ball.")
+        do Idle() until λ_precondition_LS(simulation(), None)
     elif λ_path_to_RS():
-        pass_target = RightStriker
-        possession_checker = λ_possession_RS
+        do Speak("Clear path to Right Striker. Passing now.")
+        do Pass(RightStriker)
+        do Speak("Waiting for Right Striker to receive the ball.")
+        do Idle() until λ_precondition_RS(simulation(), None)
     elif λ_path_to_LW():
-        pass_target = LeftWinger
-        possession_checker = λ_possession_LW
+        do Speak("Strikers are covered. Making a safe pass to the Left Winger.")
+        do Pass(LeftWinger)
+        do Speak("Wait for LeftWinger to receive the ball before moving.")
+        do Idle() until λ_precondition_2(simulation(), None)
     elif λ_path_to_RW():
-        pass_target = RightWinger
-        possession_checker = λ_possession_RW
-
-    # COMMENT: If a target was found, execute the pass and follow-up actions.
-    # Otherwise, announce that no options are available. This structure avoids code duplication.
-    if pass_target:
-        do Speak(f"Passing to the open {pass_target.name}.")
-        do Pass(pass_target)
-        do Speak(f"Wait for {pass_target.name} to receive the ball before moving.")
-        do Idle() until possession_checker
-        do Speak("Move into half-space to open up and provide an option.")
-        do MoveTo(λ_target3())
+        do Speak("Strikers are covered. Making a safe pass to the Right Winger.")
+        do Pass(RightWinger)
+        do Speak("Waiting for Right Winger to receive the ball.")
+        do Idle() until λ_precondition_RW(simulation(), None)
     else:
-        do Speak("No safe passing options available. Holding the ball.")
+        # Fallback action: if all other options are blocked, default to a safe pass to the Left Winger.
+        do Speak("All preferred options are blocked. Defaulting to a safe pass to Left Winger.")
+        do Pass(LeftWinger)
+        do Speak("Wait for LeftWinger to receive the ball before moving.")
+        do Idle() until λ_precondition_2(simulation(), None)
 
+    do Speak("Move into half-space to open up and provide an option.")
+    do MoveTo(λ_target3(), False)
     do Idle()
-####Environment Behavior START####
 
 ####Environment Behavior START####
 

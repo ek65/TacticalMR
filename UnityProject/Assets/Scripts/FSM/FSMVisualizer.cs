@@ -337,7 +337,7 @@ public class FSMVisualizer : MonoBehaviour
             int d = kvp.Key;
             List<int> ids = kvp.Value;
 
-            float layerWidthX = startX + (d-1.6f) * spacingX;
+            float layerWidthX = startX + (d-3.5f) * spacingX;
 
             // Compute total height for this layer to center vertically
             float totalHeight = 0f;

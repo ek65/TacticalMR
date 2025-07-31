@@ -7602,7 +7602,7 @@ MonoBehaviour:
   nodesContainer: {fileID: 457649247}
   nodeButtonPrefab: {fileID: 6012875260061305257, guid: 6496066f747644484bd936599635476d, type: 3}
   descriptionText: {fileID: 250619420}
-  fsmDataPath: JSONFSM/distribute-openai-2
+  fsmDataPath: JSONFSM/distribute
   fixedNodeWidth: 200
   paddingY: 20
   maxHeight: 200

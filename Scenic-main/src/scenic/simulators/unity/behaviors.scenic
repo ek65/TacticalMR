@@ -432,7 +432,7 @@ behavior MoveTo(param, doPass: bool = False):
     if (self == ego):
         # set xMark to the sample position
         ego.xMark = sample
-        print(f"MoveTo: xMark set to {ego.xMark}")
+        #print(f"MoveTo: xMark set to {ego.xMark}")
         # set triggerPass to doPass
         ego.triggerPass = doPass
         print(f"MoveTo: triggerPass set to {ego.triggerPass}")
