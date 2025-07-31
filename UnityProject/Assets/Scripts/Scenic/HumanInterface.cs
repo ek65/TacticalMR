@@ -276,7 +276,7 @@ public class HumanInterface : MonoBehaviour
     
     public void ForciblyGainPossession()
     {
-        if (ballOwnership.heldByScenic && canPossessBall && distToBall < 1.5f)
+        if (ballOwnership.heldByScenic && canPossessBall && distToBall < 2f)
         {
             // Debug.LogError("forcibly get ball");
             LogIntercept();

@@ -125,11 +125,17 @@ public class PlayerInterface : MonoBehaviour
     
     public void ForciblyGainPossession()
     {
-        if (ballOwnership.heldByScenic && canPossessBall && distToBall < 1.5f)
+        if (ballOwnership.heldByHuman && canPossessBall && distToBall < 2f)
         {
-            // Debug.LogError("forcibly get ball");
+            Debug.LogError(distToBall);
             LogIntercept();
-            ballOwnership.ballOwner.GetComponent<PlayerInterface>().LosePossession();
+            if (ballOwnership.ballOwner.GetComponent<PlayerInterface>())
+            {
+                ballOwnership.ballOwner.GetComponent<PlayerInterface>().LosePossession();
+            } else if (ballOwnership.ballOwner.GetComponent<HumanInterface>())
+            {
+                ballOwnership.ballOwner.GetComponent<HumanInterface>().LosePossession();
+            }
             GainPossession(ball);
         }
     }

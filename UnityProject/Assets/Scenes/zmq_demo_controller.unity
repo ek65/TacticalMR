@@ -6144,15 +6144,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5886457986238108556, guid: 14845de90ccdf48b8a87c477627f042f, type: 3}
       propertyPath: prefabType
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5886457986238108556, guid: 14845de90ccdf48b8a87c477627f042f, type: 3}
       propertyPath: replayIdentity.id
-      value: 43020
+      value: 32270
       objectReference: {fileID: 0}
     - target: {fileID: 7655554097699065721, guid: 14845de90ccdf48b8a87c477627f042f, type: 3}
       propertyPath: replayIdentity.id
-      value: 47689
+      value: 64811
       objectReference: {fileID: 0}
     - target: {fileID: 8665160898893140850, guid: 14845de90ccdf48b8a87c477627f042f, type: 3}
       propertyPath: m_RootOrder

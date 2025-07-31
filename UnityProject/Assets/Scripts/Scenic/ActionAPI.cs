@@ -245,7 +245,7 @@ public class ActionAPI : MonoBehaviour
         StartCoroutine(LookTowards(receiveFrom, "Receive"));
     }
     
-    public void InterceptBall(Vector3 interceptFrom)
+    public void InterceptBall()
     {
         HumanInterface hI = this.GetComponent<HumanInterface>();
         PlayerInterface pI = this.GetComponent<PlayerInterface>();
