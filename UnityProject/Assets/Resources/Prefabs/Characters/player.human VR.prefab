@@ -8035,7 +8035,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   version: 1073741824
-  radiusBackingField: 1
+  radiusBackingField: 0.7
   heightBackingField: 2
   centerBackingField: 1
   locked: 0
