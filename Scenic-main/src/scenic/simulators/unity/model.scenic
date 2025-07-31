@@ -56,6 +56,13 @@ class Goal(UnityObject):
     length : 1
     height : 1
 
+class Line(UnityObject):
+    gameObjectType: "line"
+    name: "line"
+    width: 20
+    length : 0.25
+    height : 0.25
+
 class Player(UnityObject):
     gameObjectType : "player"
     width : 1.0
