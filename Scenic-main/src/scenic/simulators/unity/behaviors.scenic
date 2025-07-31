@@ -18,8 +18,6 @@ behavior Idle():
         # print(f"ego.x: {ego.position.x}, ego.y: {ego.position.y}, ego.z: {ego.position.z}")
 
 behavior ShootBall(vec : Vector, string : str):
-    while not self.gameObject.ballPossession:
-        do Idle() for 0.1 seconds
     take ShootAction(vec, string, "Shoot Ball")
     take StopAction()
 
@@ -42,8 +40,6 @@ behavior Pass(target, slow=False):
         # print(f"currPos: {currPos}")
         # print(f"move_dir: {move_dir}")
         # print(f"target_pass_pos: {(target_pass_pos.x, target_pass_pos.y, target_pass_pos.z)}")
-    while not self.gameObject.ballPossession:
-        do Idle() for 0.1 seconds
 
     scene = simulation()
 
