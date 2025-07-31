@@ -60,6 +60,12 @@ public class InstantiateScenicObject
             // objectList.goalObject = addedGameObject;
             // objectList.scenicObjects.Add(addedGameObject);
         }
+        else if (modelType == "line")
+        {
+            addedGameObject = MonoBehaviour.Instantiate(objectList.modelList["line"], pos, rot);
+            addedGameObject.name = "Line";
+            objectList.scenicObjects.Add(addedGameObject);
+        }
         // else if (tag == "aiAgent")
         // {
         //     addedGameObject = MonoBehaviour.Instantiate(objectList.modelList["Convai NPC Daniel He"], pos, Quaternion.Euler(-90,0,0));

@@ -62,4 +62,7 @@ opponent = new Player at (0, Uniform(4, 6), 0), with name "opponent",
             with behavior DefenderBehavior(), with team "red"
 
 goal = new Goal at (0, 17, 0)
+
+line = new Line at (0, 10, 0)
+
 terminate when (ego.gameObject.stopButton)

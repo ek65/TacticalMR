@@ -40,6 +40,7 @@ behavior Pass(target, slow=False):
         # print(f"currPos: {currPos}")
         # print(f"move_dir: {move_dir}")
         # print(f"target_pass_pos: {(target_pass_pos.x, target_pass_pos.y, target_pass_pos.z)}")
+
     scene = simulation()
 
     if isinstance(target, UnityObject) or isinstance(target,Point):
