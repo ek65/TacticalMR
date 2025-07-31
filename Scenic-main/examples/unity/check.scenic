@@ -66,7 +66,6 @@ behavior TeammatePass():
 
 behavior OpponentFollowCoach():
     do Idle() for 1.0 seconds  # Wait for coach to start checking
-    do SetPlayerSpeed(speed)
     
     # Track if we've already made a decision when ego received the ball
     decision_made = False

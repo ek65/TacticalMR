@@ -154,10 +154,10 @@ behavior OpponentFollowCoach():
     go_to_coach = False
     
     while True:
-        # Follow coach and maintain 5m distance from ego
-        if distance from self to ego > 5.5:
+        # Follow coach and maintain exactly 5m distance from ego
+        if distance from self to ego > 5.1:
             do MoveToBehavior(ego.position, distance=5)
-        elif distance from self to ego < 4.5:
+        elif distance from self to ego < 4.9:
             do MoveToBehavior(ego.position, distance=5)
         else:
             do Idle() for 0.1 seconds
@@ -178,7 +178,7 @@ behavior OpponentFollowCoach():
             else:
                 # Stay on current radius (3.5m from ego)
                 do Idle() for 0.1 seconds
-                # Continue maintaining 3.5m distance
+                # Continue maintaining 5m distance
                 while ego.gameObject.ballPossession:
                     if distance from self to ego > 5:
                         do MoveToBehavior(ego.position, distance=5)

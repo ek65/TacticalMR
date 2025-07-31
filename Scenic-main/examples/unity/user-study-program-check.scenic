@@ -82,7 +82,7 @@ behavior OpponentFollowCoach():
             decision_made = True
             
             if go_to_coach:
-                do Idle() for .75 seconds
+                do Idle() for 1 seconds
                 # Go to coach (closer distance)
                 print('Attack!')
                 do MoveToBehavior(ego.position, distance=2)
