@@ -1,4 +1,11 @@
-####Environment Behavior START####
+from scenic.simulators.unity.actions import *
+from scenic.simulators.unity.behaviors import *
+model scenic.simulators.unity.model
+
+from scenic.core.regions import MeshVolumeRegion
+
+import trimesh
+import random
 
 opponent_y_distance = Uniform(3, 5)
 opponent_x_distance = Uniform(-2, 2)
@@ -21,10 +28,9 @@ behavior TeammateBehavior():
         do MoveToBallAndGetPossession()
         gotBall = True
         do Idle()
-    interrupt when ego.triggerPass and self.gameObject.ballPossession and gotBall:
-        ego.triggerPass = False
+    interrupt when ego.gameObject.triggerPass and self.gameObject.ballPossession and gotBall:
         do Idle() for 1 seconds
-        do Pass(ego.xMark)
+        do Pass(ego.gameObject.xMark)
         
         # After passing to coach, go to opposite side at same height as ego
         do Idle() for 1 seconds
@@ -49,6 +55,7 @@ behavior TeammateBehavior():
     
     do Idle()
     
+
 ### Modified opponent behavior: Keep position until ego receives ball, then move to middle of line with variation
 behavior DefenderBehavior():
     do Idle() for 1 seconds
@@ -79,21 +86,14 @@ behavior DefenderBehavior():
         do MoveToBehavior(target_position, distance=.1)
         
         # Face the ego (coach) once in position
-        do LookAt(ego)
-        
-    
+        do LookAt(ego)    
 
 teammate = new Player at (0, 0, 0),
       with behavior TeammateBehavior(), with name "teammate", with team "blue"
 
 ball = new Ball ahead of teammate by 1
 
-ego = new Coach at (ego_x_distance, ego_y_distance, 0),
-    with name "Coach",
-    with team "blue",
-    with behavior CoachBehavior(),
-    with xMark Vector(0, 0, 0),  # Set initial xMark position
-    with triggerPass False  # Initialize triggerPass to False
+ego = new Human at (ego_x_distance, ego_y_distance, 0), with name "coach", with team "blue"
 
 opponent = new Player at (0, Uniform(4, 6), 0), with name "opponent",
             with behavior DefenderBehavior(), with team "red"

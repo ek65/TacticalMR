@@ -1,0 +1,112 @@
+from scenic.simulators.unity.actions import *
+from scenic.simulators.unity.behaviors import *
+from scenic.simulators.unity.constraints import *
+model scenic.simulators.unity.model
+import trimesh
+from scenic.core.regions import MeshVolumeRegion
+import random
+####HEADER ENDS####
+
+A1_precondition_0 = MakePass({'player': 'teammate'})
+P1_precondition_1 = DistanceTo({'from': 'Coach', 'to': 'opponent', 'operator': 'less_than', 'max': {'avg': 1.5, 'std': 0.1}})
+P1_precondition_2 = DistanceTo({'from': 'Coach', 'to': 'opponent', 'operator': 'within', 'min': {'avg': 1.5, 'std': 0.1}, 'max': {'avg': 4.0, 'std': 0.1}})
+A1_target_0 = DistanceTo({'from': 'Coach', 'to': 'opponent', 'operator': 'greater_than', 'min': {'avg': 5.0, 'std': 0.1}})
+A2_target_0 = DistanceTo({'from': 'Coach', 'to': 'goal', 'operator': 'less_than', 'max': {'avg': 11.0, 'std': 0.1}})
+A1_target_1 = DistanceTo({'from': 'Coach', 'to': 'goal', 'operator': 'less_than', 'max': {'avg': 9.0, 'std': 0.1}})
+
+def λ_precondition_0():
+    return A1_precondition_0.bool(simulation())
+
+def λ_precondition_1():
+    return P1_precondition_1.bool(simulation())
+
+def λ_precondition_2():
+    return P1_precondition_2.bool(simulation())
+
+def λ_target0():
+    cond = A1_target_0 and A2_target_0
+    return cond.dist(simulation(), ego=True)
+
+def λ_target1():
+    return A1_target_1.dist(simulation(), ego=True)
+
+behavior CoachBehavior():
+    do Idle() for 3 seconds
+    do Speak("I will run towards my teammate to create a passing option for them.")
+    do MoveTo('teammate', False)
+    do Speak("Now I will wait until my teammate passes the ball.")
+    do Idle() until λ_precondition_0()
+    do Speak("The ball is on its way. I'll stop to receive the pass.")
+    do StopAndReceiveBall()
+    do Speak("I have the ball. I will check the opponent's position to decide my next move.")
+    if λ_precondition_1():
+        do Speak("Opponent is marking tightly, less than 2 meters away. I will move to create space.")
+        do MoveTo(λ_target0(), False)
+        do Speak("I have created space now. I will take a shot at the goal.")
+        do Shoot(goal)
+    elif λ_precondition_2():
+        do Speak("Opponent is between 2 and 4 meters away. The safest option is to pass back.")
+        do Pass(teammate)
+    else:
+        do Speak("The opponent is far away, more than 4 meters. I have space to move towards the goal.")
+        do MoveTo(λ_target1(), False)
+        do Speak("This is a good scoring position. I will shoot at the goal.")
+        do Shoot(goal)
+    do Idle()
+####Environment Behavior START####
+# Parameters for variance
+coach_start_dist = Uniform(5, 8)  # initial distance from teammate
+coach_check_dist = Uniform(4, 6)   # how much closer coach checks
+coach_check_angle = Uniform(-45, 45)  # angle of check (degrees)
+opponent_dist = Uniform(1, 5)         # distance behind coach
+opponent_speed = Uniform(5, 7)        # opponent's movement speed
+
+# Behaviors
+behavior TeammatePass():
+    # Double checking gotBall to ensure the pass is triggered correctly
+    # since MoveToBallAndGetPossession() might get interrupted
+    gotBall = False
+    try:
+        do Idle() for 1.0 seconds  # Give coach time to start 
+        do MoveToBallAndGetPossession()
+        print("got ball")
+        gotBall = True
+        do Idle()
+    interrupt when ego.triggerPass and self.gameObject.ballPossession and gotBall:
+        ego.triggerPass = False
+        print("trigger pass")
+        do Idle() for 1.0 seconds
+        do Pass(ego.xMark)
+
+    do Idle()
+
+####Environment Behavior START####
+behavior OpponentFollowCoach():
+    do Idle() for 1.0 seconds  # Wait for coach to start checking
+    speed = float(opponent_speed)
+    do SetPlayerSpeed(speed)
+    while True:
+        if distance from self to ego > 3.5:
+            do MoveToBehavior(ego.position, distance=3.5)
+        else:
+            do Idle() for 0.1 seconds
+
+# Place teammate (AI) at origin
+teammate = new Player at (0, 0, 0), with name "teammate", with team "blue", with behavior TeammatePass()
+
+# Place coach (human) in front of teammate
+ego = new Coach ahead of teammate by coach_start_dist, 
+    with name "Coach", 
+    with team "blue", 
+    with behavior CoachBehavior(),
+    with xMark Vector(0, 0, 0),  # Set initial xMark position
+    with triggerPass False  # Initialize triggerPass to False
+
+# Place opponent ahead of coach (further from goal than coach)
+opponent = new Player ahead of ego by opponent_dist, facing toward ego, with name "opponent", with team "red", with behavior OpponentFollowCoach()
+
+# Ball at teammate's feet
+ball = new Ball ahead of teammate by 0.5
+
+goal = new Goal at (0, 17, 0)
+terminate when (ego.gameObject.stopButton)

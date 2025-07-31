@@ -1,3 +1,62 @@
+from scenic.simulators.unity.actions import *
+from scenic.simulators.unity.behaviors import *
+from scenic.simulators.unity.constraints import *
+model scenic.simulators.unity.model
+import trimesh
+from scenic.core.regions import MeshVolumeRegion
+import random
+####HEADER ENDS####
+
+precond_has_path_to_rs = HasPath({'obj1': 'Coach', 'obj2': 'RightStriker', 'path_width': {'avg': 3.5, 'std': 0.5}})
+precond_has_path_to_lw = HasPath({'obj1': 'Coach', 'obj2': 'LeftWinger', 'path_width': {'avg': 3.5, 'std': 0.5}})
+precond_rs_has_ball = HasBallPossession({'player': 'RightStriker'})
+precond_lw_has_ball = HasBallPossession({'player': 'LeftWinger'})
+target_overlap_run = Overlap({'player': 'Coach', 'ball': 'ball', 'goal': 'goal', 'opponent': 'Defender1', 'theta': {'avg': 40.0, 'std': 2.0}, 'dist': {'avg': 5.0, 'std': 1.0}})
+term_rs_makes_pass = MakePass({'player': 'RightStriker'})
+
+def λ_precondition_0(scene, sample):
+    return precond_has_path_to_rs.bool(simulation())
+
+def λ_precondition_1(scene, sample):
+    return precond_has_path_to_lw.bool(simulation())
+    
+def λ_precondition_2(scene, sample):
+    return precond_rs_has_ball.bool(simulation())
+    
+def λ_precondition_3(scene, sample):
+    return precond_lw_has_ball.bool(simulation())
+
+def λ_target0():
+    return target_overlap_run.dist(simulation(), ego=True)
+
+def λ_termination0(scene, sample):
+    return term_rs_makes_pass.bool(simulation())
+
+behavior CoachBehavior():
+    do Idle() for 3 seconds
+    do Speak("First, I need to get the ball to initiate the play.")
+    do MoveToBallAndGetPossession()
+    do Speak("Now, is there a clear path to pass to the Right Striker?")
+    if λ_precondition_0(simulation(), None):
+        do Speak("Yes, the Right Striker is open. I will pass the ball now.")
+        do Pass(RightStriker)
+        do Speak("I will wait until the Right Striker receives my pass.")
+        do Idle() until λ_precondition_2(simulation(), None)
+        do Speak("I will make a supporting run to overlap, at an angle of 40 degrees and distance of 5 meters.")
+        do MoveTo(λ_target0()) until λ_termination0(simulation(), None)
+    elif λ_precondition_1(simulation(), None):
+        do Speak("The Right Striker is not open. I will pass to the Left Winger instead.")
+        do Pass(LeftWinger)
+        do Speak("I will wait for the Left Winger to receive the ball.")
+        do Idle() until λ_precondition_3(simulation(), None)
+        do Speak("Now I will hold my position to provide a safe pass-back option.")
+        do Idle() for 5 seconds
+    else:
+        do Speak("No clear passing options are available, so I will hold my position.")
+        do Idle() for 5 seconds
+    do Idle()
+####Environment Behavior START####
+
 ####Environment Behavior START####
 
 # Ego (center midfielder) at origin

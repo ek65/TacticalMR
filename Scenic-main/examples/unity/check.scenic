@@ -1,10 +1,18 @@
-####Environment Behavior START####
+from scenic.simulators.unity.actions import *
+from scenic.simulators.unity.behaviors import *
+model scenic.simulators.unity.model
+
+from scenic.core.regions import MeshVolumeRegion
+
+import trimesh
+import random
+import math
+
 # Parameters for variance
 coach_start_dist = Uniform(5, 8)  # initial distance from teammate
 coach_check_dist = Uniform(4, 6)   # how much closer coach checks
 coach_check_angle = Uniform(-45, 45)  # angle of check (degrees)
 opponent_dist = Uniform(4, 7)         # distance behind coach
-opponent_speed = 2        # opponent's movement speed
 
 # Behaviors
 behavior TeammatePass():
@@ -17,11 +25,10 @@ behavior TeammatePass():
         print("got ball")
         gotBall = True
         do Idle()
-    interrupt when ego.triggerPass and self.gameObject.ballPossession and gotBall:
-        ego.triggerPass = False
+    interrupt when ego.gameObject.triggerPass and self.gameObject.ballPossession and gotBall:
         print("trigger pass")
         do Idle() for 1.0 seconds
-        do Pass(ego.xMark)
+        do Pass(ego.gameObject.xMark)
         # Idle after the pass happens
         do Idle() for 2.0 seconds
         
@@ -54,12 +61,11 @@ behavior TeammatePass():
             target_position = Vector(target_x, 10.0, 0)
             do MoveToBehavior(target_position, distance=0.5)
             do Idle() for 1.0 seconds
-
+    
     do Idle()
 
 behavior OpponentFollowCoach():
     do Idle() for 1.0 seconds  # Wait for coach to start checking
-    do SetPlayerSpeed(speed)
     
     # Track if we've already made a decision when ego received the ball
     decision_made = False
@@ -110,12 +116,7 @@ behavior OpponentFollowCoach():
 teammate = new Player at (0, 0, 0), with name "teammate", with team "blue", with behavior TeammatePass()
 
 # Place coach (human) in front of teammate
-ego = new Coach ahead of teammate by coach_start_dist, 
-    with name "Coach", 
-    with team "blue", 
-    with behavior CoachBehavior(),
-    with xMark Vector(0, 0, 0),  # Set initial xMark position
-    with triggerPass False  # Initialize triggerPass to False
+ego = new Human ahead of teammate by coach_start_dist, with name "Coach", with team "blue"
 
 # Place opponent ahead of coach (further from goal than coach)
 opponent = new Player ahead of ego by opponent_dist, facing toward ego, with name "opponent", with team "red", with behavior OpponentFollowCoach()

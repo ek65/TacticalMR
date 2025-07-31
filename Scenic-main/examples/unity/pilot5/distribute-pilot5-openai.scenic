@@ -1,3 +1,82 @@
+from scenic.simulators.unity.actions import *
+from scenic.simulators.unity.behaviors import *
+from scenic.simulators.unity.constraints import *
+model scenic.simulators.unity.model
+import trimesh
+from scenic.core.regions import MeshVolumeRegion
+import random
+####HEADER ENDS####
+
+A1precondition_0 = HasBallPossession({'player': 'Coach'})
+A1precondition_1 = HasPath({'obj1': 'Coach', 'obj2': 'RightStriker', 'path_width': {'avg': 3, 'std': 0.2}})
+A1precondition_2 = HasBallPossession({'player': 'RightStriker'})
+A1precondition_3 = HasPath({'obj1': 'RightStriker', 'obj2': 'Coach', 'path_width': {'avg': 3, 'std': 0.2}})
+A1precondition_4 = HasBallPossession({'player': 'LeftWinger'})
+A1precondition_5 = HasPath({'obj1': 'LeftWinger', 'obj2': 'LeftStriker', 'path_width': {'avg': 3, 'std': 0.2}})
+
+def λ_precondition_0(scene, sample):
+    # Coach has ball possession
+    return A1precondition_0.bool(simulation())
+
+def λ_precondition_1(scene, sample):
+    # Coach has clear path to RightStriker, path width > 3m
+    return A1precondition_1.bool(simulation())
+
+def λ_precondition_2(scene, sample):
+    # RightStriker has ball possession
+    return A1precondition_2.bool(simulation())
+
+def λ_precondition_3(scene, sample):
+    # RightStriker has clear path to Coach, path width > 3m
+    return A1precondition_3.bool(simulation())
+
+def λ_precondition_4(scene, sample):
+    # LeftWinger has ball possession
+    return A1precondition_4.bool(simulation())
+
+def λ_precondition_5(scene, sample):
+    # LeftWinger has clear path to LeftStriker, path width > 3m
+    return A1precondition_5.bool(simulation())
+
+behavior CoachBehavior():
+    do Idle() for 3 seconds
+    do Speak("Waiting for ball possession.")
+    do Idle() until λ_precondition_0(simulation(), None)
+    do Speak("Check if passing lane to right striker is open with at least 3 meters width.")
+    if λ_precondition_1(simulation(), None):
+        do Speak("Right striker is open. Pass to right striker immediately.")
+        do Pass(RightStriker)
+        do Speak("Wait until right striker receives the ball.")
+        do Idle() until λ_precondition_2(simulation(), None)
+        do Speak("Make a supporting run to open space after the pass.")
+        # Move into supporting space - not toward a teammate, but toward space.
+        # We'll treat this as MoveTo a position more than 8m away from nearest defender and 6m from ball.
+        A_support_space = DistanceTo({'from': 'Coach', 'to': 'ball', 'min': {'avg': 6, 'std':0.1}, 'max': None, 'operator': 'greater_than'})
+        def λ_target_support_space():
+            return A_support_space.dist(simulation(), ego=True)
+        do MoveTo(λ_target_support_space(), False)
+        do Speak("Wait to see if right striker passes back, clear lane needed.")
+        do Idle() until λ_precondition_3(simulation(), None)
+        do Speak("Receive ball from right striker.")
+        do StopAndReceiveBall()
+        do Speak("Attempt shot on goal after receiving ball.")
+        do Shoot(goal)
+    else:
+        do Speak("Deep option not open; check if left winger can receive.")
+        if λ_precondition_4(simulation(), None):
+            do Speak("Pass to left winger.")
+            do Pass(LeftWinger)
+            do Speak("Wait until left winger receives the ball.")
+            do Idle() until λ_precondition_4(simulation(), None)
+            do Speak("Hold midfield position, stay available for pass back, no forward run.")
+            do Idle()
+        else:
+            do Speak("Hold position as no safe pass available.")
+            do Idle()
+    do Idle()
+
+####Environment Behavior START####
+
 ####Environment Behavior START####
 
 # Ego (center midfielder) at origin

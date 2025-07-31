@@ -10,7 +10,7 @@ import random
 
 # Ego (center midfielder) at origin
 pi = 3.1415
-ego = new Human at (0, 0, 0), facing toward (0, 0, 0), with team "blue"
+ego = new Human at (0, -0.1, 0), with team "blue"
 
 # Wingers
 left_winger_angle = 90 + Uniform(0, 10)  # degrees from y-axis, 90 is positive x-axis (left), variance +/-10
