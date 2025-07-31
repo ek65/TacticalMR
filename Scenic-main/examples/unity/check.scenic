@@ -13,7 +13,6 @@ coach_start_dist = Uniform(5, 8)  # initial distance from teammate
 coach_check_dist = Uniform(4, 6)   # how much closer coach checks
 coach_check_angle = Uniform(-45, 45)  # angle of check (degrees)
 opponent_dist = Uniform(4, 7)         # distance behind coach
-opponent_speed = 2        # opponent's movement speed
 
 # Behaviors
 behavior TeammatePass():
@@ -67,7 +66,6 @@ behavior TeammatePass():
 
 behavior OpponentFollowCoach():
     do Idle() for 1.0 seconds  # Wait for coach to start checking
-    speed = float(opponent_speed)
     do SetPlayerSpeed(speed)
     
     # Track if we've already made a decision when ego received the ball
@@ -90,7 +88,7 @@ behavior OpponentFollowCoach():
             go_to_coach = (decision < 0.5)
             decision_made = True
             
-            if True:
+            if go_to_coach:
                 do Idle() for .75 seconds
                 # Go to coach (closer distance)
                 print('Attack!')

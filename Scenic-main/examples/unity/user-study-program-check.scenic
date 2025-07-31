@@ -59,7 +59,6 @@ behavior TeammatePass():
 
 behavior OpponentFollowCoach():
     do Idle() for 1.0 seconds  # Wait for coach to start checking
-    speed = float(opponent_speed)
     do SetPlayerSpeed(speed)
     
     # Track if we've already made a decision when ego received the ball
@@ -82,7 +81,7 @@ behavior OpponentFollowCoach():
             go_to_coach = (decision < 0.5)
             decision_made = True
             
-            if True:
+            if go_to_coach:
                 do Idle() for .75 seconds
                 # Go to coach (closer distance)
                 print('Attack!')
