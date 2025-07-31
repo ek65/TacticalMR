@@ -111,7 +111,7 @@ class Pressure(Constraint): # Checked for graceful failure
     def __init__(self, args):
         self.player1 = args.get('player1', None)
         self.player2 = args.get('player2', None)
-        self.radius = 2.0  # 2 meter radius
+        self.radius = 4.0  # 2 meter radius
 
     def dist(self, scene, ego=False):
         if ego and not isEgo(self.player1):
@@ -135,7 +135,7 @@ class Pressure(Constraint): # Checked for graceful failure
         moving_towards = prev_distance > distance
         
         # Return true if within radius OR moving towards
-        if distance <= self.radius or (moving_towards and distance <= self.radius + 2):
+        if distance <= self.radius or (moving_towards and distance <= self.radius + 1):
             return true()
         else:
             return false()
@@ -165,7 +165,7 @@ class Pressure(Constraint): # Checked for graceful failure
         print('moving_towards', moving_towards)
         
         # Return true if within radius OR moving towards
-        return distance <= self.radius or (moving_towards and distance <= self.radius + 2)
+        return distance <= self.radius or (moving_towards and distance <= self.radius + 1)
 
     
 # MARK: HeightRelation
