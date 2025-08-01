@@ -9,6 +9,7 @@ public class ObjectsList : NetworkBehaviour
     //in-game objects created from Scenic
     public GameObject ballObject;
     public GameObject goalObject;
+    public GameObject lineObject;
     // public List<ulong> bluePlayers;
     // public List<ulong> orangePlayers;
     public List<GameObject> defensePlayers;

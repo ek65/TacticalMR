@@ -62,9 +62,14 @@ public class InstantiateScenicObject
         }
         else if (modelType == "line")
         {
-            addedGameObject = MonoBehaviour.Instantiate(objectList.modelList["line"], pos, rot);
-            addedGameObject.name = "Line";
-            objectList.scenicObjects.Add(addedGameObject);
+            NetworkRunner runner = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>()._runner;
+            NetworkObject temp = runner.Spawn(objectList.modelList["line"], pos, rot);
+            addedGameObject = temp.gameObject;
+            
+            LineInterface lI = addedGameObject.GetComponent<LineInterface>();
+            
+            lI.RPC_InstantiateValues();
+            lI.SetObjectName("Goal");
         }
         // else if (tag == "aiAgent")
         // {
