@@ -65,7 +65,7 @@ behavior TeammatePass():
     do Idle()
 
 behavior OpponentFollowCoach():
-    do Idle() for 5.5 seconds  # Wait 6 seconds before starting to follow
+    do Idle() for 1 seconds  # Wait 6 seconds before starting to follow
     
     # Set opponent speed
     do SetPlayerSpeed(4.0)
