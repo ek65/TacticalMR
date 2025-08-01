@@ -845,7 +845,7 @@ public class HumanInterface : NetworkBehaviour
             targetPosition = goalPosition;
         }
         
-        actionAPI.GroundPassFast(targetPosition);
+        actionAPI.HumanShoot(targetPosition);
         StartCoroutine(ResetToMovementController());
     }
     
