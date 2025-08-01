@@ -320,7 +320,7 @@ public class HumanInterface : MonoBehaviour
             targetPosition = goalPosition;
         }
         
-        actionAPI.GroundPassFast(targetPosition);
+        actionAPI.HumanShoot(targetPosition);
         StartCoroutine(ResetToMovementController());
     }
 
