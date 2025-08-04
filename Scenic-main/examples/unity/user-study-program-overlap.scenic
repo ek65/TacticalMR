@@ -1,8 +1,9 @@
 ####Environment Behavior START####
 
-opponent_y_distance = Range(3, 5)
-opponent_x_distance = Range(-2, 2)
-ego_y_distance = Range(-1, -3)
+opponent_y_distance = Uniform(3, 5)
+opponent_x_distance = Uniform(-2, 2)
+ego_x_distance = Uniform(-2, 2)
+ego_y_distance = Uniform(-1, -2)
 
 # Ensure teammate and opponent are on the same side
 #require (opponent_x_distance < 0 and ego_x_distance < 0) or (opponent_x_distance >= 0 and ego_x_distance >= 0)
@@ -84,19 +85,19 @@ behavior DefenderBehavior():
         
     
 
-teammate = new Player at (0, 1, 0),
+teammate = new Player at (0, 0, 0),
       with behavior TeammateBehavior(), with name "teammate", with team "blue"
 
 ball = new Ball ahead of teammate by 1
 
-ego = new Coach at (0, ego_y_distance, 0),
+ego = new Coach at (ego_x_distance, ego_y_distance, 0),
     with name "Coach",
     with team "blue",
     with behavior CoachBehavior(),
     with xMark Vector(0, 0, 0),  # Set initial xMark position
     with triggerPass False  # Initialize triggerPass to False
 
-opponent = new Player at (0, Range(5, 7), 0), with name "opponent",
+opponent = new Player at (0, Uniform(4, 6), 0), with name "opponent",
             with behavior DefenderBehavior(), with team "red"
 
 goal = new Goal at (0, 17, 0)
