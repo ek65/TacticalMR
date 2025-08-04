@@ -16,6 +16,7 @@ behavior CoachBehavior():
     pressure_result = λ_precondition2(simulation(), None)
     print("DEBUG: Pressure check result =", pressure_result)
     if pressure_result:
+
         do Speak("Opponent is attacking, pass back to teammate")
         do Pass(teammate)
     else:
@@ -94,6 +95,7 @@ coach_check_dist = Uniform(4, 6)   # how much closer coach checks
 coach_check_angle = Uniform(-45, 45)  # angle of check (degrees)
 opponent_dist = Uniform(2, 7)         # distance behind coach
 
+
 # Behaviors
 behavior TeammatePass():
     # Double checking gotBall to ensure the pass is triggered correctly
@@ -140,6 +142,7 @@ behavior TeammatePass():
             
             # Move forward to the target position (toward goal, so positive Y)
             target_position = Vector(target_x, 11.0, 0)
+
             do MoveToBehavior(target_position, distance=0.5)
             do Idle() for 1.0 seconds
 
@@ -161,6 +164,7 @@ behavior OpponentFollowCoach():
             do Idle()
             
 
+
 # Place teammate (AI) at origin
 teammate = new Player at (0, 0, 0), with name "teammate", with team "blue", with behavior TeammatePass()
 
@@ -173,7 +177,7 @@ ego = new Coach ahead of teammate by coach_start_dist,
     with triggerPass False  # Initialize triggerPass to False
 
 # Place opponent ahead of coach (closer to goal than coach)
-opponent = new Player ahead of ego by opponent_dist, facing toward ego, with name "opponent", with team "red", with behavior OpponentFollowCoach()
+
 
 # Ball at teammate's feet
 ball = new Ball ahead of teammate by 0.5

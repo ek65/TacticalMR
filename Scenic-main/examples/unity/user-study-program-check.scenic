@@ -51,11 +51,14 @@ behavior TeammatePass():
             
             # Move forward to the target position (toward goal, so positive Y)
             target_position = Vector(target_x, 11.0, 0)
+            do MoveToBehavior(target_position, distance=0.5)
+            do Idle() for 1.0 seconds
 
 
     do Idle()
 
 behavior OpponentFollowCoach():
+
     do Idle() for 5.5 seconds  # Wait 6 seconds before starting to follow
     
     # Set opponent speed
@@ -71,6 +74,8 @@ behavior OpponentFollowCoach():
             do Idle()
             
     
+
+
 
 
 
