@@ -8,13 +8,6 @@ public class SoccerBall : MonoBehaviour
     public Vector3 destination;
     private void Update()
     {
-        GameObject human = GameObject.FindGameObjectWithTag("human");
-        bool isHumanShooting = human.GetComponent<HumanInterface>().actionAPI.isHumanShootGoal;
-
-        if (isHumanShooting)
-        {
-            return;
-        }
         if (destination == Vector3.zero)
         {
             return;

@@ -307,20 +307,22 @@ public class HumanInterface : MonoBehaviour
         
         Vector3 targetPosition;
         
-        // If the distance is greater than 8.5, clamp it
-        if (currentDistance > 8.5f)
-        {
-            // Normalize the direction and multiply by max distance
-            direction = direction.normalized;
-            targetPosition = currentPosition + direction * 8.5f;
-        }
-        else
-        {
-            // Use the original goal position if it's within range
-            targetPosition = goalPosition;
-        }
+        // // If the distance is greater than 8.5, clamp it
+        // if (currentDistance > 8.5f)
+        // {
+        //     // Normalize the direction and multiply by max distance
+        //     direction = direction.normalized;
+        //     targetPosition = currentPosition + direction * 8.5f;
+        // }
+        // else
+        // {
+        //     // Use the original goal position if it's within range
+        //     targetPosition = goalPosition;
+        // }
         
-        actionAPI.HumanShoot(targetPosition);
+        targetPosition = goalPosition;
+        
+        actionAPI.GroundPassFast(targetPosition);
         StartCoroutine(ResetToMovementController());
     }
 

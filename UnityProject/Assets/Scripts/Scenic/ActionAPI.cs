@@ -41,7 +41,6 @@ public class ActionAPI : MonoBehaviour
     private Vector3 finalPos;
     private float aerialOffset;
     private float forceMagnitude;
-    public bool isHumanShootGoal;
 
     public bool alreadyInAnimation = false;
     
@@ -280,24 +279,6 @@ public class ActionAPI : MonoBehaviour
         
         SetMoveBallValues(destinationPosition, 0, weakPassForce);
     }
-    
-    public void HumanShoot(Vector3 destinationPosition)
-    {
-        HumanInterface hI = this.GetComponent<HumanInterface>();
-        
-        SetMoveBallValues(destinationPosition, 0, strongPassForce, isHumanShootGoal: true);
-        
-        StartCoroutine(LookTowards(destinationPosition, "GroundPassFast"));
-            
-        StartCoroutine(this.GetComponent<HumanInterface>().KickDebounce());
-    }
-    
-    private IEnumerator ResetIsHumanShootGoal()
-    {
-        yield return new WaitForSeconds(0.5f);
-        isHumanShootGoal = false;
-    }
-
 
     public void GroundPassFast(Vector3 destinationPosition)
     {
@@ -1096,13 +1077,12 @@ public class ActionAPI : MonoBehaviour
 
     #region Helper Methods
 
-    void SetMoveBallValues(Vector3 finalPos, float aerialOffset, float forceMagnitude, bool isHumanShootGoal = false)
+    void SetMoveBallValues(Vector3 finalPos, float aerialOffset, float forceMagnitude)
     {
         // Debug.LogError(finalPos);
         this.finalPos = finalPos;
         this.aerialOffset = aerialOffset;
         this.forceMagnitude = forceMagnitude;
-        this.isHumanShootGoal = isHumanShootGoal;
     }
 
     private float WaitTime()
@@ -1194,15 +1174,8 @@ public class ActionAPI : MonoBehaviour
             hI.LosePossession();
         }
         
-        // if human is shooting we want the velocity to continue, so if it's not the human shooting, set dest correctly
-        if (!isHumanShootGoal)
-        {
-            GameObject ball = GameObject.FindGameObjectWithTag("ball");
-            ball.GetComponent<SoccerBall>().destination = finalPos;
-        }
-        
-        // reset isHumanShootGoal after 0.5 seconds
-        StartCoroutine(ResetIsHumanShootGoal());
+        GameObject ball = GameObject.FindGameObjectWithTag("ball");
+        ball.GetComponent<SoccerBall>().destination = finalPos;
         
         Vector3 ballMotionVector = finalPos - soccerBall.transform.position;
         Vector3 forceDirection = new(ballMotionVector.x, aerialOffset, ballMotionVector.z);
