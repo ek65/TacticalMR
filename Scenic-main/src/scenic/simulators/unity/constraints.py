@@ -190,7 +190,8 @@ class HeightRelation(Constraint):
         if ref:
             x, y = location(ref[0].position)
         else:
-            x, y = location(obj.position)
+            obj = findObj(self.objID, scene.objects)
+            x, y = location(obj[0].position)
         
         mirror = (self.relation == 'below')
 
@@ -238,7 +239,8 @@ class HorizontalRelation(Constraint):
         if ref:
             x, y = location(ref[0].position)
         else:
-            x, y = location(obj.position)
+            obj = findObj(self.objID, scene.objects)
+            x, y = location(obj[0].position)
         
         mirror = (self.relation == 'right')
 
@@ -264,7 +266,7 @@ class HorizontalRelation(Constraint):
 
         return bool_sample(sample, dist)
 
-class HasPath:
+class HasPath(Constraint):
     def __init__(self, args):
         self.passerID = args.get('obj1', None)
         self.receiverID = args.get('obj2', None)
@@ -586,6 +588,11 @@ class MakePass(Constraint):
         behav = player[0].gameObject.behavior
 
         if behav and 'pass' in behav.lower():
+            return True
+
+        # Check if Coach has ball possession
+        coach = findObj('Coach', scene.objects)
+        if coach and coach[0].gameObject.ballPossession:
             return True
 
         return False

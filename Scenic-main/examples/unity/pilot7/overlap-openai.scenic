@@ -1,3 +1,63 @@
+from scenic.simulators.unity.actions import *
+from scenic.simulators.unity.behaviors import *
+from scenic.simulators.unity.constraints import *
+model scenic.simulators.unity.model
+import trimesh
+from scenic.core.regions import MeshVolumeRegion
+import random
+####HEADER ENDS####
+
+A1target_0 = DistanceTo({'from': 'Coach', 'to': 'teammate', 'min': {'avg': 3, 'std': 0.1}, 'max': {'avg': 5, 'std': 0.2}, 'operator': 'within'})
+A2target_0 = HasPath({'obj1': 'teammate', 'obj2': 'Coach', 'path_width': {'avg': 2, 'std': 0.2}})
+A_target_pass_spot = A1target_0 & A2target_0
+
+A1precondition_pass_call = HasBallPossession({'player': 'teammate'})
+A2precondition_passed_ball = MakePass({'player': 'teammate'})
+A1possession_Coach = HasBallPossession({'player': 'Coach'})
+A2defender_blocks_goal = !HasPath({'obj1': 'Coach', 'obj2': 'goal', 'path_width': {'avg': 2, 'std': 0.2}})
+A1pass_to_teammate = HasPath({'obj1': 'Coach', 'obj2': 'teammate', 'path_width': {'avg': 2, 'std': 0.2}})
+A2teammate_open = DistanceTo({'from': 'opponent', 'to': 'teammate', 'min': {'avg': 2, 'std': 0.1}, 'max': None, 'operator': 'greater_than'})
+
+def λ_target_pass_spot():
+    cond = A_target_pass_spot
+    return cond.dist(simulation(), ego=True)
+
+def λ_precondition_pass_call():
+    # Teammate has ball and path is open for pass
+    return A1precondition_pass_call.bool(simulation()) and A2precondition_passed_ball.bool(simulation())
+
+def λ_precondition_received_ball():
+    # Coach now has ball
+    return A1possession_Coach.bool(simulation())
+
+def λ_termination_defender_blocks():
+    # Don't terminate if goal path is blocked, only use for non-goal opportunity
+    cond = ~ A2defender_blocks_goal
+    #return A2defender_blocks_goal.bool(simulation())
+    return  cond.bool(simulation())
+
+def λ_precondition_pass_teammate():
+    # There is a path from Coach to teammate
+    return A1pass_to_teammate.bool(simulation()) and A2teammate_open.bool(simulation())
+
+behavior CoachBehavior():
+    do Idle() for 3 seconds
+    do Speak("I need to get open between 3 and 5 meters from teammate, with clear passing lane.")
+    do MoveTo(λ_target_pass_spot(), True)
+    do Speak("Wait until teammate passes ball to you and you get possession.")
+    do Idle() until λ_precondition_pass_call()
+    do Speak("Move to ball and get possession after pass is made.")
+    do MoveToBallAndGetPossession()
+    do Speak("Wait until you possess the ball.")
+    do Idle() until λ_precondition_received_ball()
+    if λ_termination_defender_blocks():    # if defender now blocks path to goal
+        do Speak("Defender blocks path to goal, so pass to open teammate beyond 2 meters.")
+        do Pass(teammate)
+    else:
+        do Speak("Path to goal is open, continue to score if possible.")
+        do Shoot(goal)
+    do Idle()
+
 ####Environment Behavior START####
 
 opponent_y_distance = Uniform(3, 5)
@@ -15,7 +75,6 @@ behavior Follow(obj):
 behavior TeammateBehavior():
     # Double checking gotBall to ensure the pass is triggered correctly
     # since MoveToBallAndGetPossession() might get interrupted
-    do SetPlayerSpeed(6.0)
     gotBall = False
     try:
         do Idle() for 1 seconds
@@ -30,14 +89,13 @@ behavior TeammateBehavior():
         # After passing to coach, go to opposite side at same height as ego
         do Idle() for 1 seconds
         
-        # Calculate target position: height between coach and goal, opposite X side
+        # Calculate target position: same Y as ego, opposite X side
         ego_x = ego.position.x
         ego_y = ego.position.y
-        goal_y = goal.position.y
         
         # Go to opposite side (negative if ego is positive, positive if ego is negative)
         target_x = -ego_x if ego_x > 0 else abs(ego_x)
-        target_y = (ego_y + goal_y) / 2  # Height between coach and goal
+        target_y = ego_y  # Same height as ego
         
         target_position = Vector(target_x, target_y, 0)
         do MoveToBehavior(target_position, distance=0.5)

@@ -20,6 +20,9 @@ behavior Follow(obj):
         do MoveToBehavior(obj, distance = 2, status = f"Follow {obj.name}")
 
 behavior TeammateBehavior():
+    # Set teammate speed
+    do SetPlayerSpeed(6.0)
+    
     # Double checking gotBall to ensure the pass is triggered correctly
     # since MoveToBallAndGetPossession() might get interrupted
     gotBall = False
@@ -35,13 +38,14 @@ behavior TeammateBehavior():
         # After passing to coach, go to opposite side at same height as ego
         do Idle() for 1 seconds
         
-        # Calculate target position: same Y as ego, opposite X side
+        # Calculate target position: height between coach and goal, opposite X side
         ego_x = ego.position.x
         ego_y = ego.position.y
+        goal_y = goal.position.y
         
         # Go to opposite side (negative if ego is positive, positive if ego is negative)
         target_x = -ego_x if ego_x > 0 else abs(ego_x)
-        target_y = ego_y  # Same height as ego
+        target_y = (ego_y + goal_y) / 2  # Height between coach and goal
         
         target_position = Vector(target_x, target_y, 0)
         do MoveToBehavior(target_position, distance=0.5)

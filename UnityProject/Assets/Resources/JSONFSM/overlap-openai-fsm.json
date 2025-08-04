@@ -2,38 +2,23 @@
   "states": [
     {
       "id": 1,
-      "name": "MoveTo(\u03bb_target_behind(), False)",
-      "description": "Move to open space 4 meters behind teammate to receive ball"
+      "name": "MoveTo(\u03bb_target_pass_spot(), True)",
+      "description": "I need to get open between 3 and 5 meters from teammate, with clear passing lane."
     },
     {
       "id": 2,
       "name": "MoveToBallAndGetPossession()",
-      "description": "Move to ball and get possession when pass is made"
+      "description": "Move to ball and get possession after pass is made."
     },
     {
       "id": 3,
       "name": "Pass(teammate)",
-      "description": "Pass ball back to teammate at distance 4 meters"
+      "description": "Defender blocks path to goal, so pass to open teammate beyond 2 meters."
     },
     {
       "id": 4,
-      "name": "MoveToBallAndGetPossession()",
-      "description": "Move to ball and get possession from teammate's return pass"
-    },
-    {
-      "id": 5,
-      "name": "MoveTo(\u03bb_target_infront_space(), False)",
-      "description": "Move to open space 5 meters in front of teammate after receiving ball"
-    },
-    {
-      "id": 6,
-      "name": "MoveToBallAndGetPossession()",
-      "description": "Move to ball and get possession for final attack"
-    },
-    {
-      "id": 7,
       "name": "Shoot(goal)",
-      "description": "Shoot at the goal now"
+      "description": "Path to goal is open, continue to score if possible."
     }
   ],
   "transitions": [
@@ -48,43 +33,22 @@
       "id": 1002,
       "from": 1,
       "to": 2,
-      "condition": "until \u03bb_precondition_receive1()",
-      "description": "Wait to receive a pass from teammate before moving to ball"
+      "condition": "until \u03bb_precondition_pass_call()",
+      "description": "Wait until teammate passes ball to you and you get possession."
     },
     {
       "id": 1003,
       "from": 2,
       "to": 3,
-      "condition": "until \u03bb_haspossession_Coach()",
-      "description": "Wait until you have ball possession before passing"
+      "condition": "\u03bb_termination_defender_blocks()",
+      "description": "Wait until you possess the ball. Defender blocks path to goal, so pass to open teammate beyond 2 meters."
     },
     {
       "id": 1004,
-      "from": 3,
+      "from": 2,
       "to": 4,
-      "condition": "until \u03bb_precondition_receive2()",
-      "description": "Wait to receive a return pass from teammate"
-    },
-    {
-      "id": 1005,
-      "from": 4,
-      "to": 5,
-      "condition": true,
-      "description": "Move to open space 5 meters in front of teammate after receiving ball"
-    },
-    {
-      "id": 1006,
-      "from": 5,
-      "to": 6,
-      "condition": "until \u03bb_precondition_receive3()",
-      "description": "Wait to receive the ball in advanced position"
-    },
-    {
-      "id": 1007,
-      "from": 6,
-      "to": 7,
-      "condition": "until \u03bb_haspossession2_Coach()",
-      "description": "Turn to goal and shoot when less than 14 meters from goal"
+      "condition": "else",
+      "description": "Wait until you possess the ball. Path to goal is open, continue to score if possible."
     }
   ]
 }
