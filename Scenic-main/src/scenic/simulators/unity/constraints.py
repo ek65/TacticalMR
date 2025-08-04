@@ -354,7 +354,7 @@ class DistanceTo(Constraint):
         ref = findObj(self.toID, scene.objects)
 
         if not ref:
-            return false()
+            raise Exception(f'DistanceTo constraint requires a valid reference object (toID).')
 
         x, y = location(ref[0].position)
         distances = np.sqrt((i - y)**2 + (j - x)**2)
