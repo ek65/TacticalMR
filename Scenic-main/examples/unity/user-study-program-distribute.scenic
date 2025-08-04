@@ -5,9 +5,9 @@ pi = 3.1415
 ego = new Coach at (0, 0, 0), facing toward (0, 0, 0), with team "blue", with behavior CoachBehavior()
 
 # Wingers
-left_winger_angle = 90 + Uniform(0, 10)  # degrees from y-axis, 90 is positive x-axis (left), variance +/-10
-right_winger_angle = -90 + Uniform(0, 10)  # degrees from y-axis, -90 is negative x-axis (right), variance +/-10
-winger_dist = Uniform(6,8)
+left_winger_angle = 90 + Range(0, 10)  # degrees from y-axis, 90 is positive x-axis (left), variance +/-10
+right_winger_angle = -90 + Range(0, 10)  # degrees from y-axis, -90 is negative x-axis (right), variance +/-10
+winger_dist = Range(6,8)
 
 left_winger_x = winger_dist * sin(left_winger_angle * pi / 180)
 left_winger_y = winger_dist * cos(left_winger_angle * pi / 180)

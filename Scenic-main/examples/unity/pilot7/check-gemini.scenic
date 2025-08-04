@@ -7,62 +7,48 @@ from scenic.core.regions import MeshVolumeRegion
 import random
 ####HEADER ENDS####
 
-A1_target_get_open_path = HasPath({'obj1': 'teammate', 'obj2': 'Coach', 'path_width': {'avg': 2.0, 'std': 0.5}})
-A2_target_get_open_dist = DistanceTo({'from': 'Coach', 'to': 'opponent', 'min': {'avg': 6.0, 'std': 0.5}, 'operator': 'greater_than'})
-A1_precondition_receive_pass = MakePass({'player': 'teammate'})
+A1target_0 = AtAngle({'player': 'Coach', 'ball': 'ball', 'left': {'theta': {'avg': 50, 'std': 5}, 'dist': {'avg': 7, 'std': 1}}, 'right': {'theta': {'avg': 50, 'std': 5}, 'dist': {'avg': 7, 'std': 1}}})
+A1target_1 = DistanceTo({'from': 'Coach', 'to': 'goal', 'min': None, 'max': {'avg': 5, 'std': 1}, 'operator': 'less_than'})
 A1_precondition_is_pressured = Pressure({'player1': 'opponent', 'player2': 'Coach'})
-A1_target_get_open_again_height = HeightRelation({'obj': 'Coach', 'relation': 'above', 'ref': 'teammate', 'height_threshold': {'avg': 5.5, 'std': 0.5}})
-A2_target_get_open_again_path = HasPath({'obj1': 'teammate', 'obj2': 'Coach', 'path_width': {'avg': 2.0, 'std': 0.5}})
-A1_precondition_shoot = HasPath({'obj1': 'Coach', 'obj2': 'goal', 'path_width': {'avg': 1, 'std': 0.5}})
+A1_precondition_can_pass_1 = MovingTowards({'obj': 'teammate', 'ref': 'goal'})
+A1_precondition_can_pass_2 = HasPath({'obj1': 'Coach', 'obj2': 'teammate', 'path_width': {'avg': 2.0, 'std': 0.5}})
+A1_precondition_has_shot_path = HasPath({'obj1': 'Coach', 'obj2': 'goal', 'path_width': {'avg': 2.0, 'std': 0.5}})
 
-A_target_overlap = DistanceTo({
-    'from': 'Coach', 
-    'to': 'teammate', 
-    'min': {'avg': 2.0, 'std': 0.5}, 
-    'max': {'avg': 4.0, 'std': 0.5}, 
-    'operator': 'within'
-})
+def λ_target0():
+    return A1target_0.dist(simulation(), ego=True)
 
-A_overlap_constraint = Overlap({
-    'player': 'Coach',
-    'ball': 'ball',
-    'goal': 'goal',
-    'opponent': 'opponent',
-    'theta': {'avg': 35.0, 'std': 5.0},
-    'dist': {'avg': 5.0, 'std': 2.0}
-})
-
-def λ_target_get_open():
-    return (A1_target_get_open_path and A2_target_get_open_dist).dist(simulation(), ego=True)
-
-def λ_target_overlap():
-    return A_overlap_constraint.dist(simulation(), ego=True)
-
-def λ_precondition_receive_pass():
-    return A1_precondition_receive_pass.bool(simulation())
+def λ_target1():
+    return A1target_1.dist(simulation(), ego=True)
 
 def λ_precondition_is_pressured():
     return A1_precondition_is_pressured.bool(simulation())
 
-def λ_target_get_open_again():
-    return (A1_target_get_open_again_height and A2_target_get_open_again_path).dist(simulation(), ego=True)
+def λ_precondition_can_pass():
+    return A1_precondition_can_pass_1.bool(simulation()) and A1_precondition_can_pass_2.bool(simulation())
 
-def λ_precondition_shoot():
-    return A1_precondition_shoot.bool(simulation())
+def λ_precondition_has_shot_path():
+    return A1_precondition_has_shot_path.bool(simulation())
 
 behavior CoachBehavior():
     do Idle() for 3 seconds
-    do Speak("I will overlap my teammate to create space and receive the ball")
-    do MoveTo(λ_target_overlap(), True)
-    do Idle() for 2 seconds
-    
-    # Decide whether to shoot or pass back based on clear path to goal
-    if λ_precondition_shoot():
-        do Speak("I have a clear path to goal, I'll shoot")
-        do Shoot(goal)
-    else:
-        do Speak("No clear path to goal, I'll pass back to my teammate")
+    do Speak("My teammate is pressured, I will move to a wide open spot at about a 50 degree angle to receive a pass.")
+    do MoveTo(λ_target0(), True)
+    do Speak("Now I will stop and wait for my teammate's pass.")
+    do StopAndReceiveBall()
+    do Speak("Now that I have the ball, I will check if the opponent is pressuring me.")
+    do Idle() until True
+    if λ_precondition_is_pressured():
+        do Speak("The opponent is pressuring me. I need to find my teammate.")
+        do Idle() until λ_precondition_can_pass()
+        do Speak("My teammate is open and moving to the goal, I will pass the ball.")
         do Pass(teammate)
+    else:
+        do Speak("The opponent is not on me. I'll move closer to the goal, within 5 meters, to get a good shot.")
+        do MoveTo(λ_target1())
+        do Speak("I am in position, waiting for a clear shot path to the goal.")
+        do Idle() until λ_precondition_has_shot_path()
+        do Speak("I have a clear shot, I will take it now.")
+        do Shoot(goal)
     do Idle()
 
 ####Environment Behavior START####
