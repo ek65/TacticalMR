@@ -95,7 +95,7 @@ teammate = new Player at (0, 0, 0),
 
 ball = new Ball ahead of teammate by 1
 
-ego = new Coach at (ego_x_distance, ego_y_distance, 0),
+ego = new Coach at (0, ego_y_distance, 0),
     with name "Coach",
     with team "blue",
     with behavior CoachBehavior(),
