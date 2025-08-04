@@ -5,7 +5,6 @@ opponent_x_distance = Range(-2, 2)
 ego_x_distance = Range(-2, 2)
 ego_y_distance = Range(-1, -2)
 
-
 # Ensure teammate and opponent are on the same side
 #require (opponent_x_distance < 0 and ego_x_distance < 0) or (opponent_x_distance >= 0 and ego_x_distance >= 0)
 
