@@ -1,9 +1,9 @@
 ####Environment Behavior START####
 # Parameters for variance
-coach_start_dist = Uniform(5, 8)  # initial distance from teammate
-coach_check_dist = Uniform(4, 6)   # how much closer coach checks
-coach_check_angle = Uniform(-45, 45)  # angle of check (degrees)
-opponent_dist = Uniform(2, 7)         # distance behind coach
+coach_start_dist = Range(5, 8)  # initial distance from teammate
+coach_check_dist = Range(4, 6)   # how much closer coach checks
+coach_check_angle = Range(-45, 45)  # angle of check (degrees)
+opponent_dist = Range(2, 7)         # distance behind coach
 
 # Behaviors
 behavior TeammatePass():
