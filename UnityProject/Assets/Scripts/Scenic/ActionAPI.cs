@@ -538,21 +538,35 @@ public class ActionAPI : NetworkBehaviour
         PlayerInterface pI = this.GetComponent<PlayerInterface>();
         if (pI)
         {
-            // NOTE: not using anymore
-            // // find closest player in objectsList.scenicPlayers and objectsList.humanPlayers to destinationPosition within 5 meters
-            // ObjectsList objectList = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<ObjectsList>();
-            // List<GameObject> allPlayers = objectList.scenicPlayers.Concat(objectList.humanPlayers).ToList();
-            // GameObject closestPlayer = null;
-            // float closestDistance = float.MaxValue;
-            // foreach (GameObject player in allPlayers)
-            // {
-            //     float distance = Vector3.Distance(player.transform.position, destinationPosition);
-            //     if (distance < closestDistance && distance < 2f)
-            //     {
-            //         closestDistance = distance;
-            //         closestPlayer = player;
-            //     }
-            // }
+            // find closest player in objectsList.defensePlayers and objectsList.humanPlayers to destinationPosition within 2 meters
+            ObjectsList objectList = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<ObjectsList>();
+            List<GameObject> allPlayers = objectList.defensePlayers.Concat(objectList.humanPlayers).ToList();
+            GameObject closestPlayer = null;
+            float closestDistance = float.MaxValue;
+            foreach (GameObject player in allPlayers)
+            {
+                float distance = Vector3.Distance(player.transform.position, destinationPosition);
+                if (distance < closestDistance && distance < 2f)
+                {
+                    closestDistance = distance;
+                    closestPlayer = player;
+                }
+            }
+
+            if (closestPlayer != null)
+            {
+                AIDestinationSetter aiDestinationSetter = closestPlayer.GetComponent<AIDestinationSetter>();
+                if (aiDestinationSetter != null && aiDestinationSetter.enabled)
+                {
+                    destinationPosition = aiDestinationSetter.target.position;
+                }
+                else
+                {
+                    // Fallback: use current position
+                    destinationPosition = closestPlayer.transform.position;
+                }
+            }
+            
             // if (closestPlayer != null)
             // {
             //     Debug.LogError("IN HERE: " + closestPlayer);
@@ -663,20 +677,35 @@ public class ActionAPI : NetworkBehaviour
             SetMoveBallValues(destinationPosition, 0, strongPassForce);
         } else if (hI)
         {
-            // find closest player in objectsList.scenicPlayers and objectsList.humanPlayers to destinationPosition within 5 meters
-            // ObjectsList objectList = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<ObjectsList>();
-            // List<GameObject> allPlayers = objectList.scenicPlayers.Concat(objectList.humanPlayers).ToList();
-            // GameObject closestPlayer = null;
-            // float closestDistance = float.MaxValue;
-            // foreach (GameObject player in allPlayers)
-            // {
-            //     float distance = Vector3.Distance(player.transform.position, destinationPosition);
-            //     if (distance < closestDistance && distance < 0.5f)
-            //     {
-            //         closestDistance = distance;
-            //         closestPlayer = player;
-            //     }
-            // }
+            // find closest player in objectsList.defensePlayers and objectsList.humanPlayers to destinationPosition within 2 meters
+            ObjectsList objectList = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<ObjectsList>();
+            List<GameObject> allPlayers = objectList.defensePlayers.Concat(objectList.humanPlayers).ToList();
+            GameObject closestPlayer = null;
+            float closestDistance = float.MaxValue;
+            foreach (GameObject player in allPlayers)
+            {
+                float distance = Vector3.Distance(player.transform.position, destinationPosition);
+                if (distance < closestDistance && distance < 2f)
+                {
+                    closestDistance = distance;
+                    closestPlayer = player;
+                }
+            }
+
+            if (closestPlayer != null)
+            {
+                AIDestinationSetter aiDestinationSetter = closestPlayer.GetComponent<AIDestinationSetter>();
+                if (aiDestinationSetter != null && aiDestinationSetter.enabled)
+                {
+                    destinationPosition = aiDestinationSetter.target.position;
+                }
+                else
+                {
+                    // Fallback: use current position
+                    destinationPosition = closestPlayer.transform.position;
+                }
+            }
+            
             // if (closestPlayer != null)
             // {
             //     // Check if the closest player is human-controlled
