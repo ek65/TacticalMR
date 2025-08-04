@@ -38,6 +38,7 @@ behavior TeammateBehavior():
         # Go to opposite side (negative if ego is positive, positive if ego is negative)
         target_x = -ego_x if ego_x > 0 else abs(ego_x)
         target_y = (ego_y + goal_y) / 2  # Height between coach and goal
+
         
         target_position = Vector(target_x, target_y, 0)
         do MoveToBehavior(target_position, distance=0.5)
@@ -73,6 +74,7 @@ behavior DefenderBehavior():
         
         # Add some variation to create opportunities or blocking
         variation = Range(-1, 1)  # Random variation in both directions
+
         target_x = middle_x + variation
         target_y = middle_y + variation
         
@@ -82,7 +84,7 @@ behavior DefenderBehavior():
         
         # Face the ego (coach) once in position
         do LookAt(ego)
-        
+
     
 
 teammate = new Player at (0, 0, 0),
