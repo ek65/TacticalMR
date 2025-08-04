@@ -1,9 +1,9 @@
 ####Environment Behavior START####
 # Parameters for variance
-coach_start_dist = Uniform(5, 8)  # initial distance from teammate
-coach_check_dist = Uniform(4, 6)   # how much closer coach checks
-coach_check_angle = Uniform(-45, 45)  # angle of check (degrees)
-opponent_dist = Uniform(2, 7)         # distance behind coach
+coach_start_dist = Range(5, 8)  # initial distance from teammate
+coach_check_dist = Range(4, 6)   # how much closer coach checks
+coach_check_angle = Range(-45, 45)  # angle of check (degrees)
+opponent_dist = Range(2, 7)         # distance behind coach
 
 # Behaviors
 behavior TeammatePass():
@@ -51,8 +51,7 @@ behavior TeammatePass():
             
             # Move forward to the target position (toward goal, so positive Y)
             target_position = Vector(target_x, 11.0, 0)
-            do MoveToBehavior(target_position, distance=0.5)
-            do Idle() for 1.0 seconds
+
 
     do Idle()
 
@@ -71,6 +70,9 @@ behavior OpponentFollowCoach():
             # Stop following - coach received the ball
             do Idle()
             
+    
+
+
 
 # Place teammate (AI) at origin
 teammate = new Player at (0, 0, 0), with name "teammate", with team "blue", with behavior TeammatePass()

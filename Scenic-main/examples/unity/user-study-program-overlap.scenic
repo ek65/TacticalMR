@@ -1,9 +1,9 @@
 ####Environment Behavior START####
 
-opponent_y_distance = Uniform(3, 5)
-opponent_x_distance = Uniform(-2, 2)
-ego_x_distance = Uniform(-2, 2)
-ego_y_distance = Uniform(-1, -2)
+opponent_y_distance = Range(3, 5)
+opponent_x_distance = Range(-2, 2)
+ego_x_distance = Range(-2, 2)
+ego_y_distance = Range(-1, -2)
 
 # Ensure teammate and opponent are on the same side
 #require (opponent_x_distance < 0 and ego_x_distance < 0) or (opponent_x_distance >= 0 and ego_x_distance >= 0)
@@ -38,6 +38,7 @@ behavior TeammateBehavior():
         # Go to opposite side (negative if ego is positive, positive if ego is negative)
         target_x = -ego_x if ego_x > 0 else abs(ego_x)
         target_y = (ego_y + goal_y) / 2  # Height between coach and goal
+
         
         target_position = Vector(target_x, target_y, 0)
         do MoveToBehavior(target_position, distance=0.5)
@@ -72,7 +73,8 @@ behavior DefenderBehavior():
         middle_y = (ego_y + goal_y) / 2
         
         # Add some variation to create opportunities or blocking
-        variation = Uniform(-1, 1)  # Random variation in both directions
+        variation = Range(-1, 1)  # Random variation in both directions
+
         target_x = middle_x + variation
         target_y = middle_y + variation
         
@@ -82,7 +84,7 @@ behavior DefenderBehavior():
         
         # Face the ego (coach) once in position
         do LookAt(ego)
-        
+
     
 
 teammate = new Player at (0, 0, 0),
@@ -97,7 +99,7 @@ ego = new Coach at (ego_x_distance, ego_y_distance, 0),
     with xMark Vector(0, 0, 0),  # Set initial xMark position
     with triggerPass False  # Initialize triggerPass to False
 
-opponent = new Player at (0, Uniform(4, 6), 0), with name "opponent",
+opponent = new Player at (0, Range(4, 6), 0), with name "opponent",
             with behavior DefenderBehavior(), with team "red"
 
 goal = new Goal at (0, 17, 0)

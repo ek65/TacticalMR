@@ -7,64 +7,87 @@ from scenic.core.regions import MeshVolumeRegion
 import random
 ####HEADER ENDS####
 
-A1_target_get_open_path = HasPath({'obj1': 'teammate', 'obj2': 'Coach', 'path_width': {'avg': 2.0, 'std': 0.5}})
-A2_target_get_open_dist = DistanceTo({'from': 'Coach', 'to': 'opponent', 'min': {'avg': 6.0, 'std': 0.5}, 'operator': 'greater_than'})
-A1_precondition_receive_pass = MakePass({'player': 'teammate'})
-A1_precondition_is_pressured = Pressure({'player1': 'opponent', 'player2': 'Coach'})
-A1_target_get_open_again_height = HeightRelation({'obj': 'Coach', 'relation': 'above', 'ref': 'teammate', 'height_threshold': {'avg': 5.5, 'std': 0.5}})
-A2_target_get_open_again_path = HasPath({'obj1': 'teammate', 'obj2': 'Coach', 'path_width': {'avg': 2.0, 'std': 0.5}})
-A1_precondition_shoot = HasPath({'obj1': 'Coach', 'obj2': 'goal', 'path_width': {'avg': 1, 'std': 0.5}})
+A1target_0 = DistanceTo({'from': 'opponent', 'to': 'Coach', 'min': {'avg': 6, 'std': 0.3}, 'max': None, 'operator': 'greater_than'})
+A1precondition_0 = HasBallPossession({'player': 'teammate'})
+A1precondition_1 = MakePass({'player': 'teammate'})
+A1precondition_2 = HasBallPossession({'player': 'Coach'})
+A1precondition_3 = Pressure({'player1': 'opponent', 'player2': 'Coach'})
+A1precondition_4 = MovingTowards({'obj': 'teammate', 'ref': 'goal'})
+A1precondition_5 = HasBallPossession({'player': 'teammate'})
 
-A_target_overlap = DistanceTo({
-    'from': 'Coach', 
-    'to': 'teammate', 
-    'min': {'avg': 2.0, 'std': 0.5}, 
-    'max': {'avg': 4.0, 'std': 0.5}, 
-    'operator': 'within'
-})
+A2target_1 = DistanceTo({'from': 'Coach', 'to': 'opponent', 'min': {'avg': 6, 'std': 0.3}, 'max': None, 'operator': 'greater_than'})
+A2target_3 = HasPath({'obj1': 'Coach', 'obj2': 'teammate', 'path_width': {'avg': 3, 'std': 0.2}})
+A2target_4 = HasPath({'obj1': 'Coach', 'obj2': 'goal', 'path_width': {'avg': 3, 'std': 0.2}})
 
-A_overlap_constraint = Overlap({
-    'player': 'Coach',
-    'ball': 'ball',
-    'goal': 'goal',
-    'opponent': 'opponent',
-    'theta': {'avg': 35.0, 'std': 5.0},
-    'dist': {'avg': 5.0, 'std': 2.0}
-})
+def λ_target_0():
+    # Move away from opponent by more than 6 meters to receive the pass
+    return A1target_0.dist(simulation(), ego=True)
 
-def λ_target_get_open():
-    return (A1_target_get_open_path and A2_target_get_open_dist).dist(simulation(), ego=True)
+def λ_target_1():
+    # Move to be more than 6 meters from the opponent after receiving possession
+    return A2target_1.dist(simulation(), ego = True)
 
-def λ_target_overlap():
-    return A_overlap_constraint.dist(simulation(), ego=True)
+def λ_target_pass_to_teammate():
+    # Pass only if there is a clear path to teammate, path width average 3 meters
+    return A2target_3.bool(simulation())
 
-def λ_precondition_receive_pass():
-    return A1_precondition_receive_pass.bool(simulation())
+def λ_target_shoot_goal():
+    # Shoot only if there is a clear path to goal, path width average 3 meters
+    return A2target_4.bool(simulation())
 
-def λ_precondition_is_pressured():
-    return A1_precondition_is_pressured.bool(simulation())
+def λ_precondition_0():
+    # Wait until teammate receives or gets possession
+    return A1precondition_0.bool(simulation())
 
-def λ_target_get_open_again():
-    return (A1_target_get_open_again_height and A2_target_get_open_again_path).dist(simulation(), ego=True)
+def λ_precondition_1():
+    # Wait until teammate makes a pass
+    return A1precondition_1.bool(simulation())
 
-def λ_precondition_shoot():
-    return A1_precondition_shoot.bool(simulation())
+def λ_precondition_2():
+    # Wait until Coach gets ball possession
+    return A1precondition_2.bool(simulation())
+
+def λ_precondition_3():
+    # Check if opponent is pressuring Coach
+    return A1precondition_3.bool(simulation())
+
+def λ_precondition_4():
+    # Wait until teammate moves towards goal
+    return A1precondition_4.bool(simulation())
+
+def λ_precondition_5():
+    # Wait until teammate receives the pass back
+    return A1precondition_5.bool(simulation())
 
 behavior CoachBehavior():
     do Idle() for 3 seconds
-    do Speak("I will overlap my teammate to create space and receive the ball")
-    do MoveTo(λ_target_overlap(), True)
-    do Idle() for 2 seconds
-    
-    # Decide whether to shoot or pass back based on clear path to goal
-    if λ_precondition_shoot():
-        do Speak("I have a clear path to goal, I'll shoot")
-        do Shoot(goal)
+    do Speak("Wait until teammate has the ball before taking action")
+    do Idle() until λ_precondition_0()
+    do Speak("Move to a position at least 6 meters away from the opponent to be available for a pass")
+    do MoveTo(λ_target_0(), True)
+    do Speak("Wait until teammate passes the ball to you")
+    do Idle() until λ_precondition_1()
+    do Speak("Move to the ball and gain possession")
+    do MoveToBallAndGetPossession()
+    do Speak("Wait until you have ball possession")
+    do Idle() until λ_precondition_2()
+    do Speak("Check if the opponent is pressuring you after you receive the ball")
+    if λ_precondition_3():
+        do Speak("Opponent is pressuring you. Move at least 6 meters away from the opponent")
+        do MoveTo(λ_target_1(), False)
+        do Speak("Wait until teammate is running towards the goal")
+        do Idle() until λ_precondition_4()
+        do Speak("Make a pass back to your teammate if clear passing lane of 3 meters wide")
+        if λ_target_pass_to_teammate():
+            do Pass(teammate)
+            do Speak("Wait for teammate to receive the ball")
+            do Idle() until λ_precondition_5()
     else:
-        do Speak("No clear path to goal, I'll pass back to my teammate")
-        do Pass(teammate)
+        do Speak("No pressure from opponent. Look for clear shooting lane to the goal, 3 meters wide")
+        if λ_target_shoot_goal():
+            do Speak("Take a shot at the goal")
+            do Shoot(goal)
     do Idle()
-
 ####Environment Behavior START####
 # Parameters for variance
 coach_start_dist = Uniform(5, 8)  # initial distance from teammate
