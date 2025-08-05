@@ -200,7 +200,7 @@ public class PlayerInterface : MonoBehaviour
     
     public IEnumerator SetIsMovingTrue()
     {
-        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSeconds(0.05f);
         isMoving = true;
     }
 
