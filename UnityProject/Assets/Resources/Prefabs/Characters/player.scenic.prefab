@@ -3222,10 +3222,10 @@ MonoBehaviour:
   locked: 0
   lockWhenNotMoving: 1
   agentTimeHorizon: 10
-  obstacleTimeHorizon: 5
-  maxNeighbours: 10
+  obstacleTimeHorizon: 10
+  maxNeighbours: 100
   layer: 1
-  collidesWith: -1
+  collidesWith: 1
   wallAvoidForce: 1
   wallAvoidFalloff: 1
   priority: 1
@@ -3302,7 +3302,7 @@ MonoBehaviour:
   slowdownTime: 0.5
   wallForce: 3
   wallDist: 1
-  funnelSimplification: 0
+  funnelSimplification: 1
   slowWhenNotFacingTarget: 1
   preventMovingBackwards: 0
 --- !u!114 &3740510901630673340
