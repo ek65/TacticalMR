@@ -1,28 +1,56 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(Rigidbody))]
 public class SoccerBall : MonoBehaviour
 {
     public Vector3 destination;
-    private void Update()
+    [Tooltip("How close (in meters) before we consider ourselves 'there'")]
+    public float stopDistance = 0.1f;
+
+    Rigidbody _rb;
+    float _stopDistanceSqr;
+
+    void Awake()
     {
-        if (destination == Vector3.zero)
+        _rb = GetComponent<Rigidbody>();
+        _stopDistanceSqr = stopDistance * stopDistance;
+    }
+
+    void FixedUpdate()
+    {
+        // if no destination set, bail
+        if (destination == Vector3.zero) return;
+
+        // horizontal delta (ignore Y)
+        Vector3 delta = destination - transform.position;
+        delta.y = 0f;
+
+        // if we're inside the stop radius...
+        if (delta.sqrMagnitude <= _stopDistanceSqr)
         {
-            return;
+            // snap exactly
+            Vector3 pos = transform.position;
+            pos.x = destination.x;
+            pos.z = destination.z;
+            transform.position = pos;
+
+            // kill all motion
+            _rb.velocity = Vector3.zero;
+            _rb.angularVelocity = Vector3.zero;
+
+            // optional: disable further physics so it won't drift
+            _rb.isKinematic = true;
+            // or: _rb.Sleep();
+
+            // and clear the dest so we don't re‐snap every frame
+            destination = Vector3.zero;
         }
-        
-        // as ball reaches destination (ignoring the y axis), slow down the ball and completely stop it at the destination
-        if (Mathf.Abs(transform.position.x - destination.x) < 0.1f && Mathf.Abs(transform.position.z - destination.z) < 0.1f)
+        else
         {
-            // slow down the ball very slightly as it approaches the destination
-            // this is to prevent the ball from overshooting the destination
-            Vector3 direction = (destination - transform.position).normalized;
-            GetComponent<Rigidbody>().velocity = direction * Mathf.Max(0, GetComponent<Rigidbody>().velocity.magnitude - 0.1f);
-            // stop moving the ball
-            GetComponent<Rigidbody>().velocity = Vector3.zero;
-            GetComponent<Rigidbody>().angularVelocity = Vector3.zero;
+            // OPTIONAL: gently brake as you approach
+            // float speed = _rb.velocity.magnitude;
+            // Vector3 dir = delta.normalized;
+            // _rb.velocity = dir * Mathf.Max(0f, speed - 0.1f);
         }
     }
 }
