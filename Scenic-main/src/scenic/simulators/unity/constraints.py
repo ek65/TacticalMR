@@ -347,10 +347,6 @@ class HasPath(Constraint):
                 path_mask.fill(epsilon)
                 break
         
-        # Apply player exclusion mask
-        player_exclusion_mask = create_player_exclusion_mask(scene)
-        path_mask = np.where(player_exclusion_mask, path_mask, epsilon)
-        
         return path_mask
 
     def bool(self, scene, ego=False):
