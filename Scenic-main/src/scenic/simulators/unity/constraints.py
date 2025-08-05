@@ -52,6 +52,32 @@ def bool_sample(vec, dist, min=0.1):
     value = dist[sample]
 
     return value > min
+
+def create_player_exclusion_mask(scene, exclusion_radius=1.5):
+    """Create a mask that excludes positions within exclusion_radius meters of any player.
+    
+    Args:
+        scene: The current scene containing objects
+        exclusion_radius: Radius in meters around players to exclude (default: 1.5)
+    
+    Returns:
+        numpy.ndarray: Boolean mask where True indicates allowed positions
+    """
+    # Create a mask initialized to True (allow all positions)
+    mask = np.ones((rows, cols), dtype=bool)
+    
+    # For each player in the scene, exclude positions within exclusion_radius
+    for obj in scene.objects:
+        if hasattr(obj, 'gameObjectType') and obj.gameObjectType == 'player':
+            player_x, player_y = location(obj.position)
+            
+            # Calculate distances from this player to all grid positions
+            player_distances = np.sqrt((i - player_y)**2 + (j - player_x)**2)
+            
+            # Mark positions within exclusion_radius as excluded (False)
+            mask = mask & (player_distances >= exclusion_radius)
+    
+    return mask
     
 # MARK: Constraint
 class Constraint:
@@ -203,6 +229,10 @@ class HeightRelation(Constraint):
         distances = (y + offset - i) if mirror else (i - y + offset) 
         height_relation = 1 - np.clip(distances / (dev if dev > 0 else 1), 0, 1) + epsilon
 
+        # Apply player exclusion mask
+        player_exclusion_mask = create_player_exclusion_mask(scene)
+        height_relation = np.where(player_exclusion_mask, height_relation, epsilon)
+
         return height_relation
     
     def bool(self, scene):
@@ -252,6 +282,10 @@ class HorizontalRelation(Constraint):
         distances = (x + offset - j) if mirror else (j - x + offset) 
         side_relation = 1 - np.clip(distances / (dev if dev > 0 else 1), 0, 1) + epsilon
 
+        # Apply player exclusion mask
+        player_exclusion_mask = create_player_exclusion_mask(scene)
+        side_relation = np.where(player_exclusion_mask, side_relation, epsilon)
+
         return side_relation
     
     def bool(self, scene):
@@ -277,55 +311,88 @@ class HasPath(Constraint):
         #print("Path width: ", self.path_width)
  
     def dist(self, scene, ego=False):
-        return true() if self.bool(scene) else false() 
+        if ego and not (isEgo(self.passerID) or isEgo(self.receiverID)):
+            return true()
+
+        passer = findObj(self.passerID, scene.objects)
+        receiver = findObj(self.receiverID, scene.objects)
+
+        if not (passer and receiver):
+            raise ValueError(f'HasPath constraint requires passer and receiver objects to match the names defined in the program.')
+
+        # Get positions of passer and receiver
+        xp, yp = location(passer[0].position)
+        xr, yr = location(receiver[0].position)
+        
+        # Create a probability distribution along the path between passer and receiver
+        return self.make_path_dist((xp, yp), (xr, yr), scene)
+
+    def make_path_dist(self, passer_pos, receiver_pos, scene):
+        """Create a probability distribution for positions along the path between passer and receiver."""
+        xp, yp = passer_pos
+        xr, yr = receiver_pos
+        
+        # Calculate the line from passer to receiver
+        line_vector_x = xr - xp
+        line_vector_y = yr - yp
+        line_length = np.sqrt(line_vector_x**2 + line_vector_y**2)
+        
+        if line_length == 0:
+            return false()
+        
+        # Normalize the line vector
+        line_unit_x = line_vector_x / line_length
+        line_unit_y = line_vector_y / line_length
+        
+        # Vectorized calculation for all grid positions
+        # Vector from passer to each grid position
+        grid_x = j - xp
+        grid_y = i - yp
+        
+        # Project each grid position onto the line
+        projection = grid_x * line_unit_x + grid_y * line_unit_y
+        
+        # Clamp projection to line segment
+        projection = np.clip(projection, 0, line_length)
+        
+        # Calculate the closest point on the line to each grid position
+        closest_x = xp + projection * line_unit_x
+        closest_y = yp + projection * line_unit_y
+        
+        # Distance from each grid position to the line
+        dist_to_line = np.sqrt((j - closest_x)**2 + (i - closest_y)**2)
+        
+        # Create mask for positions within path width and between passer and receiver
+        path_mask = (dist_to_line <= self.radiusAvg) & (projection >= 0) & (projection <= line_length)
+        
+        # Create probability field (higher probability near center of path)
+        field = np.where(path_mask, 1.0 - (dist_to_line / self.radiusAvg), 0.0)
+        
+        # Apply player exclusion mask
+        player_exclusion_mask = create_player_exclusion_mask(scene)
+        field = np.where(player_exclusion_mask, field, 0.0)
+        
+        # Normalize and add epsilon
+        max_val = field.max()
+        if max_val > 0:
+            field = field / max_val
+        
+        return field + epsilon 
     def bool(self, scene, ego=False):
         if ego and not (isEgo(self.passerID) or isEgo(self.receiverID)):
             return False
 
         passer = findObj(self.passerID, scene.objects)
-        # print('passer', passer[0].name)
         receiver = findObj(self.receiverID, scene.objects)
-        # print('receiver', receiver[0].name)
-
-        obstacles = []
-        for obj in scene.objects:
-            # TODO: Should check for team
-
-            if hasattr(obj, "team") and obj.team.lower() == 'red':
-                obstacles.append(obj)
-
-        # print('obstacles', obstacles[0].name)
 
         if not (passer and receiver):
-            raise ValueError(f'Pass constraint requires passer and receiver objects to match the names defined in the program.')
+            raise ValueError(f'HasPath constraint requires passer and receiver objects to match the names defined in the program.')
 
-        xp, yp = location(passer[0].position)
-        xr, yr = location(receiver[0].position)
+        # Use the dist function to determine if there's a valid path
+        dist_field = self.dist(scene, ego)
         
-        #print("############INFO################")
-        #print((xp, yp), (xr, yr), obstacles, self.radiusAvg, self.radiusStd)
-
-        line = LineString([(xp, yp), (xr, yr)])
-#         print("Line: ", line)
-        
-        for obstacle in obstacles:
-            # print('obstacle', obstacle.name)
-            x_obstacle, y_obstacle = location(obstacle.position)
-            p = Point(x_obstacle, y_obstacle)
-            dist = p.distance(line)
-            # print(dist)
-            #print(dist)
-#             print("Distance: ", dist)
-#             print("Trying to pass to: ", self.receiverID)
-            # print('dist<self.path_width', dist < self.path_width)
-            # print('yp <= y_obstacle <= yr', yp <= y_obstacle <= yr)
-            # print('yp', yp)
-            # print('y_obstacle', y_obstacle)
-            # print('yr', yr)
-            if dist < self.path_width and (yp <= y_obstacle <= yr or yr <= y_obstacle <= yp):
-                return False
-
-        return True
+        # Check if there are any valid positions in the path
+        return dist_field.max() > epsilon
     
 
 # MARK: DistanceTo  
@@ -383,6 +450,10 @@ class DistanceTo(Constraint):
         else:
             print('Invalid operator.')
             return false()
+
+        # Apply player exclusion mask
+        player_exclusion_mask = create_player_exclusion_mask(scene)
+        map = np.where(player_exclusion_mask, map, epsilon)
 
         return map
 
@@ -472,6 +543,10 @@ class InZone(Constraint):
         
         zone_field = np.where((zone_idx_x == zone_x) & (zone_idx_y == zone_y),
                                 1.0, epsilon)
+        
+        # Apply player exclusion mask
+        player_exclusion_mask = create_player_exclusion_mask(scene)
+        zone_field = np.where(player_exclusion_mask, zone_field, epsilon)
         
         return zone_field
 
@@ -635,8 +710,13 @@ class AtAngle(Constraint):
         B_x, B_y = location(ball[0].position)
 
         # compute the 2D angle+distance field
-        # print(self.make_dist((P_x, P_y), (B_x, B_y)))
-        return self.make_dist((P_x, P_y), (B_x, B_y))
+        field = self.make_dist((P_x, P_y), (B_x, B_y))
+        
+        # Apply player exclusion mask
+        player_exclusion_mask = create_player_exclusion_mask(scene)
+        field = np.where(player_exclusion_mask, field, epsilon)
+        
+        return field
 
     def make_dist(self, player_pos, ball_pos):
         """Vectorized angle+distance probability field."""
@@ -727,7 +807,13 @@ class Overlap(Constraint):
         cross_o = v1x*(Oy - By) - v1y*(Ox - Bx)
         side = 'left' if cross_o > 0 else 'rightH'
 
-        return self.make_dist((Bx, By), (v1x, v1y), side)
+        field = self.make_dist((Bx, By), (v1x, v1y), side)
+        
+        # Apply player exclusion mask
+        player_exclusion_mask = create_player_exclusion_mask(scene)
+        field = np.where(player_exclusion_mask, field, epsilon)
+        
+        return field
 
     def make_dist(self, ball_pos, v1, side):
         """Build a grid of angle/dist probabilities around the ball."""
