@@ -320,79 +320,87 @@ class HasPath(Constraint):
         if not (passer and receiver):
             raise ValueError(f'HasPath constraint requires passer and receiver objects to match the names defined in the program.')
 
-        # Get positions of passer and receiver
+        # Create a binary mask: 1.0 where path is clear, epsilon where blocked
+        path_mask = np.ones((rows, cols), dtype=float)
+        
         xp, yp = location(passer[0].position)
         xr, yr = location(receiver[0].position)
         
-        # Create a probability distribution along the path between passer and receiver
-        return self.make_path_dist((xp, yp), (xr, yr), scene)
-
-    def make_path_dist(self, passer_pos, receiver_pos, scene):
-        """Create a probability distribution for positions along the path between passer and receiver."""
-        xp, yp = passer_pos
-        xr, yr = receiver_pos
+        # Create the line from passer to receiver
+        line = LineString([(xp, yp), (xr, yr)])
         
-        # Calculate the line from passer to receiver
-        line_vector_x = xr - xp
-        line_vector_y = yr - yp
-        line_length = np.sqrt(line_vector_x**2 + line_vector_y**2)
+        # Check each obstacle
+        obstacles = []
+        for obj in scene.objects:
+            if hasattr(obj, "team") and obj.team.lower() == 'red':
+                obstacles.append(obj)
         
-        if line_length == 0:
-            return false()
-        
-        # Normalize the line vector
-        line_unit_x = line_vector_x / line_length
-        line_unit_y = line_vector_y / line_length
-        
-        # Vectorized calculation for all grid positions
-        # Vector from passer to each grid position
-        grid_x = j - xp
-        grid_y = i - yp
-        
-        # Project each grid position onto the line
-        projection = grid_x * line_unit_x + grid_y * line_unit_y
-        
-        # Clamp projection to line segment
-        projection = np.clip(projection, 0, line_length)
-        
-        # Calculate the closest point on the line to each grid position
-        closest_x = xp + projection * line_unit_x
-        closest_y = yp + projection * line_unit_y
-        
-        # Distance from each grid position to the line
-        dist_to_line = np.sqrt((j - closest_x)**2 + (i - closest_y)**2)
-        
-        # Create mask for positions within path width and between passer and receiver
-        path_mask = (dist_to_line <= self.radiusAvg) & (projection >= 0) & (projection <= line_length)
-        
-        # Create probability field (higher probability near center of path)
-        field = np.where(path_mask, 1.0 - (dist_to_line / self.radiusAvg), 0.0)
+        # For each obstacle, check if it blocks the path
+        for obstacle in obstacles:
+            x_obstacle, y_obstacle = location(obstacle.position)
+            p = Point(x_obstacle, y_obstacle)
+            dist = p.distance(line)
+            
+            # If obstacle is within path width and between passer and receiver, block the path
+            if dist < self.path_width and (yp <= y_obstacle <= yr or yr <= y_obstacle <= yp):
+                # Set the entire path to blocked (epsilon)
+                path_mask.fill(epsilon)
+                break
         
         # Apply player exclusion mask
         player_exclusion_mask = create_player_exclusion_mask(scene)
-        field = np.where(player_exclusion_mask, field, 0.0)
+        path_mask = np.where(player_exclusion_mask, path_mask, epsilon)
         
-        # Normalize and add epsilon
-        max_val = field.max()
-        if max_val > 0:
-            field = field / max_val
-        
-        return field + epsilon 
+        return path_mask
+
     def bool(self, scene, ego=False):
         if ego and not (isEgo(self.passerID) or isEgo(self.receiverID)):
             return False
 
         passer = findObj(self.passerID, scene.objects)
+        # print('passer', passer[0].name)
         receiver = findObj(self.receiverID, scene.objects)
+        # print('receiver', receiver[0].name)
+
+        obstacles = []
+        for obj in scene.objects:
+            # TODO: Should check for team
+
+            if hasattr(obj, "team") and obj.team.lower() == 'red':
+                obstacles.append(obj)
+
+        # print('obstacles', obstacles[0].name)
 
         if not (passer and receiver):
-            raise ValueError(f'HasPath constraint requires passer and receiver objects to match the names defined in the program.')
+            raise ValueError(f'Pass constraint requires passer and receiver objects to match the names defined in the program.')
 
-        # Use the dist function to determine if there's a valid path
-        dist_field = self.dist(scene, ego)
+        xp, yp = location(passer[0].position)
+        xr, yr = location(receiver[0].position)
         
-        # Check if there are any valid positions in the path
-        return dist_field.max() > epsilon
+        #print("############INFO################")
+        #print((xp, yp), (xr, yr), obstacles, self.radiusAvg, self.radiusStd)
+
+        line = LineString([(xp, yp), (xr, yr)])
+#         print("Line: ", line)
+        
+        for obstacle in obstacles:
+            # print('obstacle', obstacle.name)
+            x_obstacle, y_obstacle = location(obstacle.position)
+            p = Point(x_obstacle, y_obstacle)
+            dist = p.distance(line)
+            # print(dist)
+            #print(dist)
+#             print("Distance: ", dist)
+#             print("Trying to pass to: ", self.receiverID)
+            # print('dist<self.path_width', dist < self.path_width)
+            # print('yp <= y_obstacle <= yr', yp <= y_obstacle <= yr)
+            # print('yp', yp)
+            # print('y_obstacle', y_obstacle)
+            # print('yr', yr)
+            if dist < self.path_width and (yp <= y_obstacle <= yr or yr <= y_obstacle <= yp):
+                return False
+
+        return True
     
 
 # MARK: DistanceTo  
