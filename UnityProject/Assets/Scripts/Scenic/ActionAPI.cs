@@ -312,7 +312,8 @@ public class ActionAPI : MonoBehaviour
         {
             AIDestinationSetter aiDestinationSetter = closestPlayer.GetComponent<AIDestinationSetter>();
             if (aiDestinationSetter != null && aiDestinationSetter.enabled && 
-                (closestPlayer.GetComponent<PlayerInterface>().isMoving || closestPlayer.GetComponent<HumanInterface>().isMoving))
+                ((closestPlayer.GetComponent<PlayerInterface>()?.isMoving ?? false) || 
+                 (closestPlayer.GetComponent<HumanInterface>()?.isMoving ?? false)))
             {
                 destinationPosition = aiDestinationSetter.target.position;
             }
