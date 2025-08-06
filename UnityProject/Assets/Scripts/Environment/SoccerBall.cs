@@ -5,7 +5,7 @@ public class SoccerBall : MonoBehaviour
 {
     public Vector3 destination;
     [Tooltip("How close (in meters) before we consider ourselves 'there'")]
-    public float stopDistance = 0.1f;
+    public float stopDistance = 0.3f;
 
     Rigidbody _rb;
     float _stopDistanceSqr;
