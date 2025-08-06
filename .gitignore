@@ -129,3 +129,11 @@ output/
 UnityProject/SampleJsons/
 
 *.wav
+/Scenic-main/examples/unity/eddie-improved
+/Scenic-main/examples/unity/pilot1-improved
+/Scenic-main/examples/unity/pilot7-improved
+UnityProject/Assets/Resources/JSONFSM/distribute-gemini-fsm.json
+/UnityProject/Assets/Resources/JSONFSM
+/UnityProject/Assets/Resources/JSONFSM
+UnityProject/Assets/Resources/JSONFSM/overlap-openai-fsm.json
+/UnityProject/Assets/Resources/JSONFSM
