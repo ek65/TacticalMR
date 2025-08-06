@@ -556,6 +556,10 @@ public class ActionAPI : NetworkBehaviour
                     {
                         // Fallback: use current position
                         destinationPosition = human.transform.position;
+                        if (human.GetComponent<HumanInterface>().isVR)
+                        {
+                            destinationPosition = human.GetComponent<HumanInterface>().vrTransform.position;
+                        }
                     }
                 }
                 else

@@ -8044,7 +8044,7 @@ MonoBehaviour:
   obstacleTimeHorizon: 10
   maxNeighbours: 100
   layer: 1
-  collidesWith: 0
+  collidesWith: 1
   wallAvoidForce: 1
   wallAvoidFalloff: 1
   priority: 0.5

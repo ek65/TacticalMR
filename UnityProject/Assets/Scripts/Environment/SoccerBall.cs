@@ -37,13 +37,6 @@ public class SoccerBall : MonoBehaviour
             // kill all motion
             _rb.velocity = Vector3.zero;
             _rb.angularVelocity = Vector3.zero;
-
-            // optional: disable further physics so it won't drift
-            _rb.isKinematic = true;
-            // or: _rb.Sleep();
-
-            // and clear the dest so we don't re‐snap every frame
-            destination = Vector3.zero;
         }
         else
         {
