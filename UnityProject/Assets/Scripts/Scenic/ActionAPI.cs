@@ -41,6 +41,7 @@ public class ActionAPI : MonoBehaviour
     private Vector3 finalPos;
     private float aerialOffset;
     private float forceMagnitude;
+    private Vector3 ballPositionAtPassTime;
 
     public bool alreadyInAnimation = false;
     
@@ -294,110 +295,58 @@ public class ActionAPI : MonoBehaviour
         {
             return;
         }
-        // find closest player in objectsList.defensePlayers and objectsList.humanPlayers to destinationPosition within 2 meters
-        ObjectsList objectList = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<ObjectsList>();
-        List<GameObject> allPlayers = objectList.defensePlayers.Concat(objectList.humanPlayers).ToList();
-        GameObject closestPlayer = null;
-        float closestDistance = float.MaxValue;
-        foreach (GameObject player in allPlayers)
+        // if human pass, find closest player in objectsList.defensePlayers destinationPosition within 2 meters
+        if (this.gameObject.CompareTag("human"))
         {
-            float distance = Vector3.Distance(player.transform.position, destinationPosition);
-            if (distance < closestDistance && distance < 2f)
+            HumanInterface hI = this.GetComponent<HumanInterface>();
+            ObjectsList objectList = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<ObjectsList>();
+            
+            GameObject closestPlayer = null;
+            float closestDistance = float.MaxValue;
+            foreach (GameObject player in objectList.defensePlayers)
             {
-                closestDistance = distance;
-                closestPlayer = player;
+                float distance = Vector3.Distance(player.transform.position, destinationPosition);
+                if (distance < closestDistance && distance < 2f)
+                {
+                    closestDistance = distance;
+                    closestPlayer = player;
+                }
             }
-        }
-        if (closestPlayer != null)
-        {
-            AIDestinationSetter aiDestinationSetter = closestPlayer.GetComponent<AIDestinationSetter>();
-            if (aiDestinationSetter != null && aiDestinationSetter.enabled && 
-                ((closestPlayer.GetComponent<PlayerInterface>()?.isMoving ?? false) || 
-                 (closestPlayer.GetComponent<HumanInterface>()?.isMoving ?? false)))
+
+            if (closestPlayer != null)
             {
-                destinationPosition = aiDestinationSetter.target.position;
+                AIDestinationSetter aiDestinationSetter = closestPlayer.GetComponent<AIDestinationSetter>();
+                if (aiDestinationSetter != null && aiDestinationSetter.enabled &&
+                    (closestPlayer.GetComponent<PlayerInterface>()?.isMoving ?? false))
+                {
+                    destinationPosition = aiDestinationSetter.target.position;
+                }
+                else
+                {
+                    // Fallback: use current position
+                    destinationPosition = closestPlayer.transform.position;
+                }
             }
-            else
-            {
-                // Fallback: use current position
-                destinationPosition = closestPlayer.transform.position;
-            }
-            // Debug.LogError("IN HERE: " + closestPlayer);
-            // // Check if the closest player is human-controlled
-            // HumanInterface humanInterface = closestPlayer.GetComponent<HumanInterface>();
-            // PlayerInterface playerInterface = closestPlayer.GetComponent<PlayerInterface>();
-            // if (humanInterface != null)
-            // {
-            //     // For human players, get their current velocity
-            //     Vector3 velocity = humanInterface.velocity;
-            //
-            //     // Prediction time - how far ahead to predict (adjust this value as needed)
-            //     float predictionTime = 0.3f;
-            //
-            //     // Only use horizontal velocity (ignore Y component for ground movement)
-            //     velocity.y = 0;
-            //
-            //     // Only predict if the player is actually moving (velocity magnitude > threshold)
-            //     if (velocity.magnitude > 0.1f) // 0.1 units per second threshold
-            //     {
-            //         // Calculate predicted position
-            //         Vector3 predictedPosition = closestPlayer.transform.position + (velocity * predictionTime);
-            //         destinationPosition = predictedPosition;
-            //     }
-            //     else
-            //     {
-            //         // If player is not moving much, just pass to their current position
-            //         destinationPosition = closestPlayer.transform.position;
-            //     }
-            // }
-            // else if (playerInterface != null)
-            // {
-            //     // For AI players, get their current velocity
-            //     Vector3 velocity = playerInterface.currVelocity;
-            //
-            //     // Prediction time - how far ahead to predict (adjust this value as needed)
-            //     float predictionTime = 0.7f;
-            //
-            //     // Only use horizontal velocity (ignore Y component for ground movement)
-            //     velocity.y = 0;
-            //
-            //     // Only predict if the player is actually moving (velocity magnitude > threshold)
-            //     if (velocity.magnitude > 0.1f) // 0.1 units per second threshold
-            //     {
-            //         // Calculate predicted position
-            //         Vector3 predictedPosition = closestPlayer.transform.position + (velocity * predictionTime);
-            //         destinationPosition = predictedPosition;
-            //     }
-            //     else
-            //     {
-            //         // If player is not moving much, just pass to their current position
-            //         destinationPosition = closestPlayer.transform.position;
-            //     }
-            // }
-            // else
-            // {
-            //     // Otherwise, for AI players, pass to target destination position as fallback
-            //     AIDestinationSetter aiDestinationSetter = closestPlayer.GetComponent<AIDestinationSetter>();
-            //     if (aiDestinationSetter != null)
-            //     {
-            //         destinationPosition = aiDestinationSetter.target.position;
-            //     }
-            //     else
-            //     {
-            //         // Fallback: use current position
-            //         destinationPosition = closestPlayer.transform.position;
-            //     }
-            // }
         }
         
-        // Pass to X destination position. If X is (0,0,0) then pass to coach 
+        // If X is (0,0,0) then pass to coach 
         if (destinationPosition == Vector3.zero)
         {
             // Find the coach in the scene
             GameObject human = GameObject.FindGameObjectWithTag("human");
             if (human != null)
             {
-                destinationPosition = human.transform.position;
+                AIDestinationSetter aiDestinationSetter = human.GetComponent<AIDestinationSetter>();
+                if (aiDestinationSetter != null && aiDestinationSetter.enabled && 
+                     (human.GetComponent<HumanInterface>()?.isMoving ?? false))
+                {
+                    destinationPosition = aiDestinationSetter.target.position;
+                }
+                else
+                {
+                    // Fallback: use current position
+                    destinationPosition = human.transform.position;
+                }
             }
             else
             {
@@ -421,6 +370,7 @@ public class ActionAPI : MonoBehaviour
             StartCoroutine(this.GetComponent<HumanInterface>().KickDebounce());
         }
         
+        ballPositionAtPassTime = soccerBall.transform.position;
         SetMoveBallValues(destinationPosition, 0, strongPassForce);
     }
 
@@ -1188,7 +1138,7 @@ public class ActionAPI : MonoBehaviour
         GameObject ball = GameObject.FindGameObjectWithTag("ball");
         ball.GetComponent<SoccerBall>().destination = finalPos;
         
-        Vector3 ballMotionVector = finalPos - soccerBall.transform.position;
+        Vector3 ballMotionVector = finalPos - ballPositionAtPassTime;
         Vector3 forceDirection = new(ballMotionVector.x, aerialOffset, ballMotionVector.z);
         Debug.Log("force vector: " + forceDirection);
         // if pass is close, multiply by some more force sice it's slow. band-aid fix. look for better way to do this
