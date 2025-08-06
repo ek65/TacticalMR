@@ -1,3 +1,48 @@
+from scenic.simulators.unity.actions import *
+from scenic.simulators.unity.behaviors import *
+from scenic.simulators.unity.constraints import *
+model scenic.simulators.unity.model
+import trimesh
+from scenic.core.regions import MeshVolumeRegion
+import random
+####HEADER ENDS####
+
+A1_target0 = AtAngle({'player': 'Coach', 'ball': 'ball', 'left': {'theta': {'avg': 25, 'std': 2.0}, 'dist': {'avg': 8, 'std': 1.0}}, 'right': {'theta': {'avg': 25, 'std': 2.0}, 'dist': {'avg': 8, 'std': 1.0}}})
+A1_precondition1 = HasBallPossession({'player': 'Coach'})
+A1_precondition2 = Pressure({'player1': 'opponent', 'player2': 'Coach'})
+A1_target3 = HeightRelation({'obj': 'Coach', 'relation': 'above', 'ref': None, 'height_threshold': {'avg': 4.0, 'std': 1.0}})
+T1_termination_dribble = HasPath({'obj1': 'Coach', 'obj2': 'teammate', 'path_width': {'avg': 2.0, 'std': 0.5}})
+
+def λ_target0():
+	return A1_target0.dist(simulation(), ego=True)
+
+def λ_precondition1():
+	return A1_precondition1.bool(simulation())
+
+def λ_precondition2():
+	return A1_precondition2.bool(simulation())
+
+def λ_target3():
+	return A1_target3.dist(simulation(), ego=True)
+
+def λ_termination_dribble():
+	return T1_termination_dribble.bool(simulation())
+
+behavior CoachBehavior():
+	do Idle() for 3 seconds
+	do Speak("I will move to a spot at an angle of about 25 degrees and 8 meters from the ball to get open for a pass.")
+	do MoveTo(λ_target0(), True)
+	do Speak("I will wait until I receive the ball from my teammate.")
+	do Idle() until λ_precondition1()
+	do Speak("Now that I have the ball, I check if the opponent is pressuring me.")
+	if λ_precondition2():
+		do Speak("The opponent is pressuring me, so I will pass the ball back to my teammate.")
+		do Pass(teammate)
+	else:
+		do Speak("The opponent is not pressuring me, so I will dribble the ball forward about 4 meters.")
+		do MoveTo(λ_target3(), False) until λ_termination_dribble()
+	do Idle()
+
 ####Environment Behavior START####
 # Parameters for variance
 coach_start_dist = Range(5, 8)  # initial distance from teammate
@@ -68,7 +113,7 @@ behavior OpponentFollowCoach():
         # Follow coach only until coach receives the ball
         if not ego.gameObject.ballPossession:
             # Follow coach and try to get close to them
-            do MoveToBehavior(ego.position, distance=3)
+            do MoveToBehavior(ego.position, distance=1.5)
         else:
             # Stop following - coach received the ball
             do Idle()

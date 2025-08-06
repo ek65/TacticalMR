@@ -1,3 +1,56 @@
+from scenic.simulators.unity.actions import *
+from scenic.simulators.unity.behaviors import *
+from scenic.simulators.unity.constraints import *
+model scenic.simulators.unity.model
+import trimesh
+from scenic.core.regions import MeshVolumeRegion
+import random
+####HEADER ENDS####
+
+behavior CoachBehavior():
+    do Idle() for 3 seconds
+    do Speak("Move to the side at (x:-3, y:7) to lure the opponent by at least 2 meters to the left")
+    do MoveTo(lambda_target0(), True)
+    do Speak("Wait for the pass from teammate and gain possession")
+    do Idle() until lambda_precondition_0()
+    do Speak("Stop, receive, and gain possession of the ball here")
+    do StopAndReceiveBall()
+    do Speak("Check if opponent is pressuring. If so, pass back to teammate; else dribble upfield")
+    if lambda_precondition_1():
+        do Speak("Opponent is pressuring you. Pass the ball quickly back to teammate")
+        do Pass(teammate)
+    else:
+        do Speak("Opponent is not pressuring you. Dribble the ball up the field beyond 3 meters from current y")
+        do MoveTo(lambda_target2(), False)
+    do Idle()
+
+
+# Constraint and target definitions
+
+# MoveTo the check location to the left (x ≈ -2.92, y ≈ 6.75) away from opponent, at least 2m horizontally for clear lure
+A1target_0 = DistanceTo({'from': 'Coach', 'to': 'opponent', 'min': {'avg': 2.0, 'std': 0.3}, 'max': {'avg': 1000.0, 'std': 1.0}, 'operator': 'greater_than'})
+# A2target_0 = HorizontalRelation({'obj': 'Coach', 'ref': 'opponent', 'relation': 'left', 'horizontal_threshold': {'avg': 2.0, 'std': 0.3}})
+A3target_0 = DistanceTo({'from': 'Coach', 'to': 'ball', 'min': {'avg': 0.0, 'std': 0.01}, 'max': {'avg': 1.0, 'std': 0.2}, 'operator': 'less_than'})
+
+def lambda_target0():
+    cond = A1target_0 and A3target_0
+    return cond.dist(simulation(), ego=True)
+
+# Precondition: Check that coach received a pass and has ball possession
+A1precondition_0 = HasBallPossession({'player': 'Coach'})
+def lambda_precondition_0():
+    return A1precondition_0.bool(simulation())
+
+# Precondition: Is opponent pressuring coach after receiving the ball?
+A1precondition_1 = Pressure({'player1': 'opponent', 'player2': 'Coach'})
+def lambda_precondition_1():
+    return A1precondition_1.bool(simulation())
+
+# If not pressured, dribble up the field: "up" is higher y, move at least 3m upfield
+A1target_2 = HeightRelation({'obj': 'Coach', 'relation': 'above', 'ref': None, 'height_threshold': {'avg': 3.0, 'std': 0.4}})
+def lambda_target2():
+    return A1target_2.dist(simulation(), ego=True)
+
 ####Environment Behavior START####
 # Parameters for variance
 coach_start_dist = Range(5, 8)  # initial distance from teammate
@@ -68,7 +121,7 @@ behavior OpponentFollowCoach():
         # Follow coach only until coach receives the ball
         if not ego.gameObject.ballPossession:
             # Follow coach and try to get close to them
-            do MoveToBehavior(ego.position, distance=3)
+            do MoveToBehavior(ego.position, distance=1.5)
         else:
             # Stop following - coach received the ball
             do Idle()

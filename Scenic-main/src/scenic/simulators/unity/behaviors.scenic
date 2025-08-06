@@ -85,6 +85,8 @@ behavior MoveToBehavior(v, lookAtTarget = None, distance = 0.2, status=""):
             # take LookAtAction(v)
         dist = distance from self to v
     
+    take StopAction()
+    
     if lookAtTarget is not None:
         do LookAt(lookAtTarget)
     else:
