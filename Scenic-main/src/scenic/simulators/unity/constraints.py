@@ -54,7 +54,7 @@ def bool_sample(vec, dist, min=0.1):
 
     return value > min
 
-def create_player_exclusion_mask(scene, exclusion_radius=1.5):
+def create_player_exclusion_mask(scene, exclusion_radius=2):
     """Create a mask that excludes positions within exclusion_radius meters of any player.
     
     Args:
