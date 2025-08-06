@@ -48,7 +48,7 @@ behavior TeammateBehavior():
         target_y = (ego_y + goal_y) / 2  # Height between coach and goal
         
         target_position = Vector(target_x, target_y, 0)
-        do MoveToBehavior(target_position, distance=0.5)
+        do MoveToBehavior(target_position)
         
         # Wait to receive ball back from coach
         do Idle() until self.gameObject.ballPossession
@@ -87,7 +87,7 @@ behavior DefenderBehavior():
         
         # Move to the target position
         target_position = Vector(target_x, target_y, 0)
-        do MoveToBehavior(target_position, distance=.1)
+        do MoveToBehavior(target_position)
         
         # Face the ego (coach) once in position
         do LookAt(ego)    

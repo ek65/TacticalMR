@@ -74,7 +74,7 @@ behavior OpponentFollowCoach():
         # Follow coach only until coach receives the ball
         if not ego.gameObject.ballPossession:
             # Follow coach and try to get close to them
-            do MoveToBehavior(ego.position, distance=1.5)
+            do MoveToBehavior(ego.position, distance=3)
         else:
             # Stop following - coach received the ball
             do Idle()
