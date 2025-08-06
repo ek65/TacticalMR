@@ -117,6 +117,20 @@ public class PlayerInterface : NetworkBehaviour
         {
             actionAPI.Idle();
         }
+        
+        // Set RichAI radius to .1 when moving to avoid weird pathing behavior
+        if (this.GetComponent<RichAI>() != null)
+        {
+            RichAI aiNav = this.GetComponent<RichAI>();
+            if (aiNav.radius != 0.05f && isMoving)
+            {
+                aiNav.radius = 0.05f;
+            }
+            else if (aiNav.radius == 0.05f && !isMoving)
+            {
+                aiNav.radius = 0.5f;
+            }
+        }
     }
     
     public override void Spawned() {
@@ -174,12 +188,12 @@ public class PlayerInterface : NetworkBehaviour
     }
     
     // For ball possession
-    private void OnCollisionEnter(Collision other)
+    private void OnTriggerEnter(Collider other)
     {
         GameManager gm = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
         if (gm.isHost)
         {
-            if (other.collider.CompareTag("ball") && canPossessBall && !ballPossession)
+            if (other.CompareTag("ball") && canPossessBall && !ballPossession && ballOwnership.ballOwner == null)
             {
                 LogReceiveBall();
                 GainPossession(other.gameObject);
@@ -297,10 +311,10 @@ public class PlayerInterface : NetworkBehaviour
         canKickBall = true;
     }
 
-    public IEnumerator SetIsMovingTrue()
+    public IEnumerator SetIsMoving(bool isMoving)
     {
         yield return new WaitForSeconds(0.05f);
-        isMoving = true;
+        this.isMoving = isMoving;
     }
     
     public void ApplyMovement(ScenicMovementData data)

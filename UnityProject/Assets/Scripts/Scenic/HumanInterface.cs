@@ -260,6 +260,20 @@ public class HumanInterface : NetworkBehaviour
         }
         
         CalculateSmoothedVelocity();
+        
+        // Set RichAI radius to .1 when moving to avoid weird pathing behavior
+        if (this.GetComponent<RichAI>() != null)
+        {
+            RichAI aiNav = this.GetComponent<RichAI>();
+            if (aiNav.radius != 0.05f && isMoving)
+            {
+                aiNav.radius = 0.05f;
+            }
+            else if (aiNav.radius == 0.05f && !isMoving)
+            {
+                aiNav.radius = 0.5f;
+            }
+        }
 
         // string currResponse = "";
         // // if (chatBehaviour.sentences.Length > 0)
@@ -438,12 +452,12 @@ public class HumanInterface : NetworkBehaviour
         keyboardInput.clickOrder++;
     }
     
-    private void OnCollisionEnter(Collision other)
+    private void OnTriggerEnter(Collider other)
     {
         GameManager gm = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
         if (gm.isHost)
         {
-            if (other.collider.CompareTag("ball") && canPossessBall && ballOwnership.heldByScenic == false && !ballPossession)
+            if (other.CompareTag("ball") && canPossessBall && ballOwnership.heldByScenic == false && !ballPossession && ballOwnership.ballOwner == null)
             {
                 LogReceiveBall();
                 GainPossession(other.gameObject);
@@ -981,10 +995,10 @@ public class HumanInterface : NetworkBehaviour
         source.PlayOneShot(source.clip);
     }
     
-    public IEnumerator SetIsMovingTrue()
+    public IEnumerator SetIsMoving(bool isMoving)
     {
         yield return new WaitForSeconds(0.05f);
-        isMoving = true;
+        this.isMoving = isMoving;
     }
     
     public void SetTransform(Vector3 pos, Quaternion rot)
