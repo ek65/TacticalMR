@@ -363,7 +363,7 @@ i, j = np.indices((rows, cols))
 
 def sample_from(dist, _min=0.4):
 
-    print(dist)
+    #print(dist)
 
     max_val = dist.max()
     if max_val > 0:
@@ -385,11 +385,11 @@ def sample_from(dist, _min=0.4):
     idx = np.random.choice(flat.size, p=flat)
     coord = np.unravel_index(idx, dist.shape)
     
-    print(f"coord: {coord}, dist.shape: {dist.shape}, idx: {idx}")
+    #print(f"coord: {coord}, dist.shape: {dist.shape}, idx: {idx}")
     x, y = int(coord[1]), int(coord[0])
-    print('real sampled', x, y)
+    #print('real sampled', x, y)
     sample = Vector(x - cols / 2, rows / 2 - y)
-    print('Sampled', sample)
+    #print('Sampled', sample)
 
     return sample
     

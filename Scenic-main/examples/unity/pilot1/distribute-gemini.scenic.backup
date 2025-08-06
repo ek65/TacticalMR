@@ -1,3 +1,50 @@
+from scenic.simulators.unity.actions import *
+from scenic.simulators.unity.behaviors import *
+from scenic.simulators.unity.constraints import *
+model scenic.simulators.unity.model
+import trimesh
+from scenic.core.regions import MeshVolumeRegion
+import random
+####HEADER ENDS####
+
+P_HasPath_LS = HasPath({'obj1': 'Coach', 'obj2': 'LeftStriker', 'path_width': {'avg': 2.5, 'std': 0.5}})
+P_HasPath_RS = HasPath({'obj1': 'Coach', 'obj2': 'RightStriker', 'path_width': {'avg': 2.5, 'std': 0.5}})
+P_HasPath_RW = HasPath({'obj1': 'Coach', 'obj2': 'RightWinger', 'path_width': {'avg': 2.5, 'std': 0.5}})
+A_target_run = HeightRelation({'obj': 'Coach', 'ref': 'Coach', 'relation': 'above', 'height_threshold': {'avg': 5.0, 'std': 1.0}})
+
+def λ_precondition_LS_open():
+    return P_HasPath_LS.bool(simulation())
+
+def λ_precondition_RS_open():
+    return P_HasPath_RS.bool(simulation())
+
+def λ_precondition_RW_open():
+    return P_HasPath_RW.bool(simulation())
+
+def λ_target_run():
+    return A_target_run.dist(simulation(), ego=True)
+
+behavior CoachBehavior():
+    do Idle() for 3 seconds
+    do Speak("I need to get open and receive the ball to start the play.")
+    do StopAndReceiveBall()
+    do Speak("Now that I have the ball, I will assess my passing options.")
+    do Idle() until True
+    if λ_precondition_LS_open():
+        do Speak("My LeftStriker is open. I see a clear path, so I'll pass the ball to them.")
+        do Pass('LeftStriker')
+    elif λ_precondition_RS_open():
+        do Speak("My RightStriker is in a good position. There's a clear path, so the pass is on.")
+        do Pass('RightStriker')
+    elif λ_precondition_RW_open():
+        do Speak("The strikers are marked. I'll pass to my RightWinger who has space.")
+        do Pass('RightWinger')
+        do Speak("After the pass, I'll move about 5 meters upfield to support the play.")
+        do MoveTo(λ_target_run(), False)
+    else:
+        do Speak("All my passing options are currently blocked. I'll wait for an opportunity.")
+        do Idle()
+    do Idle()
 ####Environment Behavior START####
 
 # Ego (center midfielder) at origin

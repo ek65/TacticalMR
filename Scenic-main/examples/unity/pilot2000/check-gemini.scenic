@@ -7,48 +7,45 @@ from scenic.core.regions import MeshVolumeRegion
 import random
 ####HEADER ENDS####
 
-```python
 behavior CoachBehavior():
     do Idle() for 3 seconds
-
-    do Speak("To start the check movement, first wait for your teammate to have the ball.")
-    do Idle() until λ_precondition_0(simulation(), None)
-
-    do Speak("Now, to create space, move to the side at an angle of about 25 degrees and 8 meters away from the ball. As you move, call for a pass from your teammate.")
+    do Speak("I'll move about 30 degrees and 7 meters away from the ball to create an open passing lane.")
     do MoveTo(λ_target0(), True)
-
-    do Speak("You are in position. Stop and wait to receive the pass from your teammate.")
+    do Speak("Now I'll stop my movement to receive the incoming pass from my teammate.")
     do StopAndReceiveBall()
-    
-    do Speak("Now that you have the ball, pause to see if the opponent is pressuring you.")
-    do Idle() for 1 second
-
-    if λ_precondition_1(simulation(), None):
-        do Speak("The opponent is pressuring you. Pass the ball back to your teammate, who now has open space.")
-        do Pass(teammate)
+    do Speak("I'll check if the opponent is more than 3 meters away to decide whether to shoot or pass.")
+    if λ_precondition_shoot():
+        do Speak("The opponent is far enough away, giving me space to take a shot at the goal.")
+        do Shoot(goal)
     else:
-        do Speak("The opponent is not pressuring, so you have space to attack. Dribble the ball at least 5 meters up the field.")
-        do MoveTo(λ_target1(), False)
-
+        do Speak("The opponent is too close, so I'll pass the ball back to my teammate to maintain possession.")
+        do Pass(teammate)
     do Idle()
 
-A1target_0 = AtAngle({'player': 'Coach', 'ball': 'ball', 'left': {'theta': {'avg': 25, 'std': 5}, 'dist': {'avg': 8, 'std': 1}}, 'right': {'theta': {'avg': 25, 'std': 5}, 'dist': {'avg': 8, 'std': 1}}})
-A1target_1 = HeightRelation({'obj': 'Coach', 'relation': 'above', 'ref': None, 'height_threshold': {'avg': 5, 'std': 1}})
-A1precondition_0 = HasBallPossession({'player': 'teammate'})
-A1precondition_1 = Pressure({'player1': 'opponent', 'player2': 'Coach'})
+C1_AtAngle_Move = AtAngle({
+    'player': 'Coach',
+    'ball': 'ball',
+    'left': {'theta': {'avg': 30.0, 'std': 10.0}, 'dist': {'avg': 7.0, 'std': 2.0}},
+    'right': {'theta': {'avg': 30.0, 'std': 10.0}, 'dist': {'avg': 7.0, 'std': 2.0}}
+})
+
+C2_Dist_Shoot_Decision = DistanceTo({
+    'from': 'Coach',
+    'to': 'opponent',
+    'min': {'avg': 2.5, 'std': 0.5},
+    'max': None,
+    'operator': 'greater_than'
+})
 
 def λ_target0():
-    return A1target_0.dist(simulation(), ego=True)
+    return C1_AtAngle_Move.dist(simulation(), ego=True)
 
-def λ_target1():
-    return A1target_1.dist(simulation(), ego=True)
+def λ_precondition_shoot():
+    return C2_Dist_Shoot_Decision.bool(simulation())
 
-def λ_precondition_0(scene, sample):
-    return A1precondition_0.bool(scene)
+def λ_termination():
+    return False
 
-def λ_precondition_1(scene, sample):
-    return A1precondition_1.bool(scene)
-```
 ####Environment Behavior START####
 # Parameters for variance
 coach_start_dist = Range(5, 8)  # initial distance from teammate

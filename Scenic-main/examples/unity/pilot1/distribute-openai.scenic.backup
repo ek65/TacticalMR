@@ -1,3 +1,66 @@
+from scenic.simulators.unity.actions import *
+from scenic.simulators.unity.behaviors import *
+from scenic.simulators.unity.constraints import *
+model scenic.simulators.unity.model
+import trimesh
+from scenic.core.regions import MeshVolumeRegion
+import random
+####HEADER ENDS####
+
+A1precondition_possession = HasBallPossession({'player': 'Coach'})
+A1target_leftstriker = HasPath({'obj1': 'Coach', 'obj2': 'LeftStriker', 'path_width': {'avg': 3, 'std': 1}})
+A1target_rightwinger = HasPath({'obj1': 'Coach', 'obj2': 'RightWinger', 'path_width': {'avg': 3, 'std': 1}})
+A1target_rightstriker = HasPath({'obj1': 'Coach', 'obj2': 'RightStriker', 'path_width': {'avg': 3, 'std': 1}})
+A1target_horizontal = DistanceTo({'from': 'Coach', 'to': 'RightWinger', 'min': {'avg': 0, 'std': 0.5}, 'max': {'avg': 10, 'std': 1}, 'operator': 'within'})
+A2target_horizontal = DistanceTo({'from': 'Coach', 'to': 'LeftStriker', 'min': {'avg': 0, 'std': 0.5}, 'max': {'avg': 10, 'std': 1}, 'operator': 'within'})
+Aprecondition_path_leftstriker = HasPath({'obj1': 'Coach', 'obj2': 'LeftStriker', 'path_width': {'avg': 3, 'std': 1}})
+Aprecondition_path_rightstriker = HasPath({'obj1': 'Coach', 'obj2': 'RightStriker', 'path_width': {'avg': 3, 'std': 1}})
+Aprecondition_path_rightwinger = HasPath({'obj1': 'Coach', 'obj2': 'RightWinger', 'path_width': {'avg': 3, 'std': 1}})
+
+def λ_precondition_possession():
+    return A1precondition_possession.bool(simulation())
+
+def λ_precondition_path_leftstriker():
+    return Aprecondition_path_leftstriker.bool(simulation())
+
+def λ_precondition_path_rightstriker():
+    return Aprecondition_path_rightstriker.bool(simulation())
+
+def λ_precondition_path_rightwinger():
+    return Aprecondition_path_rightwinger.bool(simulation())
+
+def λ_target_horizontal():
+    cond = A1target_horizontal
+    return cond.dist(simulation(), ego=True)
+
+def λ_target_leftstriker():
+    return A1target_leftstriker.bool(simulation())
+
+def λ_target_rightstriker():
+    return A1target_rightstriker.bool(simulation())
+
+def λ_target_rightwinger():
+    return A1target_rightwinger.bool(simulation())
+
+
+behavior CoachBehavior():
+    do Idle() for 3 seconds
+    do Speak("Wait until Coach receives ball possession before taking any action")
+    do Idle() until λ_precondition_possession()
+    do Speak("Coach now has possession, choose your passing option based on who is free")
+    if λ_precondition_path_rightstriker():
+        do Speak("There is a clear passing lane of about 3 meters to RightStriker. Pass to RightStriker for fastest progression.")
+        do Pass(RightStriker)
+    elif λ_precondition_path_leftstriker():
+        do Speak("There is a clear path of 3 meters wide to LeftStriker. Pass to LeftStriker if no better forward option.")
+        do Pass(LeftStriker)
+    elif λ_precondition_path_rightwinger():
+        do Speak("No strikers open forward, but clear 3m wide pass to RightWinger. Use horizontal pass to maintain possession.")
+        do Pass(RightWinger)
+    else:
+        do Speak("No safe forward pass. Move horizontally within 10 meters to support build-up play.")
+        do MoveTo(λ_target_horizontal(), False)
+    do Idle()
 ####Environment Behavior START####
 
 # Ego (center midfielder) at origin

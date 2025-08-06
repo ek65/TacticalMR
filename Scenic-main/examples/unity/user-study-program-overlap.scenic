@@ -1,9 +1,9 @@
 ####Environment Behavior START####
 
-opponent_y_distance = Uniform(3, 5)
-opponent_x_distance = Uniform(-2, 2)
-ego_x_distance = Uniform(-2, 2)
-ego_y_distance = Uniform(-1, -2)
+opponent_y_distance = Range(3, 5)
+opponent_x_distance = Range(-2, 2)
+ego_x_distance = Range(-2, 2)
+ego_y_distance = Range(-1, -2)
 
 # Ensure teammate and opponent are on the same side
 #require (opponent_x_distance < 0 and ego_x_distance < 0) or (opponent_x_distance >= 0 and ego_x_distance >= 0)
@@ -15,6 +15,7 @@ behavior Follow(obj):
 behavior TeammateBehavior():
     # Double checking gotBall to ensure the pass is triggered correctly
     # since MoveToBallAndGetPossession() might get interrupted
+    do SetPlayerSpeed(6.0)
     gotBall = False
     try:
         do Idle() for 1 seconds
@@ -29,13 +30,16 @@ behavior TeammateBehavior():
         # After passing to coach, go to opposite side at same height as ego
         do Idle() for 1 seconds
         
-        # Calculate target position: same Y as ego, opposite X side
+        # Calculate target position: height between coach and goal, opposite X side
         ego_x = ego.position.x
         ego_y = ego.position.y
+        goal_y = goal.position.y
         
         # Go to opposite side (negative if ego is positive, positive if ego is negative)
         target_x = -ego_x if ego_x > 0 else abs(ego_x)
-        target_y = ego_y  # Same height as ego
+        target_y = (ego_y + goal_y) / 2  # Height between coach and goal
+
+
         
         target_position = Vector(target_x, target_y, 0)
         do MoveToBehavior(target_position, distance=0.5)
@@ -70,7 +74,9 @@ behavior DefenderBehavior():
         middle_y = (ego_y + goal_y) / 2
         
         # Add some variation to create opportunities or blocking
-        variation = Uniform(-1, 1)  # Random variation in both directions
+        variation = Range(-1, 1)  # Random variation in both directions
+
+
         target_x = middle_x + variation
         target_y = middle_y + variation
         
@@ -80,7 +86,8 @@ behavior DefenderBehavior():
         
         # Face the ego (coach) once in position
         do LookAt(ego)
-        
+
+
     
 
 teammate = new Player at (0, 0, 0),
@@ -88,14 +95,14 @@ teammate = new Player at (0, 0, 0),
 
 ball = new Ball ahead of teammate by 1
 
-ego = new Coach at (ego_x_distance, ego_y_distance, 0),
+ego = new Coach at (0, ego_y_distance, 0),
     with name "Coach",
     with team "blue",
     with behavior CoachBehavior(),
     with xMark Vector(0, 0, 0),  # Set initial xMark position
     with triggerPass False  # Initialize triggerPass to False
 
-opponent = new Player at (0, Uniform(4, 6), 0), with name "opponent",
+opponent = new Player at (0, Range(4, 6), 0), with name "opponent",
             with behavior DefenderBehavior(), with team "red"
 
 goal = new Goal at (0, 17, 0)

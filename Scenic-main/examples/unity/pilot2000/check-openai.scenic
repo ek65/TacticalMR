@@ -7,48 +7,59 @@ from scenic.core.regions import MeshVolumeRegion
 import random
 ####HEADER ENDS####
 
-```python
-behavior CoachBehavior():
-    do Idle() for 3 seconds
+A1target_0 = DistanceTo({'from': 'Coach', 'to': 'teammate', 'min': {'avg': 2.0, 'std': 0.5}, 'max': {'avg': 4.0, 'std': 0.2}, 'operator': 'within'})
+A2target_0 = DistanceTo({'from': 'opponent', 'to': 'Coach', 'min': {'avg': 3.0, 'std': 0.5}, 'max': None, 'operator': 'greater_than'})
+A3target_1 = DistanceTo({'from': 'Coach', 'to': 'teammate', 'min': {'avg': 2.5, 'std': 0.4}, 'max': {'avg': 5.0, 'std': 0.3}, 'operator': 'within'})
+A4target_2 = DistanceTo({'from': 'teammate', 'to': 'Coach', 'min': None, 'max': {'avg': 0.7, 'std': 0.1}, 'operator': 'less_than'})
 
-    do Speak("To start the check movement, first wait for your teammate to have the ball.")
-    do Idle() until λ_precondition_0(simulation(), None)
-
-    do Speak("Now, to create space, move to the side at an angle of about 25 degrees and 8 meters away from the ball. As you move, call for a pass from your teammate.")
-    do MoveTo(λ_target0(), True)
-
-    do Speak("You are in position. Stop and wait to receive the pass from your teammate.")
-    do StopAndReceiveBall()
-    
-    do Speak("Now that you have the ball, pause to see if the opponent is pressuring you.")
-    do Idle() for 1 second
-
-    if λ_precondition_1(simulation(), None):
-        do Speak("The opponent is pressuring you. Pass the ball back to your teammate, who now has open space.")
-        do Pass(teammate)
-    else:
-        do Speak("The opponent is not pressuring, so you have space to attack. Dribble the ball at least 5 meters up the field.")
-        do MoveTo(λ_target1(), False)
-
-    do Idle()
-
-A1target_0 = AtAngle({'player': 'Coach', 'ball': 'ball', 'left': {'theta': {'avg': 25, 'std': 5}, 'dist': {'avg': 8, 'std': 1}}, 'right': {'theta': {'avg': 25, 'std': 5}, 'dist': {'avg': 8, 'std': 1}}})
-A1target_1 = HeightRelation({'obj': 'Coach', 'relation': 'above', 'ref': None, 'height_threshold': {'avg': 5, 'std': 1}})
 A1precondition_0 = HasBallPossession({'player': 'teammate'})
-A1precondition_1 = Pressure({'player1': 'opponent', 'player2': 'Coach'})
+A2precondition_1 = MakePass({'player': 'teammate'})
+A3precondition_2 = HasBallPossession({'player': 'Coach'})
+A4precondition_3 = DistanceTo({'from': 'opponent', 'to': 'Coach', 'min': None, 'max': {'avg': 2.0, 'std': 0.2}, 'operator': 'less_than'})
 
 def λ_target0():
-    return A1target_0.dist(simulation(), ego=True)
+    cond = A1target_0 and A2target_0
+    return cond.dist(simulation(), ego=True)
 
 def λ_target1():
-    return A1target_1.dist(simulation(), ego=True)
+    return A3target_1.dist(simulation(), ego=True)
 
-def λ_precondition_0(scene, sample):
-    return A1precondition_0.bool(scene)
+def λ_target2():
+    return A4target_2.dist(simulation(), ego=True)
 
-def λ_precondition_1(scene, sample):
-    return A1precondition_1.bool(scene)
-```
+def λ_precondition_0():
+    return A1precondition_0.bool(simulation())
+
+def λ_precondition_1():
+    return A2precondition_1.bool(simulation())
+
+def λ_precondition_2():
+    return A3precondition_2.bool(simulation())
+
+def λ_precondition_3():
+    return A4precondition_3.bool(simulation())
+
+behavior CoachBehavior():
+    do Idle() for 3 seconds
+    do Speak("Wait for the teammate to have ball possession before making space.")
+    do Idle() until λ_precondition_0()
+    do Speak("Move 2 to 4 meters closer to your teammate, and more than 3 meters from the opponent.")
+    do MoveTo(λ_target0(), False)
+    do Speak("Wait until teammate makes a pass.")
+    do Idle() until λ_precondition_1()
+    do Speak("Move within 5 meters of your teammate to be ready to receive the pass.")
+    do MoveTo(λ_target1(), False)
+    do Speak("Wait until you have ball possession from a pass.")
+    do Idle() until λ_precondition_2()
+    do Speak("Check if opponent is less than 2 meters away after receiving ball.")
+    if λ_precondition_3():
+        do Speak("Opponent is too close, pass back to teammate to avoid losing the ball.")
+        do Pass(teammate)
+    else:
+        do Speak("Opponent is not too close, consider turning and shooting at the goal.")
+        do Shoot(goal)
+    do Idle()
+
 ####Environment Behavior START####
 # Parameters for variance
 coach_start_dist = Range(5, 8)  # initial distance from teammate

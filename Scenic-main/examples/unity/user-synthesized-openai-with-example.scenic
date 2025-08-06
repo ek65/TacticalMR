@@ -7,74 +7,61 @@ from scenic.core.regions import MeshVolumeRegion
 import random
 ####HEADER ENDS####
 
-A1precondition_0 = MakePass({'player': 'teammate'})
-A1precondition_1 = HasBallPossession({'player': 'Coach'})
-A1precondition_2 = Pressure({'player1': 'opponent', 'player2': 'Coach'})
-A1precondition_3 = DistanceTo({'from': 'opponent', 'to': 'Coach', 'min': None, 'max': {'avg': 1.0, 'std': 0.1}, 'operator': 'less_than'})  # Opponent following very closely
-A1precondition_4 = DistanceTo({'from': 'opponent', 'to': 'Coach', 'min': {'avg': 1.0, 'std': 0.1}, 'max': {'avg': 3.0, 'std': 0.1}, 'operator': 'within'})  # Medium distance
-A1precondition_5 = DistanceTo({'from': 'opponent', 'to': 'Coach', 'min': {'avg': 3.0, 'std': 0.1}, 'max': None, 'operator': 'greater_than'})  # Far away
-
-def λ_precondition_0():
-    # Wait until teammate makes a pass
-    return A1precondition_0.bool(simulation())
-
-def λ_precondition_1():
-    # Wait until Coach has possession
-    return A1precondition_1.bool(simulation())
-
-def λ_precondition_2():
-    # Wait until opponent is pressuring Coach
-    return A1precondition_2.bool(simulation())
-
-def λ_precondition_3():
-    # Opponent is following very closely (<1m)
-    return A1precondition_3.bool(simulation())
-
-def λ_precondition_4():
-    # Opponent is at medium distance (1-3m)
-    return A1precondition_4.bool(simulation())
-
-def λ_precondition_5():
-    # Opponent is far away (>3m)
-    return A1precondition_5.bool(simulation())
-
-def λ_termination_shoot():  # Example of breaking up the Shoot action (see note)
-    # Terminate shooting action if ball is no longer in Coach's possession
-    return not A1precondition_1.bool(simulation())
-
-def λ_termination_pass():
-    # Terminate pass action if ball is no longer in Coach's possession
-    return not A1precondition_1.bool(simulation())
-
 behavior CoachBehavior():
     do Idle() for 3 seconds
-    do Speak("Wait for teammate to make a pass to you.")
-    do Idle() until λ_precondition_0()
-    do Speak("Move into space and prepare to receive the ball.")
+    do Speak("You should move to the side of the field, away from the opponent, to create space. Move to a position about 3 meters from the center and between 7 and 9.5 meters up the field.")
+    do MoveTo(λ_check_side(simulation()), True)
+    do Speak("Wait until your teammate passes the ball to you.")
+    do Idle() until λ_teammate_passed(simulation(), None)
+    do Speak("Move to the ball and get possession.")
     do MoveToBallAndGetPossession()
-    do Speak("Wait until you receive the ball from teammate.")
-    do Idle() until λ_precondition_1()
-    do Speak("Check how close your opponent is and decide next action.")
-    if λ_precondition_3():  # Opponent very close
-        do Speak("Opponent is less than 1 meter away. Fake one way and move quickly in the other direction.")
-        do MoveTo(A1precondition_5.dist(simulation(), ego=True), False)  # Move into space away from opponent (>3m)
-        do Speak("Now you have time and space. Prepare to shoot.")
-        do Shoot(goal) until λ_termination_shoot()
-    elif λ_precondition_4():  # Medium distance
-        do Speak("Opponent is 1 to 3 meters away. Play it safe and pass back to teammate.")
-        do Pass(teammate) until λ_termination_pass()
-    elif λ_precondition_5():  # Opponent far away
-        do Speak("Opponent is more than 3 meters away. Turn and face the goal for an attack.")
-        do Shoot(goal) until λ_termination_shoot()
+    do Speak("Wait to see if the opponent decides to pressure you or not before taking your next action.")
+    do Idle() until True  # Wait a decision step
+    if λ_opponent_pressures(simulation(), None):
+        do Speak("The opponent is pressuring you, so you should pass the ball back to your teammate. Look for the pass as soon as the opponent puts you under pressure and make a quick pass.")
+        do Pass(teammate)
+    else:
+        do Speak("The opponent is not pressuring you, so you should dribble the ball up the field yourself. Keep close control and move forward up the field.")
+        do MoveTo(λ_dribble_upfield(simulation()), False)
     do Idle()
+
+A1_check_side_left = DistanceTo({'from': 'Coach', 'to': {'x': -2.9, 'y': 6.7}, 'min': None, 'max': {'avg': 1.0, 'std': 0.2}, 'operator': 'less_than'})
+A1_check_side_right = DistanceTo({'from': 'Coach', 'to': {'x': 3.0, 'y': 9.6}, 'min': None, 'max': {'avg': 1.0, 'std': 0.2}, 'operator': 'less_than'})
+A1_check_side_alt = DistanceTo({'from': 'Coach', 'to': {'x': -4.2, 'y': 8.4}, 'min': None, 'max': {'avg': 1.0, 'std': 0.2}, 'operator': 'less_than'})
+
+A1_teammate_pass = MakePass({'player': 'teammate'})
+A1_coach_has_ball = HasBallPossession({'player': 'Coach'})
+A1_opponent_pressure = Pressure({'player1': 'opponent', 'player2': 'Coach'})
+A1_dribble_upfield = DistanceTo({'from': 'Coach', 'to': {'x': 0.0, 'y': 13.5}, 'min': None, 'max': {'avg': 4.0, 'std': 1.0}, 'operator': 'less_than'})
+
+def λ_check_side(scene):
+    # Prioritize left, right, or alternate check run, depending on where available.
+    # Instruct the avatar to move to the closest one the current scenario allows
+    # This function is representative and can be expanded by actual scenario knowledge.
+    if A1_check_side_left.bool(scene):
+        return A1_check_side_left.dist(scene, ego=True)
+    elif A1_check_side_right.bool(scene):
+        return A1_check_side_right.dist(scene, ego=True)
+    else:
+        return A1_check_side_alt.dist(scene, ego=True)
+
+def λ_teammate_passed(scene, sample):
+    # Wait until teammate makes the pass (as seen in all narrations)
+    return A1_teammate_pass.bool(scene)
+
+def λ_opponent_pressures(scene, sample):
+    # If the opponent pressures upon receiving, branch to quick pass, else dribble up.
+    return A1_opponent_pressure.bool(scene)
+
+def λ_dribble_upfield(scene):
+    return A1_dribble_upfield.dist(scene, ego=True)
 
 ####Environment Behavior START####
 # Parameters for variance
-coach_start_dist = Uniform(5, 8)  # initial distance from teammate
-coach_check_dist = Uniform(4, 6)   # how much closer coach checks
-coach_check_angle = Uniform(-45, 45)  # angle of check (degrees)
-opponent_dist = Uniform(1, 5)         # distance behind coach
-opponent_speed = Uniform(5, 7)        # opponent's movement speed
+coach_start_dist = Range(5, 8)  # initial distance from teammate
+coach_check_dist = Range(4, 6)   # how much closer coach checks
+coach_check_angle = Range(-45, 45)  # angle of check (degrees)
+opponent_dist = Range(2, 7)         # distance behind coach
 
 # Behaviors
 behavior TeammatePass():
@@ -92,19 +79,63 @@ behavior TeammatePass():
         print("trigger pass")
         do Idle() for 1.0 seconds
         do Pass(ego.xMark)
+        # Idle after the pass happens
+        do Idle() for 2.0 seconds
+        
+        # Wait to receive ball back from coach
+        do Idle() until self.gameObject.ballPossession
+        
+        # When receiving ball back, move forward to opposite side of field
+        if self.gameObject.ballPossession:
+            # Determine which side coach and opponent are on
+            coach_x = ego.position.x
+            opponent_x = opponent.position.x
+            
+            # Calculate target position on opposite side
+            # X-axis ranges from -10 to +10, with 0 at center
+            # If coach and opponent are on positive side, go to negative side
+            # If coach and opponent are on negative side, go to positive side
+            if coach_x > 0 and opponent_x > 0:
+                # Both on positive side (right), go to negative side (left)
+                target_x = -6.0
+            elif coach_x < 0 and opponent_x < 0:
+                # Both on negative side (left), go to positive side (right)
+                target_x = 6.0
+            else:
+                # Mixed positions, go to the side with more space
+                # If coach is on left (negative), go right (positive)
+                # If coach is on right (positive), go left (negative)
+                target_x = 6.0 if coach_x < 0 else -6.0
+            
+            # Move forward to the target position (toward goal, so positive Y)
+            target_position = Vector(target_x, 11.0, 0)
+            do MoveToBehavior(target_position, distance=0.5)
+            do Idle() for 1.0 seconds
+
 
     do Idle()
 
-####Environment Behavior START####
 behavior OpponentFollowCoach():
-    do Idle() for 1.0 seconds  # Wait for coach to start checking
-    speed = float(opponent_speed)
-    do SetPlayerSpeed(speed)
+
+    do Idle() for 5.5 seconds  # Wait 6 seconds before starting to follow
+    
+    # Set opponent speed
+    do SetPlayerSpeed(4.0)
+    
     while True:
-        if distance from self to ego > 3.5:
-            do MoveToBehavior(ego.position, distance=3.5)
+        # Follow coach only until coach receives the ball
+        if not ego.gameObject.ballPossession:
+            # Follow coach and try to get close to them
+            do MoveToBehavior(ego.position, distance=1.5)
         else:
-            do Idle() for 0.1 seconds
+            # Stop following - coach received the ball
+            do Idle()
+            
+    
+
+
+
+
 
 # Place teammate (AI) at origin
 teammate = new Player at (0, 0, 0), with name "teammate", with team "blue", with behavior TeammatePass()
@@ -117,7 +148,7 @@ ego = new Coach ahead of teammate by coach_start_dist,
     with xMark Vector(0, 0, 0),  # Set initial xMark position
     with triggerPass False  # Initialize triggerPass to False
 
-# Place opponent ahead of coach (further from goal than coach)
+# Place opponent ahead of coach (closer to goal than coach)
 opponent = new Player ahead of ego by opponent_dist, facing toward ego, with name "opponent", with team "red", with behavior OpponentFollowCoach()
 
 # Ball at teammate's feet

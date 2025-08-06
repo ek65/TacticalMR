@@ -7,7 +7,7 @@ from scenic.simulators.unity.client import gameObject
 from scenic.core.vectors import Orientation, Vector
 param unity_map = None
 # param address = '10.57.155.29'
-param address = '10.44.115.72'
+param address = 'localhost'
 param port = 5555
 param timeout = 10
 param timestep = .1

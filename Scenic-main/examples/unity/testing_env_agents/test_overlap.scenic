@@ -66,104 +66,95 @@ behavior CoachBehavior():
     do Idle()
 
 ####Environment Behavior START####
+# Parameters for variance
+coach_start_dist = Uniform(5, 8)  # initial distance from teammate
+coach_check_dist = Uniform(4, 6)   # how much closer coach checks
+coach_check_angle = Uniform(-45, 45)  # angle of check (degrees)
+opponent_dist = Uniform(2, 7)         # distance behind coach
 
-opponent_y_distance = Uniform(3, 5)
-opponent_x_distance = Uniform(-2, 2)
-ego_x_distance = Uniform(-2, 2)
-ego_y_distance = Uniform(-1, -2)
-
-# Ensure teammate and opponent are on the same side
-#require (opponent_x_distance < 0 and ego_x_distance < 0) or (opponent_x_distance >= 0 and ego_x_distance >= 0)
-
-behavior Follow(obj):
-    while ego.position.y > 1:
-        do MoveToBehavior(obj, distance = 2, status = f"Follow {obj.name}")
-
-behavior TeammateBehavior():
+# Behaviors
+behavior TeammatePass():
     # Double checking gotBall to ensure the pass is triggered correctly
     # since MoveToBallAndGetPossession() might get interrupted
     gotBall = False
     try:
-        do Idle() for 1 seconds
+        do Idle() for 1.0 seconds  # Give coach time to start 
         do MoveToBallAndGetPossession()
+        print("got ball")
         gotBall = True
         do Idle()
     interrupt when ego.triggerPass and self.gameObject.ballPossession and gotBall:
         ego.triggerPass = False
-        do Idle() for 1 seconds
+        print("trigger pass")
+        do Idle() for 1.0 seconds
         do Pass(ego.xMark)
-        
-        # After passing to coach, go to opposite side at same height as ego
-        do Idle() for 1 seconds
-        
-        # Calculate target position: same Y as ego, opposite X side
-        ego_x = ego.position.x
-        ego_y = ego.position.y
-        
-        # Go to opposite side (negative if ego is positive, positive if ego is negative)
-        target_x = -ego_x if ego_x > 0 else abs(ego_x)
-        target_y = ego_y  # Same height as ego
-        
-        target_position = Vector(target_x, target_y, 0)
-        do MoveToBehavior(target_position, distance=0.5)
+        # Idle after the pass happens
+        do Idle() for 2.0 seconds
         
         # Wait to receive ball back from coach
         do Idle() until self.gameObject.ballPossession
         
-        # If received ball back, score a goal
+        # When receiving ball back, move forward to opposite side of field
         if self.gameObject.ballPossession:
-            do Shoot(goal)
-    
+            # Determine which side coach and opponent are on
+            coach_x = ego.position.x
+            opponent_x = opponent.position.x
+            
+            # Calculate target position on opposite side
+            # X-axis ranges from -10 to +10, with 0 at center
+            # If coach and opponent are on positive side, go to negative side
+            # If coach and opponent are on negative side, go to positive side
+            if coach_x > 0 and opponent_x > 0:
+                # Both on positive side (right), go to negative side (left)
+                target_x = -6.0
+            elif coach_x < 0 and opponent_x < 0:
+                # Both on negative side (left), go to positive side (right)
+                target_x = 6.0
+            else:
+                # Mixed positions, go to the side with more space
+                # If coach is on left (negative), go right (positive)
+                # If coach is on right (positive), go left (negative)
+                target_x = 6.0 if coach_x < 0 else -6.0
+            
+            # Move forward to the target position (toward goal, so positive Y)
+            target_position = Vector(target_x, 11.0, 0)
+            do MoveToBehavior(target_position, distance=0.5)
+            do Idle() for 1.0 seconds
+
     do Idle()
-    
-### Modified opponent behavior: Keep position until ego receives ball, then move to middle of line with variation
-behavior DefenderBehavior():
-    do Idle() for 1 seconds
-    do Idle() until ego.position.y > 1
-    
-    # Keep position until ego receives the ball
-    while not ego.gameObject.ballPossession:
-        do Idle() for 0.1 seconds
-    
-    # Once ego receives ball, move to middle of line between ego and goal
-    if ego.gameObject.ballPossession:
-        # Calculate middle point between ego and goal
-        goal_x = goal.position.x
-        goal_y = goal.position.y
-        ego_x = ego.position.x
-        ego_y = ego.position.y
-        
-        middle_x = (ego_x + goal_x) / 2
-        middle_y = (ego_y + goal_y) / 2
-        
-        # Add some variation to create opportunities or blocking
-        variation = Uniform(-2, 2)  # Random variation in both directions
-        target_x = middle_x + variation
-        target_y = middle_y + variation
-        
-        # Move to the target position
-        target_position = Vector(target_x, target_y, 0)
-        do MoveToBehavior(target_position, distance=.1)
-        
-        # Face the ego (coach) once in position
-        do LookAt(ego)
-        
-    
 
-teammate = new Player at (0, 0, 0),
-      with behavior TeammateBehavior(), with name "teammate", with team "blue"
+behavior OpponentFollowCoach():
+    do Idle() for 5.5 seconds  # Wait 6 seconds before starting to follow
+    
+    # Set opponent speed
+    do SetPlayerSpeed(4.0)
+    
+    while True:
+        # Follow coach only until coach receives the ball
+        if not ego.gameObject.ballPossession:
+            # Follow coach and try to get close to them
+            do MoveToBehavior(ego.position, distance=1.5)
+        else:
+            # Stop following - coach received the ball
+            do Idle()
+            
 
-ball = new Ball ahead of teammate by 1
+# Place teammate (AI) at origin
+teammate = new Player at (0, 0, 0), with name "teammate", with team "blue", with behavior TeammatePass()
 
-ego = new Coach at (ego_x_distance, ego_y_distance, 0),
-    with name "Coach",
-    with team "blue",
+# Place coach (human) in front of teammate
+ego = new Coach ahead of teammate by coach_start_dist, 
+    with name "Coach", 
+    with team "blue", 
     with behavior CoachBehavior(),
     with xMark Vector(0, 0, 0),  # Set initial xMark position
     with triggerPass False  # Initialize triggerPass to False
 
-opponent = new Player at (0, Uniform(4, 6), 0), with name "opponent",
-            with behavior DefenderBehavior(), with team "red"
+# Place opponent ahead of coach (closer to goal than coach)
+opponent = new Player ahead of ego by opponent_dist, facing toward ego, with name "opponent", with team "red", with behavior OpponentFollowCoach()
+
+# Ball at teammate's feet
+ball = new Ball ahead of teammate by 0.5
 
 goal = new Goal at (0, 17, 0)
 terminate when (ego.gameObject.stopButton)

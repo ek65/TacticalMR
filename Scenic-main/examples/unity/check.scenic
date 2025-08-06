@@ -9,10 +9,10 @@ import random
 import math
 
 # Parameters for variance
-coach_start_dist = Uniform(5, 8)  # initial distance from teammate
-coach_check_dist = Uniform(4, 6)   # how much closer coach checks
-coach_check_angle = Uniform(-45, 45)  # angle of check (degrees)
-opponent_dist = Uniform(4, 7)         # distance behind coach
+coach_start_dist = Range(5, 8)  # initial distance from teammate
+coach_check_dist = Range(4, 6)   # how much closer coach checks
+coach_check_angle = Range(-45, 45)  # angle of check (degrees)
+opponent_dist = Range(4, 7)         # distance behind coach
 
 # Behaviors
 behavior TeammatePass():
@@ -65,52 +65,19 @@ behavior TeammatePass():
     do Idle()
 
 behavior OpponentFollowCoach():
-    do Idle() for 1.0 seconds  # Wait for coach to start checking
+    do Idle() for 1 seconds  # Wait 6 seconds before starting to follow
     
-    # Track if we've already made a decision when ego received the ball
-    decision_made = False
-    go_to_coach = False
+    # Set opponent speed
+    do SetPlayerSpeed(4.0)
     
     while True:
-        # Follow coach and maintain 5m distance from ego
-        if distance from self to ego > 5.5:
-            do MoveToBehavior(ego.position, distance=5)
-        elif distance from self to ego < 4.5:
-            do MoveToBehavior(ego.position, distance=5)
-        else:
-            do Idle() for 0.1 seconds
-            
-        # Check if ego has received the ball and we haven't made a decision yet
-        if ego.gameObject.ballPossession and not decision_made:
-            # Uniformly decide whether to go to coach or stay on radius
-            decision = Uniform(0, 1)
-            go_to_coach = (decision < 0.5)
-            decision_made = True
-            
-            if go_to_coach:
-                do Idle() for .75 seconds
-                # Go to coach (closer distance)
-                print('Attack!')
-                do MoveToBehavior(ego.position, distance=2)
-                do InterceptBall()
-            else:
-                # Stay on current radius (3.5m from ego)
-                do Idle() for 0.1 seconds
-                # Continue maintaining 3.5m distance
-                while ego.gameObject.ballPossession:
-                    if distance from self to ego > 5:
-                        do MoveToBehavior(ego.position, distance=5)
-                    else:
-                        do Idle() for 0.1 seconds
-                        
-        # If ego no longer has the ball, reset decision tracking
+        # Follow coach only until coach receives the ball
         if not ego.gameObject.ballPossession:
-            decision_made = False
-            go_to_coach = False
-            
-        # If opponent is close to coach and ball is nearby, intercept it
-        if distance from self to ego <= 1.0 and distance from self to ball <= 1.0:
-            do InterceptBall()
+            # Follow coach and try to get close to them
+            do MoveToBehavior(ego.position, distance=1.5)
+        else:
+            # Stop following - coach received the ball
+            do Idle()
 
 # Place teammate (AI) at origin
 teammate = new Player at (0, 0, 0), with name "teammate", with team "blue", with behavior TeammatePass()
