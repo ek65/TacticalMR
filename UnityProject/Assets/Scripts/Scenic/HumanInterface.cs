@@ -136,6 +136,20 @@ public class HumanInterface : MonoBehaviour
         }
 
         CalculateSmoothedVelocity();
+        
+        // Set RichAI radius to .1 when moving to avoid weird pathing behavior
+        if (this.GetComponent<RichAI>() != null)
+        {
+            RichAI aiNav = this.GetComponent<RichAI>();
+            if (aiNav.radius != 0.2f && isMoving)
+            {
+                aiNav.radius = 0.2f;
+            }
+            else if (aiNav.radius == 0.2f && !isMoving)
+            {
+                aiNav.radius = 0.7f;
+            }
+        }
 
         // string currResponse = "";
         // // if (chatBehaviour.sentences.Length > 0)
@@ -265,9 +279,9 @@ public class HumanInterface : MonoBehaviour
         keyboardInput.clickOrder++;
     }
     
-    private void OnCollisionEnter(Collision other)
+    private void OnTriggerEnter(Collider other)
     {
-        if (other.collider.CompareTag("ball") && canPossessBall && ballOwnership.heldByScenic == false && !ballPossession)
+        if (other.CompareTag("ball") && canPossessBall && ballOwnership.heldByScenic == false && !ballPossession)
         {
             LogReceiveBall();
             GainPossession(other.gameObject);
@@ -568,10 +582,10 @@ public class HumanInterface : MonoBehaviour
         source.PlayOneShot(source.clip);
     }
     
-    public IEnumerator SetIsMovingTrue()
+    public IEnumerator SetIsMoving(bool isMoving)
     {
         yield return new WaitForSeconds(0.05f);
-        isMoving = true;
+        this.isMoving = isMoving;
     }
     
     public void SetTransform(Vector3 pos)

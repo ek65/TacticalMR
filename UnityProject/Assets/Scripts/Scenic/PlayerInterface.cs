@@ -96,12 +96,26 @@ public class PlayerInterface : MonoBehaviour
         {
             actionAPI.Idle();
         }
+        
+        // Set RichAI radius to .1 when moving to avoid weird pathing behavior
+        if (this.GetComponent<RichAI>() != null)
+        {
+            RichAI aiNav = this.GetComponent<RichAI>();
+            if (aiNav.radius != 0.2f && isMoving)
+            {
+                aiNav.radius = 0.2f;
+            }
+            else if (aiNav.radius == 0.2f && !isMoving)
+            {
+                aiNav.radius = 0.7f;
+            }
+        }
     }
     
     // For ball possession
-    private void OnCollisionEnter(Collision other)
+    private void OnTriggerEnter(Collider other)
     {
-        if (other.collider.CompareTag("ball") && canPossessBall && !ballPossession)
+        if (other.CompareTag("ball") && canPossessBall && !ballPossession)
         {
             LogReceiveBall();
             GainPossession(other.gameObject);
@@ -198,10 +212,10 @@ public class PlayerInterface : MonoBehaviour
         canKickBall = true;
     }
     
-    public IEnumerator SetIsMovingTrue()
+    public IEnumerator SetIsMoving(bool isMoving)
     {
         yield return new WaitForSeconds(0.05f);
-        isMoving = true;
+        this.isMoving = isMoving;
     }
 
     public void ApplyMovement(ScenicMovementData data)

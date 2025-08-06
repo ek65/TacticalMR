@@ -697,7 +697,7 @@ public class ActionAPI : MonoBehaviour
             HumanInterface hI = this.gameObject.GetComponent<HumanInterface>();
             while (destSetter.target.position != this.gameObject.transform.position)
             {
-                StartCoroutine(hI.SetIsMovingTrue());
+                StartCoroutine(hI.SetIsMoving(true));
             
                 // normalize speed then *2 for anim values
                 float velz = aiNav.velocity.magnitude;
@@ -708,15 +708,15 @@ public class ActionAPI : MonoBehaviour
                 // yield return StartCoroutine(MovementLerp2(Destiny));
                 yield return null;
             }
-
-            hI.isMoving = false;
+            
+            StartCoroutine(hI.SetIsMoving(false));
         }
         else
         {
             PlayerInterface pI = this.gameObject.GetComponent<PlayerInterface>();
             while (destSetter.target.position != this.gameObject.transform.position)
             {
-                StartCoroutine(pI.SetIsMovingTrue());
+                StartCoroutine(pI.SetIsMoving(true));
             
                 // normalize speed then *2 for anim values
                 float velz = aiNav.velocity.magnitude;
@@ -727,7 +727,7 @@ public class ActionAPI : MonoBehaviour
                 yield return null;
             }
 
-            pI.isMoving = false;
+            StartCoroutine(pI.SetIsMoving(false));
         }
         
         
@@ -760,7 +760,7 @@ public class ActionAPI : MonoBehaviour
             HumanInterface hI = this.gameObject.GetComponent<HumanInterface>();
             while (destSetter.target.position != this.gameObject.transform.position)
             {
-                StartCoroutine(hI.SetIsMovingTrue());
+                StartCoroutine(hI.SetIsMoving(true));
             
                 // normalize speed then *2 for anim values
                 float velz = aiNav.velocity.magnitude;
@@ -772,14 +772,14 @@ public class ActionAPI : MonoBehaviour
                 yield return null;
             }
 
-            hI.isMoving = false;
+            StartCoroutine(hI.SetIsMoving(false));
         }
         else
         {
             PlayerInterface pI = this.gameObject.GetComponent<PlayerInterface>();
             while (destSetter.target.position != this.gameObject.transform.position)
             {
-                StartCoroutine(pI.SetIsMovingTrue());
+                StartCoroutine(pI.SetIsMoving(false));
             
                 // normalize speed then *2 for anim values
                 float velz = aiNav.velocity.magnitude;
@@ -791,7 +791,7 @@ public class ActionAPI : MonoBehaviour
                 yield return null;
             }
 
-            pI.isMoving = false;
+            StartCoroutine(pI.SetIsMoving(false));
         }
         aiNav.updateRotation = true;
         yield return null;
