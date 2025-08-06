@@ -1,3 +1,77 @@
+from scenic.simulators.unity.actions import *
+from scenic.simulators.unity.behaviors import *
+from scenic.simulators.unity.constraints import *
+model scenic.simulators.unity.model
+import trimesh
+from scenic.core.regions import MeshVolumeRegion
+import random
+####HEADER ENDS####
+
+A1target_0 = HasPath({
+    'obj1': 'teammate',
+    'obj2': 'Coach',
+    'path_width': {'avg': 2.0, 'std': 0.5}
+})
+
+A2target_0 = DistanceTo({
+    'from': 'Coach',
+    'to': 'teammate',
+    'min': {'avg': 8.5, 'std': 1.0},
+    'max': None,
+    'operator': 'greater_than'
+})
+
+# NEW: Only allow moving UPFIELD (y > teammate) for open positions, not downward.
+A3target_0 = HeightRelation({
+    'obj': 'Coach',
+    'relation': 'above',
+    'ref': 'teammate',
+    'height_threshold': {'avg': 1.0, 'std': 0.2}
+})
+
+precondition_wait = HasBallPossession({'player': 'Coach'})
+precondition_shoot = HasPath({
+    'obj1': 'Coach',
+    'obj2': 'goal',
+    'path_width': {'avg': 2.0, 'std': 0.5}
+})
+termination_pass = HasBallPossession({'player': 'Coach'})
+
+
+def λ_target0():
+    # Changed: add upfield constraint (A3target_0), so coach only moves above teammate, not downward.
+    cond = A1target_0 and A2target_0 and A3target_0
+    return cond.dist(simulation(), ego=True)
+
+
+def λ_precondition_wait():
+    return precondition_wait.bool(simulation())
+
+
+def λ_precondition_shoot():
+    return precondition_shoot.bool(simulation())
+
+
+def λ_termination_pass():
+    return not termination_pass.bool(simulation())
+
+
+behavior CoachBehavior():
+    do Idle() for 3 seconds
+    do Speak("My teammate is blocked, so I will move about 8 meters away to create a clear passing lane.")
+    # Now MoveTo will only select open lateral/upfield positions (not downward)
+    do MoveTo(λ_target0(), True)
+    do Speak("Now, I will wait until I receive the ball from my teammate.")
+    do Idle() until λ_precondition_wait()
+    do Speak("Now that I have the ball, I will check if I have a clear shot at the goal.")
+    if λ_precondition_shoot():
+        do Speak("I have a clear shot at the goal, so I will take it.")
+        do Shoot(goal)
+    else:
+        do Speak("The opponent is blocking my path to the goal, so I will pass the ball back to my teammate.")
+        do Pass(teammate)
+    do Idle()
+
 ####Environment Behavior START####
 
 opponent_y_distance = Range(3, 5)
@@ -56,8 +130,6 @@ behavior TeammateBehavior():
 ### Modified opponent behavior: Keep position until ego receives ball, then move to middle of line with variation
 behavior DefenderBehavior():
     do Idle() for 1 seconds
-    # Set opponent speed
-    do SetPlayerSpeed(6.0)
     do Idle() until ego.position.y > 1
     
     # Keep position until ego receives the ball

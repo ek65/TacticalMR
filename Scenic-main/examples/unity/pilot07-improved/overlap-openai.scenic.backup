@@ -1,3 +1,89 @@
+from scenic.simulators.unity.actions import *
+from scenic.simulators.unity.behaviors import *
+from scenic.simulators.unity.constraints import *
+model scenic.simulators.unity.model
+import trimesh
+from scenic.core.regions import MeshVolumeRegion
+import random
+####HEADER ENDS####
+
+A1target_0 = DistanceTo({'from': 'Coach', 'to': 'teammate', 'min': {'avg': 4, 'std': 0.2}, 'max': None, 'operator': 'greater_than'})
+A2target_0 = DistanceTo({'from': 'Coach', 'to': 'opponent', 'min': {'avg': 4, 'std': 0.2}, 'max': None, 'operator': 'greater_than'})
+A3target_0 = HorizontalRelation({'obj': 'Coach', 'ref': 'teammate', 'relation': 'left', 'horizontal_threshold': {'avg': 2, 'std': 0.2}})
+A4target_0 = HasPath({'obj1': 'teammate', 'obj2': 'Coach', 'path_width': {'avg': 2, 'std': 0.2}})
+
+A1precondition_0 = HasBallPossession({'player': 'teammate'})
+A1precondition_1 = MakePass({'player': 'teammate'})
+A1precondition_2 = HasBallPossession({'player': 'Coach'})
+
+A1target_1 = DistanceTo({'from': 'Coach', 'to': 'opponent', 'min': {'avg': 2, 'std': 0.1}, 'max': None, 'operator': 'greater_than'})
+A2target_1 = HasPath({'obj1': 'Coach', 'obj2': 'teammate', 'path_width': {'avg': 2, 'std': 0.2}})
+
+A1precondition_3 = HasBallPossession({'player': 'Coach'})
+A1precondition_4 = DistanceTo({'from': 'opponent', 'to': 'goal', 'min': None, 'max': {'avg': 3, 'std': 0.2}, 'operator': 'less_than'})
+
+A1target_2 = HasPath({'obj1': 'Coach', 'obj2': 'teammate', 'path_width': {'avg': 2, 'std': 0.2}})
+
+A1precondition_5 = MakePass({'player': 'Coach'})
+A1precondition_6 = HasBallPossession({'player': 'teammate'})
+A1target_3 = DistanceTo({'from': 'teammate', 'to': 'goal', 'min': None, 'max': {'avg': 5, 'std': 0.2}, 'operator': 'less_than'})
+
+def λ_target0():
+    cond = A1target_0 and A2target_0 and A3target_0 and A4target_0
+    return cond.dist(simulation(), ego=True)
+
+def λ_precondition_0():
+    return A1precondition_0.bool(simulation())
+
+def λ_precondition_1():
+    return A1precondition_1.bool(simulation())
+
+def λ_precondition_2():
+    return A1precondition_2.bool(simulation())
+
+def λ_target1():
+    cond = A1target_1 and A2target_1
+    return cond.dist(simulation(), ego=True)
+
+def λ_precondition_3():
+    return A1precondition_3.bool(simulation())
+
+def λ_precondition_4():
+    return A1precondition_4.bool(simulation())
+
+def λ_target2():
+    return A1target_2.dist(simulation(), ego=True)
+
+def λ_precondition_5():
+    return A1precondition_5.bool(simulation())
+
+def λ_precondition_6():
+    return A1precondition_6.bool(simulation())
+
+def λ_target3():
+    return A1target_3.dist(simulation(), ego=True)
+
+behavior CoachBehavior():
+    do Idle() for 3 seconds
+    do Speak("Wait for teammate to have clear ball possession")
+    do Idle() until λ_precondition_0()
+    do Speak("Move to open left position over 4 meters away from teammate and opponent, and out of path of defender")
+    do MoveTo(λ_target0(), True)
+    do Speak("Wait to receive pass from teammate")
+    do Idle() until λ_precondition_1()
+    do Speak("Stop and prepare to receive ball, since teammate is passing")
+    do StopAndReceiveBall()
+    do Speak("Wait until Coach has possession of the ball")
+    do Idle() until λ_precondition_2()
+    do Speak("Pause to observe, defender blocks path to goal")
+    do Idle() until λ_precondition_4()
+    do Speak("Defender blocks goal path, pass ball back to teammate with clear path")
+    do Pass(teammate)
+    do Speak("Wait for teammate to get ball and move towards goal within 5 meters")
+    do Idle() until λ_precondition_6()
+    do Speak("Teammate is close to goal, let teammate try scoring")
+    do MoveTo(λ_target3(), False)
+    do Idle()
 ####Environment Behavior START####
 
 opponent_y_distance = Range(3, 5)
@@ -56,8 +142,6 @@ behavior TeammateBehavior():
 ### Modified opponent behavior: Keep position until ego receives ball, then move to middle of line with variation
 behavior DefenderBehavior():
     do Idle() for 1 seconds
-    # Set opponent speed
-    do SetPlayerSpeed(6.0)
     do Idle() until ego.position.y > 1
     
     # Keep position until ego receives the ball

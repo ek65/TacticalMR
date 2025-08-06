@@ -7,73 +7,63 @@ from scenic.core.regions import MeshVolumeRegion
 import random
 ####HEADER ENDS####
 
-A1target_0 = DistanceTo({'from': 'Coach', 'to': 'teammate', 'min': {'avg': 4.0, 'std': 0.5}, 'max': {'avg': 8.0, 'std': 0.7}, 'operator': 'within'})
-A2target_0 = HorizontalRelation({'obj': 'Coach', 'ref': 'teammate', 'relation': 'left', 'horizontal_threshold': {'avg': 3.5, 'std': 0.6}})
-A3target_0 = HasPath({'obj1': 'teammate', 'obj2': 'Coach', 'path_width': {'avg': 2.0, 'std': 0.3}})
+A1target_0 = DistanceTo({'from': 'Coach', 'to': 'teammate', 'min': {'avg': 3, 'std': 0.1}, 'max': {'avg': 5, 'std': 0.2}, 'operator': 'within'})
+A2target_0 = HasPath({'obj1': 'teammate', 'obj2': 'Coach', 'path_width': {'avg': 2, 'std': 0.2}})
+A_target_pass_spot = A1target_0 & A2target_0
 
-A1precondition_0 = HasBallPossession({'player': 'Coach'})
-A2precondition_0 = MakePass({'player': 'teammate'})
-Aprecondition_1 = HasBallPossession({'player': 'teammate'})
-Aprecondition_2 = HasBallPossession({'player': 'Coach'})
-Aprecondition_3 = HasBallPossession({'player': 'teammate'})
+A1precondition_pass_call = HasBallPossession({'player': 'teammate'})
+A2precondition_passed_ball = MakePass({'player': 'teammate'})
+A1possession_Coach = HasBallPossession({'player': 'Coach'})
+A2defender_blocks_goal = !HasPath({'obj1': 'Coach', 'obj2': 'goal', 'path_width': {'avg': 2, 'std': 0.2}})
+A1pass_to_teammate = HasPath({'obj1': 'Coach', 'obj2': 'teammate', 'path_width': {'avg': 2, 'std': 0.2}})
+A2teammate_open = DistanceTo({'from': 'opponent', 'to': 'teammate', 'min': {'avg': 2, 'std': 0.1}, 'max': None, 'operator': 'greater_than'})
 
-A1target_3 = HasPath({'obj1': 'Coach', 'obj2': 'teammate', 'path_width': {'avg': 2.0, 'std': 0.3}})
-A2target_3 = DistanceTo({'from': 'Coach', 'to': 'teammate', 'min': {'avg': 4.0, 'std': 0.5}, 'max': {'avg': 7.5, 'std': 0.5}, 'operator': 'within'})
+def λ_target_pass_spot():
+    cond = A_target_pass_spot
+    return cond.dist(simulation(), ego=True)
 
-A1target_4 = DistanceTo({'from': 'teammate', 'to': 'goal', 'min': None, 'max': {'avg': 8.0, 'std': 0.5}, 'operator': 'less_than'})
+def λ_precondition_pass_call():
+    # Teammate has ball and path is open for pass
+    return A1precondition_pass_call.bool(simulation()) and A2precondition_passed_ball.bool(simulation())
 
-def λ_target0():
-    cond = A1target_0 & A2target_0 & A3target_0
-    return cond.dist(simulation(), ego = True)
+def λ_precondition_received_ball():
+    # Coach now has ball
+    return A1possession_Coach.bool(simulation())
 
-def λ_precondition_1():
-    # Coach waits to get ball
-    return A1precondition_0.bool(simulation())
+def λ_termination_defender_blocks():
+    # Don't terminate if goal path is blocked, only use for non-goal opportunity
+    cond = ~ A2defender_blocks_goal
+    #return A2defender_blocks_goal.bool(simulation())
+    return  cond.bool(simulation())
 
-def λ_precondition_2():
-    # Teammate waits to have ball after receiving Coach's pass
-    return Aprecondition_1.bool(simulation())
-
-def λ_precondition_3():
-    # Coach waits to have ball possession again
-    return Aprecondition_2.bool(simulation())
-
-def λ_precondition_4():
-    # Teammate waits to have ball possession again
-    return Aprecondition_3.bool(simulation())
-
-def λ_target_passback():
-    cond = A1target_3 & A2target_3
-    return cond.dist(simulation(), ego = True)
-
-def λ_target_goal():
-    return A1target_4.dist(simulation(), ego = True)
+def λ_precondition_pass_teammate():
+    # There is a path from Coach to teammate
+    return A1pass_to_teammate.bool(simulation()) and A2teammate_open.bool(simulation())
 
 behavior CoachBehavior():
     do Idle() for 3 seconds
-    do Speak("Move 4 to 8 meters away left of teammate where teammate's passing lane is clear (2m width).")
-    do MoveTo(λ_target0(), True)
-    do Speak("Wait until I have ball possession after teammate passes to me.")
-    do Idle() until λ_precondition_1()
-    do Speak("Now, defender blocks path to goal. Look for teammate in open position, lane 2m wide.")
-    do Pass(teammate)
-    do Speak("Wait for teammate to get ball and move towards goal less than 8 meters away.")
-    do Idle() until λ_precondition_2()
-    do Speak("Teammate should move closer to goal (<8m), then pass back to me.")
-    do Idle() until λ_precondition_3()
-    do Speak("Receive pass and wait until I regain possession of the ball.")
-    do StopAndReceiveBall()
-    do Speak("Wait for teammate to regain ball to allow another pass.")
-    do Idle() until λ_precondition_4()
-    do Speak("Teammate advances and makes a final pass towards goal area around 17 meters.")
+    do Speak("I need to get open between 3 and 5 meters from teammate, with clear passing lane.")
+    do MoveTo(λ_target_pass_spot(), True)
+    do Speak("Wait until teammate passes ball to you and you get possession.")
+    do Idle() until λ_precondition_pass_call()
+    do Speak("Move to ball and get possession after pass is made.")
+    do MoveToBallAndGetPossession()
+    do Speak("Wait until you possess the ball.")
+    do Idle() until λ_precondition_received_ball()
+    if λ_termination_defender_blocks():    # if defender now blocks path to goal
+        do Speak("Defender blocks path to goal, so pass to open teammate beyond 2 meters.")
+        do Pass(teammate)
+    else:
+        do Speak("Path to goal is open, continue to score if possible.")
+        do Shoot(goal)
     do Idle()
 
 ####Environment Behavior START####
 
-opponent_y_distance = Range(3, 5)
-opponent_x_distance = Range(-2, 2)
-ego_x_distance = Range(-2, 2)
-ego_y_distance = Range(-1, -2)
+opponent_y_distance = Uniform(3, 5)
+opponent_x_distance = Uniform(-2, 2)
+ego_x_distance = Uniform(-2, 2)
+ego_y_distance = Uniform(-1, -2)
 
 # Ensure teammate and opponent are on the same side
 #require (opponent_x_distance < 0 and ego_x_distance < 0) or (opponent_x_distance >= 0 and ego_x_distance >= 0)
@@ -85,7 +75,6 @@ behavior Follow(obj):
 behavior TeammateBehavior():
     # Double checking gotBall to ensure the pass is triggered correctly
     # since MoveToBallAndGetPossession() might get interrupted
-    do SetPlayerSpeed(6.0)
     gotBall = False
     try:
         do Idle() for 1 seconds
@@ -100,16 +89,13 @@ behavior TeammateBehavior():
         # After passing to coach, go to opposite side at same height as ego
         do Idle() for 1 seconds
         
-        # Calculate target position: height between coach and goal, opposite X side
+        # Calculate target position: same Y as ego, opposite X side
         ego_x = ego.position.x
         ego_y = ego.position.y
-        goal_y = goal.position.y
         
         # Go to opposite side (negative if ego is positive, positive if ego is negative)
         target_x = -ego_x if ego_x > 0 else abs(ego_x)
-        target_y = (ego_y + goal_y) / 2  # Height between coach and goal
-
-
+        target_y = ego_y  # Same height as ego
         
         target_position = Vector(target_x, target_y, 0)
         do MoveToBehavior(target_position, distance=0.5)
@@ -144,9 +130,7 @@ behavior DefenderBehavior():
         middle_y = (ego_y + goal_y) / 2
         
         # Add some variation to create opportunities or blocking
-        variation = Range(-1, 1)  # Random variation in both directions
-
-
+        variation = Uniform(-1, 1)  # Random variation in both directions
         target_x = middle_x + variation
         target_y = middle_y + variation
         
@@ -156,8 +140,7 @@ behavior DefenderBehavior():
         
         # Face the ego (coach) once in position
         do LookAt(ego)
-
-
+        
     
 
 teammate = new Player at (0, 0, 0),
@@ -165,14 +148,14 @@ teammate = new Player at (0, 0, 0),
 
 ball = new Ball ahead of teammate by 1
 
-ego = new Coach at (0, ego_y_distance, 0),
+ego = new Coach at (ego_x_distance, ego_y_distance, 0),
     with name "Coach",
     with team "blue",
     with behavior CoachBehavior(),
     with xMark Vector(0, 0, 0),  # Set initial xMark position
     with triggerPass False  # Initialize triggerPass to False
 
-opponent = new Player at (0, Range(4, 6), 0), with name "opponent",
+opponent = new Player at (0, Uniform(4, 6), 0), with name "opponent",
             with behavior DefenderBehavior(), with team "red"
 
 goal = new Goal at (0, 17, 0)

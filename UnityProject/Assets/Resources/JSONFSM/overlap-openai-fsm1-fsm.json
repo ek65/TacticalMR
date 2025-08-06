@@ -2,43 +2,23 @@
   "states": [
     {
       "id": 1,
-      "name": "MoveTo(\u03bb_target_behind(), False)",
-      "description": "Move to open space 4 meters behind teammate to receive ball"
+      "name": "MoveTo(\u03bb_target0(), True)",
+      "description": "Move 4 to 8 meters away left of teammate where teammate's passing lane is clear (2m width)."
     },
     {
       "id": 2,
-      "name": "StopAndReceiveBall()",
-      "description": "Receive the ball from teammate"
+      "name": "Shoot(goal)",
+      "description": "No pressure from opponent, shooting for goal."
     },
     {
       "id": 3,
-      "name": "Shoot('goal')",
-      "description": "Opportunity to shoot directly, taking the shot"
+      "name": "Pass(teammate)",
+      "description": "Now, defender blocks path to goal. Look for teammate in open position, lane 2m wide."
     },
     {
       "id": 4,
-      "name": "Pass('teammate')",
-      "description": "No clear shot, passing back to teammate at distance 4 meters"
-    },
-    {
-      "id": 5,
-      "name": "MoveToBallAndGetPossession()",
-      "description": "Move to ball and get possession from teammate's return pass"
-    },
-    {
-      "id": 6,
-      "name": "MoveTo(\u03bb_target_infront_space(), False)",
-      "description": "Move to open space 5 meters in front of teammate after receiving ball"
-    },
-    {
-      "id": 7,
       "name": "StopAndReceiveBall()",
-      "description": "Receive the ball for final attack"
-    },
-    {
-      "id": 8,
-      "name": "Shoot('goal')",
-      "description": "Shoot at the goal now"
+      "description": "Receive pass and wait until I regain possession of the ball."
     }
   ],
   "transitions": [
@@ -53,50 +33,22 @@
       "id": 1002,
       "from": 1,
       "to": 2,
-      "condition": "until \u03bb_precondition_receive1()",
-      "description": "Wait to receive a pass from teammate before moving to ball"
+      "condition": "\u03bb_no_pressure()",
+      "description": "No pressure from opponent, shooting for goal."
     },
     {
       "id": 1003,
-      "from": 2,
+      "from": 1,
       "to": 3,
-      "condition": "\u03bb_can_shoot_early()",
-      "description": "Wait until you have ball possession before acting Opportunity to shoot directly, taking the shot"
+      "condition": "else",
+      "description": "Wait until I have ball possession after teammate passes to me."
     },
     {
       "id": 1004,
-      "from": 2,
+      "from": 3,
       "to": 4,
-      "condition": "else",
-      "description": "Wait until you have ball possession before acting No clear shot, passing back to teammate at distance 4 meters"
-    },
-    {
-      "id": 1005,
-      "from": 4,
-      "to": 5,
-      "condition": "until \u03bb_precondition_receive2()",
-      "description": "Wait to receive a return pass from teammate"
-    },
-    {
-      "id": 1006,
-      "from": 5,
-      "to": 6,
-      "condition": true,
-      "description": "Move to ball and get possession from teammate's return pass Move to open space 5 meters in front of teammate after receiving ball"
-    },
-    {
-      "id": 1007,
-      "from": 6,
-      "to": 7,
-      "condition": "until \u03bb_precondition_receive3()",
-      "description": "Wait to receive the ball in advanced position"
-    },
-    {
-      "id": 1008,
-      "from": 7,
-      "to": 8,
-      "condition": "until \u03bb_haspossession2_Coach() and \u03bb_target_turn_shoot()",
-      "description": "Wait for possession and to be in shooting range (< 14m from goal) Shoot at the goal now"
+      "condition": "until \u03bb_precondition_3()",
+      "description": "Teammate should move closer to goal (<8m), then pass back to me."
     }
   ]
 }

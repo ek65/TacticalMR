@@ -2,23 +2,18 @@
   "states": [
     {
       "id": 1,
-      "name": "MoveTo(\u03bb_target_pass_spot(), True)",
-      "description": "I need to get open between 3 and 5 meters from teammate, with clear passing lane."
+      "name": "MoveTo(\u03bb_target0(), True)",
+      "description": "Move 4 to 8 meters away left of teammate where teammate's passing lane is clear (2m width)."
     },
     {
       "id": 2,
-      "name": "MoveToBallAndGetPossession()",
-      "description": "Move to ball and get possession after pass is made."
+      "name": "Pass(teammate)",
+      "description": "Now, defender blocks path to goal. Look for teammate in open position, lane 2m wide."
     },
     {
       "id": 3,
-      "name": "Pass(teammate)",
-      "description": "Defender blocks path to goal, so pass to open teammate beyond 2 meters."
-    },
-    {
-      "id": 4,
-      "name": "Shoot(goal)",
-      "description": "Path to goal is open, continue to score if possible."
+      "name": "StopAndReceiveBall()",
+      "description": "Receive pass and wait until I regain possession of the ball."
     }
   ],
   "transitions": [
@@ -33,22 +28,22 @@
       "id": 1002,
       "from": 1,
       "to": 2,
-      "condition": "until \u03bb_precondition_pass_call()",
-      "description": "Wait until teammate passes ball to you and you get possession."
+      "condition": "until \u03bb_precondition_1()",
+      "description": "Wait until I have ball possession after teammate passes to me."
     },
     {
       "id": 1003,
       "from": 2,
       "to": 3,
-      "condition": "\u03bb_termination_defender_blocks()",
-      "description": "Wait until you possess the ball. Defender blocks path to goal, so pass to open teammate beyond 2 meters."
+      "condition": "until \u03bb_precondition_2() and until \u03bb_precondition_3()",
+      "description": "Wait for teammate to get ball and move towards goal less than 8 meters away. Teammate should move closer to goal (<8m), then pass back to me."
     },
     {
       "id": 1004,
-      "from": 2,
-      "to": 4,
-      "condition": "else",
-      "description": "Wait until you possess the ball. Path to goal is open, continue to score if possible."
+      "from": 3,
+      "to": 3,
+      "condition": "until \u03bb_precondition_4()",
+      "description": "Wait for teammate to regain ball to allow another pass."
     }
   ]
 }
