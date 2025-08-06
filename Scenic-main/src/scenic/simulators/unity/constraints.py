@@ -38,6 +38,7 @@ def false():
     return dist
 
 import matplotlib.pyplot as plt
+import matplotlib.patches as patches
 
 def bool_sample(vec, dist, min=0.1):
 
@@ -90,6 +91,16 @@ class Constraint:
     def bool(self, scene):
         return True
     
+    def __and__(self, other):
+        print(f"DEBUG: __and__ called with {type(self)} and {type(other)}")
+        return CompositeConstraint(self, other, 'AND')
+    
+    def __or__(self, other):
+        return CompositeConstraint(self, other, 'OR')
+    
+    def __invert__(self):
+        return NegationConstraint(self)
+    
 class CompositeConstraint(Constraint):
     def __init__(self, left: Constraint, right: Constraint, op: str):
         self.left = left
@@ -98,6 +109,7 @@ class CompositeConstraint(Constraint):
         self.op = op
 
     def dist(self, scene, ego=False):
+        print(f"DEBUG: CompositeConstraint.dist() called with op={self.op}")
         d1 = self.left.dist(scene, ego)
         d2 = self.right.dist(scene, ego)
         if self.op == 'AND':
@@ -127,9 +139,7 @@ class NegationConstraint(Constraint):
         return not b
     
     
-Constraint.__and__ = lambda self, other: CompositeConstraint(self, other, 'AND')
-Constraint.__or__ = lambda self, other: CompositeConstraint(self, other, 'OR')
-Constraint.__invert__ = lambda self: NegationConstraint(self)
+
 
 
 # MARK: CloseTo/Pressure
@@ -320,34 +330,149 @@ class HasPath(Constraint):
         if not (passer and receiver):
             raise ValueError(f'HasPath constraint requires passer and receiver objects to match the names defined in the program.')
 
-        # Create a binary mask: 1.0 where path is clear, epsilon where blocked
-        path_mask = np.ones((rows, cols), dtype=float)
+        print(f"DEBUG: Passer: {passer[0].name}, Receiver: {receiver[0].name}")
         
-        xp, yp = location(passer[0].position)
-        xr, yr = location(receiver[0].position)
+        # Create a 2D grid: 1.0 where safe, epsilon where blocked
+        field = np.ones((rows, cols), dtype=float)
         
-        # Create the line from passer to receiver
-        line = LineString([(xp, yp), (xr, yr)])
+        # Get teammate position (the one that's not Coach)
+        teammate = passer if 'coach' not in passer[0].name.lower() else receiver
+        teammate_x, teammate_y = location(teammate[0].position)
         
-        # Check each obstacle
+        # Find all obstacles (red team players)
         obstacles = []
         for obj in scene.objects:
             if hasattr(obj, "team") and obj.team.lower() == 'red':
                 obstacles.append(obj)
         
-        # For each obstacle, check if it blocks the path
+        # For each obstacle, create exclusion zones
         for obstacle in obstacles:
-            x_obstacle, y_obstacle = location(obstacle.position)
-            p = Point(x_obstacle, y_obstacle)
-            dist = p.distance(line)
+            obstacle_x, obstacle_y = location(obstacle.position)
+            # Convert to Unity coordinates for calculations
+            obstacle_unity_x = obstacle_x - cols/2
+            obstacle_unity_y = -(obstacle_y - rows/2)
+            teammate_unity_x = teammate_x - cols/2
+            teammate_unity_y = -(teammate_y - rows/2)
             
-            # If obstacle is within path width and between passer and receiver, block the path
-            if dist < self.path_width and (yp <= y_obstacle <= yr or yr <= y_obstacle <= yp):
-                # Set the entire path to blocked (epsilon)
-                path_mask.fill(epsilon)
-                break
+            # Calculate distance from teammate to obstacle in Unity coordinates
+            distance_to_obstacle = np.sqrt((teammate_unity_x - obstacle_unity_x)**2 + (teammate_unity_y - obstacle_unity_y)**2)
+            
+            # Calculate angle from teammate to obstacle
+            angle_to_obstacle = np.arctan2(obstacle_unity_y - teammate_unity_y, obstacle_unity_x - teammate_unity_x)
+            
+            # Calculate perpendicular angle (90 degrees from obstacle direction)
+            perp_angle = angle_to_obstacle + np.pi/2
+            
+            # Calculate points 1.5m to the sides of the obstacle
+            left_point_x = obstacle_unity_x + 1.5 * np.cos(perp_angle)
+            left_point_y = obstacle_unity_y + 1.5 * np.sin(perp_angle)
+            right_point_x = obstacle_unity_x - 1.5 * np.cos(perp_angle)
+            right_point_y = obstacle_unity_y - 1.5 * np.sin(perp_angle)
+            
+            # Create lines from teammate through the side points
+            # Line 1: teammate to left point
+            # Line 2: teammate to right point
+            
+            # For each grid point, check if it's in the excluded area
+            for i_idx in range(rows):
+                for j_idx in range(cols):
+                    # Convert grid coordinates to Unity coordinates
+                    grid_unity_x = j_idx - cols/2 + 0.5
+                    grid_unity_y = -(i_idx - rows/2 + 0.5)
+                    
+                    # Distance from obstacle to this grid point in Unity coordinates
+                    dist_to_obstacle = np.sqrt((grid_unity_x - obstacle_unity_x)**2 + (grid_unity_y - obstacle_unity_y)**2)
+                    
+                    # Check if within 1.5m radius of obstacle
+                    if dist_to_obstacle <= 1.5:
+                        field[i_idx, j_idx] = epsilon
+                        continue
+                    
+                    # Check if point is behind the obstacle (further from teammate than obstacle)
+                    dist_to_teammate = np.sqrt((grid_unity_x - teammate_unity_x)**2 + (grid_unity_y - teammate_unity_y)**2)
+                    if dist_to_teammate <= distance_to_obstacle:
+                        continue  # Point is not behind obstacle
+                    
+                    # Check if point is in the sector behind the obstacle
+                    # Vector from teammate to obstacle
+                    vec_to_obstacle = np.array([obstacle_unity_x - teammate_unity_x, obstacle_unity_y - teammate_unity_y])
+                    # Vector from teammate to grid point
+                    vec_to_point = np.array([grid_unity_x - teammate_unity_x, grid_unity_y - teammate_unity_y])
+                    
+                    # Calculate angle between these vectors
+                    dot_product = np.dot(vec_to_obstacle, vec_to_point)
+                    norms_product = np.linalg.norm(vec_to_obstacle) * np.linalg.norm(vec_to_point)
+                    
+                    if norms_product > 0:
+                        cos_angle = np.clip(dot_product / norms_product, -1, 1)
+                        angle_diff = np.arccos(cos_angle)
+                        
+                        # If angle is small (point is roughly in line with obstacle), exclude it
+                        if angle_diff < np.pi/6:  # 30 degrees
+                            field[i_idx, j_idx] = epsilon
         
-        return path_mask
+        # Visualization
+        print("DEBUG: Starting visualization...")
+        try:
+            plt.figure(figsize=(12, 8))
+            
+            # Create the main plot
+            plt.subplot(1, 2, 1)
+            plt.imshow(field, cmap='viridis', origin='upper', extent=[-cols/2, cols/2, -rows/2, rows/2])
+            plt.colorbar(label='Probability')
+            plt.title('HasPath Dist Output')
+            plt.xlabel('X')
+            plt.ylabel('Y')
+            
+            # Add teammate position (convert back to Unity coordinates for display)
+            teammate_unity_x = teammate_x - cols/2
+            teammate_unity_y = -(teammate_y - rows/2)
+            plt.plot(teammate_unity_x, teammate_unity_y, 'go', markersize=10, label='Teammate')
+            
+            # Add obstacle positions and exclusion zones
+            for obstacle in obstacles:
+                obs_x, obs_y = location(obstacle.position)
+                obs_unity_x = obs_x - cols/2
+                obs_unity_y = -(obs_y - rows/2)
+                plt.plot(obs_unity_x, obs_unity_y, 'ro', markersize=8, label='Obstacle' if obstacle == obstacles[0] else "")
+                
+                # Draw 1.5m radius circle around obstacle
+                circle = plt.Circle((obs_unity_x, obs_unity_y), 1.5, color='red', fill=False, linestyle='--', alpha=0.7)
+                plt.gca().add_patch(circle)
+            
+            plt.legend()
+            plt.grid(True, alpha=0.3)
+            
+            # Create binary mask plot
+            plt.subplot(1, 2, 2)
+            binary_field = (field > epsilon).astype(float)
+            plt.imshow(binary_field, cmap='RdYlGn', origin='upper', extent=[-cols/2, cols/2, -rows/2, rows/2])
+            plt.colorbar(label='Safe (1) / Blocked (0)')
+            plt.title('Binary Safe/Blocked Areas')
+            plt.xlabel('X')
+            plt.ylabel('Y')
+            
+            # Add teammate and obstacles to binary plot (convert back to Unity coordinates)
+            plt.plot(teammate_unity_x, teammate_unity_y, 'go', markersize=10, label='Teammate')
+            for obstacle in obstacles:
+                obs_x, obs_y = location(obstacle.position)
+                obs_unity_x = obs_x - cols/2
+                obs_unity_y = -(obs_y - rows/2)
+                plt.plot(obs_unity_x, obs_unity_y, 'ro', markersize=8, label='Obstacle' if obstacle == obstacles[0] else "")
+            
+            plt.legend()
+            plt.grid(True, alpha=0.3)
+            
+            plt.tight_layout()
+            plt.show()
+            
+            print(f"Field shape: {field.shape}, Min: {field.min():.3f}, Max: {field.max():.3f}")
+            print(f"Safe areas: {np.sum(field > epsilon)}/{field.size} grid points")
+            
+        except Exception as e:
+            print(f"Visualization failed: {e}")
+        
+        return field
 
     def bool(self, scene, ego=False):
         if ego and not (isEgo(self.passerID) or isEgo(self.receiverID)):

@@ -7,6 +7,7 @@ from scenic.core.regions import MeshVolumeRegion
 import random
 ####HEADER ENDS####
 
+# --- NO CHANGES TO THESE (these are unchanged) ---
 A1target_behind = DistanceTo({
     'from': 'Coach',
     'to': 'teammate',
@@ -14,10 +15,8 @@ A1target_behind = DistanceTo({
     'max': {'avg': 5.5, 'std': 0.2},
     'operator': 'within'
 })
-
 A1precondition_receive1 = MakePass({'player': 'teammate'})
 A1haspossession_Coach = HasBallPossession({'player': 'Coach'})
-
 A1target_passback = DistanceTo({
     'from': 'teammate',
     'to': 'Coach',
@@ -25,9 +24,7 @@ A1target_passback = DistanceTo({
     'max': {'avg': 4.5, 'std': 0.3},
     'operator': 'within'
 })
-
 A1precondition_receive2 = MakePass({'player': 'Coach'})
-
 A1target_infront_space = DistanceTo({
     'from': 'Coach',
     'to': 'teammate',
@@ -35,27 +32,14 @@ A1target_infront_space = DistanceTo({
     'max': {'avg': 7.0, 'std': 0.3},
     'operator': 'within'
 })
-
 A1precondition_receive3 = MakePass({'player': 'teammate'})
 A1haspossession2_Coach = HasBallPossession({'player': 'Coach'})
-
 A1target_turn_shoot = DistanceTo({
     'from': 'goal',
     'to': 'Coach',
     'min': None,
     'max': {'avg': 14.0, 'std': 0.2},
     'operator': 'less_than'
-})
-
-# ADDED: New constraints and lambda function for conditional shooting based on coach feedback.
-# This checks if the opponent is pressuring the coach.
-A1_no_pressure = Pressure({'player1': 'opponent', 'player2': 'Coach'})
-
-# This checks for a clear path to the goal. A path_width of 2.0m with 0.5m std is a reasonable assumption.
-A1_path_to_goal = HasPath({
-    'obj1': 'Coach',
-    'obj2': 'goal',
-    'path_width': {'avg': 2.0, 'std': 0.5}
 })
 
 
@@ -95,13 +79,15 @@ def λ_target_turn_shoot():
     return A1target_turn_shoot.dist(simulation(), ego=True)
 
 
-def λ_can_shoot_early():
-    # This function combines the conditions for an early shot opportunity:
-    # no pressure from the opponent and a clear path to the goal.
-    return (not A1_no_pressure.bool(simulation())) and \
-        A1_path_to_goal.bool(simulation())
+# --- NEW: Constraint for opponent pressure ---
+A1pressure_on_Coach = Pressure({'player1': 'opponent', 'player2': 'Coach'})
 
 
+def λ_pressure_on_Coach():
+    return A1pressure_on_Coach.bool(simulation())
+
+
+# --- Main behavior sequence, add fsm logic for "move only if needed" and conditionally pass/shoot ---
 behavior CoachBehavior():
     do Idle() for 3 seconds
     do Speak("Move to open space 4 meters behind teammate to receive ball")
@@ -109,58 +95,55 @@ behavior CoachBehavior():
     do Speak("Wait to receive a pass from teammate before moving to ball")
     do Idle() until λ_precondition_receive1()
 
-    # FIX 1: Per feedback, the coach doesn't always need to move to the ball.
-    # Changed MoveToBallAndGetPossession() to StopAndReceiveBall() for a more passive reception.
-    do Speak("Receive the ball from teammate")
-    do StopAndReceiveBall()
-
-    do Speak("Wait until you have ball possession before acting")
-    do Idle() until λ_haspossession_Coach()
-
-    # FIX 2: Added a conditional branch based on coach feedback. The coach can now
-    # shoot directly if the opportunity arises (no pressure, clear path),
-    # instead of always passing back to the teammate.
-    if λ_can_shoot_early():
-        do Speak("Opportunity to shoot directly, taking the shot")
-        do Shoot('goal')
+    # --- Instead of always moving to ball after pass, only move if NOT already open and unpressured. If already open, Idle until possession ---
+    if λ_pressure_on_Coach():
+        do Speak("Move to ball and get possession when pass is made and opponent is pressuring")
+        do MoveToBallAndGetPossession()
     else:
-        # This is the original logic path for when an early shot is not possible.
-        do Speak("No clear shot, passing back to teammate at distance 4 meters")
-        do Pass('teammate')
+        do Speak("Wait in open space and receive the ball")
+        do Idle() until λ_haspossession_Coach()
 
-        do Speak("Wait to receive a return pass from teammate")
-        do Idle() until λ_precondition_receive2()
+    do Speak("Wait until you have ball possession before passing")
+    do Idle() until λ_haspossession_Coach()
+    # Existing pass to teammate
+    do Speak("Pass ball back to teammate at distance 4 meters")
+    do Pass(teammate)
 
-        do Speak("Move to ball and get possession from teammate's return pass")
-        do MoveToBallAndGetPossession()  # Kept, as coach needs to retrieve the pass-back.
+    do Speak("Wait to receive a return pass from teammate")
+    do Idle() until λ_precondition_receive2()
 
-        do Speak("Move to open space 5 meters in front of teammate after receiving ball")
-        do MoveTo(λ_target_infront_space(), False)
+    # --- Like above, only move to ball after return pass if pressured, else just Idle and wait for possession ---
+    if λ_pressure_on_Coach():
+        do Speak("Move to ball and get possession from teammate's return pass under pressure")
+        do MoveToBallAndGetPossession()
+    else:
+        do Speak("Wait in open space to receive ball again")
+        do Idle() until λ_haspossession_Coach()  # reused, post-pass
 
-        do Speak("Wait to receive the ball in advanced position")
-        do Idle() until λ_precondition_receive3()
+    do Speak("Move to open space 5 meters in front of teammate after receiving ball")
+    do MoveTo(λ_target_infront_space(), False)
+    do Speak("Wait to receive the ball in advanced position")
+    do Idle() until λ_precondition_receive3()
 
-        # FIX 3: As per feedback, the coach is already in an open position
-        # and can just receive the ball. Changed MoveToBallAndGetPossession() to StopAndReceiveBall().
-        do Speak("Receive the ball for final attack")
-        do StopAndReceiveBall()
-
-        # Corrected logic to wait for both possession and being in shooting range,
-        # which was implied but not fully implemented in the original code.
-        do Speak("Wait for possession and to be in shooting range (< 14m from goal)")
-        do Idle() until λ_haspossession2_Coach() and λ_target_turn_shoot()
-
+    # --- For the advanced position: after receiving, if pressured, pass; if not, turn and shoot ---
+    if λ_pressure_on_Coach():
+        do Speak("Opponent is pressuring you, pass back to teammate")
+        do Pass(teammate)
+    else:
+        do Speak("No pressure, turn to goal and shoot when less than 14 meters from goal")
+        do Idle() until λ_haspossession2_Coach()
         do Speak("Shoot at the goal now")
-        do Shoot('goal')
+        do Shoot(goal)
+        do Idle()  # Always finish with do Idle()
 
-    do Idle()
+# --- END CODE ---
 
 ####Environment Behavior START####
 
-opponent_y_distance = Uniform(3, 5)
-opponent_x_distance = Uniform(-2, 2)
-ego_x_distance = Uniform(-2, 2)
-ego_y_distance = Uniform(-1, -2)
+opponent_y_distance = Range(3, 5)
+opponent_x_distance = Range(-2, 2)
+ego_x_distance = Range(-2, 2)
+ego_y_distance = Range(-1, -2)
 
 # Ensure teammate and opponent are on the same side
 #require (opponent_x_distance < 0 and ego_x_distance < 0) or (opponent_x_distance >= 0 and ego_x_distance >= 0)
@@ -172,6 +155,7 @@ behavior Follow(obj):
 behavior TeammateBehavior():
     # Double checking gotBall to ensure the pass is triggered correctly
     # since MoveToBallAndGetPossession() might get interrupted
+    do SetPlayerSpeed(6.0)
     gotBall = False
     try:
         do Idle() for 1 seconds
@@ -182,22 +166,68 @@ behavior TeammateBehavior():
         ego.triggerPass = False
         do Idle() for 1 seconds
         do Pass(ego.xMark)
+        
+        # After passing to coach, go to opposite side at same height as ego
         do Idle() for 1 seconds
+        
+        # Calculate target position: height between coach and goal, opposite X side
+        ego_x = ego.position.x
+        ego_y = ego.position.y
+        goal_y = goal.position.y
+        
+        # Go to opposite side (negative if ego is positive, positive if ego is negative)
+        target_x = -ego_x if ego_x > 0 else abs(ego_x)
+        target_y = (ego_y + goal_y) / 2  # Height between coach and goal
+
+
+        
+        target_position = Vector(target_x, target_y, 0)
+        do MoveToBehavior(target_position, distance=0.5)
+        
+        # Wait to receive ball back from coach
+        do Idle() until self.gameObject.ballPossession
+        
+        # If received ball back, score a goal
         if self.gameObject.ballPossession:
-            do Idle() until (distance from opponent to ego) <= 3
-            do DribbleTo(goal) until (distance from opponent to ego) > 3
+            do Shoot(goal)
     
     do Idle()
     
-
+### Modified opponent behavior: Keep position until ego receives ball, then move to middle of line with variation
 behavior DefenderBehavior():
     do Idle() for 1 seconds
     do Idle() until ego.position.y > 1
-    while True:
-        if distance from self to ego > 3.5:
-            do MoveToBehavior(ego.position, distance=3.5)
-        else:
-            do Idle() for 0.1 seconds   
+    
+    # Keep position until ego receives the ball
+    while not ego.gameObject.ballPossession:
+        do Idle() for 0.1 seconds
+    
+    # Once ego receives ball, move to middle of line between ego and goal
+    if ego.gameObject.ballPossession:
+        # Calculate middle point between ego and goal
+        goal_x = goal.position.x
+        goal_y = goal.position.y
+        ego_x = ego.position.x
+        ego_y = ego.position.y
+        
+        middle_x = (ego_x + goal_x) / 2
+        middle_y = (ego_y + goal_y) / 2
+        
+        # Add some variation to create opportunities or blocking
+        variation = Range(-1, 1)  # Random variation in both directions
+
+
+        target_x = middle_x + variation
+        target_y = middle_y + variation
+        
+        # Move to the target position
+        target_position = Vector(target_x, target_y, 0)
+        do MoveToBehavior(target_position, distance=.1)
+        
+        # Face the ego (coach) once in position
+        do LookAt(ego)
+
+
     
 
 teammate = new Player at (0, 0, 0),
@@ -205,15 +235,18 @@ teammate = new Player at (0, 0, 0),
 
 ball = new Ball ahead of teammate by 1
 
-ego = new Coach at (ego_x_distance, ego_y_distance, 0),
+ego = new Coach at (0, ego_y_distance, 0),
     with name "Coach",
     with team "blue",
     with behavior CoachBehavior(),
     with xMark Vector(0, 0, 0),  # Set initial xMark position
     with triggerPass False  # Initialize triggerPass to False
 
-opponent = new Player at (0, Uniform(4, 6), 0), with name "opponent",
+opponent = new Player at (0, Range(4, 6), 0), with name "opponent",
             with behavior DefenderBehavior(), with team "red"
 
 goal = new Goal at (0, 17, 0)
+
+line = new Line at (0, 10, 0)
+
 terminate when (ego.gameObject.stopButton)
