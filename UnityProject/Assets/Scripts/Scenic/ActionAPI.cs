@@ -327,10 +327,7 @@ public class ActionAPI : MonoBehaviour
                     destinationPosition = closestPlayer.transform.position;
                 }
             }
-        }
-        
-        // If X is (0,0,0) then pass to coach 
-        if (destinationPosition == Vector3.zero)
+        } else if (destinationPosition == Vector3.zero) // If X is (0,0,0) then pass to coach 
         {
             // Find the coach in the scene
             GameObject human = GameObject.FindGameObjectWithTag("human");
