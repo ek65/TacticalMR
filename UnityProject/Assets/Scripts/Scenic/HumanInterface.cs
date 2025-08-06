@@ -141,13 +141,13 @@ public class HumanInterface : MonoBehaviour
         if (this.GetComponent<RichAI>() != null)
         {
             RichAI aiNav = this.GetComponent<RichAI>();
-            if (aiNav.radius != 0.2f && isMoving)
+            if (aiNav.radius != 0.05f && isMoving)
             {
-                aiNav.radius = 0.2f;
+                aiNav.radius = 0.05f;
             }
-            else if (aiNav.radius == 0.2f && !isMoving)
+            else if (aiNav.radius == 0.05f && !isMoving)
             {
-                aiNav.radius = 0.7f;
+                aiNav.radius = 0.5f;
             }
         }
 
@@ -281,7 +281,7 @@ public class HumanInterface : MonoBehaviour
     
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("ball") && canPossessBall && ballOwnership.heldByScenic == false && !ballPossession)
+        if (other.CompareTag("ball") && canPossessBall && ballOwnership.heldByScenic == false && !ballPossession && ballOwnership.ballOwner == null)
         {
             LogReceiveBall();
             GainPossession(other.gameObject);
