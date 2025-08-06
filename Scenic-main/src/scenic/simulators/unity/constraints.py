@@ -411,66 +411,66 @@ class HasPath(Constraint):
                         if angle_diff < np.pi/6:  # 30 degrees
                             field[i_idx, j_idx] = epsilon
         
-        # Visualization
-        print("DEBUG: Starting visualization...")
-        try:
-            plt.figure(figsize=(12, 8))
+        # # Visualization
+        # print("DEBUG: Starting visualization...")
+        # try:
+        #     plt.figure(figsize=(12, 8))
             
-            # Create the main plot
-            plt.subplot(1, 2, 1)
-            plt.imshow(field, cmap='viridis', origin='upper', extent=[-cols/2, cols/2, -rows/2, rows/2])
-            plt.colorbar(label='Probability')
-            plt.title('HasPath Dist Output')
-            plt.xlabel('X')
-            plt.ylabel('Y')
+        #     # Create the main plot
+        #     plt.subplot(1, 2, 1)
+        #     plt.imshow(field, cmap='viridis', origin='upper', extent=[-cols/2, cols/2, -rows/2, rows/2])
+        #     plt.colorbar(label='Probability')
+        #     plt.title('HasPath Dist Output')
+        #     plt.xlabel('X')
+        #     plt.ylabel('Y')
             
-            # Add teammate position (convert back to Unity coordinates for display)
-            teammate_unity_x = teammate_x - cols/2
-            teammate_unity_y = -(teammate_y - rows/2)
-            plt.plot(teammate_unity_x, teammate_unity_y, 'go', markersize=10, label='Teammate')
+        #     # Add teammate position (convert back to Unity coordinates for display)
+        #     teammate_unity_x = teammate_x - cols/2
+        #     teammate_unity_y = -(teammate_y - rows/2)
+        #     plt.plot(teammate_unity_x, teammate_unity_y, 'go', markersize=10, label='Teammate')
             
-            # Add obstacle positions and exclusion zones
-            for obstacle in obstacles:
-                obs_x, obs_y = location(obstacle.position)
-                obs_unity_x = obs_x - cols/2
-                obs_unity_y = -(obs_y - rows/2)
-                plt.plot(obs_unity_x, obs_unity_y, 'ro', markersize=8, label='Obstacle' if obstacle == obstacles[0] else "")
+        #     # Add obstacle positions and exclusion zones
+        #     for obstacle in obstacles:
+        #         obs_x, obs_y = location(obstacle.position)
+        #         obs_unity_x = obs_x - cols/2
+        #         obs_unity_y = -(obs_y - rows/2)
+        #         plt.plot(obs_unity_x, obs_unity_y, 'ro', markersize=8, label='Obstacle' if obstacle == obstacles[0] else "")
                 
-                # Draw 1.5m radius circle around obstacle
-                circle = plt.Circle((obs_unity_x, obs_unity_y), 1.5, color='red', fill=False, linestyle='--', alpha=0.7)
-                plt.gca().add_patch(circle)
+        #         # Draw 1.5m radius circle around obstacle
+        #         circle = plt.Circle((obs_unity_x, obs_unity_y), 1.5, color='red', fill=False, linestyle='--', alpha=0.7)
+        #         plt.gca().add_patch(circle)
             
-            plt.legend()
-            plt.grid(True, alpha=0.3)
+        #     plt.legend()
+        #     plt.grid(True, alpha=0.3)
             
-            # Create binary mask plot
-            plt.subplot(1, 2, 2)
-            binary_field = (field > epsilon).astype(float)
-            plt.imshow(binary_field, cmap='RdYlGn', origin='upper', extent=[-cols/2, cols/2, -rows/2, rows/2])
-            plt.colorbar(label='Safe (1) / Blocked (0)')
-            plt.title('Binary Safe/Blocked Areas')
-            plt.xlabel('X')
-            plt.ylabel('Y')
+        #     # Create binary mask plot
+        #     plt.subplot(1, 2, 2)
+        #     binary_field = (field > epsilon).astype(float)
+        #     plt.imshow(binary_field, cmap='RdYlGn', origin='upper', extent=[-cols/2, cols/2, -rows/2, rows/2])
+        #     plt.colorbar(label='Safe (1) / Blocked (0)')
+        #     plt.title('Binary Safe/Blocked Areas')
+        #     plt.xlabel('X')
+        #     plt.ylabel('Y')
             
-            # Add teammate and obstacles to binary plot (convert back to Unity coordinates)
-            plt.plot(teammate_unity_x, teammate_unity_y, 'go', markersize=10, label='Teammate')
-            for obstacle in obstacles:
-                obs_x, obs_y = location(obstacle.position)
-                obs_unity_x = obs_x - cols/2
-                obs_unity_y = -(obs_y - rows/2)
-                plt.plot(obs_unity_x, obs_unity_y, 'ro', markersize=8, label='Obstacle' if obstacle == obstacles[0] else "")
+        #     # Add teammate and obstacles to binary plot (convert back to Unity coordinates)
+        #     plt.plot(teammate_unity_x, teammate_unity_y, 'go', markersize=10, label='Teammate')
+        #     for obstacle in obstacles:
+        #         obs_x, obs_y = location(obstacle.position)
+        #         obs_unity_x = obs_x - cols/2
+        #         obs_unity_y = -(obs_y - rows/2)
+        #         plt.plot(obs_unity_x, obs_unity_y, 'ro', markersize=8, label='Obstacle' if obstacle == obstacles[0] else "")
             
-            plt.legend()
-            plt.grid(True, alpha=0.3)
+        #     plt.legend()
+        #     plt.grid(True, alpha=0.3)
             
-            plt.tight_layout()
-            plt.show()
+        #     plt.tight_layout()
+        #     plt.show()
             
-            print(f"Field shape: {field.shape}, Min: {field.min():.3f}, Max: {field.max():.3f}")
-            print(f"Safe areas: {np.sum(field > epsilon)}/{field.size} grid points")
+        #     print(f"Field shape: {field.shape}, Min: {field.min():.3f}, Max: {field.max():.3f}")
+        #     print(f"Safe areas: {np.sum(field > epsilon)}/{field.size} grid points")
             
-        except Exception as e:
-            print(f"Visualization failed: {e}")
+        # except Exception as e:
+        #     print(f"Visualization failed: {e}")
         
         return field
 

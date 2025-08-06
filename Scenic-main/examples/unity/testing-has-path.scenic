@@ -6,7 +6,7 @@ import trimesh
 from scenic.core.regions import MeshVolumeRegion
 import random
 ####HEADER ENDS####
-A1target_0 = HasPath({
+A1target_0 = ~ HasPath({
     'obj1': 'teammate',
     'obj2': 'Coach',
     'path_width': {'avg': 2.0, 'std': 0.5}
@@ -58,6 +58,30 @@ def λ_precondition_shoot():
     return precondition_shoot.bool(simulation())
 def λ_termination_pass():
     return not termination_pass.bool(simulation())
+def λ_target1():
+    # Changed: add upfield constraint (A3target_0), so coach only moves above teammate, not downward.
+    print(f"DEBUG: A1target_0 type: {type(A1target_0)}")
+    print(f"DEBUG: A2target_0 type: {type(A2target_0)}")
+    print(f"DEBUG: A3target_0 type: {type(A3target_0)}")
+    
+    # Test if A1target_0 is "truthy"
+    print(f"DEBUG: bool(A1target_0) = {bool(A1target_0)}")
+    print(f"DEBUG: A1target_0.bool(simulation()) = {A1target_0.bool(simulation())}")
+    
+    cond = ~ (A1target_0 | A2target_0)
+    print(f"DEBUG: After first 'and', cond type: {type(cond)}")
+    
+    cond = ~ cond
+    print(f"DEBUG: After second 'and', cond type: {type(cond)}")
+    
+    print(f"DEBUG: About to call cond.dist()")
+    result = cond.dist(simulation(), ego=True)
+    print(f"DEBUG: cond.dist() completed")
+    return result
+def λ_target2():
+    # Changed: add upfield constraint (A3target_0), so coach only moves above teammate, not downward.
+    
+    return A1target_0.dist(simulation(), ego=True)
 behavior CoachBehavior():
     do Idle() for 3 seconds
     # do Speak("My teammate is blocked, so I will move about 8 meters away to create a clear passing lane.")
@@ -69,6 +93,8 @@ behavior CoachBehavior():
     if λ_precondition_shoot():
         # do Speak("I have a clear shot at the goal, so I will take it.")
         do Shoot(goal)
+        do MoveTo(λ_target1(), False)
+        do MoveTo(λ_target2(), False)
     else:
         # do Speak("The opponent is blocking my path to the goal, so I will pass the ball back to my teammate.")
         do Pass(teammate)
