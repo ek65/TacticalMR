@@ -1442,7 +1442,7 @@ public class ActionAPI : NetworkBehaviour
         }
         
         GameObject ball = GameObject.FindGameObjectWithTag("ball");
-        ball.GetComponent<SoccerBall>().destination = finalPos;
+        ball.GetComponent<SoccerBall>().SetDestination(finalPos);
         
         Vector3 ballMotionVector = finalPos - soccerBall.transform.position;
         Vector3 forceDirection = new(ballMotionVector.x, aerialOffset, ballMotionVector.z);
