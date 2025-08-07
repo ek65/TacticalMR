@@ -7,54 +7,60 @@ from scenic.core.regions import MeshVolumeRegion
 import random
 ####HEADER ENDS####
 
-```python
+A1_precondition_0 = MakePass({'player': 'teammate'})
+P1_precondition_1 = DistanceTo({'from': 'Coach', 'to': 'opponent', 'operator': 'less_than', 'max': {'avg': 1.5, 'std': 0.1}})
+P1_precondition_2 = DistanceTo({'from': 'Coach', 'to': 'opponent', 'operator': 'within', 'min': {'avg': 1.5, 'std': 0.1}, 'max': {'avg': 4.0, 'std': 0.1}})
+A1_target_0 = DistanceTo({'from': 'Coach', 'to': 'opponent', 'operator': 'greater_than', 'min': {'avg': 5.0, 'std': 0.1}})
+A2_target_0 = DistanceTo({'from': 'Coach', 'to': 'goal', 'operator': 'less_than', 'max': {'avg': 11.0, 'std': 0.1}})
+A1_target_1 = DistanceTo({'from': 'Coach', 'to': 'goal', 'operator': 'less_than', 'max': {'avg': 9.0, 'std': 0.1}})
+
+def lambda_precondition_0():
+    return A1_precondition_0.bool(simulation())
+
+def lambda_precondition_1():
+    return P1_precondition_1.bool(simulation())
+
+def lambda_precondition_2():
+    return P1_precondition_2.bool(simulation())
+
+def lambda_target0():
+    cond = A1_target_0 and A2_target_0
+    return cond.dist(simulation(), ego=True)
+
+def lambda_target1():
+    return A1_target_1.dist(simulation(), ego=True)
+
 behavior CoachBehavior():
     do Idle() for 3 seconds
-
-    do Speak("To start the check movement, first wait for your teammate to have the ball.")
-    do Idle() until λ_precondition_0(simulation(), None)
-
-    do Speak("Now, to create space, move to the side at an angle of about 25 degrees and 8 meters away from the ball. As you move, call for a pass from your teammate.")
-    do MoveTo(λ_target0(), True)
-
-    do Speak("You are in position. Stop and wait to receive the pass from your teammate.")
+    do Speak("I will run towards my teammate to create a passing option for them.")
+    do MoveTo('teammate', False)
+    do Speak("Now I will wait until my teammate passes the ball.")
+    do Idle() until lambda_precondition_0()
+    do Speak("The ball is on its way. I'll stop to receive the pass.")
     do StopAndReceiveBall()
-    
-    do Speak("Now that you have the ball, pause to see if the opponent is pressuring you.")
-    do Idle() for 1 second
-
-    if λ_precondition_1(simulation(), None):
-        do Speak("The opponent is pressuring you. Pass the ball back to your teammate, who now has open space.")
+    do Speak("I have the ball. I will check the opponent's position to decide my next move.")
+    if lambda_precondition_1():
+        do Speak("Opponent is marking tightly, less than 2 meters away. I will move to create space.")
+        do MoveTo(lambda_target0(), False)
+        do Speak("I have created space now. I will take a shot at the goal.")
+        do Shoot(goal)
+    elif lambda_precondition_2():
+        do Speak("Opponent is between 2 and 4 meters away. The safest option is to pass back.")
         do Pass(teammate)
     else:
-        do Speak("The opponent is not pressuring, so you have space to attack. Dribble the ball at least 5 meters up the field.")
-        do MoveTo(λ_target1(), False)
-
+        do Speak("The opponent is far away, more than 4 meters. I have space to move towards the goal.")
+        do MoveTo(lambda_target1(), False)
+        do Speak("This is a good scoring position. I will shoot at the goal.")
+        do Shoot(goal)
     do Idle()
 
-A1target_0 = AtAngle({'player': 'Coach', 'ball': 'ball', 'left': {'theta': {'avg': 25, 'std': 5}, 'dist': {'avg': 8, 'std': 1}}, 'right': {'theta': {'avg': 25, 'std': 5}, 'dist': {'avg': 8, 'std': 1}}})
-A1target_1 = HeightRelation({'obj': 'Coach', 'relation': 'above', 'ref': None, 'height_threshold': {'avg': 5, 'std': 1}})
-A1precondition_0 = HasBallPossession({'player': 'teammate'})
-A1precondition_1 = Pressure({'player1': 'opponent', 'player2': 'Coach'})
-
-def λ_target0():
-    return A1target_0.dist(simulation(), ego=True)
-
-def λ_target1():
-    return A1target_1.dist(simulation(), ego=True)
-
-def λ_precondition_0(scene, sample):
-    return A1precondition_0.bool(scene)
-
-def λ_precondition_1(scene, sample):
-    return A1precondition_1.bool(scene)
-```
 ####Environment Behavior START####
 # Parameters for variance
-coach_start_dist = Range(5, 8)  # initial distance from teammate
-coach_check_dist = Range(4, 6)   # how much closer coach checks
-coach_check_angle = Range(-45, 45)  # angle of check (degrees)
-opponent_dist = Range(2, 7)         # distance behind coach
+coach_start_dist = Uniform(5, 8)  # initial distance from teammate
+coach_check_dist = Uniform(4, 6)   # how much closer coach checks
+coach_check_angle = Uniform(-45, 45)  # angle of check (degrees)
+opponent_dist = Uniform(1, 5)         # distance behind coach
+opponent_speed = Uniform(5, 7)        # opponent's movement speed
 
 # Behaviors
 behavior TeammatePass():
@@ -72,63 +78,19 @@ behavior TeammatePass():
         print("trigger pass")
         do Idle() for 1.0 seconds
         do Pass(ego.xMark)
-        # Idle after the pass happens
-        do Idle() for 2.0 seconds
-        
-        # Wait to receive ball back from coach
-        do Idle() until self.gameObject.ballPossession
-        
-        # When receiving ball back, move forward to opposite side of field
-        if self.gameObject.ballPossession:
-            # Determine which side coach and opponent are on
-            coach_x = ego.position.x
-            opponent_x = opponent.position.x
-            
-            # Calculate target position on opposite side
-            # X-axis ranges from -10 to +10, with 0 at center
-            # If coach and opponent are on positive side, go to negative side
-            # If coach and opponent are on negative side, go to positive side
-            if coach_x > 0 and opponent_x > 0:
-                # Both on positive side (right), go to negative side (left)
-                target_x = -6.0
-            elif coach_x < 0 and opponent_x < 0:
-                # Both on negative side (left), go to positive side (right)
-                target_x = 6.0
-            else:
-                # Mixed positions, go to the side with more space
-                # If coach is on left (negative), go right (positive)
-                # If coach is on right (positive), go left (negative)
-                target_x = 6.0 if coach_x < 0 else -6.0
-            
-            # Move forward to the target position (toward goal, so positive Y)
-            target_position = Vector(target_x, 11.0, 0)
-            do MoveToBehavior(target_position, distance=0.5)
-            do Idle() for 1.0 seconds
-
 
     do Idle()
 
+####Environment Behavior START####
 behavior OpponentFollowCoach():
-
-    do Idle() for 5.5 seconds  # Wait 6 seconds before starting to follow
-    
-    # Set opponent speed
-    do SetPlayerSpeed(4.0)
-    
+    do Idle() for 1.0 seconds  # Wait for coach to start checking
+    speed = float(opponent_speed)
+    do SetPlayerSpeed(speed)
     while True:
-        # Follow coach only until coach receives the ball
-        if not ego.gameObject.ballPossession:
-            # Follow coach and try to get close to them
-            do MoveToBehavior(ego.position, distance=1.5)
+        if distance from self to ego > 3.5:
+            do MoveToBehavior(ego.position, distance=3.5)
         else:
-            # Stop following - coach received the ball
-            do Idle()
-            
-    
-
-
-
-
+            do Idle() for 0.1 seconds
 
 # Place teammate (AI) at origin
 teammate = new Player at (0, 0, 0), with name "teammate", with team "blue", with behavior TeammatePass()
@@ -141,7 +103,7 @@ ego = new Coach ahead of teammate by coach_start_dist,
     with xMark Vector(0, 0, 0),  # Set initial xMark position
     with triggerPass False  # Initialize triggerPass to False
 
-# Place opponent ahead of coach (closer to goal than coach)
+# Place opponent ahead of coach (further from goal than coach)
 opponent = new Player ahead of ego by opponent_dist, facing toward ego, with name "opponent", with team "red", with behavior OpponentFollowCoach()
 
 # Ball at teammate's feet

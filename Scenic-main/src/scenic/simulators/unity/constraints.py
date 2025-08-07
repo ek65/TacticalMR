@@ -738,7 +738,9 @@ class MovingTowards(Constraint):
         current_distance = distance(obj[0].position, ref[0].position)
         previous_distance = distance(obj[0].prevPosition, ref[0].prevPosition)
 
-        return previous_distance - current_distance <= -0.05
+        # print(f"DEBUG: MovingTowards - Current Distance: {current_distance}, Previous Distance: {previous_distance}")
+
+        return previous_distance - current_distance <= 0.05
     
 
 # MARK: Pressure

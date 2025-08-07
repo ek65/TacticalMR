@@ -88,26 +88,20 @@ def λ_target_goal():
     return A1target_4.dist(simulation(), ego=True)
 
 
-# Replaced "no pressure" with "clear path to goal"
-def λ_path_to_goal():
-    # Returns True if there is an unobstructed 2m path from Coach to the goal
-    return HasPath({
-        'obj1': 'Coach',
-        'obj2': 'goal',
-        'path_width': {'avg': 2.0, 'std': 0.3}
-    }).bool(simulation())
+# New: Lambda function to check if the opponent is NOT pressuring Coach
+def λ_no_pressure():
+    # Returns True if opponent is NOT pressuring coach
+    return not Pressure({'player1': 'opponent', 'player2': 'Coach'}).bool(simulation())
 
 
 behavior CoachBehavior():
     do Idle() for 3 seconds
-    do Speak(
-        "Move 4 to 8 meters away left of teammate where teammate's passing lane is clear (2m width)."
-    )
+    do Speak("Move 4 to 8 meters away left of teammate where teammate's passing lane is clear (2m width).")
     do MoveTo(λ_target0(), True)
 
-    # Changed: Check for clear path to goal instead of opponent pressure
-    if λ_path_to_goal():
-        do Speak("Path to goal is clear, shooting for goal.")
+    # Insert branch: If there is no pressure from the opponent, shoot; else proceed as before
+    if λ_no_pressure():
+        do Speak("No pressure from opponent, shooting for goal.")
         do Shoot(goal)
         do Idle()  # End here if shot; follows structure that always ends with Idle.
     else:

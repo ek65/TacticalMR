@@ -7,56 +7,57 @@ from scenic.core.regions import MeshVolumeRegion
 import random
 ####HEADER ENDS####
 
-behavior CoachBehavior():
-    do Idle() for 3 seconds
-    do Speak("Move to the side at (x:-3, y:7) to lure the opponent by at least 2 meters to the left")
-    do MoveTo(lambda_target0(), True)
-    do Speak("Wait for the pass from teammate and gain possession")
-    do Idle() until lambda_precondition_0()
-    do Speak("Stop, receive, and gain possession of the ball here")
-    do StopAndReceiveBall()
-    do Speak("Check if opponent is pressuring. If so, pass back to teammate; else dribble upfield")
-    if lambda_precondition_1():
-        do Speak("Opponent is pressuring you. Pass the ball quickly back to teammate")
-        do Pass(teammate)
-    else:
-        do Speak("Opponent is not pressuring you. Dribble the ball up the field beyond 3 meters from current y")
-        do MoveTo(lambda_target2(), False)
-    do Idle()
-
-
-# Constraint and target definitions
-
-# MoveTo the check location to the left (x ≈ -2.92, y ≈ 6.75) away from opponent, at least 2m horizontally for clear lure
-A1target_0 = DistanceTo({'from': 'Coach', 'to': 'opponent', 'min': {'avg': 2.0, 'std': 0.3}, 'max': {'avg': 1000.0, 'std': 1.0}, 'operator': 'greater_than'})
-# A2target_0 = HorizontalRelation({'obj': 'Coach', 'ref': 'opponent', 'relation': 'left', 'horizontal_threshold': {'avg': 2.0, 'std': 0.3}})
-A3target_0 = DistanceTo({'from': 'Coach', 'to': 'ball', 'min': {'avg': 0.0, 'std': 0.01}, 'max': {'avg': 1.0, 'std': 0.2}, 'operator': 'less_than'})
-
-def lambda_target0():
-    cond = A1target_0 and A3target_0
+A1target_side0 = DistanceTo({'from': 'Coach', 'to': 'opponent', 'min': {'avg': 5.5, 'std': 0.1}, 'max': None, 'operator': 'greater_than'})
+A2target_side0 = DistanceTo({'from': 'Coach', 'to': 'teammate', 'min': {'avg': 4.0, 'std': 0.1}, 'max': None, 'operator': 'greater_than'})
+def λ_target_side0():
+    cond = A1target_side0 and A2target_side0
     return cond.dist(simulation(), ego=True)
 
-# Precondition: Check that coach received a pass and has ball possession
-A1precondition_0 = HasBallPossession({'player': 'Coach'})
-def lambda_precondition_0():
-    return A1precondition_0.bool(simulation())
+A1precondition_pass0 = MakePass({'player': 'teammate'})
+def λ_precondition_pass0():
+    return A1precondition_pass0.bool(simulation())
 
-# Precondition: Is opponent pressuring coach after receiving the ball?
-A1precondition_1 = Pressure({'player1': 'opponent', 'player2': 'Coach'})
-def lambda_precondition_1():
-    return A1precondition_1.bool(simulation())
+A1precondition_receive0 = HasBallPossession({'player': 'Coach'})
+def λ_precondition_receive0():
+    return A1precondition_receive0.bool(simulation())
 
-# If not pressured, dribble up the field: "up" is higher y, move at least 3m upfield
-A1target_2 = HeightRelation({'obj': 'Coach', 'relation': 'above', 'ref': None, 'height_threshold': {'avg': 3.0, 'std': 0.4}})
-def lambda_target2():
-    return A1target_2.dist(simulation(), ego=True)
+A1precondition_pressure0 = Pressure({'player1': 'opponent', 'player2': 'Coach'})
+def λ_precondition_pressure0():
+    return A1precondition_pressure0.bool(simulation())
+
+A1precondition_teammate_moves0 = MovingTowards({'obj': 'teammate', 'ref': 'goal'})
+def λ_precondition_teammate_moves0():
+    return A1precondition_teammate_moves0.bool(simulation())
+
+behavior CoachBehavior():
+    do Idle() for 3 seconds
+    do Speak("Move to the side so you are more than 5 meters from opponent and 4 meters from teammate.")
+    do MoveTo(λ_target_side0(), False)
+    do Speak("Wait until the teammate passes you the ball.")
+    do Idle() until λ_precondition_pass0()
+    do Speak("Get ready to receive. Wait until you have ball possession.")
+    do Idle() until λ_precondition_receive0()
+    do Speak("You now have the ball. Assess if opponent is pressuring you.")
+    if λ_precondition_pressure0():
+        do Speak("Opponent is pressuring. Pass the ball back to teammate.")
+        do Pass(teammate)
+        do Speak("Wait until teammate moves towards the goal.")
+        do Idle() until λ_precondition_teammate_moves0()
+    else:
+        do Speak("No immediate pressure. Dribble (move) up the field more than 8 meters from opponent.")
+        A1target_upfield = DistanceTo({'from': 'Coach', 'to': 'opponent', 'min': {'avg': 8.0, 'std': 0.5}, 'max': None, 'operator': 'greater_than'})
+        def λ_target_upfield():
+            return A1target_upfield.dist(simulation(), ego=True)
+        do MoveTo(λ_target_upfield(), False)
+    do Idle()
 
 ####Environment Behavior START####
 # Parameters for variance
-coach_start_dist = Range(5, 8)  # initial distance from teammate
-coach_check_dist = Range(4, 6)   # how much closer coach checks
-coach_check_angle = Range(-45, 45)  # angle of check (degrees)
-opponent_dist = Range(2, 7)         # distance behind coach
+coach_start_dist = Uniform(5, 8)  # initial distance from teammate
+coach_check_dist = Uniform(4, 6)   # how much closer coach checks
+coach_check_angle = Uniform(-45, 45)  # angle of check (degrees)
+opponent_dist = Uniform(4, 7)         # distance behind coach
+opponent_speed = 2        # opponent's movement speed
 
 # Behaviors
 behavior TeammatePass():
@@ -103,34 +104,64 @@ behavior TeammatePass():
                 target_x = 6.0 if coach_x < 0 else -6.0
             
             # Move forward to the target position (toward goal, so positive Y)
-            target_position = Vector(target_x, 11.0, 0)
+            target_position = Vector(target_x, 10.0, 0)
             do MoveToBehavior(target_position, distance=0.5)
             do Idle() for 1.0 seconds
-
 
     do Idle()
 
 behavior OpponentFollowCoach():
-
-    do Idle() for 5.5 seconds  # Wait 6 seconds before starting to follow
+    do Idle() for 1.0 seconds  # Wait for coach to start checking
+    speed = float(opponent_speed)
+    do SetPlayerSpeed(speed)
     
-    # Set opponent speed
-    do SetPlayerSpeed(4.0)
+    # Track if we've already made a decision when ego received the ball
+    decision_made = False
+    go_to_coach = False
     
     while True:
-        # Follow coach only until coach receives the ball
-        if not ego.gameObject.ballPossession:
-            # Follow coach and try to get close to them
-            do MoveToBehavior(ego.position, distance=1.5)
+        # Follow coach and maintain exactly 5m distance from ego
+        if distance from self to ego > 5.1:
+            do MoveToBehavior(ego.position, distance=5)
+        elif distance from self to ego < 4.9:
+            do MoveToBehavior(ego.position, distance=5)
         else:
-            # Stop following - coach received the ball
-            do Idle()
+            do Idle() for 0.1 seconds
             
-    
-
-
-
-
+        # Check if ego has received the ball and we haven't made a decision yet
+        if ego.gameObject.ballPossession and not decision_made:
+            # Wait a bit before making decision to give coach time
+            do Idle() for 1.5 seconds
+            print("DEBUG: Opponent making attack decision")
+            # Uniformly decide whether to go to coach or stay on radius
+            decision = Uniform(0, 1)
+            go_to_coach = (decision < 0.5)
+            decision_made = True
+            
+            if True:
+                do Idle() for 1.0 seconds  # Additional wait before attack
+                # Go to coach (closer distance)
+                print('DEBUG: Opponent attacking!')
+                do MoveToBehavior(ego.position, distance=2)
+                do InterceptBall()
+            else:
+                # Stay on current radius (3.5m from ego)
+                do Idle() for 0.1 seconds
+                # Continue maintaining 5m distance
+                while ego.gameObject.ballPossession:
+                    if distance from self to ego > 5:
+                        do MoveToBehavior(ego.position, distance=5)
+                    else:
+                        do Idle() for 0.1 seconds
+                        
+        # If ego no longer has the ball, reset decision tracking
+        if not ego.gameObject.ballPossession:
+            decision_made = False
+            go_to_coach = False
+            
+        # If opponent is close to coach and ball is nearby, intercept it
+        if distance from self to ego <= 1.0 and distance from self to ball <= 1.0:
+            do InterceptBall()
 
 # Place teammate (AI) at origin
 teammate = new Player at (0, 0, 0), with name "teammate", with team "blue", with behavior TeammatePass()
@@ -143,7 +174,7 @@ ego = new Coach ahead of teammate by coach_start_dist,
     with xMark Vector(0, 0, 0),  # Set initial xMark position
     with triggerPass False  # Initialize triggerPass to False
 
-# Place opponent ahead of coach (closer to goal than coach)
+# Place opponent ahead of coach (further from goal than coach)
 opponent = new Player ahead of ego by opponent_dist, facing toward ego, with name "opponent", with team "red", with behavior OpponentFollowCoach()
 
 # Ball at teammate's feet
