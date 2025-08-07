@@ -100,7 +100,7 @@ class GoalKeeper(Player):
 class Human(UnityObject):
     gameObjectType : "human"
     width : 0.1
-    length : 2.0
+    length : 0.1
     height : 0.1
     team : "blue"
     path : None

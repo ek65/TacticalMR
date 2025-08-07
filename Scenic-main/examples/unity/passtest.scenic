@@ -77,28 +77,28 @@ def λ_choose_overlap_side():
 behavior CoachBehavior():
     do Idle() for 3 seconds
 
-    do SetPlayerSpeed(1.0)
     # Allow both left and right overlap; narrate accordingly, logic decides side
     # do Speak("Move to overlapping position, either left or right at about 40 degrees and 8 meters from ball, to receive pass from teammate")
     # Decision: choose left or right side based on which is more open
     do MoveTo(λ_choose_overlap_side(), True)
 
+    print("1")
     # do Speak("Wait until teammate passes the ball")
     do Idle() until λ_precondition_teammate_passed()
-
+    print("2")
     # do Speak("Stop to receive the ball from teammate after pass")
     do StopAndReceiveBall()
-
+    print("3")
     # Insert pause (Idle) after receiving to make this a true transition (per instructor's request)
     # do Speak("Pause momentarily to clearly separate ball reception and next action")
     do Idle() for 1 seconds
-
+    print("4")
     # do Speak("Wait until you get ball possession")
     do Idle() until λ_precondition_coach_has_ball()
-
+    print("5")
     # do Speak("Wait until teammate moves forward towards goal")
     do Idle() until λ_precondition_teammate_ready()
-
+    print("6")
     # do Speak("Pass to your teammate who is advancing towards goal")
     do Pass('teammate')
 
