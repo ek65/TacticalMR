@@ -431,7 +431,7 @@ public class JSONToLLM : MonoBehaviour
             // Debug.Log("JSON LOGGING");
             time += 0.02f;
             PopulateSegment();
-            if (!recorderManager.RecorderController.IsRecording())
+            if (!recorderManager.disableVideoRecording && !recorderManager.RecorderController.IsRecording())
             {
                 recorderManager.StartRecording();
                 videoIsRecording = recorderManager.RecorderController.IsRecording();
@@ -439,7 +439,7 @@ public class JSONToLLM : MonoBehaviour
         }
         else if (!isLogging)
         {
-            if (recorderManager.RecorderController.IsRecording())
+            if (!recorderManager.disableVideoRecording && recorderManager.RecorderController.IsRecording())
             {
                 recorderManager.StopRecording();
                 videoIsRecording = recorderManager.RecorderController.IsRecording();

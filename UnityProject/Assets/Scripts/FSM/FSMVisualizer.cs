@@ -54,7 +54,19 @@ public class FSMVisualizer : MonoBehaviour
     public float transitionThickness = 6f;
     public Vector2 arrowHeadSize = new Vector2(28, 28);
     public Sprite arrowSprite;
-
+    
+    [Header("Annotation")]
+    public Button annotateButton;
+    private KeyboardInput keyboardInput;
+    private JSONToLLM jsonToLLM;
+    // Track selected item for annotation
+    private int selectedStateId = -1;
+    private int selectedTransitionId = -1;
+    private bool isStateSelected = false;
+    // Track annotated items for highlighting
+    private HashSet<int> annotatedStates = new HashSet<int>();
+    private HashSet<int> annotatedTransitions = new HashSet<int>();
+    
     [Header("Debug")]
     public bool logVerbose = true;
 
@@ -65,6 +77,7 @@ public class FSMVisualizer : MonoBehaviour
     void Start()
     {
         TryRun();
+        SetupAnnotateButton();
     }
 
     #region Bootstrap
@@ -391,6 +404,10 @@ public class FSMVisualizer : MonoBehaviour
                 {
                     btn.onClick.AddListener(() =>
                     {
+                        selectedStateId = capturedId;
+                        selectedTransitionId = -1;
+                        isStateSelected = true;
+    
                         if (descriptionText != null)
                             descriptionText.text = $"[State {capturedId}] {s.name}\n{capturedDesc}";
                         Log($"State {capturedId} clicked: {capturedDesc}");
@@ -457,6 +474,10 @@ public class FSMVisualizer : MonoBehaviour
             {
                 btn.onClick.AddListener(() =>
                 {
+                    selectedStateId = -1;
+                    selectedTransitionId = trans.id;
+                    isStateSelected = false;
+    
                     if (descriptionText != null)
                         descriptionText.text = desc;
                     Log($"Transition {trans.id} clicked: {desc}");
@@ -503,6 +524,121 @@ public class FSMVisualizer : MonoBehaviour
         return scale + 6f; // +6 for buffer
     }
 
+    #endregion
+    
+    #region Annotations
+    
+    void SetupAnnotateButton()
+    {
+        keyboardInput = FindObjectOfType<KeyboardInput>();
+        if (keyboardInput == null)
+        {
+            Debug.LogError("[FSMVisualizer] KeyboardInput component not found!");
+        }
+        
+        jsonToLLM = FindObjectOfType<JSONToLLM>();
+    
+        if (annotateButton != null)
+        {
+            annotateButton.onClick.AddListener(HandleAnnotateClick);
+        }
+    }
+    
+    void HandleAnnotateClick()
+    {
+        if (keyboardInput == null)
+        {
+            Log("KeyboardInput not found for annotation");
+            return;
+        }
+    
+        if (selectedStateId == -1 && selectedTransitionId == -1)
+        {
+            Log("No node or transition selected for annotation");
+            return;
+        }
+
+        if (isStateSelected)
+        {
+            // Node annotation
+            Dictionary<string, object> nodeAnnotation = new Dictionary<string, object>
+            {
+                { "type", "node annotation" },
+                { "stateId", selectedStateId },
+                { "description", descriptionText.text }
+            };
+        
+            keyboardInput.annotation.Add(keyboardInput.clickOrder, nodeAnnotation);
+            keyboardInput.annotationDescriptions.Add(keyboardInput.clickOrder, $"Node annotation: State {selectedStateId}");
+            
+            // Highlight the annotated node
+            annotatedStates.Add(selectedStateId);
+            HighlightAnnotatedNode(selectedStateId);
+        
+            Log($"Added node annotation for state {selectedStateId}, key {keyboardInput.clickOrder}");
+        }
+        else
+        {
+            // Edge annotation  
+            Dictionary<string, object> edgeAnnotation = new Dictionary<string, object>
+            {
+                { "type", "edge annotation" },
+                { "transitionId", selectedTransitionId },
+                { "description", descriptionText.text }
+            };
+        
+            keyboardInput.annotation.Add(keyboardInput.clickOrder, edgeAnnotation);
+            keyboardInput.annotationDescriptions.Add(keyboardInput.clickOrder, $"Edge annotation: Transition {selectedTransitionId}");
+            
+            // Highlight the annotated transition
+            annotatedTransitions.Add(selectedTransitionId);
+            HighlightAnnotatedTransition(selectedTransitionId);
+        
+            Log($"Added edge annotation for transition {selectedTransitionId}, key {keyboardInput.clickOrder}");
+        }
+        
+        keyboardInput.annotationTimes.Add(keyboardInput.clickOrder, Time.time - keyboardInput.segmentStartTime);
+    
+        keyboardInput.clickOrder++;
+    }
+    
+    void HighlightAnnotatedNode(int stateId)
+    {
+        if (stateNodes.ContainsKey(stateId))
+        {
+            GameObject node = stateNodes[stateId];
+            Image nodeImage = node.GetComponent<Image>();
+            if (nodeImage != null)
+            {
+                nodeImage.color = Color.yellow;
+            }
+        }
+    }
+
+    void HighlightAnnotatedTransition(int transitionId)
+    {
+        // Find transition line by name
+        GameObject transitionLine = GameObject.Find($"UILine_{transitionId}");
+        if (transitionLine != null)
+        {
+            Image lineImage = transitionLine.GetComponent<Image>();
+            if (lineImage != null)
+            {
+                lineImage.color = Color.yellow;
+            }
+        
+            // Also highlight the arrowhead if it exists
+            Transform arrowHead = transitionLine.transform.parent.Find("ArrowHead");
+            if (arrowHead != null)
+            {
+                Image arrowImage = arrowHead.GetComponent<Image>();
+                if (arrowImage != null)
+                {
+                    arrowImage.color = Color.yellow;
+                }
+            }
+        }
+    }
     #endregion
 
     #region Utils
