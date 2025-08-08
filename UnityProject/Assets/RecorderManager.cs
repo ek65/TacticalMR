@@ -15,9 +15,10 @@ public class RecorderManager : MonoBehaviour
     private RecorderController m_RecorderController;
     public RecorderController RecorderController => m_RecorderController;
 
-    public bool m_RecordAudio = true;
+    private bool m_RecordAudio = false;
     internal MovieRecorderSettings m_Settings = null;
     public int recordingNum = -1;
+    public bool disableVideoRecording = false;
 
     public FileInfo OutputFile
     {
