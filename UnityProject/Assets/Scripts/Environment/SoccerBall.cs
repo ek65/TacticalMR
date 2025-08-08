@@ -32,15 +32,30 @@ public class SoccerBall : MonoBehaviour
     float _groundHeight;
     bool _isGrounded;
 
+    private BallOwnership ballOwnership;
+
     void Awake()
     {
         _rb = GetComponent<Rigidbody>();
         _stopDistanceSqr = stopDistance * stopDistance;
         FindGroundHeight();
+        ballOwnership = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<BallOwnership>();
     }
 
     void FixedUpdate()
     {
+        if (ballOwnership.ballOwner != null)
+        {
+            // Someone has possession - clear destination and stop all guidance
+            if (_hasDestination)
+            {
+                destination = Vector3.zero;
+                _hasDestination = false;
+                Debug.Log($"Ball possession gained by {ballOwnership.ballOwner.name} - destination cleared");
+            }
+            return; // Stop processing destination logic
+        }
+        
         // Always manage ground position and bouncing
         ManageGroundPosition();
 
