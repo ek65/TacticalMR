@@ -2,7 +2,7 @@
 
 # Ego (center midfielder) at origin
 pi = 3.1415
-ego = new Coach at (0, 0, 0), facing toward (0, 0, 0), with team "blue", with behavior CoachBehavior()
+ego = new Coach at (0, 0, 0), with team "blue", with behavior CoachBehavior()
 
 # Wingers
 left_winger_angle = -90 + Uniform(0, 10)  # degrees from y-axis, 90 is positive x-axis (left), variance +/-10
