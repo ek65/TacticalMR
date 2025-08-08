@@ -22,56 +22,51 @@ behavior TeammatePass():
         do Idle() for 1.0 seconds
         do Pass(ego.xMark)
         # Idle after the pass happens
-        do Idle() for 2.0 seconds
+        do Idle() for 1.0 seconds
         
-        # Wait to receive ball back from coach
-        do Idle() until self.gameObject.ballPossession
+        # move forward to opposite side of field
+        # Determine which side coach and opponent are on
+        coach_x = ego.position.x
+        opponent_x = opponent.position.x
         
-        # When receiving ball back, move forward to opposite side of field
-        if self.gameObject.ballPossession:
-            # Determine which side coach and opponent are on
-            coach_x = ego.position.x
-            opponent_x = opponent.position.x
-            
-            # Calculate target position on opposite side
-            # X-axis ranges from -10 to +10, with 0 at center
-            # If coach and opponent are on positive side, go to negative side
-            # If coach and opponent are on negative side, go to positive side
-            if coach_x > 0 and opponent_x > 0:
-                # Both on positive side (right), go to negative side (left)
-                target_x = -6.0
-            elif coach_x < 0 and opponent_x < 0:
-                # Both on negative side (left), go to positive side (right)
-                target_x = 6.0
-            else:
-                # Mixed positions, go to the side with more space
-                # If coach is on left (negative), go right (positive)
-                # If coach is on right (positive), go left (negative)
-                target_x = 6.0 if coach_x < 0 else -6.0
-            
-            # Move forward to the target position (toward goal, so positive Y)
-            target_position = Vector(target_x, 11.0, 0)
-            do MoveToBehavior(target_position, distance=0.5)
-            do Idle() for 1.0 seconds
+        # Calculate target position on opposite side
+        # X-axis ranges from -10 to +10, with 0 at center
+        # If coach and opponent are on positive side, go to negative side
+        # If coach and opponent are on negative side, go to positive side
+        if coach_x > 0 and opponent_x > 0:
+            # Both on positive side (right), go to negative side (left)
+            target_x = -6.0
+        elif coach_x < 0 and opponent_x < 0:
+            # Both on negative side (left), go to positive side (right)
+            target_x = 6.0
+        else:
+            # Mixed positions, go to the side with more space
+            # If coach is on left (negative), go right (positive)
+            # If coach is on right (positive), go left (negative)
+            target_x = 6.0 if coach_x < 0 else -6.0
+        
+        # Move forward to the target position (toward goal, so positive Y)
+        target_position = Vector(target_x, ego.position.y, 0)
+        do MoveToBehavior(target_position, distance=0.5)
+        do Idle() for 1.0 seconds
 
+        do Idle() until self.gameObject.ballPossession
+        do Shoot(goal)
+        do Idle() for 1.0 seconds
+        do Shoot(goal)
 
     do Idle()
 
 behavior OpponentFollowCoach():
 
-    do Idle() for 5.5 seconds  # Wait 6 seconds before starting to follow
+    do Idle() until ego.gameObject.ballPossession
     
     # Set opponent speed
     do SetPlayerSpeed(4.0)
     
     while True:
         # Follow coach only until coach receives the ball
-        if not ego.gameObject.ballPossession:
-            # Follow coach and try to get close to them
-            do MoveToBehavior(ego.position, distance=3)
-        else:
-            # Stop following - coach received the ball
-            do Idle()
+        do MoveToBehavior(ego.position, distance=4)
             
     
 
