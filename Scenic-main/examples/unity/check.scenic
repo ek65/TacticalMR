@@ -9,10 +9,8 @@ import random
 import math
 
 # Parameters for variance
-coach_start_dist = Range(5, 8)  # initial distance from teammate
-coach_check_dist = Range(4, 6)   # how much closer coach checks
-coach_check_angle = Range(-45, 45)  # angle of check (degrees)
-opponent_dist = Range(4, 7)         # distance behind coach
+coach_start_dist = Range(5, 6)  # initial distance from teammate
+opponent_dist = Range(4, 6)         # distance behind coach
 
 # Behaviors
 behavior TeammatePass():
@@ -30,54 +28,50 @@ behavior TeammatePass():
         do Idle() for 1.0 seconds
         do Pass(ego.gameObject.xMark)
         # Idle after the pass happens
-        do Idle() for 2.0 seconds
+        do Idle() for 1.0 seconds
         
-        # Wait to receive ball back from coach
+        # move forward to opposite side of field
+        # Determine which side coach and opponent are on
+        coach_x = ego.position.x
+        opponent_x = opponent.position.x
+        
+        # Calculate target position on opposite side
+        # X-axis ranges from -10 to +10, with 0 at center
+        # If coach and opponent are on positive side, go to negative side
+        # If coach and opponent are on negative side, go to positive side
+        if coach_x > 0 and opponent_x > 0:
+            # Both on positive side (right), go to negative side (left)
+            target_x = -6.0
+        elif coach_x < 0 and opponent_x < 0:
+            # Both on negative side (left), go to positive side (right)
+            target_x = 6.0
+        else:
+            # Mixed positions, go to the side with more space
+            # If coach is on left (negative), go right (positive)
+            # If coach is on right (positive), go left (negative)
+            target_x = 6.0 if coach_x < 0 else -6.0
+        
+        # Move forward to the target position (toward goal, so positive Y)
+        target_position = Vector(target_x, ego.position.y, 0)
+        do MoveToBehavior(target_position, distance=0.5)
+        do Idle() for 1.0 seconds
+
         do Idle() until self.gameObject.ballPossession
-        
-        # When receiving ball back, move forward to opposite side of field
-        if self.gameObject.ballPossession:
-            # Determine which side coach and opponent are on
-            coach_x = ego.position.x
-            opponent_x = opponent.position.x
-            
-            # Calculate target position on opposite side
-            # X-axis ranges from -10 to +10, with 0 at center
-            # If coach and opponent are on positive side, go to negative side
-            # If coach and opponent are on negative side, go to positive side
-            if coach_x > 0 and opponent_x > 0:
-                # Both on positive side (right), go to negative side (left)
-                target_x = -6.0
-            elif coach_x < 0 and opponent_x < 0:
-                # Both on negative side (left), go to positive side (right)
-                target_x = 6.0
-            else:
-                # Mixed positions, go to the side with more space
-                # If coach is on left (negative), go right (positive)
-                # If coach is on right (positive), go left (negative)
-                target_x = 6.0 if coach_x < 0 else -6.0
-            
-            # Move forward to the target position (toward goal, so positive Y)
-            target_position = Vector(target_x, 10.0, 0)
-            do MoveToBehavior(target_position, distance=0.5)
-            do Idle() for 1.0 seconds
+        do Shoot(goal)
+        do Idle() for 1.0 seconds
+        do Shoot(goal)
     
     do Idle()
 
 behavior OpponentFollowCoach():
-    do Idle() for 1 seconds  # Wait 6 seconds before starting to follow
-    
+    do Idle() until ego.gameObject.ballPossession    
+
     # Set opponent speed
     do SetPlayerSpeed(4.0)
     
     while True:
         # Follow coach only until coach receives the ball
-        if not ego.gameObject.ballPossession:
-            # Follow coach and try to get close to them
-            do MoveToBehavior(ego.position, distance=3)
-        else:
-            # Stop following - coach received the ball
-            do Idle()
+        do MoveToBehavior(ego.position, distance=4)
 
 # Place teammate (AI) at origin
 teammate = new Player at (0, 0, 0), with name "teammate", with team "blue", with behavior TeammatePass()
@@ -92,7 +86,5 @@ opponent = new Player ahead of ego by opponent_dist, facing toward ego, with nam
 ball = new Ball ahead of teammate by 0.5
 
 goal = new Goal at (0, 17, 0)
-
-line = new Line at (0, 10, 0)
 
 terminate when (ego.gameObject.stopButton)

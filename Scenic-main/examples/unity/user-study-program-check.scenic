@@ -1,9 +1,7 @@
 ####Environment Behavior START####
 # Parameters for variance
-coach_start_dist = Range(5, 8)  # initial distance from teammate
-coach_check_dist = Range(4, 6)   # how much closer coach checks
-coach_check_angle = Range(-45, 45)  # angle of check (degrees)
-opponent_dist = Range(2, 7)         # distance behind coach
+coach_start_dist = Range(5, 6)  # initial distance from teammate
+opponent_dist = Range(4, 6)         # distance behind coach
 
 # Behaviors
 behavior TeammatePass():
@@ -92,4 +90,5 @@ opponent = new Player ahead of ego by opponent_dist, facing toward ego, with nam
 ball = new Ball ahead of teammate by 0.5
 
 goal = new Goal at (0, 17, 0)
+
 terminate when (ego.gameObject.stopButton)
