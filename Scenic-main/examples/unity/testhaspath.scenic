@@ -44,17 +44,17 @@ def λ_termination_pass():
     return not termination_pass.bool(simulation())
 behavior CoachBehavior():
     do Idle() for 3 seconds
-    # do Speak("My teammate is blocked, so I will move about 8 meters away to create a clear passing lane.")
+    do Speak("My teammate is blocked, so I will move about 8 meters away to create a clear passing lane.")
     # Now MoveTo will only select open lateral/upfield positions (not downward)
-    do MoveTo(Vector(-1,8,0), True)
-    # do Speak("Now, I will wait until I receive the ball from my teammate.")
+    do MoveTo(λ_target0(), True)
+    do Speak("Now, I will wait until I receive the ball from my teammate.")
     do Idle() until λ_precondition_wait()
-    # do Speak("Now that I have the ball, I will check if I have a clear shot at the goal.")
+    do Speak("Now that I have the ball, I will check if I have a clear shot at the goal.")
     if λ_precondition_shoot():
-        # do Speak("I have a clear shot at the goal, so I will take it.")
+        do Speak("I have a clear shot at the goal, so I will take it.")
         do Shoot(goal)
     else:
-        # do Speak("The opponent is blocking my path to the goal, so I will pass the ball back to my teammate.")
+        do Speak("The opponent is blocking my path to the goal, so I will pass the ball back to my teammate.")
         do Pass(teammate)
     do Idle()
 ####Environment Behavior START####

@@ -6710,7 +6710,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1389603725
 RectTransform:
   m_ObjectHideFlags: 0
@@ -10290,7 +10290,7 @@ MonoBehaviour:
   nodesContainer: {fileID: 1351270456}
   nodeButtonPrefab: {fileID: 6012875260061305257, guid: 6496066f747644484bd936599635476d, type: 3}
   descriptionText: {fileID: 934879876}
-  fsmDataPath: JSONFSM/overlap-openai-fsm1-fsm
+  fsmDataPath: _FSM/fsm
   fixedNodeWidth: 100
   paddingY: 20
   maxHeight: 200
