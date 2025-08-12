@@ -11,11 +11,11 @@ winger_dist = Uniform(6,8)
 
 left_winger_x = winger_dist * sin(left_winger_angle * pi / 180)
 left_winger_y = winger_dist * cos(left_winger_angle * pi / 180)
-left_winger = new Player at (left_winger_x, left_winger_y, 0), facing toward ego, with name "LeftWinger", with team "blue"
+LeftWinger = new Player at (left_winger_x, left_winger_y, 0), facing toward ego, with name "LeftWinger", with team "blue"
 
 right_winger_x = winger_dist * sin(right_winger_angle * pi / 180)
 right_winger_y = winger_dist * cos(right_winger_angle * pi / 180)
-right_winger = new Player at (right_winger_x, right_winger_y, 0), facing toward ego, with name "RightWinger", with team "blue"
+RightWinger = new Player at (right_winger_x, right_winger_y, 0), facing toward ego, with name "RightWinger", with team "blue"
 
 # Strikers
 left_striker_angle = -Uniform(8, 20)

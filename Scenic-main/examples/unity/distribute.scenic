@@ -19,11 +19,11 @@ winger_dist = Uniform(6,8)
 
 left_winger_x = winger_dist * sin(left_winger_angle * pi / 180)
 left_winger_y = winger_dist * cos(left_winger_angle * pi / 180)
-left_winger = new Player at (left_winger_x, left_winger_y, 0), facing toward ego, with name "LeftWinger", with team "blue"
+LeftWinger = new Player at (left_winger_x, left_winger_y, 0), facing toward ego, with name "LeftWinger", with team "blue"
 
 right_winger_x = winger_dist * sin(right_winger_angle * pi / 180)
 right_winger_y = winger_dist * cos(right_winger_angle * pi / 180)
-right_winger = new Player at (right_winger_x, right_winger_y, 0), facing toward ego, with name "RightWinger", with team "blue"
+RightWinger = new Player at (right_winger_x, right_winger_y, 0), facing toward ego, with name "RightWinger", with team "blue"
 
 # Strikers
 left_striker_angle = -Uniform(8, 20)
@@ -32,11 +32,11 @@ striker_dist = Uniform(8,10)
 
 left_striker_x = striker_dist * sin(left_striker_angle * pi / 180)
 left_striker_y = striker_dist * cos(left_striker_angle * pi / 180)
-left_striker = new Player at (left_striker_x, left_striker_y, 0), facing toward ego, with name "LeftStriker", with team "blue"
+LeftStriker = new Player at (left_striker_x, left_striker_y, 0), facing toward ego, with name "LeftStriker", with team "blue"
 
 right_striker_x = striker_dist * sin(right_striker_angle * pi / 180)
 right_striker_y = striker_dist * cos(right_striker_angle * pi / 180)
-right_striker = new Player at (right_striker_x, right_striker_y, 0), facing toward ego, with name "RightStriker", with team "blue"
+RightStriker = new Player at (right_striker_x, right_striker_y, 0), facing toward ego, with name "RightStriker", with team "blue"
 
 # Ball at ego's feet
 ball = new Ball at (0, .2, 0)
