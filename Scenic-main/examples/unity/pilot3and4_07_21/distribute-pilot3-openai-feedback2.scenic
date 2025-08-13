@@ -40,13 +40,13 @@ path_to_LS = HasPath({
     'obj1': 'Coach',
     'obj2': 'LeftStriker',
     # COMMENT: Reduced path_width from 2.0 to 1.0 to allow for "tighter" or more "ambitious" passes to strikers, as per coach feedback.
-    'path_width': {'avg': 1.0, 'std': 0.2}
+    'path_width': {'avg': 1.5, 'std': 0.2}
 })
 path_to_RS = HasPath({
     'obj1': 'Coach',
     'obj2': 'RightStriker',
     # COMMENT: Reduced path_width from 2.0 to 1.0 to allow for "tighter" or more "ambitious" passes to strikers, as per coach feedback.
-    'path_width': {'avg': 1.0, 'std': 0.2}
+    'path_width': {'avg': 1.5, 'std': 0.2}
 })
 path_to_RW = HasPath({
     'obj1': 'Coach',

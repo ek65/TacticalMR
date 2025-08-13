@@ -7,77 +7,105 @@ from scenic.core.regions import MeshVolumeRegion
 import random
 ####HEADER ENDS####
 
-A1target_0 = DistanceTo({'from': 'Coach', 'to': 'teammate', 'min': {'avg': 4.0, 'std': 0.5}, 'max': {'avg': 7.0, 'std': 1.0}, 'operator': 'within'})
-A2target_0 = HasPath({'obj1': 'teammate', 'obj2': 'Coach', 'path_width': {'avg': 1.5, 'std': 0.3}})
-A1precondition_0 = HasBallPossession({'player': 'Coach'})
-A2precondition_0 = MakePass({'player': 'teammate'})
-A1target_1 = DistanceTo({'from': 'goal', 'to': 'Coach', 'min': None, 'max': {'avg': 9.5, 'std': 1.0}, 'operator': 'less_than'})
-A2target_1 = HasPath({'obj1': 'Coach', 'obj2': 'goal', 'path_width': {'avg': 1.5, 'std': 0.3}})
-A1target_2 = HasPath({'obj1': 'Coach', 'obj2': 'teammate', 'path_width': {'avg': 1.5, 'std': 0.3}})
-A2precondition_2 = HasBallPossession({'player': 'teammate'})
-A1precondition_3 = MakePass({'player': 'Coach'})
-# Added for the fix: opponent should NOT be pressuring Coach
-A_is_pressured = Pressure({'player1': 'opponent', 'player2': 'Coach'})
+A1target_move_left = Overlap({
+    'player': 'Coach',
+    'ball': 'ball',
+    'goal': 'goal',
+    'opponent': 'opponent',
+    'theta': {'avg': 40, 'std': 7},
+    'dist': {'avg': 8, 'std': 1}
+})
 
-def λ_target0():
-    cond = A1target_0 & A2target_0
-    return cond.dist(simulation(), ego=True)
+# Added: Right side overlap, same angle/distance but for the other side
+A1target_move_right = Overlap({
+    'player': 'Coach',
+    'ball': 'ball',
+    'goal': 'goal',
+    'opponent': 'opponent',
+    'theta': {'avg': 40, 'std': 7},
+    'dist': {'avg': 8, 'std': 1}
+})
 
-def λ_precondition_0():
-    cond = A1precondition_0 & A2precondition_0
-    return cond.bool(simulation())
+A1precondition_teammate_has_ball = HasBallPossession({'player': 'teammate'})
+A1precondition_teammate_passed = MakePass({'player': 'teammate'})
+A1precondition_coach_has_ball = HasBallPossession({'player': 'Coach'})
+A1precondition_coach_passed = MakePass({'player': 'Coach'})
+A1precondition_teammate_ready = MovingTowards({'obj': 'teammate', 'ref': 'goal'})
+A1target_forward = DistanceTo({
+    'from': 'Coach',
+    'to': 'goal',
+    'min': None,
+    'max': {'avg': 12, 'std': 1},
+    'operator': 'less_than'
+})
 
-def λ_target1():
-    cond = A1target_1 & A2target_1
-    return cond.dist(simulation(), ego=True)
+def λ_target_move_left():
+    return A1target_move_left.dist(simulation(), ego=True)
 
-def λ_target2():
-    return A1target_2.dist(simulation(), ego=True)
+# Added for right-side
+def λ_target_move_right():
+    return A1target_move_right.dist(simulation(), ego=True)
 
-def λ_precondition_2():
-    return A2precondition_2.bool(simulation())
+def λ_precondition_teammate_has_ball():
+    return A1precondition_teammate_has_ball.bool(simulation())
 
-def λ_precondition_3():
-    return A1precondition_3.bool(simulation())
+def λ_precondition_teammate_passed():
+    return A1precondition_teammate_passed.bool(simulation())
 
-def λ_termination():
-    # Terminate if Coach loses possession unexpectedly (not success condition)
-    return not A1precondition_0.bool(simulation())
+def λ_precondition_coach_has_ball():
+    return A1precondition_coach_has_ball.bool(simulation())
 
-# Added for the fix: Helper to check if not pressured
-def λ_not_pressured():
-    # True if coach is not being pressured by opponent
-    return not A_is_pressured.bool(simulation())
+def λ_precondition_coach_passed():
+    return A1precondition_coach_passed.bool(simulation())
+
+def λ_precondition_teammate_ready():
+    return A1precondition_teammate_ready.bool(simulation())
+
+def λ_target_forward():
+    return A1target_forward.dist(simulation(), ego=True)
+
+# Helper: Choose left or right side to overlap based on which one is open (simple heuristic)
+def λ_choose_overlap_side():
+    # If left side is open, use it, else use right
+    left_prob = λ_target_move_left().max()
+    right_prob = λ_target_move_right().max()
+    if left_prob >= right_prob:
+        return λ_target_move_left()
+    else:
+        return λ_target_move_right()
 
 behavior CoachBehavior():
     do Idle() for 3 seconds
-    do Speak("I want to get open. Move to open space 4-7 meters from teammate where they have clear passing path.")
-    do MoveTo(λ_target0(), True)
-    do Speak("Wait for possession of the ball after teammate passes.")
-    do Idle() until λ_precondition_0()
-    do Speak("I now have the ball. I will immediately check if I'm under defensive pressure and if not, look for a shot.")
 
-    if λ_not_pressured():
-        if max([v for row in λ_target1() for v in row]) > 0.7:  # flatten array; check open shot
-            do Speak("Not under pressure and path to goal is clear. Taking the shot.")
-            do Shoot(goal)
-            do Idle()
-        else:
-            do Speak("Not under pressure but no clear shot. Look for pass.")
-            do Pass(teammate)
-            do Speak("Wait for teammate to regain possession before next instruction.")
-            do Idle() until λ_precondition_2()
-            do Speak("Once teammate has the ball, I will wait for a pass from them again with a clear path.")
-            do Idle() until λ_precondition_3()
-            do Idle()
-    else:
-        do Speak("I'm under defensive pressure. Look to pass to teammate with a clear path.")
-        do Pass(teammate)
-        do Speak("Wait for teammate to regain possession before next instruction.")
-        do Idle() until λ_precondition_2()
-        do Speak("Once teammate has the ball, I will wait for a pass from them again with a clear path.")
-        do Idle() until λ_precondition_3()
-        do Idle()
+    # Allow both left and right overlap; narrate accordingly, logic decides side
+    do Speak("Move to overlapping position, either left or right at about 40 degrees and 8 meters from ball, to receive pass from teammate")
+    # Decision: choose left or right side based on which is more open
+    do MoveTo(λ_choose_overlap_side(), True)
+
+    do Speak("Wait until teammate passes the ball")
+    do Idle() until λ_precondition_teammate_passed()
+
+    do Speak("Stop to receive the ball from teammate after pass")
+    do StopAndReceiveBall()
+
+    # Insert pause (Idle) after receiving to make this a true transition (per instructor's request)
+    do Speak("Pause momentarily to clearly separate ball reception and next action")
+    do Idle() for 1 seconds
+
+    do Speak("Wait until you get ball possession")
+    do Idle() until λ_precondition_coach_has_ball()
+
+    do Speak("Wait until teammate moves forward towards goal")
+    do Idle() until λ_precondition_teammate_ready()
+
+    do Speak("Pass to your teammate who is advancing towards goal")
+    do Pass('teammate')
+
+    do Speak("Wait until teammate passes towards goal")
+    do Idle() until λ_precondition_coach_passed()
+
+    do Speak("Idle while teammate moves to score after receiving pass")
+    do Idle()
 
 ####Environment Behavior START####
 
