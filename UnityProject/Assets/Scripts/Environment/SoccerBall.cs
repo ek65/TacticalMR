@@ -6,21 +6,21 @@ public class SoccerBall : MonoBehaviour
 {
     public Vector3 destination;
     [Tooltip("How close (in meters) before we consider ourselves 'there'")]
-    public float stopDistance = 0.2f;
+    public float stopDistance = 0.3f;
     [Tooltip("Minimum velocity threshold - below this, the ball stops")]
     public float minVelocityThreshold = 0.1f;
     [Tooltip("Force applied to guide ball toward destination")]
-    public float guidanceForce = 1f;
+    public float guidanceForce = 3f;
     [Tooltip("How often to apply guidance correction (in seconds)")]
     public float guidanceInterval = 0.1f;
     [Tooltip("Maximum distance before applying strong correction")]
-    public float maxDeviationDistance = 1f;
+    public float maxDeviationDistance = 2f;
     [Tooltip("Ground layer mask for ground detection")]
     public LayerMask groundLayerMask = 1; // Default layer
     [Tooltip("Height above ground to maintain")]
     public float groundOffset = 0.25f;
     [Tooltip("Maximum upward velocity allowed")]
-    public float maxUpwardVelocity = 1f;
+    public float maxUpwardVelocity = 2f;
 
     Rigidbody _rb;
     float _stopDistanceSqr;
@@ -31,33 +31,33 @@ public class SoccerBall : MonoBehaviour
     Vector3 _lastValidPosition;
     float _groundHeight;
     bool _isGrounded;
-
-    private BallOwnership ballOwnership;
+    BallOwnership _ballOwnership;
 
     void Awake()
     {
         _rb = GetComponent<Rigidbody>();
+        _ballOwnership = GetComponent<BallOwnership>();
         _stopDistanceSqr = stopDistance * stopDistance;
         FindGroundHeight();
-        ballOwnership = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<BallOwnership>();
     }
 
     void FixedUpdate()
     {
-        if (ballOwnership.ballOwner != null)
+        // Always manage ground position and bouncing
+        ManageGroundPosition();
+
+        // Check if someone has ball possession - if so, stop destination seeking
+        if (_ballOwnership != null && _ballOwnership.ballOwner != null)
         {
-            // Someone has possession - clear destination and stop all guidance
+            // Someone has possession - clear destination and stop guidance
             if (_hasDestination)
             {
                 destination = Vector3.zero;
                 _hasDestination = false;
-                Debug.Log($"Ball possession gained by {ballOwnership.ballOwner.name} - destination cleared");
+                Debug.Log($"Ball possession gained by {_ballOwnership.ballOwner.name} - destination cleared");
             }
-            return; // Stop processing destination logic
+            return; // Don't process destination logic
         }
-        
-        // Always manage ground position and bouncing
-        ManageGroundPosition();
 
         // Check if destination has changed or been set for the first time
         if (destination != _lastDestination)
@@ -90,7 +90,10 @@ public class SoccerBall : MonoBehaviour
         // Check if we should stop
         bool shouldStop = CheckIfShouldStop(horizontalDelta, currentSpeed, distanceToDestination);
         
-        if (shouldStop)
+        // Also check if we've overshot the destination
+        bool hasOvershot = CheckIfOvershot(horizontalDelta, currentSpeed, distanceToDestination);
+        
+        if (shouldStop || hasOvershot)
         {
             ForceStopAtDestination();
             return;
@@ -192,6 +195,38 @@ public class SoccerBall : MonoBehaviour
         return false;
     }
 
+    bool CheckIfOvershot(Vector3 horizontalDelta, float currentSpeed, float distanceToDestination)
+    {
+        // Only check for overshoot if we're moving and reasonably close to destination
+        if (currentSpeed < 0.1f || distanceToDestination > stopDistance * 3f)
+        {
+            return false;
+        }
+
+        // Get horizontal velocity
+        Vector3 horizontalVelocity = new Vector3(_rb.velocity.x, 0f, _rb.velocity.z);
+        
+        // Check if we're moving away from the destination
+        // Dot product will be negative if velocity is pointing away from destination
+        float dotProduct = Vector3.Dot(horizontalVelocity.normalized, horizontalDelta.normalized);
+        
+        // If we're moving away from destination and we're close, we've overshot
+        if (dotProduct < -0.3f && distanceToDestination <= stopDistance * 2f)
+        {
+            Debug.Log($"Ball overshot destination! Distance: {distanceToDestination:F3}, Dot: {dotProduct:F3}");
+            return true;
+        }
+
+        // Additional check: if we're very close and moving fast in any direction, stop
+        if (distanceToDestination <= stopDistance * 0.5f && currentSpeed > minVelocityThreshold * 2f)
+        {
+            Debug.Log($"Ball very close to destination with high speed - stopping to prevent overshoot");
+            return true;
+        }
+
+        return false;
+    }
+
     void ApplyGentleGuidance(Vector3 horizontalDelta, float distanceToDestination)
     {
         // Only apply guidance at intervals and when grounded to avoid over-correction
@@ -242,15 +277,38 @@ public class SoccerBall : MonoBehaviour
         pos.y = _groundHeight + groundOffset;
         transform.position = pos;
 
-        // Kill all motion (including spin when actually stopping)
+        // Kill all motion completely - ensure no residual velocity
         _rb.velocity = Vector3.zero;
         _rb.angularVelocity = Vector3.zero;
+        
+        // Briefly make kinematic to prevent any physics interference, then restore
+        StartCoroutine(TemporaryKinematic());
 
         // Clear destination
         destination = Vector3.zero;
         _hasDestination = false;
 
-        Debug.Log($"Ball stopped at destination: {pos}");
+        Debug.Log($"Ball forced to stop at destination: {pos}");
+    }
+    
+    // Temporarily make the ball kinematic to prevent any physics from moving it
+    IEnumerator TemporaryKinematic()
+    {
+        bool wasKinematic = _rb.isKinematic;
+        _rb.isKinematic = true;
+        
+        // Wait a few physics frames to ensure everything settles
+        for (int i = 0; i < 3; i++)
+        {
+            yield return new WaitForFixedUpdate();
+        }
+        
+        // Restore original kinematic state
+        _rb.isKinematic = wasKinematic;
+        
+        // Ensure velocity is still zero after restoring physics
+        _rb.velocity = Vector3.zero;
+        _rb.angularVelocity = Vector3.zero;
     }
 
     // Handle collisions to prevent bouncing
@@ -297,6 +355,13 @@ public class SoccerBall : MonoBehaviour
     // Public method to set destination and reset tracking
     public void SetDestination(Vector3 newDestination)
     {
+        // Don't set destination if someone already has ball possession
+        if (_ballOwnership != null && _ballOwnership.ballOwner != null)
+        {
+            Debug.Log($"Cannot set destination - ball is owned by {_ballOwnership.ballOwner.name}");
+            return;
+        }
+
         destination = newDestination;
         _hasDestination = true;
         _lastDestination = newDestination;
@@ -337,6 +402,18 @@ public class SoccerBall : MonoBehaviour
     {
         destination = Vector3.zero;
         _hasDestination = false;
+    }
+
+    // Public method to check if ball has an owner
+    public bool HasOwner()
+    {
+        return _ballOwnership != null && _ballOwnership.ballOwner != null;
+    }
+
+    // Public method to get current ball owner
+    public GameObject GetBallOwner()
+    {
+        return _ballOwnership != null ? _ballOwnership.ballOwner : null;
     }
 
     void OnDrawGizmosSelected()
