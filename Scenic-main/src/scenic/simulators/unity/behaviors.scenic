@@ -68,6 +68,9 @@ behavior LookAt(vec):
     take StopAction()
 
 behavior Shoot(goal):
+    scene = simulation()
+    if checkIfString(goal):
+        goal = [obj for obj in scene.objects if obj.name.lower() == goal.lower()][0] # converts string into object reference
     take  GroundPassFastAction(goal.position, "Shoot Ball")
 
 behavior MoveToBehavior(v, lookAtTarget = None, distance = 0.2, status=""):
