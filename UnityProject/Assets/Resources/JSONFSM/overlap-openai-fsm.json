@@ -2,18 +2,18 @@
   "states": [
     {
       "id": 1,
-      "name": "MoveTo(\u03bb_target0(), True)",
-      "description": "Move 4 to 8 meters away left of teammate where teammate's passing lane is clear (2m width)."
+      "name": "MoveTo(\u03bb_target_move_left(), True)",
+      "description": "Move to left overlapping position, about 40 degrees and 8 meters from ball, to receive pass from teammate"
     },
     {
       "id": 2,
-      "name": "Pass(teammate)",
-      "description": "Now, defender blocks path to goal. Look for teammate in open position, lane 2m wide."
+      "name": "StopAndReceiveBall()",
+      "description": "Stop to receive the ball from teammate after pass"
     },
     {
       "id": 3,
-      "name": "StopAndReceiveBall()",
-      "description": "Receive pass and wait until I regain possession of the ball."
+      "name": "Pass('teammate')",
+      "description": "Pass to your teammate who is advancing towards goal"
     }
   ],
   "transitions": [
@@ -28,22 +28,36 @@
       "id": 1002,
       "from": 1,
       "to": 2,
-      "condition": "until \u03bb_precondition_1()",
-      "description": "Wait until I have ball possession after teammate passes to me."
+      "condition": "until \u03bb_precondition_teammate_passed()",
+      "description": "Wait until teammate passes the ball"
     },
     {
       "id": 1003,
       "from": 2,
-      "to": 3,
-      "condition": "until \u03bb_precondition_2() and until \u03bb_precondition_3()",
-      "description": "Wait for teammate to get ball and move towards goal less than 8 meters away. Teammate should move closer to goal (<8m), then pass back to me."
+      "to": 2,
+      "condition": "until \u03bb_precondition_coach_has_ball()",
+      "description": "Wait until you get ball possession"
     },
     {
       "id": 1004,
+      "from": 2,
+      "to": 2,
+      "condition": "until \u03bb_precondition_teammate_ready()",
+      "description": "Wait until teammate moves forward towards goal"
+    },
+    {
+      "id": 1005,
+      "from": 2,
+      "to": 3,
+      "condition": true,
+      "description": "Pass to your teammate who is advancing towards goal"
+    },
+    {
+      "id": 1006,
       "from": 3,
       "to": 3,
-      "condition": "until \u03bb_precondition_4()",
-      "description": "Wait for teammate to regain ball to allow another pass."
+      "condition": "until \u03bb_precondition_coach_passed()",
+      "description": "Wait until teammate passes towards goal"
     }
   ]
 }
