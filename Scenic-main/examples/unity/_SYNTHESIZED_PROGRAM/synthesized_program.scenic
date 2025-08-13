@@ -7,63 +7,114 @@ from scenic.core.regions import MeshVolumeRegion
 import random
 ####HEADER ENDS####
 
+A1target_overlap = Overlap({
+    'player': 'Coach',
+    'ball': 'ball',
+    'goal': 'goal',
+    'opponent': 'opponent',
+    'theta': {'avg': 40, 'std': 5},         # Updated to 40 degree angle
+    'dist': {'avg': 5, 'std': 0.5}          # Updated to 5 meters from ball
+})
+A1target_upfield = HeightRelation({
+    'obj': 'Coach',
+    'relation': 'above',
+    'ref': None,                            # Relative to starting position (move up 4m)
+    'height_threshold': {'avg': 4, 'std': 0.5}
+})
+
+A1target_receive1 = DistanceTo({
+    'from': 'Coach',
+    'to': 'ball',
+    'min': None,
+    'max': {'avg': 1.5, 'std': 0.3},
+    'operator': 'less_than'
+})
+A1target_receive2 = DistanceTo({
+    'from': 'Coach',
+    'to': 'ball',
+    'min': None,
+    'max': {'avg': 1.5, 'std': 0.3},
+    'operator': 'less_than'
+})
+A1target_receive3 = DistanceTo({
+    'from': 'Coach',
+    'to': 'ball',
+    'min': None,
+    'max': {'avg': 1.5, 'std': 0.3},
+    'operator': 'less_than'
+})
+A1HasBall_Coach = HasBallPossession({'player': 'Coach'})
+A2HasBall_teammate = HasBallPossession({'player': 'teammate'})
+A1Pass_Coach = MakePass({'player': 'Coach'})
+A2Pass_teammate = MakePass({'player': 'teammate'})
+A1Path_Coach_goal = HasPath({'obj1': 'Coach', 'obj2': 'goal', 'path_width': {'avg': 2, 'std': 0.3}})
+A2Path_teammate_goal = HasPath({'obj1': 'teammate', 'obj2': 'goal', 'path_width': {'avg': 2, 'std': 0.3}})
+
+def λ_target_overlap():
+    # Overlap at 40 degree angle, 5 meters from ball
+    return A1target_overlap.dist(simulation(), ego=True)
+
+def λ_target_upfield():
+    # Move up the field by ~4 meters
+    return A1target_upfield.dist(simulation(), ego=True)
+
+def λ_target_receive1():
+    return A1target_receive1.dist(simulation(), ego=True)
+
+def λ_target_receive2():
+    return A1target_receive2.dist(simulation(), ego=True)
+
+def λ_target_receive3():
+    return A1target_receive3.dist(simulation(), ego=True)
+
+def λ_termination_overlap():
+    # Terminate when Coach is close to the overlap destination but not based on overlap achieved
+    return A1target_receive1.bool(simulation())
+
+def λ_termination_receive_pass():
+    # Terminate when Coach is close to the ball on pass-in but not dependent on possession
+    return A1target_receive2.bool(simulation())
+
+def λ_termination_receive_pass2():
+    # Terminate when Coach is close to the ball again after pass
+    return A1target_receive3.bool(simulation())
+
+def λ_precondition_has_possession():
+    # Precondition: Coach has the ball possession
+    return A1HasBall_Coach.bool(simulation())
+
+def λ_precondition_teammate_has_ball():
+    # Precondition: Teammate has the ball
+    return A2HasBall_teammate.bool(simulation())
+
+def λ_precondition_makepass_teammate():
+    # Precondition: Teammate made a pass
+    return A2Pass_teammate.bool(simulation())
+
+def λ_precondition_makepass_Coach():
+    # Precondition: Coach made a pass
+    return A1Pass_Coach.bool(simulation())
+
+def λ_precondition_HasPath_Coach_goal():
+    # Precondition: Coach has path to goal (for shooting)
+    return A1Path_Coach_goal.bool(simulation())
+
+def λ_precondition_HasPath_teammate_goal():
+    # Precondition: teammate has path to goal (for shooting)
+    return A2Path_teammate_goal.bool(simulation())
+
 behavior CoachBehavior():
     do Idle() for 3 seconds
-    do Speak("Wait until the teammate passes the ball and make yourself available for the pass.")
-    do Idle() until λ_precondition_0()
-    do Speak("Move more than 5 meters away from opponent to the left and get open for a pass from teammate.")
-    do MoveTo(λ_target0(), True)
-    do Speak("Wait to receive the ball and get possession.")
-    do StopAndReceiveBall()
-    do Speak("Wait until the opponent pressures you or not.")
-    do Idle() until True
-    if λ_precondition_1():
-        do Speak("Opponent is pressuring you after you get possession.")
-        do Speak("Move away from the opponent by more than 6 meters to your right.")
-        do MoveTo(λ_target1(), False)
-        do Speak("Wait until teammate moves towards the goal area.")
-        do Idle() until λ_precondition_2()
-        do Speak("Pass the ball to your teammate who moved towards the goal.")
-        do Pass(teammate)
-    else:
-        do Speak("Opponent is not pressuring you after you get possession.")
-        do Speak("Move within 12 meters of the goal to create a shooting opportunity.")
-        do MoveTo(λ_target2(), False)
-        do Speak("Take a shot at the goal when you're within range.")
-        do Shoot(goal)
-    do Idle()
-
-# Constraint instantiations
-A1precondition_0 = MakePass({'player': 'teammate'})
-A1precondition_1 = Pressure({'player1': 'opponent', 'player2': 'Coach'})
-A1precondition_2 = MovingTowards({'obj': 'teammate', 'ref': 'goal'})
-
-A1target_0 = DistanceTo({'from': 'opponent', 'to': 'Coach', 'min': {'avg': 5.0, 'std': 0.5}, 'max': None, 'operator': 'greater_than'})
-A2target_0 = HorizontalRelation({'obj': 'Coach', 'ref': 'opponent', 'relation': 'left', 'horizontal_threshold': {'avg': 4.0, 'std': 1.0}})
-A1target_1 = DistanceTo({'from': 'Coach', 'to': 'opponent', 'min': {'avg': 6.0, 'std': 0.5}, 'max': None, 'operator': 'greater_than'})
-A2target_1 = HorizontalRelation({'obj': 'Coach', 'ref': 'opponent', 'relation': 'right', 'horizontal_threshold': {'avg': 4.0, 'std': 1.0}})
-A1target_2 = DistanceTo({'from': 'Coach', 'to': 'goal', 'min': None, 'max': {'avg': 12.0, 'std': 0.2}, 'operator': 'less_than'})
-
-# Target and precondition functions
-def λ_target0():
-    cond = A1target_0 & A2target_0
-    return cond.dist(simulation(), ego=True)
-
-def λ_target1():
-    cond = A1target_1 & A2target_1
-    return cond.dist(simulation(), ego=True)
-
-def λ_target2():
-    return A1target_2.dist(simulation(), ego=True)
-
-def λ_precondition_0():
-    return A1precondition_0.bool(simulation())
-
-def λ_precondition_1():
-    return A1precondition_1.bool(simulation())
-
-def λ_precondition_2():
-    return A1precondition_2.bool(simulation())
+    do Speak("Move to overlap position: 40-degree angle, 5 meters from ball, and move 4 meters up the field.")
+    do MoveTo(λ_target_overlap() * λ_target_upfield(), True)  # Combined as valid numpy op
+    do Speak("Wait until close enough to receive the pass (within 1.5 meters).")
+    # do Idle() until λ_target_receive1()
+    # do Speak("Stop and receive the ball from teammate's pass.")
+    # do StopAndReceiveBall()
+    # do Speak("Now you have possession, so immediately pass back to your teammate.")
+    # do Idle() until λ_precondition_has_possession()
+    # do Pass(teammate)
+    # do Idle()
 
 ####Environment Behavior START####
 
