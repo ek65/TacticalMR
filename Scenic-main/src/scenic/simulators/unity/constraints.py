@@ -12,10 +12,12 @@ epsilon = 1e-2
 def findObj(id, objects):
     if isinstance(id, str):
         key_lower = id.lower()
+        if key_lower == 'ego':
+            key_lower = 'coach'  # Handle 'ego' as 'coach'
         return [obj for obj in objects if key_lower in obj.name.lower()]
 
 def isEgo(id):
-    return 'coach' in id.lower()
+    return 'coach' in id.lower() or 'ego' in id.lower()
 
 def sigmoid(x):
     return 1 / (1 + np.exp(-x))
