@@ -150,6 +150,14 @@ public class HumanInterface : MonoBehaviour
                 aiNav.radius = 0.5f;
             }
         }
+        
+        // Make sure ball is at ballPosition when player has possession
+        if (ballPossession && ballOwnership.ballOwner == this.gameObject)
+        {
+            ball.transform.position = ballPosition.position;
+            ball.transform.SetParent(ballPosition);
+            ball.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
+        }
 
         // string currResponse = "";
         // // if (chatBehaviour.sentences.Length > 0)
@@ -559,7 +567,7 @@ public class HumanInterface : MonoBehaviour
     private IEnumerator PossessionDebounce()
     {
         canPossessBall = false;
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(2.5f);
         canPossessBall = true;
         this.gameObject.layer = LayerMask.NameToLayer("Default");
     }
