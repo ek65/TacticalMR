@@ -4,6 +4,7 @@ from enum import Enum
 model scenic.simulators.unity.model
 from scenic.core.vectors import Orientation, Vector
 from scenic.core.object_types import Point
+import random
 
 # Language: scenic (python)
 # This file defines all shared scenic behaviors. In order to use any behavior defined
@@ -366,34 +367,84 @@ def bool_sample(vec, dist, min=0.1):
 rows, cols = 34, 20
 i, j = np.indices((rows, cols))
 
+def get_top_10_indices(array_2d):
+    """
+    Get the indices of the top 10 elements in a 2D numpy array that are greater than 0
+    
+    Parameters:
+    array_2d (numpy.ndarray): A 2D numpy array
+    
+    Returns:
+    tuple: A tuple containing (row_indices, col_indices) of the top 10 elements
+    """
+    # Get the indices of all elements greater than 0
+    valid_indices = np.argwhere(array_2d > 0)
+
+    # If there are no valid indices, return empty arrays
+    if valid_indices.size == 0:
+        return np.array([]), np.array([])
+
+    # Get the values of the valid indices
+    valid_values = array_2d[valid_indices[:, 0], valid_indices[:, 1]]
+
+    # Get the indices of the top 10 elements
+    top_10_indices = np.argsort(valid_values)[-10:]
+
+    # Get the row and column indices of the top 10 elements
+    row_indices = valid_indices[top_10_indices, 0]
+    col_indices = valid_indices[top_10_indices, 1]
+
+    return row_indices, col_indices
+
 def sample_from(dist, _min=0.4):
+    row_indices, col_indices = get_top_10_indices(dist)
+    row_size = len(row_indices)
+    col_size = len(col_indices)
 
-    #print(dist)
-
-    max_val = dist.max()
-    if max_val > 0:
-        dist = dist / max_val
-
-    filtered = np.where(dist >= _min, dist, 0.0)
+    print(f"Top 10 indices - Rows: {len(row_indices)}, Cols: {len(col_indices)}")
     
-    total = filtered.sum()
-    if total == 0:
-        #filtered += epsilon
-        flat = np.ones(dist.size, dtype=np.float64) / dist.size
+    coord = None
+    if row_size > 0 and col_size > 0:
+        print("Selecting Destination position from the top 10 indices")
+        row = random.randint(0, row_size - 1)
+        # print("row:", row)
+        col = random.randint(0, col_size - 1)
+        # print("col:", col)
+        coord = (row, col)
+        # print("finished selecting")
     else:
-        probs = filtered / total
-        flat = probs.ravel()
+        print("No valid indices found. Randomly selecting from the entire distribution.")
+        row_num, column_num = dist.shape
+        row = random.randint(0, row_num - 1)
+        col = random.randint(0, column_num - 1)
+        coord = (row, col)
+
+    # max_val = dist.max()
+    # if max_val > 0:
+    #     dist = dist / max_val
+
+    # filtered = np.where(dist >= _min, dist, 0.0)
     
-    #probs = filtered / total
-    #flat = probs.ravel()
+    # total = filtered.sum()
+    # if total == 0:
+    #     #filtered += epsilon
+    #     print("Warning: No valid samples found. Randomly sampling from the field.")
+    #     flat = np.ones(dist.size, dtype=np.float64) / dist.size
+    # else:
+    #     probs = filtered / total
+    #     flat = probs.ravel()
     
-    idx = np.random.choice(flat.size, p=flat)
-    coord = np.unravel_index(idx, dist.shape)
+    # probs = filtered / total
+    # flat = probs.ravel()
+    
+    # idx = np.random.choice(flat.size, p=flat)
+    # coord = np.unravel_index(idx, dist.shape)
     
     #print(f"coord: {coord}, dist.shape: {dist.shape}, idx: {idx}")
     x, y = int(coord[1]), int(coord[0])
     #print('real sampled', x, y)
     sample = Vector(x - cols / 2, rows / 2 - y)
+    print("Sample: ", sample)
     #print('Sampled', sample)
 
     return sample
@@ -415,7 +466,8 @@ behavior MoveTo(param, doPass: bool = False):
     # --- try the “param is a distribution” path ---
     try:
         sample  = sample_from(param)
-        dynamic = True
+        print(f"MoveTo: sample is {sample}")
+        dynamic = False  # Changed to False to prevent re-sampling
         dist    = param
     # if sample_from isn’t defined for this type, assume it’s already a goal
     except Exception:
@@ -429,6 +481,7 @@ behavior MoveTo(param, doPass: bool = False):
             sample  = param
             dynamic = False
 
+    print("MoveTo: sample is ", sample)
     # only set these values if coach called moveTo
     if (self == ego):
         # set xMark to the sample position
@@ -442,9 +495,11 @@ behavior MoveTo(param, doPass: bool = False):
     # loop until we get within 0.5 units of our current target
     while (distance from self to sample) > 0.5:
         do MoveToBehavior(sample) for dt seconds
-        # if it was a distribution, re-sample whenever we leave its support
-        if dynamic and not bool_sample(location(sample), dist):
-            sample = sample_from(dist)
+        # Removed re-sampling logic to prevent zig-zagging
+        # The agent will now stick to the initially sampled target
+        # # if it was a distribution, re-sample whenever we leave its support
+        # if dynamic and not bool_sample(location(sample), dist):
+        #     sample = sample_from(dist)
 
     # once we’ve arrived, pause for a bit
     do Idle() for 1 seconds
