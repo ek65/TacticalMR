@@ -299,7 +299,7 @@ public class PlayerInterface : NetworkBehaviour
     private IEnumerator PossessionDebounce()
     {
         canPossessBall = false;
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(2.5f);
         canPossessBall = true;
         this.gameObject.layer = LayerMask.NameToLayer("Default");
     }
