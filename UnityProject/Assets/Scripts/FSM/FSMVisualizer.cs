@@ -152,6 +152,28 @@ public class FSMVisualizer : MonoBehaviour
 
     #endregion
 
+    #region Utility Methods
+
+    /// <summary>
+    /// Removes content within parentheses from state names for cleaner visualization.
+    /// Example: "MoveTo(λ_target0(), True)" becomes "MoveTo"
+    /// </summary>
+    string CleanStateName(string name)
+    {
+        if (string.IsNullOrEmpty(name))
+            return name;
+
+        int openParen = name.IndexOf('(');
+        if (openParen >= 0)
+        {
+            return name.Substring(0, openParen).Trim();
+        }
+        
+        return name;
+    }
+
+    #endregion
+
     #region Virtual Root Injection
 
     /// <summary>
@@ -242,7 +264,9 @@ public class FSMVisualizer : MonoBehaviour
 
         foreach (var s in states)
         {
-            label.text = s.name;
+            // Use cleaned name for measurement
+            string displayName = CleanStateName(s.name);
+            label.text = displayName;
             label.enableWordWrapping = true;
             label.enableAutoSizing = true;
             label.fontSizeMax = maxFontSize;
@@ -252,13 +276,13 @@ public class FSMVisualizer : MonoBehaviour
             label.ForceMeshUpdate();
 
             float width = fixedNodeWidth;
-            Vector2 preferred = label.GetPreferredValues(s.name, width, Mathf.Infinity);
+            Vector2 preferred = label.GetPreferredValues(displayName, width, Mathf.Infinity);
             float height = Mathf.Min(preferred.y + paddingY, maxHeight);
 
             stateWidths[s.id] = width;
             stateHeights[s.id] = height;
 
-            Log($"Measured state {s.id} '{s.name}' -> (w: {width}, h: {height})");
+            Log($"Measured state {s.id} '{displayName}' (original: '{s.name}') -> (w: {width}, h: {height})");
         }
 
         DestroyImmediate(measurer);
@@ -376,12 +400,13 @@ public class FSMVisualizer : MonoBehaviour
 
                 // Create node GO
                 GameObject node = Instantiate(nodeButtonPrefab, nodesContainer);
-                node.name = $"State_{id}_{s.name}";
+                node.name = $"State_{id}_{CleanStateName(s.name)}";
                 RectTransform rect = node.GetComponent<RectTransform>();
 
-                // TMP
+                // TMP - Use cleaned name for display
                 TMP_Text label = node.GetComponentInChildren<TMP_Text>();
-                label.text = s.name;
+                string displayName = CleanStateName(s.name);
+                label.text = displayName;
                 label.enableWordWrapping = true;
                 label.enableAutoSizing = true;
                 label.fontSizeMax = maxFontSize;
@@ -395,7 +420,7 @@ public class FSMVisualizer : MonoBehaviour
                 float yPos = - (yCursor - h * 0.5f);
                 rect.anchoredPosition = new Vector2(layerWidthX, yPos);
 
-                Log($"  Placed state {id} '{s.name}' at ({layerWidthX}, {yPos}) depth={d}");
+                Log($"  Placed state {id} '{displayName}' (original: '{s.name}') at ({layerWidthX}, {yPos}) depth={d}");
 
                 int capturedId = id;
                 string capturedDesc = s.description;
@@ -409,7 +434,7 @@ public class FSMVisualizer : MonoBehaviour
                         isStateSelected = true;
     
                         if (descriptionText != null)
-                            descriptionText.text = $"[State {capturedId}] {s.name}\n{capturedDesc}";
+                            descriptionText.text = $"[State {capturedId}] {displayName}\n{capturedDesc}";
                         Log($"State {capturedId} clicked: {capturedDesc}");
                     });
                 }
@@ -469,6 +494,7 @@ public class FSMVisualizer : MonoBehaviour
             img.color = transitionColor;
 
             Button btn = lineGO.GetComponent<Button>();
+            // Note: We only show the description, not the condition, for cleaner visualization
             string desc = $"[Transition {trans.id}] {trans.description}";
             if (btn != null)
             {
@@ -499,7 +525,7 @@ public class FSMVisualizer : MonoBehaviour
             arrowImg.type = Image.Type.Simple;
             arrowImg.preserveAspect = true;
 
-            Log($"Created transition {trans.id}: {trans.from} -> {trans.to}");
+            Log($"Created transition {trans.id}: {trans.from} -> {trans.to} (condition hidden from visualization)");
         }
     }
 
