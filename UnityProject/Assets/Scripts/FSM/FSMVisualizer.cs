@@ -155,8 +155,11 @@ public class FSMVisualizer : MonoBehaviour
     #region Utility Methods
 
     /// <summary>
-    /// Removes content within parentheses from state names for cleaner visualization.
-    /// Example: "MoveTo(λ_target0(), True)" becomes "MoveTo"
+    /// Removes content within parentheses from state names only if the parentheses contain a lambda (λ).
+    /// Examples: 
+    /// - "MoveTo(λ_target0(), True)" becomes "MoveTo" (contains lambda)
+    /// - "Pass(teammate)" stays "Pass(teammate)" (no lambda)
+    /// - "StopAndReceiveBall()" becomes "StopAndReceiveBall" (empty parentheses)
     /// </summary>
     string CleanStateName(string name)
     {
@@ -164,11 +167,26 @@ public class FSMVisualizer : MonoBehaviour
             return name;
 
         int openParen = name.IndexOf('(');
-        if (openParen >= 0)
+        int closeParen = name.LastIndexOf(')');
+        
+        if (openParen >= 0 && closeParen > openParen)
         {
-            return name.Substring(0, openParen).Trim();
+            string parenthesesContent = name.Substring(openParen + 1, closeParen - openParen - 1);
+            
+            // Only hide parentheses content if it contains lambda (λ or \u03bb)
+            if (parenthesesContent.Contains("\u03bb") || parenthesesContent.Contains("λ"))
+            {
+                return name.Substring(0, openParen).Trim();
+            }
+            
+            // If parentheses are empty, remove them
+            if (string.IsNullOrWhiteSpace(parenthesesContent))
+            {
+                return name.Substring(0, openParen).Trim();
+            }
         }
         
+        // Return original name if no parentheses or no lambda found
         return name;
     }
 

@@ -506,3 +506,14 @@ behavior MoveTo(param, doPass: bool = False):
 
 behavior StopAndReceiveBall():
     do Idle() until self.gameObject.ballPossession
+
+# behavior WaitForConditionWithTimeout(condition, timeout_seconds=5):
+#     """
+#     Wait for a condition to be true, but timeout after specified seconds.
+#     If timeout occurs, continue execution.
+    
+#     Args:
+#         condition: A lambda function that returns a boolean
+#         timeout_seconds: Maximum time to wait (default 5 seconds)
+#     """
+#     do Idle() until condition() for timeout_seconds seconds
