@@ -397,48 +397,47 @@ def get_top_10_indices(array_2d):
     return row_indices, col_indices
 
 def sample_from(dist, _min=0.4):
-    row_indices, col_indices = get_top_10_indices(dist)
-    row_size = len(row_indices)
-    col_size = len(col_indices)
+    # row_indices, col_indices = get_top_10_indices(dist)
+    # row_size = len(row_indices)
+    # col_size = len(col_indices)
 
-    print(f"Top 10 indices - Rows: {len(row_indices)}, Cols: {len(col_indices)}")
+    # print(f"Top 10 indices - Rows: {len(row_indices)}, Cols: {len(col_indices)}")
     
-    coord = None
-    if row_size > 0 and col_size > 0:
-        print("Selecting Destination position from the top 10 indices")
-        row = random.randint(0, row_size - 1)
-        # print("row:", row)
-        col = random.randint(0, col_size - 1)
-        # print("col:", col)
-        coord = (row, col)
-        # print("finished selecting")
-    else:
-        print("No valid indices found. Randomly selecting from the entire distribution.")
-        row_num, column_num = dist.shape
-        row = random.randint(0, row_num - 1)
-        col = random.randint(0, column_num - 1)
-        coord = (row, col)
-
-    # max_val = dist.max()
-    # if max_val > 0:
-    #     dist = dist / max_val
-
-    # filtered = np.where(dist >= _min, dist, 0.0)
-    
-    # total = filtered.sum()
-    # if total == 0:
-    #     #filtered += epsilon
-    #     print("Warning: No valid samples found. Randomly sampling from the field.")
-    #     flat = np.ones(dist.size, dtype=np.float64) / dist.size
+    # coord = None
+    # if row_size > 0 and col_size > 0:
+    #     print("Selecting Destination position from the top 10 indices")
+    #     row = random.randint(0, row_size - 1)
+    #     # print("row:", row)
+    #     col = random.randint(0, col_size - 1)
+    #     # print("col:", col)
+    #     coord = (row, col)
+    #     # print("finished selecting")
     # else:
-    #     probs = filtered / total
-    #     flat = probs.ravel()
+    #     print("No valid indices found. Randomly selecting from the entire distribution.")
+    #     row_num, column_num = dist.shape
+    #     row = random.randint(0, row_num - 1)
+    #     col = random.randint(0, column_num - 1)
+    #     coord = (row, col)
+
+    max_val = dist.max()
+    if max_val > 0:
+        dist = dist / max_val
+
+    filtered = np.where(dist >= _min, dist, 0.0)
     
-    # probs = filtered / total
-    # flat = probs.ravel()
+    total = filtered.sum()
+    if total == 0:
+        print("Warning: No valid samples found. Randomly sampling from the field.")
+        flat = np.ones(dist.size, dtype=np.float64) / dist.size
+    else:
+        probs = filtered / total
+        flat = probs.ravel()
     
-    # idx = np.random.choice(flat.size, p=flat)
-    # coord = np.unravel_index(idx, dist.shape)
+    probs = filtered / total
+    flat = probs.ravel()
+    
+    idx = np.random.choice(flat.size, p=flat)
+    coord = np.unravel_index(idx, dist.shape)
     
     #print(f"coord: {coord}, dist.shape: {dist.shape}, idx: {idx}")
     x, y = int(coord[1]), int(coord[0])

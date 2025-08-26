@@ -7,224 +7,165 @@ from scenic.core.regions import MeshVolumeRegion
 import random
 ####HEADER ENDS####
 
-A1target_overlap = Overlap({
-    'player': 'Coach',
-    'ball': 'ball',
-    'goal': 'goal',
-    'opponent': 'opponent',
-    'theta': {'avg': 40, 'std': 5},         # Updated to 40 degree angle
-    'dist': {'avg': 5, 'std': 0.5}          # Updated to 5 meters from ball
-})
-A1target_upfield = HeightRelation({
-    'obj': 'Coach',
-    'relation': 'above',
-    'ref': None,                            # Relative to starting position (move up 4m)
-    'height_threshold': {'avg': 4, 'std': 0.5}
-})
+# Target constraints: reposition 2 meters left/right of the nearest defender (defender1)
+A1target_leftDist = DistanceTo({'from': 'ego', 'to': 'defender1', 'min': {'avg': 1.5, 'std': 0.2}, 'max': {'avg': 2.5, 'std': 0.2}, 'operator': 'within'})
+A2target_leftSide = HorizontalRelation({'obj': 'ego', 'ref': 'defender1', 'relation': 'left', 'horizontal_threshold': {'avg': 0.0, 'std': 0.3}})
 
-A1target_receive1 = DistanceTo({
-    'from': 'Coach',
-    'to': 'ball',
-    'min': None,
-    'max': {'avg': 1.5, 'std': 0.3},
-    'operator': 'less_than'
-})
-A1target_receive2 = DistanceTo({
-    'from': 'Coach',
-    'to': 'ball',
-    'min': None,
-    'max': {'avg': 1.5, 'std': 0.3},
-    'operator': 'less_than'
-})
-A1target_receive3 = DistanceTo({
-    'from': 'Coach',
-    'to': 'ball',
-    'min': None,
-    'max': {'avg': 1.5, 'std': 0.3},
-    'operator': 'less_than'
-})
-A1HasBall_Coach = HasBallPossession({'player': 'Coach'})
-A2HasBall_teammate = HasBallPossession({'player': 'teammate'})
-A1Pass_Coach = MakePass({'player': 'Coach'})
-A2Pass_teammate = MakePass({'player': 'teammate'})
-A1Path_Coach_goal = HasPath({'obj1': 'Coach', 'obj2': 'goal', 'path_width': {'avg': 2, 'std': 0.3}})
-A2Path_teammate_goal = HasPath({'obj1': 'teammate', 'obj2': 'goal', 'path_width': {'avg': 2, 'std': 0.3}})
+A1target_rightDist = DistanceTo({'from': 'ego', 'to': 'defender1', 'min': {'avg': 1.5, 'std': 0.2}, 'max': {'avg': 2.5, 'std': 0.2}, 'operator': 'within'})
+A2target_rightSide = HorizontalRelation({'obj': 'ego', 'ref': 'defender1', 'relation': 'right', 'horizontal_threshold': {'avg': 0.0, 'std': 0.3}})
 
-def λ_target_overlap():
-    # Overlap at 40 degree angle, 5 meters from ball
-    return A1target_overlap.dist(simulation(), ego=True)
+# Target constraints: support positions 2–3 meters below the receiving striker
+A1target_supportLeftDist = DistanceTo({'from': 'ego', 'to': 'LeftStriker', 'min': {'avg': 2.0, 'std': 0.3}, 'max': {'avg': 3.0, 'std': 0.3}, 'operator': 'within'})
+A2target_supportLeftBelow = HeightRelation({'obj': 'ego', 'ref': 'LeftStriker', 'relation': 'below', 'height_threshold': {'avg': 1.0, 'std': 0.3}})
 
-def λ_target_upfield():
-    # Move up the field by ~4 meters
-    return A1target_upfield.dist(simulation(), ego=True)
+A1target_supportRightDist = DistanceTo({'from': 'ego', 'to': 'RightStriker', 'min': {'avg': 2.0, 'std': 0.3}, 'max': {'avg': 3.0, 'std': 0.3}, 'operator': 'within'})
+A2target_supportRightBelow = HeightRelation({'obj': 'ego', 'ref': 'RightStriker', 'relation': 'below', 'height_threshold': {'avg': 1.0, 'std': 0.3}})
 
-def λ_target_receive1():
-    return A1target_receive1.dist(simulation(), ego=True)
+# Preconditions: clear passing lanes of 2 meters to strikers, and confirmation that pass was made
+Apre_path_left2m = HasPath({'obj1': 'ego', 'obj2': 'LeftStriker', 'path_width': {'avg': 2.0, 'std': 0.3}})
+Apre_path_right2m = HasPath({'obj1': 'ego', 'obj2': 'RightStriker', 'path_width': {'avg': 2.0, 'std': 0.3}})
+Apre_pass_made = MakePass({'player': 'ego'})
 
-def λ_target_receive2():
-    return A1target_receive2.dist(simulation(), ego=True)
+def λ_target_left():
+    cond = A1target_leftDist & A2target_leftSide
+    return cond.debug_dist(simulation(), ego=True)
 
-def λ_target_receive3():
-    return A1target_receive3.dist(simulation(), ego=True)
+def λ_target_right():
+    cond = A1target_rightDist & A2target_rightSide
+    return cond.debug_dist(simulation(), ego=True)
 
-def λ_termination_overlap():
-    # Terminate when Coach is close to the overlap destination but not based on overlap achieved
-    return A1target_receive1.bool(simulation())
+def λ_target_support_left():
+    cond = A1target_supportLeftDist & A2target_supportLeftBelow
+    return cond.debug_dist(simulation(), ego=True)
 
-def λ_termination_receive_pass():
-    # Terminate when Coach is close to the ball on pass-in but not dependent on possession
-    return A1target_receive2.bool(simulation())
+def λ_target_support_right():
+    cond = A1target_supportRightDist & A2target_supportRightBelow
+    return cond.debug_dist(simulation(), ego=True)
 
-def λ_termination_receive_pass2():
-    # Terminate when Coach is close to the ball again after pass
-    return A1target_receive3.bool(simulation())
+def λ_precondition_path_left():
+    return Apre_path_left2m.bool(simulation())
 
-def λ_precondition_has_possession():
-    # Precondition: Coach has the ball possession
-    return A1HasBall_Coach.bool(simulation())
+def λ_precondition_path_right():
+    return Apre_path_right2m.bool(simulation())
 
-def λ_precondition_teammate_has_ball():
-    # Precondition: Teammate has the ball
-    return A2HasBall_teammate.bool(simulation())
-
-def λ_precondition_makepass_teammate():
-    # Precondition: Teammate made a pass
-    return A2Pass_teammate.bool(simulation())
-
-def λ_precondition_makepass_Coach():
-    # Precondition: Coach made a pass
-    return A1Pass_Coach.bool(simulation())
-
-def λ_precondition_HasPath_Coach_goal():
-    # Precondition: Coach has path to goal (for shooting)
-    return A1Path_Coach_goal.bool(simulation())
-
-def λ_precondition_HasPath_teammate_goal():
-    # Precondition: teammate has path to goal (for shooting)
-    return A2Path_teammate_goal.bool(simulation())
+def λ_precondition_pass_made():
+    return Apre_pass_made.bool(simulation())
 
 behavior CoachBehavior():
     do Idle() for 3 seconds
-    do Speak("Move to overlap position: 40-degree angle, 5 meters from ball, and move 4 meters up the field.")
-    do MoveTo(λ_target_overlap() * λ_target_upfield(), True)  # Combined as valid numpy op
-    do Speak("Wait until close enough to receive the pass (within 1.5 meters).")
-    # do Idle() until λ_target_receive1()
-    # do Speak("Stop and receive the ball from teammate's pass.")
-    # do StopAndReceiveBall()
-    # do Speak("Now you have possession, so immediately pass back to your teammate.")
-    # do Idle() until λ_precondition_has_possession()
-    # do Pass(teammate)
-    # do Idle()
+
+    do Speak("No clear 2 meter lanes to either striker.")
+    do Speak("Shift about 2 meters left of defender1, keep ball.")
+    do MoveTo(λ_target_left(), False)
+
+    do Speak("wait to decide which passing lane opens")
+    do Idle() until True
+
+    if λ_precondition_path_left():
+        do Speak("Left lane is at least 2 meters wide.")
+        do Speak("wait until clear 2 meter lane to LeftStriker")
+        do Idle() until λ_precondition_path_left()
+
+        do Speak("Pass to LeftStriker now.")
+        do Pass(LeftStriker)
+
+        do Speak("wait until your pass is registered")
+        do Idle() until λ_precondition_pass_made()
+
+        do Speak("Move about 3 meters below LeftStriker for support.")
+        do MoveTo(λ_target_support_left(), False)
+
+        do Speak("Hold position ready to receive support pass.")
+        do StopAndReceiveBall()
+    else:
+        do Speak("Left lane not 2 meters; switch to right option.")
+        do Speak("Shift about 2 meters right of defender1, keep ball.")
+        do MoveTo(λ_target_right(), False)
+
+        do Speak("wait until clear 2 meter lane to RightStriker")
+        do Idle() until λ_precondition_path_right()
+
+        do Speak("Pass to RightStriker now.")
+        do Pass(RightStriker)
+
+        do Speak("wait until your pass is registered")
+        do Idle() until λ_precondition_pass_made()
+
+        do Speak("Move about 3 meters below RightStriker for support.")
+        do MoveTo(λ_target_support_right(), False)
+
+        do Speak("Hold position ready to receive support pass.")
+        do StopAndReceiveBall()
+
+    do Idle()
 
 ####Environment Behavior START####
 
-opponent_y_distance = Range(3, 5)
-opponent_x_distance = Range(-2, 2)
-ego_x_distance = Range(-2, 2)
-ego_y_distance = Range(-1, -2)
+# Ego (center midfielder) at origin
+pi = 3.1415
+ego = new Coach at (0, 0, 0), with team "blue", with behavior CoachBehavior()
 
-# Ensure teammate and opponent are on the same side
-#require (opponent_x_distance < 0 and ego_x_distance < 0) or (opponent_x_distance >= 0 and ego_x_distance >= 0)
+# Wingers
+left_winger_angle = -90 + Uniform(0, 10)  # degrees from y-axis, 90 is positive x-axis (left), variance +/-10
+right_winger_angle = 90 + Uniform(0, 10)  # degrees from y-axis, -90 is negative x-axis (right), variance +/-10
+winger_dist = Uniform(6,8)
 
-behavior Follow(obj):
-    while ego.position.y > 1:
-        do MoveToBehavior(obj, distance = 2, status = f"Follow {obj.name}")
+left_winger_x = winger_dist * sin(left_winger_angle * pi / 180)
+left_winger_y = winger_dist * cos(left_winger_angle * pi / 180)
+LeftWinger = new Player at (left_winger_x, left_winger_y, 0), facing toward ego, with name "LeftWinger", with team "blue"
 
-behavior TeammateBehavior():
-    # Double checking gotBall to ensure the pass is triggered correctly
-    # since MoveToBallAndGetPossession() might get interrupted
-    do SetPlayerSpeed(6.0)
-    gotBall = False
-    try:
-        do Idle() for 1 seconds
-        do MoveToBallAndGetPossession()
-        gotBall = True
-        do Idle()
-    interrupt when ego.triggerPass and self.gameObject.ballPossession and gotBall:
-        ego.triggerPass = False
-        do Idle() for 1 seconds
-        do Pass(ego.xMark)
-        
-        # After passing to coach, go to opposite side at same height as ego
-        do Idle() for 1 seconds
-        
-        # Calculate target position: height between coach and goal, opposite X side
-        ego_x = ego.position.x
-        ego_y = ego.position.y
-        goal_y = goal.position.y
-        
-        # Go to opposite side (negative if ego is positive, positive if ego is negative)
-        target_x = -ego_x if ego_x > 0 else abs(ego_x)
-        target_y = (ego_y + goal_y) / 2  # Height between coach and goal
+right_winger_x = winger_dist * sin(right_winger_angle * pi / 180)
+right_winger_y = winger_dist * cos(right_winger_angle * pi / 180)
+RightWinger = new Player at (right_winger_x, right_winger_y, 0), facing toward ego, with name "RightWinger", with team "blue"
 
+# Strikers
+left_striker_angle = -Uniform(8, 20)
+right_striker_angle = Uniform(8, 20)
+striker_dist = Uniform(8,10)
 
-        
-        target_position = Vector(target_x, target_y, 0)
-        do MoveToBehavior(target_position)
-        
-        # Wait to receive ball back from coach
-        do Idle() until self.gameObject.ballPossession
-        
-        # If received ball back, score a goal
-        if self.gameObject.ballPossession:
-            do Shoot(goal)
-    
-    do Idle()
-    
-### Modified opponent behavior: Keep position until ego receives ball, then move to middle of line with variation
-behavior DefenderBehavior():
-    do Idle() for 1 seconds
-    do Idle() until ego.position.y > 1
-    
-    # Keep position until ego receives the ball
-    while not ego.gameObject.ballPossession:
-        do Idle() for 0.1 seconds
-    
-    # Once ego receives ball, move to middle of line between ego and goal
-    if ego.gameObject.ballPossession:
-        # Calculate middle point between ego and goal
-        goal_x = goal.position.x
-        goal_y = goal.position.y
-        ego_x = ego.position.x
-        ego_y = ego.position.y
-        
-        middle_x = (ego_x + goal_x) / 2
-        middle_y = (ego_y + goal_y) / 2
-        
-        # Add some variation to create opportunities or blocking
-        variation = Range(-1, 1)  # Random variation in both directions
+left_striker_x = striker_dist * sin(left_striker_angle * pi / 180)
+left_striker_y = striker_dist * cos(left_striker_angle * pi / 180)
+LeftStriker = new Player at (left_striker_x, left_striker_y, 0), facing toward ego, with name "LeftStriker", with team "blue"
 
+right_striker_x = striker_dist * sin(right_striker_angle * pi / 180)
+right_striker_y = striker_dist * cos(right_striker_angle * pi / 180)
+RightStriker = new Player at (right_striker_x, right_striker_y, 0), facing toward ego, with name "RightStriker", with team "blue"
 
-        target_x = middle_x + variation
-        target_y = middle_y + variation
-        
-        # Move to the target position
-        target_position = Vector(target_x, target_y, 0)
-        do MoveToBehavior(target_position)
-        
-        # Face the ego (coach) once in position
-        do LookAt(ego)
+# Ball at ego's feet
+ball = new Ball at (0, .2, 0)
 
+# Defenders: each assigned to one attacker, at a distance and angle in front of them, facing ego
+# Helper function for defender placement
+# (Scenic doesn't support functions in .scenic, so we inline the logic)
 
-    
+defender1_angle = Uniform(-10, 10)
+defender1_dist = Uniform(2,4)
+defender1_x = ego.position.x + defender1_dist * sin(defender1_angle * pi / 180)
+defender1_y = ego.position.y + defender1_dist * cos(defender1_angle * pi / 180)
+defender1 = new Player at (defender1_x, defender1_y, 0), facing toward ego, with team "red", with name "defender1"
 
-teammate = new Player at (0, 0, 0),
-      with behavior TeammateBehavior(), with name "teammate", with team "blue"
+defender2_angle = Uniform(-30, 30)
+defender2_dist = Uniform(1,2)
+defender2_x = LeftWinger.position.x + defender2_dist * sin(defender2_angle * pi / 180)
+defender2_y = LeftWinger.position.y + defender2_dist * cos(defender2_angle * pi / 180)
+defender2 = new Player at (defender2_x, defender2_y, 0), facing toward ego, with team "red", with name "defender2"
 
-ball = new Ball ahead of teammate by 1
+defender3_angle = Uniform(-30, 30)
+defender3_dist = Uniform(1,2)
+defender3_x = RightWinger.position.x + defender3_dist * sin(defender3_angle * pi / 180)
+defender3_y = RightWinger.position.y + defender3_dist * cos(defender3_angle * pi / 180)
+defender3 = new Player at (defender3_x, defender3_y, 0), facing toward ego, with team "red", with name "defender3"
 
-ego = new Coach at (0, ego_y_distance, 0),
-    with name "Coach",
-    with team "blue",
-    with behavior CoachBehavior(),
-    with xMark Vector(0, 0, 0),  # Set initial xMark position
-    with triggerPass False  # Initialize triggerPass to False
+defender4_angle = Uniform(-30, 30)
+defender4_dist = Uniform(1,2)
+defender4_x = LeftStriker.position.x + defender4_dist * sin(defender4_angle * pi / 180)
+defender4_y = LeftStriker.position.y + defender4_dist * cos(defender4_angle * pi / 180)
+defender4 = new Player at (defender4_x, defender4_y, 0), facing toward ego, with team "red", with name "defender4"
 
-opponent = new Player at (0, Range(4, 6), 0), with name "opponent",
-            with behavior DefenderBehavior(), with team "red"
-
+defender5_angle = Uniform(-30, 30)
+defender5_dist = Uniform(1,2)
+defender5_x = RightStriker.position.x + defender5_dist * sin(defender5_angle * pi / 180)
+defender5_y = RightStriker.position.y + defender5_dist * cos(defender5_angle * pi / 180)
+defender5 = new Player at (defender5_x, defender5_y, 0), facing toward ego, with team "red", with name "defender5"
 goal = new Goal at (0, 17, 0)
-
-line = new Line at (0, 10, 0)
-
 terminate when (ego.gameObject.stopButton)

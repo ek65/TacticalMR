@@ -90,6 +90,22 @@ class Constraint:
     def dist(self, scene, ego=False):
         return true()
     
+    def debug_dist(self, scene, ego=False):
+
+        print(f"CALLED DEBUG_DIST() {self}")
+
+        dist = self.dist(scene, ego=ego)
+
+        # import matplotlib.pyplot as plt
+        # import random
+
+        # plt.imshow(dist)
+        # rand_num = random.randint(1000, 9999)
+        # print(f"Saved plot with name {rand_num}")
+        # plt.savefig(f"/Users/jdiazchao/Desktop/{rand_num}.png") 
+
+        return dist 
+    
     def bool(self, scene):
         return True
     
@@ -297,6 +313,14 @@ class HorizontalRelation(Constraint):
         # Apply player exclusion mask
         player_exclusion_mask = create_player_exclusion_mask(scene)
         side_relation = np.where(player_exclusion_mask, side_relation, epsilon)
+
+        # import matplotlib.pyplot as plt
+        # import random
+
+        # plt.imshow(side_relation)
+        # rand_num = random.randint(1000, 9999)
+        # print(f" INNER DEBUG_DIST() Saved plot with name {rand_num}")
+        # plt.savefig(f"/Users/jdiazchao/Desktop/{rand_num}.png") 
 
         return side_relation
     
@@ -586,6 +610,14 @@ class DistanceTo(Constraint):
         # Apply player exclusion mask
         player_exclusion_mask = create_player_exclusion_mask(scene)
         map = np.where(player_exclusion_mask, map, epsilon)
+
+        # import matplotlib.pyplot as plt
+        # import random
+
+        # plt.imshow(map)
+        # rand_num = random.randint(1000, 9999)
+        # print(f" MAP DEBUG_DIST() Saved plot with name {rand_num}")
+        # plt.savefig(f"/Users/jdiazchao/Desktop/{rand_num}.png")
 
         return map
 

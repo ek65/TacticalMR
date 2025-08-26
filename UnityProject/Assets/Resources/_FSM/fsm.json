@@ -2,23 +2,28 @@
   "states": [
     {
       "id": 1,
-      "name": "MoveTo(\u03bb_target_overlap(), True)",
-      "description": "Move to overlap to side, about 33 degrees, 5 meters from ball. Call for ball from teammate."
+      "name": "MoveTo(\u03bb_target_right(), True)",
+      "description": "Move right, within 12m of goal and >4m from defender, call pass"
     },
     {
       "id": 2,
-      "name": "StopAndReceiveBall()",
-      "description": "Now get ready to receive the ball from teammate. Wait until ball arrives and you have possession."
+      "name": "MoveTo(\u03bb_target_left(), True)",
+      "description": "Move left, within 12m of goal and >4m from defender, call pass"
     },
     {
       "id": 3,
-      "name": "Shoot(goal)",
-      "description": "Take a shot towards goal now."
+      "name": "MoveTo(\u03bb_target_right(), True)",
+      "description": "Move right, within 12m of goal and >4m from defender, call pass"
     },
     {
       "id": 4,
       "name": "Pass(teammate)",
-      "description": "Pass the ball to your teammate so they can shoot."
+      "description": "Now make the quick return pass"
+    },
+    {
+      "id": 5,
+      "name": "Pass(teammate)",
+      "description": "Then pass to teammate"
     }
   ],
   "transitions": [
@@ -33,22 +38,36 @@
       "id": 1002,
       "from": 1,
       "to": 2,
-      "condition": "\u03bb_precondition_pass_from_teammate()",
-      "description": "Wait for teammate to pass you the ball before moving again."
+      "condition": "\u03bb_precondition_sideLeft()",
+      "description": "Teammate is right of defender, so I go left"
     },
     {
       "id": 1003,
-      "from": 2,
+      "from": 1,
       "to": 3,
-      "condition": "\u03bb_precondition_clear_path_shot()",
-      "description": "The path to the goal is clear. Prepare to shoot."
+      "condition": "else",
+      "description": "Sides look balanced; default to right flank"
     },
     {
       "id": 1004,
-      "from": 2,
+      "from": 1,
+      "to": 1,
+      "condition": "\u03bb_precondition_sideRight()",
+      "description": "Teammate is left of defender, so I go right"
+    },
+    {
+      "id": 1005,
+      "from": 1,
       "to": 4,
-      "condition": "else",
-      "description": "Path to the goal is blocked by teammate or opponent."
+      "condition": "\u03bb_precondition_pressure() and \u03bb_precondition_haveBallCoach()",
+      "description": "Defender presses; wait for 1m lane back to teammate"
+    },
+    {
+      "id": 1006,
+      "from": 1,
+      "to": 5,
+      "condition": "else and \u03bb_precondition_haveBallCoach()",
+      "description": "No pressure; hold and wait for teammate run"
     }
   ]
 }
