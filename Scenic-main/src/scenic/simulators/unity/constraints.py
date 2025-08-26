@@ -364,7 +364,7 @@ class HasPath(Constraint):
         self.radiusAvg = self.radius.get('avg', 0.0)
         self.radiusStd = self.radius.get('std', 1.0)
         # self.path_width = np.random.normal(loc=self.radius['avg'], scale=self.radius['std'],size=1)
-        self.path_width = 0.5
+        self.path_width = 1.0
         #print("Path width: ", self.path_width)
  
     def dist(self, scene, ego=False):
