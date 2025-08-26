@@ -256,6 +256,7 @@ class HeightRelation(Constraint):
 
         distances = (y + offset - i) if mirror else (i - y + offset) 
         height_relation = 1 - np.clip(distances / (dev if dev > 0 else 1), 0, 1) + epsilon
+        height_relation *= np.exp(-0.5 * (distances / (dev if dev > 0 else 1))**2)
 
         # Apply player exclusion mask
         player_exclusion_mask = create_player_exclusion_mask(scene)
@@ -309,6 +310,7 @@ class HorizontalRelation(Constraint):
 
         distances = (x + offset - j) if mirror else (j - x + offset) 
         side_relation = 1 - np.clip(distances / (dev if dev > 0 else 1), 0, 1) + epsilon
+        side_relation *= np.exp(-0.5 * (distances / (dev if dev > 0 else 1))**2)
 
         # Apply player exclusion mask
         player_exclusion_mask = create_player_exclusion_mask(scene)
@@ -585,6 +587,10 @@ class DistanceTo(Constraint):
         # print('distance to', x, y, self.minAvg, self.maxAvg, self.operator)
 
         if self.operator == 'within':
+
+            if (self.maxAvg - self.minAvg) < 1.5:
+                self.maxAvg = self.minAvg + 1.5
+
             mu = (self.minAvg + self.maxAvg) / 2.0
             sigma = (self.maxAvg - self.minAvg) / 2.0
             mask = (distances >= self.minAvg) & (distances <= self.maxAvg)
