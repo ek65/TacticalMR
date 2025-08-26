@@ -149,7 +149,7 @@ class Pressure(Constraint): # Checked for graceful failure
     def __init__(self, args):
         self.player1 = args.get('player1', None)
         self.player2 = args.get('player2', None)
-        self.radius = 4.0  # 2 meter radius
+        self.radius = 4.5
 
     def dist(self, scene, ego=False):
         if ego and not isEgo(self.player1):
@@ -319,7 +319,8 @@ class HasPath(Constraint):
         self.radius = args.get('path_width', None)
         self.radiusAvg = self.radius.get('avg', 0.0)
         self.radiusStd = self.radius.get('std', 1.0)
-        self.path_width = np.random.normal(loc=self.radius['avg'], scale=self.radius['std'],size=1)
+        # self.path_width = np.random.normal(loc=self.radius['avg'], scale=self.radius['std'],size=1)
+        self.path_width = 0.5
         #print("Path width: ", self.path_width)
  
     def dist(self, scene, ego=False):

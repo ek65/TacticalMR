@@ -62,9 +62,9 @@ behavior OpponentFollowCoach():
     # Set opponent speed
     do SetPlayerSpeed(4.0)
     
-    while distance from ego to self > 6:
+    while distance from ego to self > 4:
         # Follow coach only until coach receives the ball
-        do MoveToBehavior(ego.position, distance=6)
+        do MoveToBehavior(ego.position, distance=4)
             
     
 
