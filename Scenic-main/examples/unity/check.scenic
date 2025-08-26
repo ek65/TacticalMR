@@ -69,9 +69,9 @@ behavior OpponentFollowCoach():
     # Set opponent speed
     do SetPlayerSpeed(4.0)
     
-    while True:
+    while distance from ego to self > 5:
         # Follow coach only until coach receives the ball
-        do MoveToBehavior(ego.position, distance=4)
+        do MoveToBehavior(ego.position, distance=5)
 
 # Place teammate (AI) at origin
 teammate = new Player at (0, 0, 0), with name "teammate", with team "blue", with behavior TeammatePass()
