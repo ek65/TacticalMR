@@ -56,6 +56,22 @@ def bool_sample(vec, dist, min=0.1):
 
     return value > min
 
+def falloff(padding, show=False):
+    dist_top    = i
+    dist_bottom = rows - 1 - i
+    dist_left   = j
+    dist_right  = cols - 1 - j
+
+    dist_to_edge = np.minimum.reduce([dist_top, dist_bottom, dist_left, dist_right])
+    falloff = np.clip((dist_to_edge - 0) / (dist_to_edge.max() - padding), 0, 1)
+
+    if show:
+        plt.imshow(falloff, cmap="inferno")
+        plt.colorbar()
+        plt.show()
+
+    return falloff
+
 def create_player_exclusion_mask(scene, exclusion_radius=2):
     """Create a mask that excludes positions within exclusion_radius meters of any player.
     
@@ -96,13 +112,13 @@ class Constraint:
 
         dist = self.dist(scene, ego=ego)
 
-        # import matplotlib.pyplot as plt
-        # import random
+        import matplotlib.pyplot as plt
+        import random
 
-        # plt.imshow(dist)
-        # rand_num = random.randint(1000, 9999)
-        # print(f"Saved plot with name {rand_num}")
-        # plt.savefig(f"/Users/jdiazchao/Desktop/{rand_num}.png") 
+        plt.imshow(dist)
+        rand_num = random.randint(1000, 9999)
+        print(f"Saved plot with name {rand_num}")
+        plt.savefig(f"/Users/jdiazchao/Desktop/{rand_num}.png") 
 
         return dist 
     
@@ -261,6 +277,7 @@ class HeightRelation(Constraint):
         # Apply player exclusion mask
         player_exclusion_mask = create_player_exclusion_mask(scene)
         height_relation = np.where(player_exclusion_mask, height_relation, epsilon)
+        height_relation *= falloff(padding=3)
 
         return height_relation
     
@@ -315,14 +332,15 @@ class HorizontalRelation(Constraint):
         # Apply player exclusion mask
         player_exclusion_mask = create_player_exclusion_mask(scene)
         side_relation = np.where(player_exclusion_mask, side_relation, epsilon)
+        side_relation *= falloff(padding=3)
 
-        # import matplotlib.pyplot as plt
-        # import random
+        import matplotlib.pyplot as plt
+        import random
 
-        # plt.imshow(side_relation)
-        # rand_num = random.randint(1000, 9999)
-        # print(f" INNER DEBUG_DIST() Saved plot with name {rand_num}")
-        # plt.savefig(f"/Users/jdiazchao/Desktop/{rand_num}.png") 
+        plt.imshow(side_relation)
+        rand_num = random.randint(1000, 9999)
+        print(f" INNER DEBUG_DIST() Saved plot with name {rand_num}")
+        plt.savefig(f"/Users/jdiazchao/Desktop/{rand_num}.png") 
 
         return side_relation
     
@@ -616,14 +634,15 @@ class DistanceTo(Constraint):
         # Apply player exclusion mask
         player_exclusion_mask = create_player_exclusion_mask(scene)
         map = np.where(player_exclusion_mask, map, epsilon)
+        map *= falloff(padding=3)
 
-        # import matplotlib.pyplot as plt
-        # import random
+        import matplotlib.pyplot as plt
+        import random
 
-        # plt.imshow(map)
-        # rand_num = random.randint(1000, 9999)
-        # print(f" MAP DEBUG_DIST() Saved plot with name {rand_num}")
-        # plt.savefig(f"/Users/jdiazchao/Desktop/{rand_num}.png")
+        plt.imshow(map)
+        rand_num = random.randint(1000, 9999)
+        print(f" MAP DEBUG_DIST() Saved plot with name {rand_num}")
+        plt.savefig(f"/Users/jdiazchao/Desktop/{rand_num}.png")
 
         return map
 
