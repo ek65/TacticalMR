@@ -112,13 +112,13 @@ class Constraint:
 
         dist = self.dist(scene, ego=ego)
 
-        import matplotlib.pyplot as plt
-        import random
+        # import matplotlib.pyplot as plt
+        # import random
 
-        plt.imshow(dist)
-        rand_num = random.randint(1000, 9999)
-        print(f"Saved plot with name {rand_num}")
-        plt.savefig(f"/Users/jdiazchao/Desktop/{rand_num}.png") 
+        # plt.imshow(dist)
+        # rand_num = random.randint(1000, 9999)
+        # print(f"Saved plot with name {rand_num}")
+        # plt.savefig(f"/Users/jdiazchao/Desktop/{rand_num}.png") 
 
         return dist 
     
@@ -334,13 +334,13 @@ class HorizontalRelation(Constraint):
         side_relation = np.where(player_exclusion_mask, side_relation, epsilon)
         side_relation *= falloff(padding=3)
 
-        import matplotlib.pyplot as plt
-        import random
+        # import matplotlib.pyplot as plt
+        # import random
 
-        plt.imshow(side_relation)
-        rand_num = random.randint(1000, 9999)
-        print(f" INNER DEBUG_DIST() Saved plot with name {rand_num}")
-        plt.savefig(f"/Users/jdiazchao/Desktop/{rand_num}.png") 
+        # plt.imshow(side_relation)
+        # rand_num = random.randint(1000, 9999)
+        # print(f" INNER DEBUG_DIST() Saved plot with name {rand_num}")
+        # plt.savefig(f"/Users/jdiazchao/Desktop/{rand_num}.png") 
 
         return side_relation
     
@@ -636,13 +636,13 @@ class DistanceTo(Constraint):
         map = np.where(player_exclusion_mask, map, epsilon)
         map *= falloff(padding=3)
 
-        import matplotlib.pyplot as plt
-        import random
+        # import matplotlib.pyplot as plt
+        # import random
 
-        plt.imshow(map)
-        rand_num = random.randint(1000, 9999)
-        print(f" MAP DEBUG_DIST() Saved plot with name {rand_num}")
-        plt.savefig(f"/Users/jdiazchao/Desktop/{rand_num}.png")
+        # plt.imshow(map)
+        # rand_num = random.randint(1000, 9999)
+        # print(f" MAP DEBUG_DIST() Saved plot with name {rand_num}")
+        # plt.savefig(f"/Users/jdiazchao/Desktop/{rand_num}.png")
 
         return map
 
