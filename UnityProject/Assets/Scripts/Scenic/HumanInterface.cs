@@ -184,6 +184,19 @@ public class HumanInterface : NetworkBehaviour
         t2.gameObject.SetActive(false);
     }
     
+    private void LateUpdate()
+    {
+        // make sure ai target position is set back to 0 if behavior is not "MoveTo"
+        if (this.GetComponent<AIDestinationSetter>())
+        {
+            AIDestinationSetter dest = this.GetComponent<AIDestinationSetter>();
+            if (currAction != "MoveToPos" && dest.target != null)
+            {
+                dest.target.localPosition = Vector3.zero;
+            }
+        }
+    }
+    
     private void RPC_SetActive(bool active)
     {
         gameObject.SetActive(active);
