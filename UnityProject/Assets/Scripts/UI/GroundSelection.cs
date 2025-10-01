@@ -40,7 +40,6 @@ public class GroundSelection : MonoBehaviour, IPointerClickHandler, IPointerEnte
             {
                 if (raycastHit.transform.gameObject.CompareTag("Ground"))
                 {
-                    Debug.LogError("test");
                     groundHighlighter.transform.position = raycastHit.point;
                 }
         
