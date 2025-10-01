@@ -12,7 +12,7 @@ public class FloatingText : MonoBehaviour
     void Update()
     {
         GameManager gm = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
-        if (gm.isHost) // FOR VR VIEW ONLY
+        if (gm.isHost && !gm.laptopMode) // FOR VR VIEW ONLY
         {
             transform.rotation = Quaternion.LookRotation(transform.position - Camera.main.transform.position);
         }

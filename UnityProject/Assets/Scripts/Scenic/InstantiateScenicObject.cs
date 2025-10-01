@@ -132,7 +132,14 @@ public class InstantiateScenicObject
                 if (modelType == "Human")
                 {
                     // Change to "player.human VR" for VR human, otherwise "player.human"
-                    addedGameObject = MonoBehaviour.Instantiate(objectList.modelList["player.human VR"], pos, rot);
+                    if (GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>().laptopMode)
+                    {
+                        addedGameObject = MonoBehaviour.Instantiate(objectList.modelList["player.human"], pos, rot);
+                    }
+                    else
+                    {
+                        addedGameObject = MonoBehaviour.Instantiate(objectList.modelList["player.human VR"], pos, rot);
+                    }
                 } else if (modelType == "Coach")
                 {
                     // addedGameObject = MonoBehaviour.Instantiate(objectList.modelList["player.coach"], pos, rot);

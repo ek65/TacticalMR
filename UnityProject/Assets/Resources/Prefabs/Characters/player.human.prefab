@@ -3080,6 +3080,7 @@ GameObject:
   - component: {fileID: 5617416017562615796}
   - component: {fileID: 7997107720138317640}
   - component: {fileID: -4780579434234233153}
+  - component: {fileID: 8877244259660715059}
   m_Layer: 0
   m_Name: player.human
   m_TagString: human
@@ -3779,6 +3780,32 @@ MonoBehaviour:
   version: 1073741824
   target: {fileID: 7842624250203543949}
   useRotation: 0
+--- !u!114 &8877244259660715059
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8665160898893140854}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1552182283, guid: e725a070cec140c4caffb81624c8c787, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ObjectInterest: 1
+  DefaultInterestGroups: []
+  DestroyWhenStateAuthorityLeaves: 0
+  AllowStateAuthorityOverride: 1
+  AoiPositionSource: {fileID: 0}
+  Flags: 2305
+  NetworkGuid:
+    RawGuidValue: 14845de90ccdf48b8a87c477627f042f
+  NestedObjects: []
+  NetworkedBehaviours:
+  - {fileID: 8665160898893140851}
+  - {fileID: -8005786939322903999}
+  - {fileID: 1614666315}
+  SimulationBehaviours: []
 --- !u!1 &8665160898920370538
 GameObject:
   m_ObjectHideFlags: 0

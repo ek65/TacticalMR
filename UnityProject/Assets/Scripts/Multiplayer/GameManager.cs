@@ -18,16 +18,10 @@ public class GameManager : NetworkBehaviour, INetworkRunnerCallbacks
 	[Tooltip("If this is checked, then the game will start as a host.")]
 	public bool isHost;
 
-	public GameObject _ObserverCamera;
+	[Tooltip("If this is checked, runs in single-player mode with observer camera and Scenic enabled.")]
+	public bool laptopMode;
 
-	// [Tooltip("The sole OVRCameraRig in the scene. Multiple OVRCameraRigs will cause problems.")]
-	// public GameObject _OVRCR;
-	//
-	// public Transform _OriginalTransform;
-	//
-	// public Transform _ParentTransform;
-	//
-	// public GameObject ball;
+	public GameObject _ObserverCamera;
 
 	void Start()
 	{
@@ -43,10 +37,28 @@ public class GameManager : NetworkBehaviour, INetworkRunnerCallbacks
 			#endif
 		}
 
-		Debug.Log("We are the " + (isHost ? "host" : "client"));
-
-		if (isHost) // host
+		// Laptop mode overrides host/client settings and acts as host
+		if (laptopMode)
 		{
+			isHost = true;
+			Debug.Log("Running in Laptop Mode (Single Player)");
+			
+			// Enable Scenic communication (like host)
+			ZMQManagerObject.SetActive(true);
+			
+			// Enable Observer Camera (like client)
+			_ObserverCamera.SetActive(true);
+			
+			// Start in single player mode
+			if (_runner == null)
+			{
+				StartGame(GameMode.Single);
+			}
+		}
+		else if (isHost) // host
+		{
+			Debug.Log("We are the host");
+			
 			// enable `ZMQManager` to listen to Scenic
 			ZMQManagerObject.SetActive(true);
 			
@@ -61,6 +73,8 @@ public class GameManager : NetworkBehaviour, INetworkRunnerCallbacks
 		}
 		else // client
 		{
+			Debug.Log("We are the client");
+			
 			// switch to the Observer Camera
 			_ObserverCamera.SetActive(true);
 			
@@ -74,7 +88,7 @@ public class GameManager : NetworkBehaviour, INetworkRunnerCallbacks
 
 	private void Update()
 	{
-		if (isHost && Input.GetKeyDown(KeyCode.R))
+		if ((isHost || laptopMode) && Input.GetKeyDown(KeyCode.R))
 		{
 			// ball.transform.position = new Vector3(0, 1, 1);
 		}
@@ -104,16 +118,18 @@ public class GameManager : NetworkBehaviour, INetworkRunnerCallbacks
 	async void StartGame(GameMode mode)
 	{
 		// Create the Fusion runner and let it know that we will be providing user input
-		Debug.Log("in StartGame");
+		Debug.Log("in StartGame with mode: " + mode);
 		_runner = gameObject.AddComponent<NetworkRunner>();
-		_runner.ProvideInput = isHost; // server does provide input
-		Debug.Log("we provide input: " + isHost);
+		
+		// In laptop mode or host mode, we provide input
+		_runner.ProvideInput = (laptopMode || isHost);
+		Debug.Log("we provide input: " + (laptopMode || isHost));
 
 		// Start or join (depends on gamemode) a session with a specific name
 		await _runner.StartGame(new StartGameArgs()
 		{
 			GameMode = mode,
-			SessionName = "GameRoom" + sessionNum,
+			SessionName = laptopMode ? "LaptopMode" : ("GameRoom" + sessionNum),
 			Scene = SceneManager.GetActiveScene().buildIndex,
 			SceneManager = gameObject.AddComponent<NetworkSceneManagerDefault>()
 		});
@@ -124,33 +140,17 @@ public class GameManager : NetworkBehaviour, INetworkRunnerCallbacks
 
 	public void OnPlayerJoined(NetworkRunner runner, PlayerRef player)
 	{
-		// // The user's prefab has to be spawned by host
-		// if (runner.IsServer)
-		// {
-		// 	Debug.Log($"OnPlayerJoined. PlayerId: {player.PlayerId}");
-		// 	// Create a unique position for the player
-		// 	Vector3 spawnPosition =
-		// 		new Vector3((player.RawEncoded % runner.Config.Simulation.DefaultPlayers) * 3, 1, 5);
-		// 	// Vector3 spawnPosition =
-		// 	// 	new Vector3(0,0,0);
-		// 	// We make sure to give the input authority to the connecting player for their user's object
-		// 	NetworkObject networkPlayerObject = runner.Spawn(_playerPrefab, spawnPosition, Quaternion.identity, player);
-		// 	// Keep track of the player avatars so we can remove it when they disconnect
-		// 	_spawnedCharacters.Add(player, networkPlayerObject);
-		// }
-
 		if (runner.IsServer)
 		{
 			Debug.Log($"Player joined: {player.PlayerId}");
 		
-			// Spawn only the host’s network representation
+			// Spawn only the host's network representation
 			if (player == runner.LocalPlayer && isHost)
 			{
 				Vector3 spawnPosition = new Vector3(0, 0, 0);
 				NetworkObject hostNetworkPlayer = runner.Spawn(_playerPrefab, spawnPosition, Quaternion.identity, player);
 				
 				// Hide host's own networked player mesh locally
-				// hostNetworkPlayer.gameObject.SetActive(false);
 				Transform hostTransform = hostNetworkPlayer.gameObject.transform;
 				Transform playerMesh = hostTransform.FindChildRecursive("Armature_Mesh");
 				
@@ -158,7 +158,6 @@ public class GameManager : NetworkBehaviour, INetworkRunnerCallbacks
 				{
 					playerMesh.gameObject.GetComponent<SkinnedMeshRenderer>().enabled = false;
 				}
-				
 				
 				_spawnedCharacters.Add(player, hostNetworkPlayer);
 			}
@@ -239,47 +238,6 @@ public class GameManager : NetworkBehaviour, INetworkRunnerCallbacks
 	public void OnSceneLoadStart(NetworkRunner runner) => Debug.Log("OnSceneLoadStart");
 
 	#endregion
-
-	// #region Shared Spatial Anchor
-	//
-	// bool QuestIDUploaded = false;
-	// private List<ulong> ClientsQuestIDList = new List<ulong>();
-	//
-	// void Update()
-	// {
-	// 	if (!isHost && !QuestIDUploaded && !_runner.IsServer)
-	// 	{
-	// 		Debug.Log("About to upload QuestID");
-	// 		// send local user's quest ID to the server
-	// 		Oculus.Platform.Core.Initialize();
-	// 		var userRequest = Oculus.Platform.Users.GetLoggedInUser();
-	// 		userRequest.OnComplete((Message<User> message) =>
-	// 		{
-	// 			if (message.IsError)
-	// 			{
-	// 				Debug.Log("Error getting user: " + message.GetError().Message);
-	// 				return;
-	// 			}
-	//
-	// 			ulong OculusID = message.Data.ID;
-	// 			Debug.Log("User ID: " + OculusID.ToString());
-	// 			//ClientsQuestIDList.Add(ClientsQuestIDList.Count + 1, OculusID); // 1-indexed playerNum
-	// 			ClientsQuestIDList.Add(OculusID);
-	// 			QuestIDUploaded = true;
-	// 			// RPC_Add_User(player, userID);
-	// 		});
-	// 	}
-	//
-	// 	// print ClientsQuestIDList
-	// 	var index = 1;
-	// 	foreach (var item in ClientsQuestIDList)
-	// 	{
-	// 		Debug.Log("playerNum: " + index + ", QuestID: " + item);
-	// 		index++;
-	// 	}
-	// }
-	//
-	// #endregion
 
 	#region Scenic
 
