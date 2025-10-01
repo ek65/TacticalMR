@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Fusion;
 using Fusion.Sockets;
+using Oculus.Interaction;
 using Oculus.Platform;
 using Oculus.Platform.Models;
 using UnityEngine.SceneManagement;
@@ -22,6 +23,8 @@ public class GameManager : NetworkBehaviour, INetworkRunnerCallbacks
 	public bool laptopMode;
 
 	public GameObject _ObserverCamera;
+	
+	public PointableCanvasModule _pointableCanvasModule;
 
 	void Start()
 	{
@@ -40,6 +43,9 @@ public class GameManager : NetworkBehaviour, INetworkRunnerCallbacks
 		// Laptop mode overrides host/client settings and acts as host
 		if (laptopMode)
 		{
+			// Disable oculus pointer interaction
+			_pointableCanvasModule.enabled = false;
+			
 			isHost = true;
 			Debug.Log("Running in Laptop Mode (Single Player)");
 			

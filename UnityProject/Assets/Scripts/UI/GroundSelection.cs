@@ -47,7 +47,7 @@ public class GroundSelection : MonoBehaviour, IPointerClickHandler, IPointerEnte
             }
         }
 #endif
-#if UNITY_ANDROID
+#if UNITY_ANDROID && !UNITY_EDITOR
         // android raycast
         GameObject human = GameObject.FindGameObjectWithTag("human");
         if (human == null)
@@ -117,7 +117,7 @@ public class GroundSelection : MonoBehaviour, IPointerClickHandler, IPointerEnte
         }
     }
     
-#if UNITY_ANDROID
+#if UNITY_ANDROID && !UNITY_EDITOR
     public void OnRayClick()
     {
         if (keyboardInput.canClick)
