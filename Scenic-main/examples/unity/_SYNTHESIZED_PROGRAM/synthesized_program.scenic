@@ -1,3 +1,56 @@
+from scenic.simulators.unity.actions import *
+from scenic.simulators.unity.behaviors import *
+from scenic.simulators.unity.constraints import *
+model scenic.simulators.unity.model
+import trimesh
+from scenic.core.regions import MeshVolumeRegion
+import random
+####HEADER ENDS####
+
+A1target_move1 = HasPath({'obj1': 'Coach', 'obj2': 'LeftStriker', 'path_width': {'avg': 2, 'std': 0.2}})
+A2target_move1 = DistanceTo({'from': 'Coach', 'to': 'Defender4', 'min': {'avg': 3, 'std': 0.3}, 'max': None, 'operator': 'greater_than'})
+A3target_move1 = DistanceTo({'from': 'Coach', 'to': 'LeftStriker', 'min': {'avg': 7, 'std': 0.3}, 'max': {'avg': 13, 'std': 0.2}, 'operator': 'within'})
+
+A1precondition_pass = HasPath({'obj1': 'Coach', 'obj2': 'LeftStriker', 'path_width': {'avg': 2, 'std': 0.2}})
+A2precondition_pass = HasBallPossession({'player': 'Coach'})
+
+A1precondition_support = HasBallPossession({'player': 'LeftStriker'})
+
+# Supporting position after pass (as in demo_1): X=-2.39, Y=2.76, about 4 meters from both current Coach and LeftStriker
+A1target_support = DistanceTo({'from': 'Coach', 'to': 'LeftStriker', 'min': {'avg': 3.5, 'std': 0.2}, 'max': {'avg': 5, 'std': 0.2}, 'operator': 'within'})
+# Also keep clear of nearby defender
+A2target_support = DistanceTo({'from': 'Coach', 'to': 'Defender4', 'min': {'avg': 3, 'std': 0.2}, 'max': None, 'operator': 'greater_than'})
+
+def λ_target_move1():
+    cond = A1target_move1 & A2target_move1 & A3target_move1
+    return cond.dist(simulation(), ego=True)
+
+def λ_target_support():
+    cond = A1target_support & A2target_support
+    return cond.dist(simulation(), ego=True)
+
+def λ_precondition_pass():
+    cond = A1precondition_pass & A2precondition_pass
+    return cond.bool(simulation())
+
+def λ_precondition_support():
+    return A1precondition_support.bool(simulation())
+
+behavior CoachBehavior():
+    do Idle() for 3 seconds
+    do Speak("Wait 3 seconds to observe ball possession and teammates' positioning.")
+    do Speak("Move to spot with clear 2m passing lane to LeftStriker, more than 3m from Defender4.")
+    do MoveTo(λ_target_move1(), False)
+    do Speak("Wait until you have ball and passing lane to LeftStriker is clear (2m path width).")
+    do Idle() until λ_precondition_pass()
+    do Speak("Angle and lane to LeftStriker is clear; pass ball to LeftStriker.")
+    do Pass("LeftStriker")
+    do Speak("Wait until LeftStriker has the ball before supporting.")
+    do Idle() until λ_precondition_support()
+    do Speak("Move to support: 3.5-5m from LeftStriker, more than 3m from nearest defender.")
+    do MoveTo(λ_target_support(), False)
+    do Idle()
+
 ####Environment Behavior START####
 
 # Ego (center midfielder) at origin

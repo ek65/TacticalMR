@@ -12,10 +12,12 @@ epsilon = 1e-2
 def findObj(id, objects):
     if isinstance(id, str):
         key_lower = id.lower()
+        if key_lower == 'ego':
+            key_lower = 'coach'  # Handle 'ego' as 'coach'
         return [obj for obj in objects if key_lower in obj.name.lower()]
 
 def isEgo(id):
-    return 'coach' in id.lower()
+    return 'coach' in id.lower() or 'ego' in id.lower()
 
 def sigmoid(x):
     return 1 / (1 + np.exp(-x))
@@ -54,6 +56,22 @@ def bool_sample(vec, dist, min=0.1):
 
     return value > min
 
+def falloff(padding, show=False):
+    dist_top    = i
+    dist_bottom = rows - 1 - i
+    dist_left   = j
+    dist_right  = cols - 1 - j
+
+    dist_to_edge = np.minimum.reduce([dist_top, dist_bottom, dist_left, dist_right])
+    falloff = np.clip((dist_to_edge - 0) / (dist_to_edge.max() - padding), 0, 1)
+
+    if show:
+        plt.imshow(falloff, cmap="inferno")
+        plt.colorbar()
+        plt.show()
+
+    return falloff
+
 def create_player_exclusion_mask(scene, exclusion_radius=2):
     """Create a mask that excludes positions within exclusion_radius meters of any player.
     
@@ -87,6 +105,22 @@ class Constraint:
 
     def dist(self, scene, ego=False):
         return true()
+    
+    def debug_dist(self, scene, ego=False):
+
+        print(f"CALLED DEBUG_DIST() {self}")
+
+        dist = self.dist(scene, ego=ego)
+
+        # import matplotlib.pyplot as plt
+        # import random
+
+        # plt.imshow(dist)
+        # rand_num = random.randint(1000, 9999)
+        # print(f"Saved plot with name {rand_num}")
+        # plt.savefig(f"/Users/jdiazchao/Desktop/{rand_num}.png") 
+
+        return dist 
     
     def bool(self, scene):
         return True
@@ -147,7 +181,7 @@ class Pressure(Constraint): # Checked for graceful failure
     def __init__(self, args):
         self.player1 = args.get('player1', None)
         self.player2 = args.get('player2', None)
-        self.radius = 4.0  # 2 meter radius
+        self.radius = 4.5
 
     def dist(self, scene, ego=False):
         if ego and not isEgo(self.player1):
@@ -238,10 +272,12 @@ class HeightRelation(Constraint):
 
         distances = (y + offset - i) if mirror else (i - y + offset) 
         height_relation = 1 - np.clip(distances / (dev if dev > 0 else 1), 0, 1) + epsilon
+        height_relation *= np.exp(-0.5 * (distances / (dev if dev > 0 else 1))**2)
 
         # Apply player exclusion mask
         player_exclusion_mask = create_player_exclusion_mask(scene)
         height_relation = np.where(player_exclusion_mask, height_relation, epsilon)
+        height_relation *= falloff(padding=3)
 
         return height_relation
     
@@ -291,10 +327,20 @@ class HorizontalRelation(Constraint):
 
         distances = (x + offset - j) if mirror else (j - x + offset) 
         side_relation = 1 - np.clip(distances / (dev if dev > 0 else 1), 0, 1) + epsilon
+        side_relation *= np.exp(-0.5 * (distances / (dev if dev > 0 else 1))**2)
 
         # Apply player exclusion mask
         player_exclusion_mask = create_player_exclusion_mask(scene)
         side_relation = np.where(player_exclusion_mask, side_relation, epsilon)
+        side_relation *= falloff(padding=3)
+
+        # import matplotlib.pyplot as plt
+        # import random
+
+        # plt.imshow(side_relation)
+        # rand_num = random.randint(1000, 9999)
+        # print(f" INNER DEBUG_DIST() Saved plot with name {rand_num}")
+        # plt.savefig(f"/Users/jdiazchao/Desktop/{rand_num}.png") 
 
         return side_relation
     
@@ -317,7 +363,8 @@ class HasPath(Constraint):
         self.radius = args.get('path_width', None)
         self.radiusAvg = self.radius.get('avg', 0.0)
         self.radiusStd = self.radius.get('std', 1.0)
-        self.path_width = np.random.normal(loc=self.radius['avg'], scale=self.radius['std'],size=1)
+        # self.path_width = np.random.normal(loc=self.radius['avg'], scale=self.radius['std'],size=1)
+        self.path_width = 1.0
         #print("Path width: ", self.path_width)
  
     def dist(self, scene, ego=False):
@@ -558,6 +605,10 @@ class DistanceTo(Constraint):
         # print('distance to', x, y, self.minAvg, self.maxAvg, self.operator)
 
         if self.operator == 'within':
+
+            if (self.maxAvg - self.minAvg) < 1.5:
+                self.maxAvg = self.minAvg + 1.5
+
             mu = (self.minAvg + self.maxAvg) / 2.0
             sigma = (self.maxAvg - self.minAvg) / 2.0
             mask = (distances >= self.minAvg) & (distances <= self.maxAvg)
@@ -583,6 +634,15 @@ class DistanceTo(Constraint):
         # Apply player exclusion mask
         player_exclusion_mask = create_player_exclusion_mask(scene)
         map = np.where(player_exclusion_mask, map, epsilon)
+        map *= falloff(padding=3)
+
+        # import matplotlib.pyplot as plt
+        # import random
+
+        # plt.imshow(map)
+        # rand_num = random.randint(1000, 9999)
+        # print(f" MAP DEBUG_DIST() Saved plot with name {rand_num}")
+        # plt.savefig(f"/Users/jdiazchao/Desktop/{rand_num}.png")
 
         return map
 

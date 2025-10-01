@@ -7,76 +7,124 @@ from scenic.core.regions import MeshVolumeRegion
 import random
 ####HEADER ENDS####
 
-A1target_0 = DistanceTo({'from': 'Coach', 'to': 'teammate', 'min': {'avg': 4.0, 'std': 0.5}, 'max': {'avg': 7.0, 'std': 1.0}, 'operator': 'within'})
-A2target_0 = HasPath({'obj1': 'teammate', 'obj2': 'Coach', 'path_width': {'avg': 1.5, 'std': 0.3}})
+# --- Constraints/APIs ---
+
+A1target_0 = DistanceTo({
+    'from': 'Coach',
+    'to': 'teammate',
+    'min': {'avg': 4.0, 'std': 0.5},
+    'max': {'avg': 8.0, 'std': 0.7},
+    'operator': 'within'
+})
+
+# CHANGED: Now use a HeightRelation "above" teammate for vertical separation.
+A2target_0 = HeightRelation({
+    'obj': 'Coach',
+    'ref': 'teammate',
+    'relation': 'above',
+    'height_threshold': {'avg': 4.5, 'std': 0.7}  # Coach must be at least ~4.5m above teammate (demo: y ≈ 6–8 when teammate at y ≈ 0–2)
+})
+
+A3target_0 = HasPath({
+    'obj1': 'teammate',
+    'obj2': 'Coach',
+    'path_width': {'avg': 2.0, 'std': 0.3}
+})
+
 A1precondition_0 = HasBallPossession({'player': 'Coach'})
 A2precondition_0 = MakePass({'player': 'teammate'})
-A1target_1 = DistanceTo({'from': 'goal', 'to': 'Coach', 'min': None, 'max': {'avg': 9.5, 'std': 1.0}, 'operator': 'less_than'})
-A2target_1 = HasPath({'obj1': 'Coach', 'obj2': 'goal', 'path_width': {'avg': 1.5, 'std': 0.3}})
-A1target_2 = HasPath({'obj1': 'Coach', 'obj2': 'teammate', 'path_width': {'avg': 1.5, 'std': 0.3}})
-A2precondition_2 = HasBallPossession({'player': 'teammate'})
-A1precondition_3 = MakePass({'player': 'Coach'})
-# Added for the fix: opponent should NOT be pressuring Coach
-A_is_pressured = Pressure({'player1': 'opponent', 'player2': 'Coach'})
+Aprecondition_1 = HasBallPossession({'player': 'teammate'})
+Aprecondition_2 = HasBallPossession({'player': 'Coach'})
+Aprecondition_3 = HasBallPossession({'player': 'teammate'})
+
+A1target_3 = HasPath({
+    'obj1': 'Coach',
+    'obj2': 'teammate',
+    'path_width': {'avg': 2.0, 'std': 0.3}
+})
+
+A2target_3 = DistanceTo({
+    'from': 'Coach',
+    'to': 'teammate',
+    'min': {'avg': 4.0, 'std': 0.5},
+    'max': {'avg': 7.5, 'std': 0.5},
+    'operator': 'within'
+})
+
+A1target_4 = DistanceTo({
+    'from': 'teammate',
+    'to': 'goal',
+    'min': None,
+    'max': {'avg': 8.0, 'std': 0.5},
+    'operator': 'less_than'
+})
+
+# --- Lambda Functions ---
 
 def λ_target0():
-    cond = A1target_0 & A2target_0
+    # CHANGED: Now requires Coach to be above (y) teammate, not strictly left. Path is also clear.
+    cond = A1target_0 & A2target_0 & A3target_0
     return cond.dist(simulation(), ego=True)
 
-def λ_precondition_0():
-    cond = A1precondition_0 & A2precondition_0
-    return cond.bool(simulation())
-
-def λ_target1():
-    cond = A1target_1 & A2target_1
-    return cond.dist(simulation(), ego=True)
-
-def λ_target2():
-    return A1target_2.dist(simulation(), ego=True)
+def λ_precondition_1():
+    # Coach waits to get ball
+    return A1precondition_0.bool(simulation())
 
 def λ_precondition_2():
-    return A2precondition_2.bool(simulation())
+    # Teammate waits to have ball after receiving Coach's pass
+    return Aprecondition_1.bool(simulation())
 
 def λ_precondition_3():
-    return A1precondition_3.bool(simulation())
+    # Coach waits to have ball possession again
+    return Aprecondition_2.bool(simulation())
 
-def λ_termination():
-    # Terminate if Coach loses possession unexpectedly (not success condition)
-    return not A1precondition_0.bool(simulation())
+def λ_precondition_4():
+    # Teammate waits to have ball possession again
+    return Aprecondition_3.bool(simulation())
 
-# Added for the fix: Helper to check if not pressured
-def λ_not_pressured():
-    # True if coach is not being pressured by opponent
-    return not A_is_pressured.bool(simulation())
+def λ_target_passback():
+    cond = A1target_3 & A2target_3
+    return cond.dist(simulation(), ego=True)
+
+def λ_target_goal():
+    return A1target_4.dist(simulation(), ego=True)
+
+def λ_path_to_goal():
+    # Returns True if there is an unobstructed 2m path from Coach to the goal
+    return HasPath({
+        'obj1': 'Coach',
+        'obj2': 'goal',
+        'path_width': {'avg': 2.0, 'std': 0.3}
+    }).bool(simulation())
+
+# ----- COACH BEHAVIOR FSM -----
 
 behavior CoachBehavior():
     do Idle() for 3 seconds
-    do Speak("I want to get open. Move to open space 4-7 meters from teammate where they have clear passing path.")
+    do Speak(
+        "Move 4 to 8 meters away above teammate (i.e., towards opponent's goal with y difference at least 4.5m), where teammate's passing lane is clear (2m width)."
+    )
     do MoveTo(λ_target0(), True)
-    do Speak("Wait for possession of the ball after teammate passes.")
-    do Idle() until λ_precondition_0()
-    do Speak("I now have the ball. I will immediately check if I'm under defensive pressure and if not, look for a shot.")
 
-    if λ_not_pressured():
-        if max([v for row in λ_target1() for v in row]) > 0.7:  # flatten array; check open shot
-            do Speak("Not under pressure and path to goal is clear. Taking the shot.")
-            do Shoot(goal)
-            do Idle()
-        else:
-            do Speak("Not under pressure but no clear shot. Look for pass.")
-            do Pass(teammate)
-            do Speak("Wait for teammate to regain possession before next instruction.")
-            do Idle() until λ_precondition_2()
-            do Speak("Once teammate has the ball, I will wait for a pass from them again with a clear path.")
-            do Idle() until λ_precondition_3()
-            do Idle()
+    # Changed: Check for clear path to goal instead of opponent pressure
+    if λ_path_to_goal():
+        do Speak("Path to goal is clear, shooting for goal.")
+        do Shoot(goal)
+        do Idle()  # End here if shot; always ends with Idle.
     else:
-        do Speak("I'm under defensive pressure. Look to pass to teammate with a clear path.")
+        do Speak("Wait until I have ball possession after teammate passes to me.")
+        do Idle() until λ_precondition_1()
+        do Speak("Now, defender blocks path to goal. Look for teammate in open position, lane 2m wide.")
         do Pass(teammate)
-        do Speak("Wait for teammate to regain possession before next instruction.")
+        do Speak("Wait for teammate to get ball and move towards goal less than 8 meters away.")
         do Idle() until λ_precondition_2()
-        do Speak("Once teammate has the ball, I will wait for a pass from them again with a clear path.")
+        do Speak("Teammate should move closer to goal (<8m), then pass back to me.")
         do Idle() until λ_precondition_3()
+        do Speak("Receive pass and wait until I regain possession of the ball.")
+        do StopAndReceiveBall()
+        do Speak("Wait for teammate to regain ball to allow another pass.")
+        do Idle() until λ_precondition_4()
+        do Speak("Teammate advances and makes a final pass towards goal area around 17 meters.")
         do Idle()
 
 ####Environment Behavior START####
@@ -123,7 +171,7 @@ behavior TeammateBehavior():
 
         
         target_position = Vector(target_x, target_y, 0)
-        do MoveToBehavior(target_position)
+        do MoveToBehavior(target_position, distance=0.5)
         
         # Wait to receive ball back from coach
         do Idle() until self.gameObject.ballPossession
@@ -163,7 +211,7 @@ behavior DefenderBehavior():
         
         # Move to the target position
         target_position = Vector(target_x, target_y, 0)
-        do MoveToBehavior(target_position)
+        do MoveToBehavior(target_position, distance=.1)
         
         # Face the ego (coach) once in position
         do LookAt(ego)

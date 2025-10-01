@@ -1,3 +1,46 @@
+from scenic.simulators.unity.actions import *
+from scenic.simulators.unity.behaviors import *
+from scenic.simulators.unity.constraints import *
+model scenic.simulators.unity.model
+import trimesh
+from scenic.core.regions import MeshVolumeRegion
+import random
+####HEADER ENDS####
+
+behavior CoachBehavior():
+    do Idle() for 3 seconds
+    do Speak("Wait until you have the ball before acting")
+    do Idle() until lambda_precondition_0()
+    do Speak("You have ball possession, assess passing options")
+    do Speak("Pass to RightStriker since LeftStriker has a harder pass angle")
+    do Pass(RightStriker)
+    do Speak("Wait until RightStriker has the ball")
+    do Idle() until lambda_precondition_1()
+    do Speak("Move to create a triangle with RightStriker and LeftStriker, positioning at x 2, y 4")
+    do MoveTo(lambda_target2(), False)
+    do Idle()
+
+# --- Constraints and Logic ---
+
+A1precondition_0 = HasBallPossession({'player': 'Coach'})
+A1precondition_1 = HasBallPossession({'player': 'RightStriker'})
+
+# Coach's repositioning to roughly x=2, y=4 (triangle position)
+A1target_2 = DistanceTo({'from': 'Coach', 'to': 'goal', 'min': None, 'max': {'avg': 14.5, 'std': 1.0}, 'operator': 'less_than'})
+A2target_2 = HeightRelation({'obj': 'Coach', 'ref': None, 'relation': 'above', 'height_threshold': {'avg': 4, 'std': 0.5}})
+# A3target_2 = HorizontalRelation({'obj': 'Coach', 'ref': None, 'relation': 'right', 'horizontal_threshold': {'avg': 2, 'std': 0.5}})  # Uncomment if HorizontalRelation is defined
+
+def lambda_precondition_0():
+    return A1precondition_0.bool(simulation())
+
+def lambda_precondition_1():
+    return A1precondition_1.bool(simulation())
+
+def lambda_target2():
+    # cond = A1target_2 & A2target_2 & A3target_2  # Uncomment and complete if HorizontalRelation is available
+    cond = A1target_2 & A2target_2
+    return cond.dist(simulation(), ego=True)
+
 ####Environment Behavior START####
 
 # Ego (center midfielder) at origin
@@ -11,11 +54,11 @@ winger_dist = Uniform(6,8)
 
 left_winger_x = winger_dist * sin(left_winger_angle * pi / 180)
 left_winger_y = winger_dist * cos(left_winger_angle * pi / 180)
-LeftWinger = new Player at (left_winger_x, left_winger_y, 0), facing toward ego, with name "LeftWinger", with team "blue"
+left_winger = new Player at (left_winger_x, left_winger_y, 0), facing toward ego, with name "LeftWinger", with team "blue"
 
 right_winger_x = winger_dist * sin(right_winger_angle * pi / 180)
 right_winger_y = winger_dist * cos(right_winger_angle * pi / 180)
-RightWinger = new Player at (right_winger_x, right_winger_y, 0), facing toward ego, with name "RightWinger", with team "blue"
+right_winger = new Player at (right_winger_x, right_winger_y, 0), facing toward ego, with name "RightWinger", with team "blue"
 
 # Strikers
 left_striker_angle = -Uniform(8, 20)
@@ -66,5 +109,4 @@ defender5_dist = Uniform(1,2)
 defender5_x = RightStriker.position.x + defender5_dist * sin(defender5_angle * pi / 180)
 defender5_y = RightStriker.position.y + defender5_dist * cos(defender5_angle * pi / 180)
 defender5 = new Player at (defender5_x, defender5_y, 0), facing toward ego, with team "red", with name "defender5"
-goal = new Goal at (0, 17, 0)
 terminate when (ego.gameObject.stopButton)

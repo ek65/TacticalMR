@@ -1,13 +1,70 @@
+from scenic.simulators.unity.actions import *
+from scenic.simulators.unity.behaviors import *
+from scenic.simulators.unity.constraints import *
+model scenic.simulators.unity.model
+import trimesh
+from scenic.core.regions import MeshVolumeRegion
+import random
+####HEADER ENDS####
+
+A1target_0 = DistanceTo({'from': 'Coach', 'to': 'RightStriker', 'min': None, 'max': {'avg': 9, 'std': 1}, 'operator': 'less_than'})
+A2target_0 = HasPath({'obj1': 'Coach', 'obj2': 'RightStriker', 'path_width': {'avg': 2, 'std': 0.5}})
+Aprecondition_0 = HasBallPossession({'player': 'Coach'})
+
+def λ_target0():
+    cond = A1target_0 & A2target_0
+    return cond.dist(simulation(), ego=True)
+
+def λ_precondition_0():
+    return Aprecondition_0.bool(simulation())
+
+Aprecondition_1 = HasBallPossession({'player': 'RightStriker'})
+def λ_precondition_1():
+    return Aprecondition_1.bool(simulation())
+
+A1target_2 = AtAngle({'player': 'Coach', 'ball': 'ball', 'right': {'theta': {'avg': 46, 'std': 8}, 'dist': {'avg': 5, 'std': 1}}})
+def λ_target2():
+    return A1target_2.dist(simulation(), ego=True)
+
+Aprecondition_2 = MakePass({'player': 'Coach'})
+def λ_precondition_2():
+    return Aprecondition_2.bool(simulation())
+
+Aprecondition_3 = HasBallPossession({'player': 'Coach'})
+def λ_precondition_3():
+    return Aprecondition_3.bool(simulation())
+
+def λ_termination_0():
+    # Termination is not based on success of the pass or triangle, just on a pause.
+    return False
+
+behavior CoachBehavior():
+    do Idle() for 3 seconds
+    do Speak("Wait until I have the ball before taking the first action")
+    do Idle() until λ_precondition_0()
+    do Speak("Pass the ball to RightStriker: pass must be under 9 meters with at least 2m clear path")
+    do Pass(RightStriker)
+    do Speak("Wait until RightStriker receives the ball")
+    do Idle() until λ_precondition_1()
+    do Speak("Move right and upfield, at about 46 degrees from the ball, about 5 meters")
+    do MoveTo(λ_target2(), False)
+    do Speak("Wait until you see the ball being passed again")
+    do Idle() until λ_precondition_2()
+    do Speak("Once I receive the ball again, pause and look for options")
+    do Idle() until λ_precondition_3()
+    do Speak("You've now repositioned to form a triangle for distribution, giving multiple passing options")
+    do Idle()
+
 ####Environment Behavior START####
 
 # Ego (center midfielder) at origin
 pi = 3.1415
-ego = new Coach at (0, 0, 0), with team "blue", with behavior CoachBehavior()
+ego = new Coach at (0, 0, 0), facing toward (0, 0, 0), with team "blue", with behavior CoachBehavior()
 
 # Wingers
-left_winger_angle = -90 + Uniform(0, 10)  # degrees from y-axis, 90 is positive x-axis (left), variance +/-10
-right_winger_angle = 90 + Uniform(0, 10)  # degrees from y-axis, -90 is negative x-axis (right), variance +/-10
-winger_dist = Uniform(6,8)
+left_winger_angle = 90 + Range(0, 10)  # degrees from y-axis, 90 is positive x-axis (left), variance +/-10
+right_winger_angle = -90 + Range(0, 10)  # degrees from y-axis, -90 is negative x-axis (right), variance +/-10
+winger_dist = Range(6,8)
 
 left_winger_x = winger_dist * sin(left_winger_angle * pi / 180)
 left_winger_y = winger_dist * cos(left_winger_angle * pi / 180)
@@ -66,5 +123,4 @@ defender5_dist = Uniform(1,2)
 defender5_x = RightStriker.position.x + defender5_dist * sin(defender5_angle * pi / 180)
 defender5_y = RightStriker.position.y + defender5_dist * cos(defender5_angle * pi / 180)
 defender5 = new Player at (defender5_x, defender5_y, 0), facing toward ego, with team "red", with name "defender5"
-goal = new Goal at (0, 17, 0)
 terminate when (ego.gameObject.stopButton)
