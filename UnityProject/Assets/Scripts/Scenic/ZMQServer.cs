@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-
 using UnityEngine;
 using Newtonsoft.Json;
 using NetMQ;
@@ -13,6 +12,7 @@ public class ZMQServer : MonoBehaviour
     [SerializeField] private string port = "5555";
 
     private ScenicParser parser;
+
     // Start is called before the first frame update
     private ZMQRequester zmqRequester;
 
@@ -24,9 +24,6 @@ public class ZMQServer : MonoBehaviour
     private JSONStatusMaker sender;
 
     private TimelineManager tlManager;
-    
-    // Used in ApplyMovement to skip the first loop into the next update since objects are not correctly assigned yet
-    private bool firstApplyMovement = true;
 
     void Start()
     {
@@ -48,8 +45,8 @@ public class ZMQServer : MonoBehaviour
         sender = this.gameObject.GetComponent<JSONStatusMaker>();
 
         tlManager = GameObject.FindGameObjectWithTag("TimelineManager").GetComponent<TimelineManager>();
-
     }
+
     void Update()
     {
         // sends to scenic
@@ -63,7 +60,7 @@ public class ZMQServer : MonoBehaviour
             string newSendData = sender.getUnityData();
             zmqRequester.SetSendData(newSendData);
         }
-        
+
         // zmqRequester.SetReady(true);
 
         // gets json from scenic
@@ -72,8 +69,10 @@ public class ZMQServer : MonoBehaviour
         {
             return;
         }
+
         // Debug.Log(newData);
-        
+        try
+        {
             ScenicParser.ScenicJson jsonResult = parser.ParseData(newData);
             int scenicTick = GetTickFromData(jsonResult);
             int newTick = -1;
@@ -82,17 +81,26 @@ public class ZMQServer : MonoBehaviour
                 newTick = scenicTick;
                 destroyed = false;
             }
+
             if (newTick == lastTick)
             {
                 return;
             }
+
             if (newTick > lastTick + 10)
             {
-                Debug.LogError("A scenic tick might have been skipped. Last Tick = " + lastTick.ToString() + " New Tick = " + newTick.ToString());
+                Debug.LogError("A scenic tick might have been skipped. Last Tick = " + lastTick.ToString() +
+                               " New Tick = " + newTick.ToString());
             }
+
             lastTick = newTick;
             List<ScenicMovementData> mvData = ParseMovementData(jsonResult);
             ApplyMovement(mvData);
+        }
+        catch (NullReferenceException e)
+        {
+            Debug.LogError("json failed " + e);
+        }
     }
 
     private void OnDestroy()
@@ -140,7 +148,7 @@ public class ZMQServer : MonoBehaviour
         TimelineManager tlManager = FindObjectOfType<TimelineManager>();
         foreach (ScenicMovementData s in movementData)
         {
-            if (s.model.modelType == "Player" || s.model.modelType == "Robot")
+            if (s.model.modelType == "Player")
             {
                 listOfScenicPlayerIndices[currScenicPlayerListIdx] = currMovementDataIndex;
                 currScenicPlayerListIdx += 1;
@@ -150,13 +158,14 @@ public class ZMQServer : MonoBehaviour
             // {
             //     aiAgentIndex = currMovementDataIndex;
             // }
-            else if(s.model.modelType == "Human" || s.model.modelType == "Coach")
+            else if (s.model.modelType == "Human" || s.model.modelType == "Coach")
             {
                 //broadcast the pause boolean which may be set by scenic AI agent at any given moment. TimelineManager would handle it
                 // tlManager.NotifyPauseStatus(s.pause);
                 HumanInterface human = objectList.humanPlayers[0].GetComponentInChildren<HumanInterface>();
                 human.ApplyMovement(movementData[aiAgentIndex]);
             }
+
             // else if (s.model.modelType != "player.human")
             // {
             //     listOfScenicObjectIndices[currScenicObjectListIdx] = currMovementDataIndex;
@@ -164,14 +173,11 @@ public class ZMQServer : MonoBehaviour
             // }
             currMovementDataIndex += 1;
         }
+
         if (numPlayersCheck != objectList.scenicPlayers.Count)
         {
-            if (firstApplyMovement)
-            {
-                firstApplyMovement = false;
-                return;
-            }
-            Debug.LogError("Scenic Players Mismatched? MovementData Received = " + movementData.Count + " Scenic Players = " + objectList.scenicPlayers.Count);
+            Debug.LogError("Scenic Players Mismatched? MovementData Received = " + movementData.Count +
+                           " Scenic Players = " + objectList.scenicPlayers.Count);
         }
 
         for (int i = 0; i < numPlayersCheck; i++)
@@ -188,13 +194,13 @@ public class ZMQServer : MonoBehaviour
                 p.ApplyMovement(movementData[currPlayerIdx]);
             }
         }
-        
+
         // if (objectList.AIAgent != null)
         // {
         //     AIInterface ai = objectList.AIAgent.GetComponentInChildren<AIInterface>();
         //     ai.ApplyMovement(movementData[aiAgentIndex]);
         // }
-        
+
         /**
         for (int i = 0; i < objectList.scenicPlayers.Count; i ++)
         {   
@@ -257,17 +263,3 @@ public class ZMQServer : MonoBehaviour
         lastTick = -1;
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-

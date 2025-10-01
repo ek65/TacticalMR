@@ -1,10 +1,9 @@
 using System.Collections.Generic;
-using Fusion;
 using UnityEngine;
 
 [RequireComponent(typeof(MeshFilter))]
 [RequireComponent(typeof(MeshRenderer))]
-public class ArrowGenerator : NetworkBehaviour
+public class ArrowGenerator : MonoBehaviour
 {
     public float stemLength;
     public float stemWidth;
@@ -21,11 +20,6 @@ public class ArrowGenerator : NetworkBehaviour
     public List<int> trianglesList;
 
     Mesh mesh;
-    
-    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
-    public void RPC_SetActiveState(bool active) {
-        this.transform.parent.gameObject.SetActive(active);
-    }
     
     public void SetOrigin(Vector3 origin)
     {
@@ -52,10 +46,6 @@ public class ArrowGenerator : NetworkBehaviour
 
     void Update()
     {
-        if (Runner.IsClient)
-        {
-            return;
-        }
         GenerateArrow();
         
         if (target == new Vector3(0,0,0))

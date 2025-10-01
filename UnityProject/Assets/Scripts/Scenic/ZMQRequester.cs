@@ -17,7 +17,7 @@ public class ZMQRequester : RunAbleThread
     private bool readyToCommunicate;
 
     public ResponseSocket server;
-    TimeSpan timeout = new TimeSpan(0, 0, 0, 10, 0);
+    TimeSpan timeout = new TimeSpan(0, 0, 0, 3, 0);
 
     public ZMQRequester(string ip, string port, bool isServer)
     {

@@ -7,19 +7,12 @@ using UnityEngine.UIElements;
 using System.Reflection;
 using System;
 using System.Linq;
-using Fusion;
 using OpenAI.Samples.Chat;
 using Pathfinding;
 using UnityEngine.InputSystem;
-using Utilities.Extensions;
 
-public class HumanInterface : NetworkBehaviour
+public class HumanInterface : MonoBehaviour
 {
-    [Networked(OnChanged = nameof(OnNameChanged))] public NetworkString<_32> ObjName { get; set; }
-    public bool isVR = false;
-
-    public bool isViewer = false;
-    
     private int localTick;  // NOTE: This is not the true tick and is what we will use to internally record a timestep.
 
     private ExitScenario exitScene;
@@ -51,8 +44,7 @@ public class HumanInterface : NetworkBehaviour
     public bool isMoving;
     public Vector3 xMark;
     public bool triggerPass;
-    // public bool ballPossession;
-    [Networked] public NetworkBool ballPossession { get; set; }
+    public bool ballPossession;
     public GameObject ball;
     public Transform ballPosition;
     private bool canPossessBall = true;
@@ -67,41 +59,24 @@ public class HumanInterface : NetworkBehaviour
     private Vector3 lastPosition;
     public Vector3 velocity;
     
-    public Transform vrTransform;
-    public GameObject vrCollider;
-    
-    public bool objectPossession;
-    public GameObject grabbedObject;
-    public Transform objectPosition;
-
-    
-    // public string behavior = "Idle";
-    [Networked] public NetworkString<_32> behavior { get; set; }
+    public string behavior = "Idle";
     public string currAction = "No Action"; // just for debugging to see what actions function is being called
     private KeyboardInput keyboardInput;
     private JSONToLLM jsonToLLM;
     
-    // TODO: RE-ADD, IMPLEMENT IsRobotScenario Bool in Scenic Manager, DISABLED FOR NOW FOR VR TESTING
     public FloatingText floatingBehaviorText;
     public FloatingText floatingNameText;
     
-    public bool ally = true;
+    public bool ally;
     public Renderer shirt;
     
     // Start is called before the first frame update
     void Start()
     {
-        lastPosition = transform.position;
-        if (isVR)
-        {
-            lastPosition = vrTransform.position;
-        }
         exitScene = GetComponent<ExitScenario>();
         source = GetComponent<AudioSource>();
         tlManager = GameObject.FindGameObjectWithTag("TimelineManager").GetComponent<TimelineManager>();
         // npc = GameObject.FindGameObjectWithTag("Character").GetComponent<ConvaiNPC>();
-        
-        // TODO: RE-ADD, IMPLEMENT IsRobotScenario Bool in Scenic Manager, DISABLED FOR NOW FOR VR TESTING
         chatBehaviour = GameObject.FindGameObjectWithTag("Character").GetComponentInChildren<ChatBehaviour>();
         objectList = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<ObjectsList>();
         keyboardInput = GameObject.FindGameObjectWithTag("keyboard").GetComponent<KeyboardInput>();
@@ -122,84 +97,10 @@ public class HumanInterface : NetworkBehaviour
             ball = GameObject.FindGameObjectWithTag("ball");
         }
         
-        // TODO: RE-ADD, IMPLEMENT IsRobotScenario Bool in Scenic Manager, DISABLED FOR NOW FOR VR TESTING
         floatingNameText.SetText2(this.gameObject.name);
-        GameManager gm = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
-        if (gm.isHost)
-        {
-            Vector3 pos = this.transform.position;
-            Vector3 forward = transform.forward;
-            if (isVR)
-            {
-                pos = vrTransform.position;
-                pos.y = 0.1f;
-                forward = vrTransform.forward;
-                forward.y = 0;
-                forward.Normalize();
-            }
-            forwardArrow = SpawnArrow(pos, forward * 8.5f);
-            forwardArrow.GetComponentInChildren<ArrowGenerator>().RPC_SetActiveState(false);
-            // forwardArrow.SetActive(false);
-        }
         
-        if (objectList.humanPlayers.Count == 0 && !isViewer)
-        {
-            objectList.humanPlayers.Add(this.gameObject);
-        }
-
-        if (isViewer)
-        {
-            objectList.viewerPlayer = this.gameObject;
-        }
-        
-        // make sure vr cam is not enabled for client
-        Camera vrCam = GameObject.Find("CenterEyeAnchor").GetComponent<Camera>();
-        if (!gm.isHost && vrCam != null)
-        {
-            vrCam.enabled = false;
-        }
-        
-        // find gameobject with tag "InfoCanvas" and assign the canvas object to this object's camera
-        GameObject infoCanvas = GameObject.FindGameObjectWithTag("InfoCanvas");
-        RectTransform t = GameObject.Find("Paused Text").GetComponent<RectTransform>();
-        RectTransform t2 = GameObject.Find("Recording Dot").GetComponent<RectTransform>();
-        if (gm.isHost && infoCanvas != null)
-        {
-            infoCanvas.GetComponent<Canvas>().worldCamera = Camera.main;
-
-            // set the parent of the canvas to the vr camera and scale it down
-            infoCanvas.transform.SetParent(vrCam.gameObject.transform);
-            // infoCanvas.transform.localScale = new Vector3(0.001f, 0.001f, 0.001f);
-            
-            t.anchoredPosition = new Vector3(t.position.x, 100);
-            
-            t2.anchoredPosition = new Vector3(250, 200);
-            t2.gameObject.SetActive(false);
-        }
-
-        // if (isViewer)
-        // {
-        //     t.SetActive(false);
-        // }
-        t2.gameObject.SetActive(false);
-    }
-    
-    private void LateUpdate()
-    {
-        // make sure ai target position is set back to 0 if behavior is not "MoveTo"
-        if (this.GetComponent<AIDestinationSetter>())
-        {
-            AIDestinationSetter dest = this.GetComponent<AIDestinationSetter>();
-            if (currAction != "MoveToPos" && dest.target != null)
-            {
-                dest.target.localPosition = Vector3.zero;
-            }
-        }
-    }
-    
-    private void RPC_SetActive(bool active)
-    {
-        gameObject.SetActive(active);
+        forwardArrow = SpawnArrow(this.transform.position, transform.forward * 8.5f);
+        forwardArrow.SetActive(false);
     }
 
     // Update is called once per frame
@@ -215,77 +116,23 @@ public class HumanInterface : NetworkBehaviour
             ballOnTheGround.x = ball.transform.position.x;
             ballOnTheGround.y = ball.transform.position.y;
             ballOnTheGround.z = ball.transform.position.z;
-            Vector3 pos = transform.position;
-            if (isVR)
-            {
-                pos = vrTransform.position;
-            }
-            distToBall = Vector3.Distance(pos, ballOnTheGround);
+            distToBall = Vector3.Distance(transform.position, ballOnTheGround);
         }
+        
+        closestPlayerInDirection = GetClosestToLinePoint(objectList.defensePlayers);
 
-        if (!isVR)
-        {
-            velocity = (transform.position - lastPosition) / Time.deltaTime;
-            lastPosition = transform.position;
-        }
-        else
-        {
-            velocity = (vrTransform.position - lastPosition) / Time.deltaTime;
-            lastPosition = vrTransform.position;
-        }
-        
-        GameManager gm = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
-        
-        // TODO: RE-ADD, IMPLEMENT IsRobotScenario Bool in Scenic Manager, DISABLED FOR NOW FOR VR TESTING
-        // closestPlayerInDirection = GetClosestToLinePoint(objectList.defensePlayers);
         if (ballPossession)
         {
-            if (gm.isHost)
-            {
-                // make sure teammate does not pass when human has ball
-                triggerPass = false;
-                
-                forwardArrow.GetComponentInChildren<ArrowGenerator>().RPC_SetActiveState(true);
-                // forwardArrow.SetActive(true);
-                ArrowGenerator arrow = forwardArrow.GetComponentInChildren<ArrowGenerator>();
-                Vector3 pos = transform.position;
-                Vector3 forward = transform.forward;
-                if (isVR)
-                {
-                    pos = vrTransform.position;
-                    pos.y = 0.1f;
-                    // Flatten the forward vector to only rotate around Y-axis
-                    forward = vrTransform.forward;
-                    forward.y = 0;
-                    forward.Normalize();
-                }
-                arrow.SetOrigin(pos);
-                arrow.SetTarget(pos + forward * 8.5f);
-            }
+            // make sure teammate does not pass when human has ball
+            triggerPass = false;
+            forwardArrow.SetActive(true);
+            ArrowGenerator arrow = forwardArrow.GetComponentInChildren<ArrowGenerator>();
+            arrow.SetOrigin(this.transform.position);
+            arrow.SetTarget(transform.position + transform.forward * 8.5f);
         }
         else
         {
-            if (gm.isHost)
-            {
-                forwardArrow.SetActive(false);
-                forwardArrow.GetComponentInChildren<ArrowGenerator>().RPC_SetActiveState(false);
-            }
-        }
-        
-        CalculateSmoothedVelocity();
-        
-        // Set RichAI radius to .1 when moving to avoid weird pathing behavior
-        if (this.GetComponent<RichAI>() != null)
-        {
-            RichAI aiNav = this.GetComponent<RichAI>();
-            if (aiNav.radius != 0.05f && isMoving)
-            {
-                aiNav.radius = 0.05f;
-            }
-            else if (aiNav.radius == 0.05f && !isMoving)
-            {
-                aiNav.radius = 0.5f;
-            }
+            forwardArrow.SetActive(false);
         }
 
         CalculateSmoothedVelocity();
@@ -368,6 +215,19 @@ public class HumanInterface : NetworkBehaviour
 
     }
     
+    private void LateUpdate()
+    {
+        // make sure ai target position is set back to 0 if behavior is not "MoveTo"
+        if (this.GetComponent<AIDestinationSetter>())
+        {
+            AIDestinationSetter dest = this.GetComponent<AIDestinationSetter>();
+            if (currAction != "MoveToPos" && dest.target != null)
+            {
+                dest.target.localPosition = Vector3.zero;
+            }
+        }
+    }
+    
     private void CalculateSmoothedVelocity()
     {
         // Add current position and time to history
@@ -390,10 +250,6 @@ public class HumanInterface : NetworkBehaviour
             Vector3 oldestPosition = positions[0];
             float oldestTime = times[0];
             Vector3 currentPosition = positions[positions.Length - 1];
-            if (isVR)
-            {
-                currentPosition = vrTransform.position;
-            }
             float currentTime = times[times.Length - 1];
             
             float deltaTime = currentTime - oldestTime;
@@ -414,51 +270,6 @@ public class HumanInterface : NetworkBehaviour
         else
         {
             velocity = Vector3.zero;
-        }
-    }
-
-    
-    public override void Spawned() {
-        if (Object.HasStateAuthority) {
-            behavior = "Idle";
-        }
-    }
-    
-    static void OnNameChanged(Changed<HumanInterface> changed)
-    {
-        changed.Behaviour.UpdateGameObjectName();
-    }
-    
-    private void UpdateGameObjectName()
-    {
-        gameObject.name = ObjName.ToString();
-        floatingNameText.SetText2(this.gameObject.name);
-    }
-    
-    // static void OnBallPossessionChanged(Changed<HumanInterface> changed)
-    // {
-    //     changed.Behaviour.UpdateBallPossession();
-    // }
-    //
-    // private void UpdateBallPossession()
-    // {
-    //     ballPossession = networkedBallPossession;
-    // }
-    
-    public void SetObjectName(string newName)
-    {
-        ObjName = newName; // This will trigger OnNameChanged() on all clients
-    }
-    
-    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
-    public void RPC_InstantiateValues(bool isAlly = false)
-    {
-        if (isAlly)
-        {
-            ally = true;
-            
-            ObjectsList objectList = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<ObjectsList>();
-            objectList.humanPlayers.Add(this.gameObject);
         }
     }
     
@@ -491,14 +302,10 @@ public class HumanInterface : NetworkBehaviour
     
     private void OnTriggerEnter(Collider other)
     {
-        GameManager gm = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
-        if (gm.isHost)
+        if (other.CompareTag("ball") && canPossessBall && ballOwnership.heldByScenic == false && !ballPossession && ballOwnership.ballOwner == null)
         {
-            if (other.CompareTag("ball") && canPossessBall && ballOwnership.heldByScenic == false && !ballPossession && ballOwnership.ballOwner == null)
-            {
-                LogReceiveBall();
-                GainPossession(other.gameObject);
-            }
+            LogReceiveBall();
+            GainPossession(other.gameObject);
         }
     }
     
@@ -568,54 +375,9 @@ public class HumanInterface : NetworkBehaviour
         keyboardInput.annotationTimes.Add(interceptID, interceptTime);
         Debug.Log($"Intercept action recorded with ID {interceptID} at time: {interceptTime}");
         keyboardInput.clickOrder++; 
-        // RPC_LogIntercept();
-    }
-
-    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
-    private void RPC_LogIntercept()
-    {
-        int interceptID = keyboardInput.clickOrder;
-        float interceptTime = jsonToLLM.time;
-        
-        keyboardInput.annotation.Add(keyboardInput.clickOrder, new Dictionary<string, string>
-        {
-            { "type", "Intercept" }
-        });
-
-        keyboardInput.annotationTimes.Add(interceptID, interceptTime);
-        Debug.Log($"Intercept action recorded with ID {interceptID} at time: {interceptTime}");
-        keyboardInput.clickOrder++; 
     }
     
     private void LogPass()
-    {
-        if (closestPlayerInDirection == null)
-        {
-            Debug.LogWarning("No target player found for pass.");
-            return;
-        }
-
-        int passID = keyboardInput.clickOrder;
-        float passTime = jsonToLLM.time;
-    
-        GameObject targetPlayer = closestPlayerInDirection;
-        keyboardInput.annotation.Add(passID, new Dictionary<string, object>
-        {
-            { "type", "Pass" },
-            { "from", this.name },
-            { "to", targetPlayer.name }
-        });
-
-        keyboardInput.annotationDescriptions.Add(passID, $"({this.name} passed to {targetPlayer.name})");
-        
-        keyboardInput.annotationTimes.Add(passID, passTime);
-        Debug.Log($"Pass action recorded with ID {passID}, from: {this.name} to: {targetPlayer.name} at time: {passTime}");
-        keyboardInput.clickOrder++; 
-        // RPC_LogPass();
-    }
-    
-    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
-    private void RPC_LogPass()
     {
         if (closestPlayerInDirection == null)
         {
@@ -666,58 +428,6 @@ public class HumanInterface : NetworkBehaviour
         Debug.Log($"Shoot goal action recorded with ID {passID}, from: {this.name} at time: {passTime}");
         keyboardInput.clickOrder++; 
     }
-    
-    public void PickUp()
-    {
-        actionAPI.PickUp();
-        Debug.Log("Picking up");
-        LogPickUp();
-    }
-
-    public void PutDown()
-    {
-        actionAPI.PutDown(transform.position + transform.forward * 1f + Vector3.up * 1f);
-        Debug.Log("Putting down");
-        LogPutDown();
-    }
-
-    private void LogPickUp()
-    {
-        int eventID = keyboardInput.clickOrder;
-        float eventTime = jsonToLLM.time;
-        Debug.Log("test");
-    
-        keyboardInput.annotation.Add(eventID, new Dictionary<string, object>
-        {
-            { "type", "PickUp" },
-            { "player", this.name }
-        });
-        Debug.Log(keyboardInput.annotation);
-    
-        keyboardInput.annotationDescriptions.Add(eventID, $"({this.name} picked up an object)");
-        Debug.Log($"Added pick up to annotations at {eventTime:F2}s, key {eventTime}");
-        keyboardInput.annotationTimes.Add(eventID, eventTime);
-        keyboardInput.clickOrder++;
-    }
-
-    private void LogPutDown()
-    {
-        int eventID = keyboardInput.clickOrder;
-        float eventTime = jsonToLLM.time;
-        Debug.Log("test put down");
-    
-        keyboardInput.annotation.Add(eventID, new Dictionary<string, object>
-        {
-            { "type", "PutDown" },
-            { "player", this.name }
-        });
-        Debug.Log(keyboardInput.annotation);
-    
-        keyboardInput.annotationDescriptions.Add(eventID, $"({this.name} put down an object)");
-        keyboardInput.annotationTimes.Add(eventID, eventTime);
-        keyboardInput.clickOrder++;
-    }
-    
 
     private void LogThroughPass(Vector3 pos)
     {
@@ -741,85 +451,12 @@ public class HumanInterface : NetworkBehaviour
         keyboardInput.annotationTimes.Add(passID, passTime);
         Debug.Log($"Through Pass action recorded with ID {passID} at time: {passTime}");
         keyboardInput.clickOrder++; 
-        // RPC_LogThroughPass(pos);
-    }
-
-    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
-    private void RPC_LogThroughPass(Vector3 pos)
-    {
-        int passID = keyboardInput.clickOrder;
-        float passTime = jsonToLLM.time;
-
-        var pointDict = new Dictionary<string, float>
-        {
-            { "x", pos.x },
-            { "y", pos.z }
-        };
-        keyboardInput.annotation.Add(passID, new Dictionary<string, object>
-        {
-            { "type", "Through Pass" },
-            { "from", this.name},
-            { "to", pointDict }
-        });
-        
-        keyboardInput.annotationDescriptions.Add(passID, $"({this.name} passed to position: {pointDict})");
-    
-        keyboardInput.annotationTimes.Add(passID, passTime);
-        Debug.Log($"Through Pass action recorded with ID {passID} at time: {passTime}");
-        keyboardInput.clickOrder++; 
     }
     
-    public void Packaging()
-    {
-        actionAPI.Packaging();
-        Debug.Log("Packaging action triggered.");
-        LogPackaging();
-    }
-
-    private void LogPackaging()
-    {
-        int eventID = keyboardInput.clickOrder;
-        float eventTime = jsonToLLM.time;
-    
-        GameObject targetObject = FindNearestObject();
-        if (targetObject == null)
-        {
-            Debug.LogError("No object found for Packaging.");
-            return;
-        }
-
-        keyboardInput.annotation.Add(eventID, new Dictionary<string, object>
-        {
-            { "type", "Packaging" },
-            { "player", this.name },
-            { "object", targetObject.name }
-        });
-
-        keyboardInput.annotationDescriptions.Add(eventID, $"({this.name} packaged {targetObject.name})");
-
-        keyboardInput.annotationTimes.Add(eventID, eventTime);
-        keyboardInput.clickOrder++;
-    }
-
-    private GameObject FindNearestObject()
-    {
-        GameObject[] grabbableObjects = GameObject.FindGameObjectsWithTag("Grabbable");
-        Vector3 originPosition = this.gameObject.transform.position;
-
-        return grabbableObjects
-            .Where(obj => Vector3.Distance(obj.transform.position, originPosition) <= 5f)
-            .OrderBy(obj => Vector3.Distance(obj.transform.position, originPosition))
-            .FirstOrDefault();
-    }
-    
-    private void GainPossession(GameObject other)
+    private void GainPossession(GameObject other) 
     {
         int layerIgnoreBallCollision = LayerMask.NameToLayer("PlayerBall");
         this.gameObject.layer = layerIgnoreBallCollision;
-        if (isVR && !isViewer)
-        {
-            vrCollider.layer = layerIgnoreBallCollision;
-        }
         
         ball.transform.position = ballPosition.position;
         ball.transform.SetParent(ballPosition);
@@ -830,53 +467,37 @@ public class HumanInterface : NetworkBehaviour
         ballOwnership.SetBallOwner(this.gameObject);
         actionAPI.ReceiveBall(other.transform.position);
     }
-    
     private void LogReceiveBall()
     {
         int receiveBallID = keyboardInput.clickOrder;
         float receiveBallTime = jsonToLLM.time;
+
         keyboardInput.annotation.Add(receiveBallID, new Dictionary<string, object>
         {
             { "type", "ReceiveBall" },
             { "player", this.gameObject.name }
         });
+
         keyboardInput.annotationDescriptions.Add(receiveBallID, $"({this.gameObject.name} received the ball)");
-        
         keyboardInput.annotationTimes.Add(receiveBallID, receiveBallTime);
+
         Debug.Log($"ReceiveBall action recorded with ID {receiveBallID} at time: {receiveBallTime}");
-        
         keyboardInput.clickOrder++;
-        // RPC_LogReceiveBall();
     }
 
-    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
-    private void RPC_LogReceiveBall()
-    {
-        int receiveBallID = keyboardInput.clickOrder;
-        float receiveBallTime = jsonToLLM.time;
-        keyboardInput.annotation.Add(receiveBallID, new Dictionary<string, object>
-        {
-            { "type", "ReceiveBall" },
-            { "player", this.gameObject.name }
-        });
-        keyboardInput.annotationDescriptions.Add(receiveBallID, $"({this.gameObject.name} received the ball)");
-        
-        keyboardInput.annotationTimes.Add(receiveBallID, receiveBallTime);
-        Debug.Log($"ReceiveBall action recorded with ID {receiveBallID} at time: {receiveBallTime}");
-        
-        keyboardInput.clickOrder++;
-    }
+    
     public void LosePossession()
     {
-        if (ball)
+        if (!ball)
         {
-            StartCoroutine(PossessionDebounce());
-            ball.transform.SetParent(null);
-            ball.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
-            ballPossession = false;
-            ballOwnership.SetHumanOwnership(false);
-            ballOwnership.SetBallOwner(null);
+            return;
         }
+        StartCoroutine(PossessionDebounce());
+        ball.transform.SetParent(null);
+        ball.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
+        ballPossession = false;
+        ballOwnership.SetHumanOwnership(false);
+        ballOwnership.SetBallOwner(null);
     }
 
     public void PassToPlayer()
@@ -887,59 +508,8 @@ public class HumanInterface : NetworkBehaviour
         }
 
         closestPlayerInDirection = GetClosestToLinePoint(objectList.defensePlayers);
-        if (closestPlayerInDirection == null)
-        {
-            return;
-        }
         LogPass();
         actionAPI.GroundPassFast(closestPlayerInDirection.transform.position);
-        StartCoroutine(ResetToMovementController());
-        closestPlayerInDirection = null;
-    }
-    
-    public void ShootGoal()
-    {
-        if (!ballPossession || !canKickBall)
-        {
-            return;
-        }
-
-        GameObject goalObj = objectList.goalObject; 
-        if (goalObj == null)
-        {
-            return;
-        }
-        
-        LogShootGoal();
-        
-        Vector3 goalPosition = goalObj.transform.position;
-        Vector3 currentPosition = transform.position;
-        if (isVR)
-        {
-            currentPosition = vrTransform.position;
-        }
-        
-        Vector3 direction = goalPosition - currentPosition;
-        float currentDistance = direction.magnitude;
-        
-        Vector3 targetPosition;
-        
-        // // If the distance is greater than 8.5, clamp it
-        // if (currentDistance > 8.5f)
-        // {
-        //     // Normalize the direction and multiply by max distance
-        //     direction = direction.normalized;
-        //     targetPosition = currentPosition + direction * 8.5f;
-        // }
-        // else
-        // {
-        //     // Use the original goal position if it's within range
-        //     targetPosition = goalPosition;
-        // }
-        
-        targetPosition = goalPosition;
-        
-        actionAPI.GroundPassFast(targetPosition);
         StartCoroutine(ResetToMovementController());
     }
     
@@ -950,18 +520,7 @@ public class HumanInterface : NetworkBehaviour
             return;
         }
 
-        Vector3 pos = transform.position;
-        Vector3 forward = transform.forward;
-        if (isVR)
-        {
-            pos = vrTransform.position;
-            pos.y = 0.1f;
-            forward = vrTransform.forward;
-            forward.y = 0;
-            forward.Normalize();
-        }
-        
-        Vector3 passPosition = pos + forward * 8.5f;
+        Vector3 passPosition = transform.position + transform.forward * 8.5f;
         LogThroughPass(passPosition);
         actionAPI.GroundPassFast(passPosition);
         StartCoroutine(ResetToMovementController());
@@ -974,7 +533,7 @@ public class HumanInterface : NetworkBehaviour
             yield return null;
         }
         yield return new WaitForSeconds(1.0f);
-        actionAPI.RPC_SetAnimController("Movement");
+        actionAPI.SetAnimController("Movement");
         // actionAPI.alreadyInAnimation = true;
         // yield return new WaitForSeconds(1.0f);
         // actionAPI.SetAnimController("Movement");
@@ -983,44 +542,19 @@ public class HumanInterface : NetworkBehaviour
 
 
     private GameObject GetClosestToLinePoint(List<GameObject> points) {
-        Vector3 pos = transform.position;
-        Vector3 forward = transform.forward;
-        if (isVR)
-        {
-            pos = vrTransform.position;
-            pos.y = 0.1f;
-            forward = vrTransform.forward;
-            forward.y = 0;
-            forward.Normalize();
-        }
-        Ray ray = new Ray(pos, forward * 8.5f);
+        Ray ray = new Ray(transform.position, transform.forward * 8.5f);
         
         GameObject closestPoint = null;
         float minDist = Mathf.Infinity;
         
-        float maxDistanceFromRay = 1.0f; // ← How far off the ray a player can be
-        float maxForwardDotThreshold = 0.5f; // ← Between -1 (behind) to 1 (fully ahead)
-        
         foreach (var obj in points)
         {
-            Vector3 toPlayer = obj.transform.position - pos;
-            toPlayer.y = 0;
-
-            // Ignore if behind
-            float dot = Vector3.Dot(forward, toPlayer.normalized);
-            if (dot < maxForwardDotThreshold) continue;
-
-            // Closest point on the ray
             Vector3 closestPointOnRay = GetClosestPointOnRay(ray, obj.transform.position);
-            float distanceFromRay = Vector3.Distance(closestPointOnRay, obj.transform.position);
+            float distance = Vector3.Distance(closestPointOnRay, obj.transform.position);
 
-            // Ignore if too far from ray
-            if (distanceFromRay > maxDistanceFromRay) continue;
-
-            float distanceAlongRay = Vector3.Distance(pos, closestPointOnRay);
-            if (distanceAlongRay < minDist)
+            if (distance < minDist)
             {
-                minDist = distanceAlongRay;
+                minDist = distance;
                 closestPoint = obj;
             }
         }
@@ -1047,12 +581,8 @@ public class HumanInterface : NetworkBehaviour
     {
         canPossessBall = false;
         yield return new WaitForSeconds(2.5f);
-        canPossessBall = true;  
+        canPossessBall = true;
         this.gameObject.layer = LayerMask.NameToLayer("Default");
-        if (isVR && !isViewer)
-        {
-            vrCollider.layer = LayerMask.NameToLayer("Default");
-        }
     }
     
     public IEnumerator KickDebounce()
@@ -1079,27 +609,16 @@ public class HumanInterface : NetworkBehaviour
         this.isMoving = isMoving;
     }
     
-    public void SetTransform(Vector3 pos, Quaternion rot)
+    public void SetTransform(Vector3 pos)
     {
-        // Debug.LogError("In SetTransform: " + pos);
+        Debug.LogError("In SetTransform: " + pos);
         source.PlayOneShot(source.clip);
-        this.GetComponent<Rigidbody>().isKinematic = false;
         this.transform.position = pos;
-        this.transform.rotation = rot;
-
-        if (isVR)
-        {
-            vrTransform.position = pos;
-            vrTransform.rotation = rot;
-        }
-        
-        this.GetComponent<Rigidbody>().isKinematic = true;
-
         Debug.LogWarning("Local: I am transforming to: " + pos.ToString());
 
         ResetHuman();
     }
-
+    
     public void SetTransform2(GameObject go, Vector3 pos)
     {
         source.PlayOneShot(source.clip);
@@ -1114,19 +633,10 @@ public class HumanInterface : NetworkBehaviour
         isMoving = false;
         xMark = Vector3.zero;
         ballPossession = false;
-        
-        if (actionAPI)
-        {
-            actionAPI.alreadyInAnimation = false;
-            actionAPI.RPC_SetAnimController("Movement");
-        }
+        actionAPI.alreadyInAnimation = false;
+        actionAPI.SetAnimController("Movement");
+        forwardArrow.SetActive(false);
 
-        if (forwardArrow)
-        {
-            forwardArrow.GetComponentInChildren<ArrowGenerator>().RPC_SetActiveState(false);
-            // forwardArrow.SetActive(false);
-        }
-        
         if (this.GetComponent<AIDestinationSetter>())
         {
             AIDestinationSetter dest = this.GetComponent<AIDestinationSetter>();
@@ -1161,10 +671,7 @@ public class HumanInterface : NetworkBehaviour
     public GameObject SpawnArrow(Vector3 from, Vector3 to)
     {
         Vector3 spawnPos = new Vector3(from.x, from.y, from.z);
-        // GameObject arrow = Instantiate(arrowGenerator, spawnPos, arrowGenerator.transform.rotation);
-        NetworkRunner runner = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>()._runner;
-        NetworkObject temp = runner.Spawn(arrowGenerator, spawnPos, Quaternion.identity);
-        GameObject arrow = temp.gameObject;
+        GameObject arrow = Instantiate(arrowGenerator, spawnPos, arrowGenerator.transform.rotation);
         arrow.GetComponentInChildren<ArrowGenerator>().SetOrigin(from);
         arrow.GetComponentInChildren<ArrowGenerator>().SetTarget(to);
         arrowObjects.Add(arrow);
@@ -1180,8 +687,7 @@ public class HumanInterface : NetworkBehaviour
         {
             return;
         }
-        
-        // TODO: RE-ADD, IMPLEMENT IsRobotScenario Bool in Scenic Manager, DISABLED FOR NOW FOR VR TESTING
+
         // if player is already in kick animation, dont update behavior text yet
         if (!actionAPI.alreadyInAnimation)
         {

@@ -3,16 +3,15 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using Assets.OVR.Scripts;
-using Fusion;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using UnityEngine;
 
-public class JSONDirectory : NetworkBehaviour
+public class JSONDirectory : MonoBehaviour
 {
     public int participantID;
     public string ParticipantID => "participant" + participantID.ToString();
-    public string drillID = "Test";
+    public Drills drillID;
     public int demoNum = -1;
     public string DemoNum => "demo" + demoNum.ToString();
     public int transcriptNum = -1; // only used for system recording
@@ -74,12 +73,6 @@ public class JSONDirectory : NetworkBehaviour
     }
 
     public void AddAndSaveDemo()
-    {
-        RPC_AddAndSaveDemo();
-    }
-    
-    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
-    public void RPC_AddAndSaveDemo()
     {
         if (!usableDemos.demoNums.Contains(demoNum))
         {
@@ -291,7 +284,7 @@ public class JSONDirectory : NetworkBehaviour
     private IEnumerator UnpauseAndEndScenario()
     {
         JSONToLLM jsonToLLM = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<JSONToLLM>();
-        keyboardInput.RPC_CanvasSetActive(false);
+        keyboardInput.saveDemoCanvas.SetActive(false);
         // while (!jsonToLLM.isTranscriptionComplete) // Wait until transcription is done
         // {
         //     yield return new WaitForSeconds(0.5f);
@@ -308,7 +301,6 @@ public class JSONDirectory : NetworkBehaviour
         keyboardInput.canClick = true;
         keyboardInput.restarting = false;
         keyboardInput.timelineManager.Reset();
-        keyboardInput.ResetJsonData();
         HumanInterface humanInterface = GameObject.FindGameObjectWithTag("human").GetComponent<HumanInterface>();
         humanInterface.ResetHuman();
     }
@@ -316,7 +308,7 @@ public class JSONDirectory : NetworkBehaviour
     public void ResetRecordingNum()
     {
         JSONToLLM jsonToLLM = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<JSONToLLM>();
-        // jsonToLLM.recordingNum = -1;
+        jsonToLLM.recordingNum = -1;
         jsonToLLM.time = 0;
         
         // RecorderManager recorderManager = GameObject.FindGameObjectWithTag("RecorderManager").GetComponent<RecorderManager>();

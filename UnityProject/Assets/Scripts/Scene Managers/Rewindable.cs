@@ -77,10 +77,9 @@ public class Rewindable : MonoBehaviour
         
         r.velocity = savedVelocity;
         r.angularVelocity = savedAngularVelocity;
-        
-        r.WakeUp();
+
+
     }
-    
     //TODO: need to be changed if u switch to Motion Matching systm
     private void FreezeAnimation()
     {

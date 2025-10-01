@@ -9,7 +9,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using UnityEngine;
 
 [DisallowMultipleComponent]
@@ -195,10 +194,7 @@ public class Outline : MonoBehaviour {
       var smoothNormals = (index >= 0) ? bakeValues[index].data : SmoothNormals(meshFilter.sharedMesh);
 
       // Store smooth normals in UV3
-      if (meshFilter.sharedMesh.isReadable)
-      {
-        meshFilter.sharedMesh.SetUVs(3, smoothNormals);
-      }
+      meshFilter.sharedMesh.SetUVs(3, smoothNormals);
 
       // Combine submeshes
       var renderer = meshFilter.GetComponent<Renderer>();
@@ -217,7 +213,7 @@ public class Outline : MonoBehaviour {
       }
 
       // Clear UV3
-      // skinnedMeshRenderer.sharedMesh.uv4 = new Vector2[skinnedMeshRenderer.sharedMesh.vertexCount];
+      skinnedMeshRenderer.sharedMesh.uv4 = new Vector2[skinnedMeshRenderer.sharedMesh.vertexCount];
 
       // Combine submeshes
       CombineSubmeshes(skinnedMeshRenderer.sharedMesh, skinnedMeshRenderer.sharedMaterials);
@@ -226,11 +222,6 @@ public class Outline : MonoBehaviour {
 
   List<Vector3> SmoothNormals(Mesh mesh) {
 
-    if (!mesh.isReadable)
-    {
-      Debug.LogWarning("Mesh.isReadable is false. Cannot generate smooth normals.");
-      return new List<Vector3>();
-    }
     // Group vertices by location
     var groups = mesh.vertices.Select((vertex, index) => new KeyValuePair<Vector3, int>(vertex, index)).GroupBy(pair => pair.Key);
 

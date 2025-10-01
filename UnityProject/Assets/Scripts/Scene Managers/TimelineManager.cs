@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
-using Fusion;
 using TMPro;
 public class MomentSnippet{
     public MomentSnippet(Vector3 pos, Quaternion quat)
@@ -30,7 +29,7 @@ public class RewindableTimeSeries
     }
 }
 
-public class TimelineManager : NetworkBehaviour
+public class TimelineManager : MonoBehaviour
 {
     public List<Rewindable> rewindables;
     
@@ -119,9 +118,7 @@ public void InitializeTimeline()
                 r.Freeze();
             }
         }
-        // TODO: RE-ADD, IMPLEMENT IsRobotScenario Bool in Scenic Manager, DISABLED FOR NOW FOR VR TESTING
-        // pauseTxt.text = "Scenic Called Pause...Everything paused except ego";
-        RPC_PauseText("PAUSED, Press A to Unpause");
+        pauseTxt.text = "Scenic Called Pause...Everything paused except ego";
         Paused = true;
         maxRewindTimeIndex = 0;
     }
@@ -140,19 +137,9 @@ public void InitializeTimeline()
         // reset time index on unpause
         TimeIndex = 0;
         RewindTimeIndex = 0;
-        // TODO: RE-ADD, IMPLEMENT IsRobotScenario Bool in Scenic Manager, DISABLED FOR NOW FOR VR TESTING
-        // pauseTxt.text = "Unpaused";
-        RPC_PauseText(" ");
+        pauseTxt.text = "Unpaused";
         Paused = false;
     }
-    
-    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
-    public void RPC_PauseText(string text)
-    {
-        pauseTxt.text = text;
-        pauseTxt.color = Color.red;
-    }
-    
     public void RaycastClick()
     {
         RaycastHit hit;

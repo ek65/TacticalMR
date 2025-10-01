@@ -38,23 +38,24 @@ public class ExitScenario : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        // endScenario = false;
-        // if (OVRInput.GetDown(buttonX, controllerRight))
-        // {
-        //     EndScenario();
-        // }
-        //
-        // if (OVRInput.GetDown(buttonY, controllerRight))
-        // {
-        //     Debug.LogError("I HIT THE PAUSE BUTTON");
-        //     keyboardInput.HandlePause();
-        // }
-        //
-        // if (OVRInput.GetDown(buttonX, controllerLeft))
-        // {
-        //     ToggleRayInteractor();
-        //     // HideBody();
-        // }
+        endScenario = false;
+
+        if (OVRInput.GetDown(buttonX, controllerRight))
+        {
+            EndScenario();
+        }
+        
+        if (OVRInput.GetDown(buttonY, controllerRight))
+        {
+            Debug.LogError("I HIT THE PAUSE BUTTON");
+            keyboardInput.HandlePause();
+        }
+        
+        if (OVRInput.GetDown(buttonX, controllerLeft))
+        {
+            ToggleRayInteractor();
+            // HideBody();
+        }
         
         // TODO: enable this for recording & playback, put this in another class and call from Keyboard Input
         // if(OVRInput.GetDown(buttonX, controllerLeft) && !recordingActive)

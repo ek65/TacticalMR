@@ -6,14 +6,11 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using System.Reflection;
 using System;
-using Fusion;
 using Pathfinding;
 
 // TODO: Rename script, this is the player logic script
-public class PlayerInterface : NetworkBehaviour
+public class PlayerInterface : MonoBehaviour
 {
-    [Networked(OnChanged = nameof(OnNameChanged))] public NetworkString<_32> ObjName { get; set; }
-    
     public bool enemy;
     public bool ally;
     public bool self;
@@ -26,15 +23,12 @@ public class PlayerInterface : NetworkBehaviour
     public float distToBall;
     public GameObject goal;
     public bool isMoving;
-    // public bool ballPossession;
-    [Networked] public NetworkBool ballPossession { get; set; }
+    public bool ballPossession;
     public Transform ballPosition;
     private KeyboardInput keyboardInput;
     private JSONToLLM jsonToLLM;
 
-    // public Vector3 currVelocity => this.GetComponent<RichAI>().velocity;
-    [Networked] public Vector3 currVelocity { get; set; }
-    private RichAI richAI;
+    public Vector3 currVelocity => this.GetComponent<RichAI>().velocity;
 
     private bool canPossessBall = true;
     public bool canKickBall = true;
@@ -45,17 +39,8 @@ public class PlayerInterface : NetworkBehaviour
     public ActionAPI actionAPI;
     public FloatingText floatingBehaviorText;
     public FloatingText floatingNameText;
-    // public string behavior = "Idle";
-    [Networked] public NetworkString<_32> behavior { get; set; }
+    public string behavior = "Idle";
     public string currAction = "No Action"; // just for debugging to see what actions function is being called
-    
-    [Space(10)] 
-    [Header("For robot only")]
-    
-    public bool isRobot;
-    public Transform objectPosition;
-    public bool objectPossession;
-    public GameObject grabbedObject;
     
     private void Start()
     {
@@ -86,9 +71,6 @@ public class PlayerInterface : NetworkBehaviour
         ballOwnership = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<BallOwnership>();
         
         floatingNameText.SetText2(this.gameObject.name);
-        
-        ObjectsList objectList = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<ObjectsList>();
-        objectList.scenicPlayers.Add(this.gameObject);
     }
 
     // Update is called once per frame
@@ -105,19 +87,16 @@ public class PlayerInterface : NetworkBehaviour
             goal = GameObject.FindGameObjectWithTag("goal");
         }
 
-        if (ball)
-        {
-            ballOnTheGround.x = ball.transform.position.x;
-            ballOnTheGround.y = ball.transform.position.y;
-            ballOnTheGround.z = ball.transform.position.z;
-            distToBall = Vector3.Distance(transform.position, ballOnTheGround);
-        }
-
+        ballOnTheGround.x = ball.transform.position.x;
+        ballOnTheGround.y = ball.transform.position.y;
+        ballOnTheGround.z = ball.transform.position.z;
+        distToBall = Vector3.Distance(transform.position, ballOnTheGround);
+        
         if (actionAPI.stopMovement == true)
         {
             actionAPI.Idle();
         }
-
+        
         // Set RichAI radius to .1 when moving to avoid weird pathing behavior
         if (this.GetComponent<RichAI>() != null)
         {
@@ -140,7 +119,7 @@ public class PlayerInterface : NetworkBehaviour
             ball.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
         }
     }
-    
+
     private void LateUpdate()
     {
         // make sure ai target position is set back to 0 if behavior is not "MoveTo"
@@ -153,72 +132,14 @@ public class PlayerInterface : NetworkBehaviour
             }
         }
     }
-    
-    public override void Spawned() {
-        if (Object.HasStateAuthority) {
-            behavior = "Idle";
-            richAI = GetComponent<RichAI>();
-        }
-    }
-    
-    public override void FixedUpdateNetwork() {
-        // Only update the velocity on the state-authoritative instance.
-        if (Object.HasStateAuthority && richAI != null) {
-            currVelocity = richAI.velocity;
-        }
-    }
-    
-    static void OnNameChanged(Changed<PlayerInterface> changed)
-    {
-        changed.Behaviour.UpdateGameObjectName();
-    }
-    
-    private void UpdateGameObjectName()
-    {
-        gameObject.name = ObjName.ToString();
-    }
-    
-    public void SetObjectName(string newName)
-    {
-        ObjName = newName; // This will trigger OnNameChanged() on all clients
-    }
 
-    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
-    public void RPC_InstantiateValues(bool isAlly = false)
-    {
-        if (isAlly)
-        {
-            ally = true;
-            enemy = false;
-            
-            shirt.material.SetColor("_Color", Color.blue);
-            
-            ObjectsList objectList = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<ObjectsList>();
-            objectList.defensePlayers.Add(this.gameObject);
-        }
-        else
-        {
-            ally = false;
-            enemy = true;
-            
-            shirt.material.SetColor("_Color", Color.red);
-            
-            ObjectsList objectList = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<ObjectsList>();
-            objectList.offensePlayers.Add(this.gameObject);
-        }
-    }
-    
     // For ball possession
     private void OnTriggerEnter(Collider other)
     {
-        GameManager gm = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
-        if (gm.isHost)
+        if (other.CompareTag("ball") && canPossessBall && !ballPossession && ballOwnership.ballOwner == null)
         {
-            if (other.CompareTag("ball") && canPossessBall && !ballPossession && ballOwnership.ballOwner == null)
-            {
-                LogReceiveBall();
-                GainPossession(other.gameObject);
-            }
+            LogReceiveBall();
+            GainPossession(other.gameObject);
         }
     }
     
@@ -234,41 +155,7 @@ public class PlayerInterface : NetworkBehaviour
         ballOwnership.SetScenicOwnership(true);
         ballOwnership.SetHumanOwnership(false);
         ballOwnership.SetBallOwner(this.gameObject);
-        actionAPI.ReceiveBall(other.transform.position);
-    }
-    
-    public void ForciblyGainPossession()
-    {
-        if (ballOwnership.heldByScenic && canPossessBall && distToBall < 2f)
-        {
-            Debug.LogError(distToBall);
-            LogIntercept();
-            if (ballOwnership.ballOwner.GetComponent<PlayerInterface>())
-            {
-                ballOwnership.ballOwner.GetComponent<PlayerInterface>().LosePossession();
-            } else if (ballOwnership.ballOwner.GetComponent<HumanInterface>())
-            {
-                ballOwnership.ballOwner.GetComponent<HumanInterface>().LosePossession();
-            }
-            GainPossession(ball);
-        }
-    }
-    
-    private void LogIntercept()
-    {
-        int interceptID = keyboardInput.clickOrder;
-        float interceptTime = jsonToLLM.time;
-        
-        keyboardInput.annotation.Add(keyboardInput.clickOrder, new Dictionary<string, string>
-        {
-            { "type", "Intercept" },
-            { "player", this.name }
-        });
-
-        keyboardInput.annotationTimes.Add(interceptID, interceptTime);
-        Debug.Log($"Intercept action recorded with ID {interceptID} at time: {interceptTime}");
-        keyboardInput.clickOrder++; 
-        // RPC_LogIntercept();
+        this.GetComponentInParent<ActionAPI>().ReceiveBall(other.transform.position);
     }
     
     public void ForciblyGainPossession()
@@ -320,27 +207,7 @@ public class PlayerInterface : NetworkBehaviour
         Debug.Log($"ReceiveBall action recorded with ID {receiveBallID} at time: {receiveBallTime}");
         
         keyboardInput.clickOrder++;
-        // RPC_LogReceiveBall();
     }
-    
-    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
-    private void RPC_LogReceiveBall()
-    {
-        int receiveBallID = keyboardInput.clickOrder;
-        float receiveBallTime = jsonToLLM.time;
-        keyboardInput.annotation.Add(receiveBallID, new Dictionary<string, object>
-        {
-            { "type", "ReceiveBall" },
-            { "player", this.gameObject.name }
-        });
-        keyboardInput.annotationDescriptions.Add(receiveBallID, $"({this.gameObject.name} received the ball)");
-        
-        keyboardInput.annotationTimes.Add(receiveBallID, receiveBallTime);
-        Debug.Log($"ReceiveBall action recorded with ID {receiveBallID} at time: {receiveBallTime}");
-        
-        keyboardInput.clickOrder++;
-    }
-    
     public void LosePossession()
     {
         StartCoroutine(PossessionDebounce());
@@ -372,12 +239,6 @@ public class PlayerInterface : NetworkBehaviour
         this.isMoving = isMoving;
     }
 
-    public IEnumerator SetIsMoving(bool isMoving)
-    {
-        yield return new WaitForSeconds(0.05f);
-        this.isMoving = isMoving;
-    }
-    
     public void ApplyMovement(ScenicMovementData data)
     {
         localTick += 1;

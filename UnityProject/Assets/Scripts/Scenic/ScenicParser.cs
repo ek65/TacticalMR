@@ -43,7 +43,7 @@ public class ScenicParser
         {
             string actionFunc = data.ActionDict.First().Key;
             ActionDictType actionValues = data.ActionDict.First().Value;
-            // Debug.Log(actionFunc);
+            Debug.Log(actionFunc);
 
             Type classType = Type.GetType("ActionAPI");
             if (classType.GetMethod(actionFunc) == null)
@@ -64,8 +64,8 @@ public class ScenicParser
 
                 foreach (ParameterInfo param in parameters)
                 {
-                    // Debug.Log("For parameter #" + param.Position
-                    //                             + ", the ParameterType is: " + param.ParameterType);
+                    Debug.Log("For parameter #" + param.Position
+                                                + ", the ParameterType is: " + param.ParameterType);
                     if (param.ParameterType == typeof(Vector3))
                     {
                         Vector3 val;
