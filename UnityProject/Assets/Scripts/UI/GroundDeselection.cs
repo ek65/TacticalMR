@@ -15,6 +15,15 @@ public class GroundDeselection : MonoBehaviour, IPointerClickHandler
         groundSelection.ClearGroundHighlights();
         // Destroy(this.gameObject);
     }
+    
+    public void OnRayClick()
+    {
+        // clicking on the X again should remove it
+        GroundSelection groundSelection = GameObject.FindGameObjectWithTag("Ground")
+            .GetComponent<GroundSelection>();
+        groundSelection.ClearGroundHighlights();
+        // Destroy(this.gameObject);
+    }
 
     // public void OnTriggerEnter(Collider other)
     // {

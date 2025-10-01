@@ -23,14 +23,13 @@ public class JSONStatusMaker : MonoBehaviour
     }
     public string getUnityData()
     {
-        var test = root.TickData.Ball.movementData.transform;
+        // var test = root.TickData.Ball.movementData.transform;
         //lets set this to false so that we do not re-send if not true
         // Debug.LogError("test: " + test.x +"," + test.y +","+ test.z);
         snapTurnedLastTimestep = false;
         return JsonConvert.SerializeObject(root);
     }
-    
-    void Update()
+    void LateUpdate()
     {
         lastTick = server.lastTick;
         //pull the ball and the players from objects list and get their data.
@@ -110,9 +109,7 @@ public class JSONStatusMaker : MonoBehaviour
         }
     }*/
     void AddPlayerData(GameObject player, Player pData, bool isHuman) {
-        //NOTE: We go from (x,y,z) to (x,z,y) because that is how scenic handles the coordinate system.
-        Vector3ToJsonClass(player.transform.position, pData.movementData.transform);
-        QuaternionToJsonClass(player.transform.rotation, pData.movementData.rotation);
+        
         
         // Unused for now
         // pData.clientID = ((int)player.GetComponent<NetworkObject>().NetworkObjectId);
@@ -126,6 +123,23 @@ public class JSONStatusMaker : MonoBehaviour
         
         if (isHuman)
         {
+            HumanInterface hI = player.GetComponent<HumanInterface>();
+            
+            //NOTE: We go from (x,y,z) to (x,z,y) because that is how scenic handles the coordinate system.
+            Vector3 pos = player.transform.position;
+            if (hI.isVR)
+            {
+                pos = hI.vrTransform.position;
+            }
+            Vector3ToJsonClass(pos, pData.movementData.transform);
+
+            Quaternion rot = player.transform.rotation;
+            if (hI.isVR)
+            {
+                rot = hI.vrTransform.rotation;
+            }
+            QuaternionToJsonClass(rot, pData.movementData.rotation);
+
             // dont need to set endScenario back to false here because it is set to false in InstantiateScenicObject on the next simulation
             if (player.GetComponent<ExitScenario>() != null && lastTick > 5)
             {
@@ -138,26 +152,29 @@ public class JSONStatusMaker : MonoBehaviour
 
             // TODO: should change this when we have better movement system for human
             Vector3 velo = GameObject.FindGameObjectWithTag("keyboard").GetComponent<KeyboardInput>().movement;
+            if (hI.isVR)
+            {
+                velo = hI.velocity;
+            }
             Vector3ToJsonClass(velo, pData.movementData.velocity);
             pData.movementData.speed = velo.magnitude;
-            HumanInterface hI = player.GetComponent<HumanInterface>();
             pData.movementData.ballPossession = hI.ballPossession;
             pData.movementData.isMoving = hI.isMoving;
             Vector3ToJsonClass(hI.xMark, pData.movementData.xMark);
             pData.movementData.triggerPass = hI.triggerPass;
-            pData.movementData.behavior = hI.behavior;
+            pData.movementData.behavior = hI.behavior.Value;
             
-            // rotation stuff for VR camera, not needed for now
-            // GameObject camera = GameObject.FindGameObjectWithTag("MainCamera");
-            // Quaternion realRotation = camera.transform.rotation;
-            // QuaternionToJsonClass(realRotation, pData.movementData.rotation);
         }
         else // non-human player
         {
+            //NOTE: We go from (x,y,z) to (x,z,y) because that is how scenic handles the coordinate system.
+            Vector3ToJsonClass(player.transform.position, pData.movementData.transform);
+            QuaternionToJsonClass(player.transform.rotation, pData.movementData.rotation);
+            
             PlayerInterface pI = player.GetComponent<PlayerInterface>();
             pData.movementData.ballPossession = pI.ballPossession;
             pData.movementData.isMoving = pI.isMoving;
-            pData.movementData.behavior = pI.behavior;
+            pData.movementData.behavior = pI.behavior.Value;
             Vector3 velo = pI.currVelocity;
             Vector3ToJsonClass(velo, pData.movementData.velocity);
             pData.movementData.speed = velo.magnitude;

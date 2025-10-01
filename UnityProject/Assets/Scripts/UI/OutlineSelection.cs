@@ -1,10 +1,11 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Fusion;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class OutlineSelection : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler
+public class OutlineSelection : NetworkBehaviour, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler
 {
     private Outline outline;
     public bool stayOutlined = false;
@@ -45,16 +46,33 @@ public class OutlineSelection : MonoBehaviour, IPointerClickHandler, IPointerEnt
         if (keyboardInput.canClick)
         {
             // CLICKED
-            // keyboardInput.HandleAnnotationClick();
+            keyboardInput.HandleAnnotationClick();
         }
     }
     
     public void OnRayEnter()
     {
+        // outline.enabled = true;
+        // RPC_RayEnter();
+    }
+    
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    public void RPC_RayEnter()
+    {
         outline.enabled = true;
     }
     
     public void OnRayExit()
+    {
+        // if (stayOutlined == false)
+        // {
+        //     outline.enabled = false;
+        // }
+        RPC_RayExit();
+    }
+    
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    public void RPC_RayExit()
     {
         if (stayOutlined == false)
         {

@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Fusion;
 using Oculus.Interaction;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -29,23 +30,34 @@ public class GroundSelection : MonoBehaviour, IPointerClickHandler, IPointerEnte
         {
             cam = Camera.main;
         }
-        Ray ray = cam.ScreenPointToRay(Input.mousePosition);
+
 #if UNITY_EDITOR
-        groundHighlighter.GetComponent<Collider>().enabled = false;
-        if (Physics.Raycast(ray, out raycastHit))
+        if (cam != null)
         {
-            if (raycastHit.transform.gameObject.CompareTag("Ground"))
+            Ray ray = cam.ScreenPointToRay(Input.mousePosition);
+            groundHighlighter.GetComponent<Collider>().enabled = false;
+            if (Physics.Raycast(ray, out raycastHit))
             {
-                groundHighlighter.transform.position = raycastHit.point;
+                if (raycastHit.transform.gameObject.CompareTag("Ground"))
+                {
+                    Debug.LogError("test");
+                    groundHighlighter.transform.position = raycastHit.point;
+                }
+        
             }
-            
         }
 #endif
 #if UNITY_ANDROID
-        /*// android raycast
-        if (GameObject.FindGameObjectWithTag("human") != null)
+        // android raycast
+        GameObject human = GameObject.FindGameObjectWithTag("human");
+        if (human == null)
         {
-            ray = GameObject.FindGameObjectWithTag("RightRay").GetComponent<RayInteractor>().Ray;
+            return;
+        }
+        if (human != null && human.GetComponent<HumanInterface>().isVR && !human.GetComponent<HumanInterface>().isViewer)
+        {
+            Ray ray = GameObject.FindGameObjectWithTag("RightRay").GetComponent<RayInteractor>().Ray;
+            groundHighlighter.GetComponent<Collider>().enabled = false;
             if (Physics.Raycast(ray, out raycastHit))
             {
                 if (raycastHit.transform.gameObject.CompareTag("Ground"))
@@ -53,7 +65,7 @@ public class GroundSelection : MonoBehaviour, IPointerClickHandler, IPointerEnte
                     groundHighlighter.transform.position = raycastHit.point;
                 }
             }
-        }*/
+        }
 #endif
         
     }
@@ -70,28 +82,39 @@ public class GroundSelection : MonoBehaviour, IPointerClickHandler, IPointerEnte
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        if (keyboardInput.canClick)
+        GameManager gm = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
+        if (gm.isHost)
         {
-            if (placedGroundHighlighter != null)
+            if (keyboardInput.canClick)
             {
-                Destroy(placedGroundHighlighter);
+                if (placedGroundHighlighter != null)
+                {
+                    Destroy(placedGroundHighlighter);
+                }
+                GameObject go = Instantiate(newGroundHighlighter, raycastHit.point, Quaternion.identity);
+                placedGroundHighlighter = go;
+                go.GetComponent<Collider>().enabled = true;
+                keyboardInput.HandlePositionClick();
             }
-            GameObject go = Instantiate(newGroundHighlighter, raycastHit.point, Quaternion.identity);
-            placedGroundHighlighter = go;
-            go.GetComponent<Collider>().enabled = true;
-            keyboardInput.HandlePositionClick();
         }
     }
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        groundHighlighter.SetActive(true);
-
+        GameManager gm = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
+        if (gm.isHost)
+        {
+            groundHighlighter.SetActive(true);
+        }
     }
     
     public void OnPointerExit(PointerEventData eventData)
     {
-        groundHighlighter.SetActive(false);
+        GameManager gm = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
+        if (gm.isHost)
+        {
+            groundHighlighter.SetActive(false);
+        }
     }
     
 #if UNITY_ANDROID
@@ -99,9 +122,21 @@ public class GroundSelection : MonoBehaviour, IPointerClickHandler, IPointerEnte
     {
         if (keyboardInput.canClick)
         {
-            GameObject go = Instantiate(newGroundHighlighter, raycastHit.point, Quaternion.identity);
-            // go.GetComponent<Collider>().enabled = true;
-            // keyboardInput.HandlePositionClick();
+            if (placedGroundHighlighter != null)
+            {
+                Destroy(placedGroundHighlighter);
+            }
+            
+            // GameObject go = Instantiate(newGroundHighlighter, raycastHit.point, Quaternion.identity);
+            NetworkRunner runner = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>()._runner;
+            NetworkObject temp = runner.Spawn(newGroundHighlighter, raycastHit.point, Quaternion.identity);
+            
+            GameObject go = temp.gameObject;
+            
+            placedGroundHighlighter = go;
+            go.GetComponent<Collider>().enabled = true;
+            RPC_RayClick(temp);
+            keyboardInput.HandlePositionClick();
         }
         // Debug.Log("Ray Clicked");
         // GameObject go = Instantiate(newGroundHighlighter, raycastHit.point, Quaternion.identity);
@@ -118,5 +153,12 @@ public class GroundSelection : MonoBehaviour, IPointerClickHandler, IPointerEnte
         groundHighlighter.SetActive(false);
     }
 #endif
+    
+    private void RPC_RayClick(NetworkObject obj)
+    {
+        GameObject go = obj.gameObject;
+        
+        go.GetComponent<Collider>().enabled = true;
+    }
     
 }

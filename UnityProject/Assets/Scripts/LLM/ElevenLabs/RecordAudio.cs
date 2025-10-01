@@ -7,21 +7,20 @@ public class RecordAudio : MonoBehaviour
 {
     [SerializeField] private AudioSource audioSource;
 
-    // Where we'll save the final file: "Recordings/recording.wav"
-    private string directoryPath = "Recordings";
+    private string directoryPath;
     private string fileName = "recording.wav";
 
     private AudioClip recordedClip;
     private float startTime;
     private float recordingLength;
 
-    // Reference to the Scribe script
     [Header("ElevenLabs Integration")]
     public Scribe scribe;
 
     private void Awake()
     {
-        // Create the Recordings folder if needed
+        directoryPath = Path.Combine(Application.persistentDataPath, "Recordings");
+        
         if (!Directory.Exists(directoryPath))
         {
             Directory.CreateDirectory(directoryPath);
@@ -29,7 +28,7 @@ public class RecordAudio : MonoBehaviour
     }
 
     /// <summary>
-    /// Begin recording from the default mic device.
+    /// Start recording audio from the default microphone.
     /// </summary>
     public void StartRecording()
     {
@@ -50,7 +49,7 @@ public class RecordAudio : MonoBehaviour
     }
 
     /// <summary>
-    /// End the recording, trim to the actual length, save the file, and schedule the upload.
+    /// Stop recording, save the file, and send to Scribe.
     /// </summary>
     public void StopRecording()
     {
@@ -74,7 +73,7 @@ public class RecordAudio : MonoBehaviour
     }
 
     /// <summary>
-    /// Converts the AudioClip to a WAV file and saves it to disk.
+    /// Save the audio recording as a WAV file.
     /// </summary>
     private void SaveRecording()
     {
@@ -86,7 +85,7 @@ public class RecordAudio : MonoBehaviour
 
         string fullPath = Path.Combine(directoryPath, fileName);
         WavUtility.Save(fullPath, recordedClip);
-        Debug.Log("Recording saved as: " + fullPath);
+        Debug.Log("Recording saved at: " + fullPath);
     }
 
     private void SendRecordingToScribe()
@@ -108,8 +107,7 @@ public class RecordAudio : MonoBehaviour
         float[] data = new float[samples];
         clip.GetData(data, 0);
 
-        AudioClip trimmedClip = AudioClip.Create(clip.name, samples,
-            clip.channels, clip.frequency, false);
+        AudioClip trimmedClip = AudioClip.Create(clip.name, samples, clip.channels, clip.frequency, false);
         trimmedClip.SetData(data, 0);
 
         return trimmedClip;

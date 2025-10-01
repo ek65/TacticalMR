@@ -1,5 +1,9 @@
 fileFormatVersion: 2
+<<<<<<<< HEAD:UnityProject/Assets/Samples/A_ Pathfinding Project/5.3.8/Example scenes/ExampleScripts/DocumentationButton.cs.meta
 guid: 3a705f1fd95105f4582d18bf472edc13
+========
+guid: 461afc729e6754f57819bd9a5e714093
+>>>>>>>> elevenlabsSoccerVR:UnityProject/Assets/BallInterface.cs.meta
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2

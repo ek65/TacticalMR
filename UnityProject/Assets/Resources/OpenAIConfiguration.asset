@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5d7ca99533264e939ed60ffc81f03d20, type: 3}
   m_Name: OpenAIConfiguration
   m_EditorClassIdentifier: 
-  apiKey: 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
+  apiKey: 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
   organizationId: 
   useAzureOpenAI: 0
   proxyDomain: 

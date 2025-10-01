@@ -2,7 +2,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Runtime.ConstrainedExecution;
+using Fusion;
 using OpenAI.Samples.Chat;
 using Pathfinding;
 using Unity.VisualScripting;
@@ -14,7 +16,7 @@ using UnityEngine.AI;
 // parabola Equation if used (x-(d/2))^2 = -4((d/2)^2/8)(y-2)) => y = (8 (d x - x^2))/d^2
 #endregion
 
-public class ActionAPI : MonoBehaviour
+public class ActionAPI : NetworkBehaviour
 {
     [SerializeField] float playerRunningSpeed = 1f;
     [SerializeField] float timeDuration = 5f;
@@ -60,13 +62,16 @@ public class ActionAPI : MonoBehaviour
         {
             soccerBall = GameObject.FindGameObjectWithTag("ball");
         }
-        
-        string currAnimationController = this.GetComponent<Animator>().runtimeAnimatorController.name;
-        if (currAnimationController == "Movement")
+
+        if (this.GetComponent<Animator>().isActiveAndEnabled && this.GetComponent<Animator>().runtimeAnimatorController != null)
         {
-            alreadyInAnimation = false;
+            string currAnimationController = this.GetComponent<Animator>().runtimeAnimatorController.name;
+            if (currAnimationController == "Movement")
+            {
+                alreadyInAnimation = false;
+            }
         }
-        
+
         // Debug.LogError(this.GetComponent<Animator>().runtimeAnimatorController.name);
     }
 
@@ -82,16 +87,26 @@ public class ActionAPI : MonoBehaviour
     {
         // TODO: replace this anim controller with movement, need to merge humanoid AI movement with the movement controller
         //SetAnimController("Humanoid");
-        SetAnimController("Movement");
+        GameManager gm = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
+        if (gm.isHost)
+        {
+            RPC_SetAnimController("Movement");
+        }
+        // SetAnimController("Movement");
         StartCoroutine(MoveToPosHelper(destinationPosition, lookAt));
         //StartCoroutine(MovementLerp(destinationPosition, lookAt));
     }
     
-    public void FactoryMoveToPos(Vector3 destinationPosition, float speed = 2f, bool lookAt = false)
+    public void FactoryMoveToPos(Vector3 destinationPosition, float speed = 1f, bool lookAt = false)
     {
         // TODO: replace this anim controller with movement, need to merge humanoid AI movement with the movement controller
         //SetAnimController("Humanoid");
-        SetAnimController("FactoryMovement");
+        GameManager gm = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
+        if (gm.isHost)
+        {
+            RPC_SetAnimController("FactoryMovement");
+        }
+        // SetAnimController("FactoryMovement");
         StartCoroutine(MoveToPosHelper(destinationPosition, lookAt));
         //StartCoroutine(MovementLerp(destinationPosition, lookAt));
     }
@@ -100,7 +115,12 @@ public class ActionAPI : MonoBehaviour
     {
         // TODO: replace this anim controller with movement, need to merge humanoid AI movement with the movement controller
         //SetAnimController("Humanoid");
-        SetAnimController("Movement");
+        GameManager gm = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
+        if (gm.isHost)
+        {
+            RPC_SetAnimController("Movement");
+        }
+        // SetAnimController("Movement");
         StartCoroutine(MoveToPosHelper(destinationPosition, true));
         //StartCoroutine(MovementLerp(destinationPosition, lookAt));
     }
@@ -226,24 +246,257 @@ public class ActionAPI : MonoBehaviour
     // }
     
     // factory setting 
-    public void PickUp(Vector3 lookAtPosition)
+    public void PickUp() 
     {
-        SetAnimController("FactoryMovement");
-        stopMovement = true;
-        StartCoroutine(LookTowards(lookAtPosition, "PickUp"));
+        if (this.GetComponent<Animator>().isActiveAndEnabled == true)
+        {
+            SetAnimController("FactoryMovement");
+            stopMovement = true;
+        }
+
+        if (this.GetComponent<PlayerInterface>() == true)
+        {
+            PlayerInterface pI = this.GetComponent<PlayerInterface>();
+            Vector3 lookAtPosition = pI.objectPosition.position;
+
+            GameObject[] grabbableObjects = GameObject.FindGameObjectsWithTag("Grabbable");
+            Vector3 originPosition = pI.gameObject.transform.position;
+
+            GameObject closestObject = grabbableObjects
+                .Where(obj => Vector3.Distance(obj.transform.position, originPosition) <= 2f)
+                .OrderBy(obj => Vector3.Distance(obj.transform.position, originPosition))
+                .FirstOrDefault();
+
+            if (closestObject != null)
+            {
+                int layerIgnoreBallCollision = LayerMask.NameToLayer("PlayerBall");
+                pI.gameObject.layer = layerIgnoreBallCollision;
+
+                closestObject.transform.position = pI.objectPosition.position;
+                closestObject.transform.SetParent(pI.objectPosition);
+
+                // Disable gravity when picked up
+                Rigidbody rb = closestObject.GetComponent<Rigidbody>();
+                if (rb != null)
+                {
+                    rb.useGravity = false;
+                    rb.isKinematic = true; // Optional: Prevent physics interactions
+                }
+
+                pI.objectPossession = true;
+                pI.grabbedObject = closestObject;
+
+                StartCoroutine(LookTowards(lookAtPosition, "PickUp"));
+            }
+        }
+        else if (this.GetComponent<HumanInterface>() == true)
+        {
+            HumanInterface hI = this.GetComponent<HumanInterface>();
+            Vector3 lookAtPosition = hI.objectPosition.position;
+
+            GameObject[] grabbableObjects = GameObject.FindGameObjectsWithTag("Grabbable");
+            Vector3 originPosition = hI.gameObject.transform.position;
+
+            GameObject closestObject = grabbableObjects
+                .Where(obj => Vector3.Distance(obj.transform.position, originPosition) <= 2f)
+                .OrderBy(obj => Vector3.Distance(obj.transform.position, originPosition))
+                .FirstOrDefault();
+
+            if (closestObject != null)
+            {
+                int layerIgnoreBallCollision = LayerMask.NameToLayer("PlayerBall");
+                hI.gameObject.layer = layerIgnoreBallCollision;
+
+                closestObject.transform.position = hI.objectPosition.position;
+                closestObject.transform.SetParent(hI.objectPosition);
+
+                // Disable gravity when picked up
+                Rigidbody rb = closestObject.GetComponent<Rigidbody>();
+                if (rb != null)
+                {
+                    rb.useGravity = false;
+                    rb.isKinematic = true; // Optional: Prevent physics interactions
+                }
+
+                hI.objectPossession = true;
+                hI.grabbedObject = closestObject;
+
+                if (!hI.isVR)
+                {
+                    StartCoroutine(LookTowards(lookAtPosition, "PickUp"));
+                }
+            }
+        }
     }
-    public void PutDown(Vector3 lookAtPosition)
+
+    public void PutDown(Vector3 putDownPosition)
     {
-        SetAnimController("FactoryMovement");
-        stopMovement = true;
-        StartCoroutine(LookTowards(lookAtPosition, "PutDown"));
+        if (this.GetComponent<Animator>().isActiveAndEnabled == true)
+        {
+            SetAnimController("FactoryMovement");
+            stopMovement = true;
+        }
+
+        if (this.GetComponent<PlayerInterface>() == true)
+        {
+            PlayerInterface pI = this.GetComponent<PlayerInterface>();
+
+            if (pI.objectPossession == false)
+            {
+                return;
+            }
+
+            this.gameObject.layer = LayerMask.NameToLayer("Default");
+            GameObject droppedObject = pI.grabbedObject;
+            droppedObject.transform.SetParent(null);
+            droppedObject.transform.position = putDownPosition;
+
+            // Re-enable gravity after putting it down
+            Rigidbody rb = droppedObject.GetComponent<Rigidbody>();
+            if (rb != null)
+            {
+                rb.useGravity = true;
+                rb.isKinematic = false; // Optional: Restore physics interactions
+            }
+
+            pI.grabbedObject = null;
+            pI.objectPossession = false;
+            
+            StartCoroutine(LookTowards(putDownPosition, "PutDown"));
+        }
+        else if (this.GetComponent<HumanInterface>() == true)
+        {
+            HumanInterface hI = this.GetComponent<HumanInterface>();
+
+            if (hI.objectPossession == false)
+            {
+                return;
+            }
+
+            this.gameObject.layer = LayerMask.NameToLayer("Default");
+            GameObject droppedObject = hI.grabbedObject;
+            droppedObject.transform.SetParent(null);
+            droppedObject.transform.position = putDownPosition;
+
+            // Re-enable gravity after putting it down
+            Rigidbody rb = droppedObject.GetComponent<Rigidbody>();
+            if (rb != null)
+            {
+                rb.useGravity = true;
+                rb.isKinematic = false; // Optional: Restore physics interactions
+            }
+
+            hI.grabbedObject = null;
+            hI.objectPossession = false;
+
+            if (!hI.isVR)
+            {
+                StartCoroutine(LookTowards(putDownPosition, "PutDown"));
+            }
+        }
+
+        
     }
+
+
+    public void Packaging()
+    {
+        if (this.GetComponent<Animator>() == true)
+        {
+            SetAnimController("FactoryMovement");
+            stopMovement = true;
+        }
+
+        GameObject closestObject = FindNearestObject();
+
+        if (closestObject != null)
+        {
+            StartCoroutine(ChangeObjectColorAfterDelay(closestObject, Color.magenta, 3f));
+            Debug.Log("Finished packaging the object");
+            StartCoroutine(LookTowards(closestObject.transform.position, "Packaging"));
+        }
+        else
+        {
+            Debug.LogError("No object found for Packaging.");
+        }
+    }
+
+    private IEnumerator ChangeObjectColorAfterDelay(GameObject targetObject, Color color, float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        Renderer objRenderer = targetObject.GetComponent<Renderer>();
+
+        if (objRenderer != null)
+        {
+            objRenderer.material.color = color;
+        }
+        else
+        {
+            Debug.LogError("Target object does not have a Renderer component.");
+        }
+    }
+
+    private GameObject FindNearestObject()
+    {
+        GameObject[] grabbableObjects = GameObject.FindGameObjectsWithTag("Grabbable");
+        Vector3 originPosition = this.gameObject.transform.position;
+
+        return grabbableObjects
+            .Where(obj => Vector3.Distance(obj.transform.position, originPosition) <= 5f)
+            .OrderBy(obj => Vector3.Distance(obj.transform.position, originPosition))
+            .FirstOrDefault();
+    }
+
+
     // soccer
     public void ReceiveBall(Vector3 receiveFrom)
     {
-        SetAnimController("Movement");
-        stopMovement = true;
-        StartCoroutine(LookTowards(receiveFrom, "Receive"));
+        HumanInterface hI = this.GetComponent<HumanInterface>();
+        PlayerInterface pI = this.GetComponent<PlayerInterface>();
+        if (pI)
+        {
+            GameManager gm = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
+            if (gm.isHost)
+            {
+                RPC_SetAnimController("Movement");
+            }
+            stopMovement = true;
+            StartCoroutine(LookTowards(receiveFrom, "Receive"));
+        } else if (hI)
+        {
+            if (hI.isVR)
+            {
+                return;
+            }
+            GameManager gm = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
+            if (gm.isHost && !hI.isVR)
+            {
+                RPC_SetAnimController("Movement");
+            }
+            stopMovement = true;
+
+            if (!hI.isVR)
+            {
+                StartCoroutine(LookTowards(receiveFrom, "Receive"));
+            }
+        }
+    }
+    
+    public void InterceptBall()
+    {
+        HumanInterface hI = this.GetComponent<HumanInterface>();
+        PlayerInterface pI = this.GetComponent<PlayerInterface>();
+        if (pI)
+        {
+            pI.ForciblyGainPossession();
+        } else if (hI)
+        {
+            if (hI.isVR)
+            {
+                return;
+            }
+            hI.ForciblyGainPossession();
+        }
     }
     
     public void InterceptBall()
@@ -295,80 +548,115 @@ public class ActionAPI : MonoBehaviour
         {
             return;
         }
-        // if human pass, find closest player in objectsList.defensePlayers destinationPosition within 2 meters
-        if (this.gameObject.CompareTag("human"))
+        HumanInterface hI = this.GetComponent<HumanInterface>();
+        PlayerInterface pI = this.GetComponent<PlayerInterface>();
+        if (pI)
         {
-            HumanInterface hI = this.GetComponent<HumanInterface>();
-            ObjectsList objectList = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<ObjectsList>();
-            
-            GameObject closestPlayer = null;
-            float closestDistance = float.MaxValue;
-            foreach (GameObject player in objectList.defensePlayers)
+            // If X is (0,0,0) then pass to coach 
+            if (destinationPosition == Vector3.zero)
             {
-                float distance = Vector3.Distance(player.transform.position, destinationPosition);
-                if (distance < closestDistance && distance < 2f)
+                // Find the coach in the scene
+                GameObject human = GameObject.FindGameObjectWithTag("human");
+                if (human != null)
                 {
-                    closestDistance = distance;
-                    closestPlayer = player;
+                    AIDestinationSetter aiDestinationSetter = human.GetComponent<AIDestinationSetter>();
+                    if (aiDestinationSetter != null && aiDestinationSetter.enabled && 
+                        (human.GetComponent<HumanInterface>()?.isMoving ?? false))
+                    {
+                        destinationPosition = aiDestinationSetter.target.position;
+                    }
+                    else
+                    {
+                        // Fallback: use current position
+                        destinationPosition = human.transform.position;
+                        if (human.GetComponent<HumanInterface>().isVR)
+                        {
+                            destinationPosition = human.GetComponent<HumanInterface>().vrTransform.position;
+                        }
+                    }
                 }
+                else
+                {
+                    Debug.LogError("Coach not found in the scene.");
+                    return;
+                }
+            }
+                
+            GameManager gm = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
+            if (gm.isHost)
+            {
+                RPC_SetAnimController("Dribbling");
+            }
+            // SetAnimController("Dribbling");
+            // Debug.LogError(this.GetComponent<Animator>().runtimeAnimatorController.name);
+            // Debug.LogError(this.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0));
+            // Debug.LogError("in gpf2");
+            StartCoroutine(LookTowards(destinationPosition, "GroundPassFast"));
+
+            StartCoroutine(this.GetComponent<PlayerInterface>().KickDebounce());
+            
+            ballPositionAtPassTime = soccerBall.transform.position;
+            SetMoveBallValues(destinationPosition, 0, strongPassForce);
+        } else if (hI)
+        {
+            // if human pass, find closest player in objectsList.defensePlayers destinationPosition within 2 meters
+            if (this.gameObject.CompareTag("human"))
+            {
+                ObjectsList objectList = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<ObjectsList>();
+
+                GameObject closestPlayer = null;
+                float closestDistance = float.MaxValue;
+                foreach (GameObject player in objectList.defensePlayers)
+                {
+                    float distance = Vector3.Distance(player.transform.position, destinationPosition);
+                    if (distance < closestDistance && distance < 2f)
+                    {
+                        closestDistance = distance;
+                        closestPlayer = player;
+                    }
+                }
+
+                if (closestPlayer != null)
+                {
+                    AIDestinationSetter aiDestinationSetter = closestPlayer.GetComponent<AIDestinationSetter>();
+                    if (aiDestinationSetter != null && aiDestinationSetter.enabled &&
+                        (closestPlayer.GetComponent<PlayerInterface>()?.isMoving ?? false))
+                    {
+                        destinationPosition = aiDestinationSetter.target.position;
+                    }
+                    else
+                    {
+                        // Fallback: use current position
+                        destinationPosition = closestPlayer.transform.position;
+                    }
+                }
+            }
+            
+            GameManager gm = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
+            if (gm.isHost && !hI.isVR)
+            {
+                RPC_SetAnimController("Dribbling");
+            }
+            // SetAnimController("Dribbling");
+            // Debug.LogError(this.GetComponent<Animator>().runtimeAnimatorController.name);
+            // Debug.LogError(this.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0));
+            // Debug.LogError("in gpf2");
+            if (!hI.isVR)
+            {
+                StartCoroutine(LookTowards(destinationPosition, "GroundPassFast"));
+                
+                StartCoroutine(this.GetComponent<HumanInterface>().KickDebounce());
             }
 
-            if (closestPlayer != null)
+            ballPositionAtPassTime = soccerBall.transform.position;
+            SetMoveBallValues(destinationPosition, 0, strongPassForce);
+        
+            if (hI.isVR)
             {
-                AIDestinationSetter aiDestinationSetter = closestPlayer.GetComponent<AIDestinationSetter>();
-                if (aiDestinationSetter != null && aiDestinationSetter.enabled &&
-                    (closestPlayer.GetComponent<PlayerInterface>()?.isMoving ?? false))
-                {
-                    destinationPosition = aiDestinationSetter.target.position;
-                }
-                else
-                {
-                    // Fallback: use current position
-                    destinationPosition = closestPlayer.transform.position;
-                }
-            }
-        } else if (destinationPosition == Vector3.zero) // If X is (0,0,0) then pass to coach 
-        {
-            // Find the coach in the scene
-            GameObject human = GameObject.FindGameObjectWithTag("human");
-            if (human != null)
-            {
-                AIDestinationSetter aiDestinationSetter = human.GetComponent<AIDestinationSetter>();
-                if (aiDestinationSetter != null && aiDestinationSetter.enabled && 
-                     (human.GetComponent<HumanInterface>()?.isMoving ?? false))
-                {
-                    destinationPosition = aiDestinationSetter.target.position;
-                }
-                else
-                {
-                    // Fallback: use current position
-                    destinationPosition = human.transform.position;
-                }
-            }
-            else
-            {
-                Debug.LogError("Coach not found in the scene.");
-                return;
+                MoveBall();
             }
         }
         
-        
-        SetAnimController("Dribbling");
-        // Debug.LogError(this.GetComponent<Animator>().runtimeAnimatorController.name);
-        // Debug.LogError(this.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0));
-        // Debug.LogError("in gpf2");
-        StartCoroutine(LookTowards(destinationPosition, "GroundPassFast"));
-        if (this.GetComponent<PlayerInterface>() == true)
-        {
-            StartCoroutine(this.GetComponent<PlayerInterface>().KickDebounce());
-        }
-        else if (this.GetComponent<HumanInterface>() == true)
-        {
-            StartCoroutine(this.GetComponent<HumanInterface>().KickDebounce());
-        }
-        
-        ballPositionAtPassTime = soccerBall.transform.position;
-        SetMoveBallValues(destinationPosition, 0, strongPassForce);
     }
 
     public void AirPass(Vector3 destinationPosition, string ballProjectileHeight)
@@ -619,7 +907,7 @@ public class ActionAPI : MonoBehaviour
         
         if (stopMovement)
         {
-            Debug.Log("in here123");
+            // Debug.Log("in here123");
             dest.target.localPosition = Vector3.zero;
             stopMovement = false;
             selfPlayer.GetComponent<Animator>().SetFloat("VelZ", 0);
@@ -655,7 +943,6 @@ public class ActionAPI : MonoBehaviour
                 // yield return StartCoroutine(MovementLerp2(Destiny));
                 yield return null;
             }
-            
             StartCoroutine(hI.SetIsMoving(false));
         }
         else
@@ -668,6 +955,7 @@ public class ActionAPI : MonoBehaviour
                 // normalize speed then *2 for anim values
                 float velz = aiNav.velocity.magnitude;
             
+                // Debug.LogError(velz);
                 selfPlayer.GetComponent<Animator>().SetFloat("VelZ", velz);
 
                 // yield return StartCoroutine(MovementLerp2(Destiny));
@@ -726,7 +1014,7 @@ public class ActionAPI : MonoBehaviour
             PlayerInterface pI = this.gameObject.GetComponent<PlayerInterface>();
             while (destSetter.target.position != this.gameObject.transform.position)
             {
-                StartCoroutine(pI.SetIsMoving(false));
+                StartCoroutine(pI.SetIsMoving(true));
             
                 // normalize speed then *2 for anim values
                 float velz = aiNav.velocity.magnitude;
@@ -1041,6 +1329,16 @@ public class ActionAPI : MonoBehaviour
         this.finalPos = finalPos;
         this.aerialOffset = aerialOffset;
         this.forceMagnitude = forceMagnitude;
+        // RPC_SetMoveBallValues(finalPos, aerialOffset, forceMagnitude);
+    }
+    
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    public void RPC_SetMoveBallValues(Vector3 finalPos, float aerialOffset, float forceMagnitude)
+    {
+        // Debug.LogError(finalPos);
+        this.finalPos = finalPos;
+        this.aerialOffset = aerialOffset;
+        this.forceMagnitude = forceMagnitude;
     }
 
     private float WaitTime()
@@ -1056,9 +1354,28 @@ public class ActionAPI : MonoBehaviour
         yield return new WaitForSeconds(WaitTime());
     }
 
-    public void 
-        SetAnimController(string controllerHashCode)
+    public void SetAnimController(string controllerHashCode)
     {
+        GameObject selfPlayer = this.gameObject;
+        string currAnimationController = selfPlayer.GetComponent<Animator>().runtimeAnimatorController.name;
+        if (currAnimationController != controllerHashCode)
+        {
+            RuntimeAnimatorController newController = Resources.Load("Animation/" + controllerHashCode, typeof(RuntimeAnimatorController)) as RuntimeAnimatorController;
+            selfPlayer.GetComponent<Animator>().runtimeAnimatorController = newController;
+        }
+    }
+
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    public void RPC_SetAnimController(string controllerHashCode)
+    {
+        if (this.GetComponent<HumanInterface>() == true)
+        {
+            HumanInterface hI = this.GetComponent<HumanInterface>();
+            if (hI.isVR == true)
+            {
+                return;
+            }
+        }
         GameObject selfPlayer = this.gameObject;
         string currAnimationController = selfPlayer.GetComponent<Animator>().runtimeAnimatorController.name;
         if (currAnimationController != controllerHashCode)
@@ -1107,6 +1424,10 @@ public class ActionAPI : MonoBehaviour
     // called from animation event
     public void MoveBall()
     {
+        if (Runner.IsClient)
+        {
+            return;
+        }
         PlayerInterface pI = GetComponent<PlayerInterface>();
         HumanInterface hI = GetComponent<HumanInterface>();
 
@@ -1154,52 +1475,104 @@ public class ActionAPI : MonoBehaviour
         if (pI)
         {
             GameObject closestPlayer = FindClosestPlayerToFinalPos(finalPos);
-            if (closestPlayer != null)
-            {
-                KeyboardInput keyboardInput = GameObject.FindGameObjectWithTag("keyboard").GetComponent<KeyboardInput>();
-                JSONToLLM jsonToLLM = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<JSONToLLM>();
+        if (closestPlayer != null)
+        {
+            KeyboardInput keyboardInput = GameObject.FindGameObjectWithTag("keyboard").GetComponent<KeyboardInput>();
+            JSONToLLM jsonToLLM = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<JSONToLLM>();
 
-                int passID = keyboardInput.clickOrder;
-                float passTime = jsonToLLM.time;
+            int passID = keyboardInput.clickOrder;
+            float passTime = jsonToLLM.time;
             
-                keyboardInput.annotation.Add(passID, new Dictionary<string, object>
-                {
-                    { "type", "Pass" },
-                    { "from", this.name },
-                    { "to", closestPlayer.name }
-                });
-
-                keyboardInput.annotationDescriptions.Add(passID, $"({this.name} passed to {closestPlayer.name})");
-                keyboardInput.annotationTimes.Add(passID, passTime);
-                Debug.Log($"Pass action recorded with ID {passID}, from: {this.name} to: {closestPlayer.name} at time: {passTime}");
-                keyboardInput.clickOrder++; 
-            } else if (closestPlayer == null)
+            keyboardInput.annotation.Add(passID, new Dictionary<string, object>
             {
-                KeyboardInput keyboardInput = GameObject.FindGameObjectWithTag("keyboard").GetComponent<KeyboardInput>();
-                JSONToLLM jsonToLLM = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<JSONToLLM>();
+                { "type", "Pass" },
+                { "from", this.name },
+                { "to", closestPlayer.name }
+            });
 
-                int passID = keyboardInput.clickOrder;
-                float passTime = jsonToLLM.time;
+            keyboardInput.annotationDescriptions.Add(passID, $"({this.name} passed to {closestPlayer.name})");
+            keyboardInput.annotationTimes.Add(passID, passTime);
+            Debug.Log($"Pass action recorded with ID {passID}, from: {this.name} to: {closestPlayer.name} at time: {passTime}");
+            keyboardInput.clickOrder++; 
+        } else if (closestPlayer == null)
+        {
+            KeyboardInput keyboardInput = GameObject.FindGameObjectWithTag("keyboard").GetComponent<KeyboardInput>();
+            JSONToLLM jsonToLLM = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<JSONToLLM>();
 
-                var pointDict = new Dictionary<string, float>
-                {
-                    { "x", finalPos.x },
-                    { "y", finalPos.z }
-                };
-                keyboardInput.annotation.Add(passID, new Dictionary<string, object>
-                {
-                    { "type", "Through Pass" },
-                    { "from", this.name},
-                    { "to", pointDict }
-                });
+            int passID = keyboardInput.clickOrder;
+            float passTime = jsonToLLM.time;
+
+            var pointDict = new Dictionary<string, float>
+            {
+                { "x", finalPos.x },
+                { "y", finalPos.z }
+            };
+            keyboardInput.annotation.Add(passID, new Dictionary<string, object>
+            {
+                { "type", "Through Pass" },
+                { "from", this.name},
+                { "to", pointDict }
+            });
         
-                keyboardInput.annotationDescriptions.Add(passID, $"({this.name} passed to position: {pointDict})");
+            keyboardInput.annotationDescriptions.Add(passID, $"({this.name} passed to position: {pointDict})");
     
-                keyboardInput.annotationTimes.Add(passID, passTime);
-                Debug.Log($"Through Pass action recorded with ID {passID} at time: {passTime}");
-                keyboardInput.clickOrder++; 
-            }
+            keyboardInput.annotationTimes.Add(passID, passTime);
+            Debug.Log($"Through Pass action recorded with ID {passID} at time: {passTime}");
+            keyboardInput.clickOrder++; 
+        }
+            // RPC_LogPass();
 
+        }
+    }
+
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    private void RPC_LogPass()
+    {
+        GameObject closestPlayer = FindClosestPlayerToFinalPos(finalPos);
+        if (closestPlayer != null)
+        {
+            KeyboardInput keyboardInput = GameObject.FindGameObjectWithTag("keyboard").GetComponent<KeyboardInput>();
+            JSONToLLM jsonToLLM = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<JSONToLLM>();
+
+            int passID = keyboardInput.clickOrder;
+            float passTime = jsonToLLM.time;
+            
+            keyboardInput.annotation.Add(passID, new Dictionary<string, object>
+            {
+                { "type", "Pass" },
+                { "from", this.name },
+                { "to", closestPlayer.name }
+            });
+
+            keyboardInput.annotationDescriptions.Add(passID, $"({this.name} passed to {closestPlayer.name})");
+            keyboardInput.annotationTimes.Add(passID, passTime);
+            Debug.Log($"Pass action recorded with ID {passID}, from: {this.name} to: {closestPlayer.name} at time: {passTime}");
+            keyboardInput.clickOrder++; 
+        } else if (closestPlayer == null)
+        {
+            KeyboardInput keyboardInput = GameObject.FindGameObjectWithTag("keyboard").GetComponent<KeyboardInput>();
+            JSONToLLM jsonToLLM = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<JSONToLLM>();
+
+            int passID = keyboardInput.clickOrder;
+            float passTime = jsonToLLM.time;
+
+            var pointDict = new Dictionary<string, float>
+            {
+                { "x", finalPos.x },
+                { "y", finalPos.z }
+            };
+            keyboardInput.annotation.Add(passID, new Dictionary<string, object>
+            {
+                { "type", "Through Pass" },
+                { "from", this.name},
+                { "to", pointDict }
+            });
+        
+            keyboardInput.annotationDescriptions.Add(passID, $"({this.name} passed to position: {pointDict})");
+    
+            keyboardInput.annotationTimes.Add(passID, passTime);
+            Debug.Log($"Through Pass action recorded with ID {passID} at time: {passTime}");
+            keyboardInput.clickOrder++; 
         }
     }
 
@@ -1211,7 +1584,14 @@ public class ActionAPI : MonoBehaviour
         float closestDistanceSqr = Mathf.Infinity;
         foreach (GameObject player in players)
         {
-            Vector3 directionToTarget = player.transform.position - pos;
+            Vector3 playerPos = player.transform.position;
+            
+            if (player.GetComponent<HumanInterface>() && player.GetComponent<HumanInterface>().isVR)
+            {
+                playerPos = player.GetComponent<HumanInterface>().vrTransform.position;
+            }
+            
+            Vector3 directionToTarget = playerPos - pos;
             float dSqrToTarget = directionToTarget.sqrMagnitude;
             if (dSqrToTarget < closestDistanceSqr)
             {

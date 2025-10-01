@@ -16,12 +16,13 @@ public class ControllerInput : MonoBehaviour
 
     private float controllerDeadzone = 0.1f;
     private float gamepadRotateSmoothing = 250f;
-    private Camera cam;
+    public Camera cam;
     private Animator animator;
     private KeyboardInput keyboardInput;
     private ExitScenario exitScenario;
     private JSONToLLM jsonToLLM; 
     private TimelineManager tlManager;
+    // private ScenarioManager scenarioManager;
 
     public Vector3 playerDirection;
 
@@ -34,6 +35,7 @@ public class ControllerInput : MonoBehaviour
         keyboardInput = GameObject.FindGameObjectWithTag("keyboard").GetComponent<KeyboardInput>();
         exitScenario = this.GetComponent<ExitScenario>();
         tlManager = GameObject.FindGameObjectWithTag("TimelineManager").GetComponent<TimelineManager>();
+        // scenarioManager = GameObject.FindGameObjectWithTag("ScenarioManager").GetComponent<ScenarioManager>();
     }
 
     private void OnEnable()
@@ -55,6 +57,7 @@ public class ControllerInput : MonoBehaviour
         inputSystem.PlayerControls.Pause.performed -= ControllerPause;
         // inputSystem.PlayerControls.Restart.performed -= ControllerRestart;
         inputSystem.PlayerControls.Segment.performed -= ControllerSegment;
+        // soccer actions
         inputSystem.PlayerControls.Intercept.performed -= ControllerIntercept;
         inputSystem.PlayerControls.Pass.performed -= ControllerPass;
         inputSystem.PlayerControls.TriggerPass.performed -= ControllerTriggerPass;
@@ -64,20 +67,37 @@ public class ControllerInput : MonoBehaviour
 
     private void FixedUpdate()
     {
+#if UNITY_EDITOR
+        GameManager gm = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
+        if (!gm.isHost)
+        {
+            return;
+        }
         // if (tlManager.Paused)
         // {
         //     return;
         // }
         Movement();
         Rotate();
+#endif
     }
 
-    private void ControllerPause(InputAction.CallbackContext ctx)
+    public void ControllerPause(InputAction.CallbackContext ctx)
+    {
+        HandleControllerPause();
+    }
+
+    // Creating these public handle functions so that Meta controller mapping component can also call them
+    public void HandleControllerPause()
     {
         keyboardInput.HandlePause();
     }
 
     private void ControllerRestart(InputAction.CallbackContext ctx)
+    {
+        HandleControllerRestart();
+    }
+    public void HandleControllerRestart()
     {
         keyboardInput.HandleRestart();
     }
@@ -90,11 +110,21 @@ public class ControllerInput : MonoBehaviour
     
     private void ControllerSegment(InputAction.CallbackContext ctx)
     {
+        HandleControllerSegment();
+    }
+    
+    public void HandleControllerSegment()
+    {
         keyboardInput.HandleSegment();
     }
     
     // Forcibly Take Possession of Ball from nearby player
     private void ControllerIntercept(InputAction.CallbackContext ctx)
+    {
+        HandleControllerIntercept();
+    }
+
+    public void HandleControllerIntercept()
     {
         if (tlManager.Paused)
         {
@@ -105,6 +135,11 @@ public class ControllerInput : MonoBehaviour
     }
     
     private void ControllerPass(InputAction.CallbackContext ctx)
+    {
+        HandleControllerPass();
+    }
+    
+    public void HandleControllerPass()
     {
         if (tlManager.Paused)
         {
@@ -126,6 +161,11 @@ public class ControllerInput : MonoBehaviour
     
     private void ControllerThroughPass(InputAction.CallbackContext ctx)
     {
+        HandleControllerThroughPass();
+    }
+    
+    public void HandleControllerThroughPass()
+    {
         if (tlManager.Paused)
         {
             return;
@@ -135,6 +175,25 @@ public class ControllerInput : MonoBehaviour
     }
     
     private void ControllerTriggerPass(InputAction.CallbackContext ctx)
+    {
+        HandleControllerTriggerPass();
+    }
+    private void ControllerShoot(InputAction.CallbackContext ctx)
+    {
+        HandleControllerShoot();
+    }
+    
+    public void HandleControllerShoot()
+    {
+        if (tlManager.Paused)
+        {
+            return;
+        }
+        HumanInterface humanInterface = this.GetComponent<HumanInterface>();
+        humanInterface.ShootGoal();
+    }
+    
+    public void HandleControllerTriggerPass()
     {
         if (tlManager.Paused)
         {
@@ -154,6 +213,46 @@ public class ControllerInput : MonoBehaviour
                 StartCoroutine(human.GetComponent<HumanInterface>().SetTriggerPass(playerWithBall));
             }
         }
+    }
+    
+    private void ControllerPackaging(InputAction.CallbackContext ctx)
+    {
+        if (tlManager.Paused) return;
+        HumanInterface humanInterface = this.GetComponent<HumanInterface>();
+        humanInterface.Packaging();
+    }
+    private void ControllerPickUp(InputAction.CallbackContext ctx)
+    {
+        HandleControllerPickUp();
+    }
+    
+    public void HandleControllerPickUp()
+    {
+        Debug.Log("in Controller pickup");
+        
+        if (tlManager.Paused)
+        {
+            return;
+        }
+        HumanInterface humanInterface = this.GetComponent<HumanInterface>();
+        humanInterface.PickUp();
+    }
+    
+    private void ControllerPutDown(InputAction.CallbackContext ctx)
+    {
+        HandleControllerPutDown();
+    }
+    
+    public void HandleControllerPutDown()
+    {
+        Debug.Log("in Controller putdown");
+
+        if (tlManager.Paused)
+        {
+            return;
+        }
+        HumanInterface humanInterface = this.GetComponent<HumanInterface>();
+        humanInterface.PutDown();
     }
     
     private void Movement()
