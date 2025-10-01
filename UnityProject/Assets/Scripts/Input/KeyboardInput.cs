@@ -977,15 +977,19 @@ public class KeyboardInput : NetworkBehaviour
         }
         if (rb == null) return;
         if (timelineManager.Paused) return;
-        
-        // float horizontalInput = Input.GetAxis("Horizontal");
-        // float verticalInput = Input.GetAxis("Vertical");
-        
+
         float horizontalInput = 0f;
         float verticalInput = 0f;
         
+        if (GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>().laptopMode)
+        {
+            horizontalInput = Input.GetAxis("Horizontal");
+            verticalInput = Input.GetAxis("Vertical");
+        }
+        
         Vector3 forwardDirection = transform.forward;
         movement = (forwardDirection * verticalInput + transform.right * horizontalInput).normalized * moveSpeed;
+        Debug.LogError("movement: " + movement);
         
         rb.MovePosition(rb.position + movement * Time.fixedDeltaTime);
 // #endif
