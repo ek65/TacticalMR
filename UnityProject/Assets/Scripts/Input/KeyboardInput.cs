@@ -24,6 +24,7 @@ public class KeyboardInput : NetworkBehaviour
     private ChatBehaviour chatBehaviour;
     private JSONDirectory jsonDirectory;
     private RecorderManager recorderManager;
+    private GameManager gameManager;
 
     [Header("UI / Output")]
     public TextMeshProUGUI countdownText;
@@ -56,12 +57,12 @@ public class KeyboardInput : NetworkBehaviour
 
     void Start()
     {
-        // Basic referencespl
         timelineManager = GameObject.FindGameObjectWithTag("TimelineManager").GetComponent<TimelineManager>();
         jsonToLLM = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<JSONToLLM>();
         countdownText = GameObject.FindGameObjectWithTag("countdown").GetComponent<TextMeshProUGUI>();
         chatBehaviour = GameObject.FindGameObjectWithTag("Character").GetComponent<ChatBehaviour>();
         jsonDirectory = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<JSONDirectory>();
+        gameManager = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
 #if UNITY_EDITOR
         recorderManager = GameObject.FindGameObjectWithTag("RecorderManager").GetComponent<RecorderManager>();
 #endif        
@@ -97,8 +98,8 @@ public class KeyboardInput : NetworkBehaviour
         // Press E to restart
         if (Input.GetKeyDown(KeyCode.E) && gameObject.CompareTag("keyboard"))
         {
-            jsonDirectory.DoNotSaveDemonstrationButton();
-            // HandleRestart();
+            // jsonDirectory.DoNotSaveDemonstrationButton();
+            HandleRestart();
         }
 
         // Press B to toggle segment
@@ -227,21 +228,28 @@ public class KeyboardInput : NetworkBehaviour
         canClick = false;
 
         // saveDemoCanvas.GetComponent<Canvas>().worldCamera = GameObject.Find("CenterEyeAnchor").GetComponent<Camera>();
-        RPC_CanvasSetActive(true);
-        ObjectsList objectsList = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<ObjectsList>();
-        
-        Transform vrTrans = GameObject.FindGameObjectWithTag("human").GetComponent<HumanInterface>().vrTransform;
-        
-        if (objectsList.viewerPlayer != null)
+        if (gameManager.laptopMode)
         {
-            vrTrans = objectsList.viewerPlayer.GetComponent<HumanInterface>().vrTransform;
+            saveDemoCanvas.SetActive(true);
         }
+        else
+        {
+            RPC_CanvasSetActive(true);
+            ObjectsList objectsList = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<ObjectsList>();
         
-        Vector3 canvasPos = vrTrans.position + vrTrans.forward * 5f;
-        canvasPos.y = Mathf.Max(canvasPos.y, 3f);
-        saveDemoCanvas.transform.position = canvasPos;
+            Transform vrTrans = GameObject.FindGameObjectWithTag("human").GetComponent<HumanInterface>().vrTransform;
         
-        saveDemoCanvas.transform.rotation = UnityEngine.Quaternion.LookRotation(saveDemoCanvas.transform.position - vrTrans.position);
+            if (objectsList.viewerPlayer != null)
+            {
+                vrTrans = objectsList.viewerPlayer.GetComponent<HumanInterface>().vrTransform;
+            }
+        
+            Vector3 canvasPos = vrTrans.position + vrTrans.forward * 5f;
+            canvasPos.y = Mathf.Max(canvasPos.y, 3f);
+            saveDemoCanvas.transform.position = canvasPos;
+        
+            saveDemoCanvas.transform.rotation = UnityEngine.Quaternion.LookRotation(saveDemoCanvas.transform.position - vrTrans.position);
+        }
     }
     
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
@@ -284,11 +292,24 @@ public class KeyboardInput : NetworkBehaviour
     // (Video is started automatically in JSONToLLM.FixedUpdate if isLogging==true)
     public void StartSegment()
     {
-        RPC_StartSegment();
+        // In laptop mode, use simple direct call
+        if (gameManager.laptopMode)
+        {
+            StartSegmentInternal();
+        }
+        else
+        {
+            RPC_StartSegment();
+        }
     }
-
+    
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
     public void RPC_StartSegment()
+    {
+        StartSegmentInternal();
+    }
+
+    public void StartSegmentInternal()
     {
         GameManager gm = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
         // if (!gm.isHost)
@@ -316,9 +337,8 @@ public class KeyboardInput : NetworkBehaviour
 
             segmentStartTime = Time.time;
 
-            if (gm.isHost)
+            if (gm.isHost || gm.laptopMode)
             {
-                // Start audio only
                 if (recordAudio != null)
                 {
                     recordAudio.StartRecording();
@@ -354,11 +374,24 @@ public class KeyboardInput : NetworkBehaviour
     // (Video is stopped automatically in JSONToLLM.FixedUpdate if isLogging==false)
     public void StopSegment()
     {
-        RPC_StopSegment();
+        // In laptop mode, use simple direct call
+        if (gameManager.laptopMode)
+        {
+            StopSegmentInternal();
+        }
+        else
+        {
+            RPC_StopSegment();
+        }
     }
     
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
     public void RPC_StopSegment()
+    {
+        StopSegmentInternal();
+    }
+    
+    private void StopSegmentInternal()
     {
         if (!segmentStarted) return;
 
@@ -373,7 +406,7 @@ public class KeyboardInput : NetworkBehaviour
         // Stop audio
         
         GameManager gm = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
-        if (gm.isHost)
+        if (gm.isHost || gm.laptopMode)
         {
             if (recordAudio != null && Microphone.IsRecording(null))
             {
@@ -498,7 +531,7 @@ public class KeyboardInput : NetworkBehaviour
 
     public bool AreAnnotationsSynced()
     {
-        return annotationsReady;
+        return gameManager.laptopMode ? true : annotationsReady;
     }
     
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
@@ -553,7 +586,7 @@ public class KeyboardInput : NetworkBehaviour
     
     public void SyncAnnotationsToClients()
     {
-        if (!Runner.IsServer) return;
+        if (gameManager.laptopMode || !Runner.IsServer) return;
         
         // First, clear client annotations
         RPC_ClearAnnotations();
@@ -817,33 +850,37 @@ public class KeyboardInput : NetworkBehaviour
             Debug.Log("Now stopping video recording...");
             recorderManager.StopRecording();
             
-            // Wait for the recording to be processed with a timeout
-            float startTime = Time.time;
-            float timeout = 30f;
-        
-            Debug.Log("CLIENT: Waiting for video to be processed...");
-        
-            while (recorderManager.IsRecordingProcessing && (Time.time - startTime < timeout))
+            // Only wait for processing in multiplayer client mode
+            if (!gameManager.laptopMode && gameManager._runner.IsClient)
             {
-                yield return new WaitForSeconds(0.5f);
-            }
+                // Wait for the recording to be processed with a timeout
+                float startTime = Time.time;
+                float timeout = 30f;
         
-            if (recorderManager.IsRecordingProcessing)
-            {
-                Debug.LogError("CLIENT: Timed out waiting for video to be processed!");
-                recorderManager.IsRecordingProcessing = false;
-            }
-            else
-            {
-                Debug.Log("CLIENT: Video processing completed successfully");
-            }
+                Debug.Log("CLIENT: Waiting for video to be processed...");
+        
+                while (recorderManager.IsRecordingProcessing && (Time.time - startTime < timeout))
+                {
+                    yield return new WaitForSeconds(0.5f);
+                }
+        
+                if (recorderManager.IsRecordingProcessing)
+                {
+                    Debug.LogError("CLIENT: Timed out waiting for video to be processed!");
+                    recorderManager.IsRecordingProcessing = false;
+                }
+                else
+                {
+                    Debug.Log("CLIENT: Video processing completed successfully");
+                }
             
-            // Release resources
-            recorderManager.ReleaseRecorderResources();
+                // Release resources
+                recorderManager.ReleaseRecorderResources();
         
-            // Notify server that video has been saved
-            jsonToLLM.RPC_NotifyVideoSaveComplete();
-            Debug.Log("CLIENT: Notified server that video save is complete");
+                // Notify server that video has been saved
+                jsonToLLM.RPC_NotifyVideoSaveComplete();
+                Debug.Log("CLIENT: Notified server that video save is complete");
+            }
         }
 #endif
     }
@@ -851,7 +888,32 @@ public class KeyboardInput : NetworkBehaviour
     private IEnumerator ProcessingTranscript()
     {
         GameManager gm = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
-        if (gm.isHost)
+        
+        // Laptop mode: Simple waiting without client synchronization
+        if (gm.laptopMode)
+        {
+            jsonToLLM.isTranscriptionComplete = false;
+            countdownText.gameObject.SetActive(true);
+            countdownText.color = Color.red;
+
+            string baseText = "TRANSCRIPTION PROCESSING \n(DO NOT RESTART YET)";
+            int dotCount = 0;
+            countdownText.fontSize = 40;
+
+            while (!jsonToLLM.AreAllChunksReceived())
+            {
+                countdownText.text = $"{baseText}{new string('.', dotCount % 4)}";
+                dotCount++;
+                yield return new WaitForSeconds(0.5f);
+            }
+
+            countdownText.gameObject.SetActive(false);
+            Debug.Log("Laptop Mode: Transcription processing complete");
+            yield break;
+        }
+        
+        // Multiplayer mode: Full synchronization logic
+        if (gm.isHost && !gm.laptopMode)
         {
             jsonToLLM.isTranscriptionComplete = false;
             countdownText.gameObject.SetActive(true);
@@ -929,13 +991,14 @@ public class KeyboardInput : NetworkBehaviour
             {
                 if (!jsonToLLM.AreAllChunksReceived())
                 {
-                    countdownText.text = $"{chunkText} {new string('.', chunkDotCount % 4)}";
+                    chunkText = "RECEIVING DATA CHUNKS";
                 }
                 else if (!AreAnnotationsSynced())
                 {
-                    countdownText.text = $"{chunkText} {new string('.', chunkDotCount % 4)}";
+                    chunkText = "RECEIVING ANNOTATIONS";
                 }
             
+                countdownText.text = $"{chunkText} {new string('.', chunkDotCount % 4)}";
                 chunkDotCount++;
                 yield return new WaitForSeconds(0.5f);
             }
@@ -981,7 +1044,7 @@ public class KeyboardInput : NetworkBehaviour
         float horizontalInput = 0f;
         float verticalInput = 0f;
         
-        if (GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>().laptopMode)
+        if (gameManager.laptopMode)
         {
             horizontalInput = Input.GetAxis("Horizontal");
             verticalInput = Input.GetAxis("Vertical");
@@ -989,7 +1052,6 @@ public class KeyboardInput : NetworkBehaviour
         
         Vector3 forwardDirection = transform.forward;
         movement = (forwardDirection * verticalInput + transform.right * horizontalInput).normalized * moveSpeed;
-        Debug.LogError("movement: " + movement);
         
         rb.MovePosition(rb.position + movement * Time.fixedDeltaTime);
 // #endif
@@ -1003,12 +1065,23 @@ public class KeyboardInput : NetworkBehaviour
 //             recorderManager.StopRecording();
 //         }
 // #endif
-
-        RPC_ResetJsonData();
+        if (gameManager.laptopMode)
+        {
+            ResetJsonDataInternal();
+        }
+        else
+        {
+            RPC_ResetJsonData();
+        }
     }
     
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
     public void RPC_ResetJsonData()
+    {
+        ResetJsonDataInternal();
+    }
+
+    private void ResetJsonDataInternal()
     {
         annotation.Clear();
         annotationDescriptions.Clear();

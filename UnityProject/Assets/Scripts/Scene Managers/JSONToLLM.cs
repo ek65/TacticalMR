@@ -18,6 +18,7 @@ public class JSONToLLM : NetworkBehaviour
     private string filename;
     public string jsonString;
     public TimelineManager timelineManager;
+    private GameManager gameManager;
     
     // So we can start/stop the video in FixedUpdate
     public RecorderManager recorderManager;
@@ -161,11 +162,14 @@ public class JSONToLLM : NetworkBehaviour
     public Dictionary<float, List<object>> tokenDictionary = new Dictionary<float, List<object>>();
 
     private Scribe scribe;
+    
+    private bool laptopModeTranscriptionComplete = false;
 
     void Start()
     {
         keyboard = GameObject.FindGameObjectWithTag("keyboard").GetComponent<KeyboardInput>();
         timelineManager = GameObject.FindGameObjectWithTag("TimelineManager").GetComponent<TimelineManager>();
+        gameManager = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
         
 #if UNITY_EDITOR
         // The RecorderManager is presumably on a GameObject tagged "RecorderManager"
@@ -426,6 +430,49 @@ public class JSONToLLM : NetworkBehaviour
     // Called when ElevenLabs transcription is done
     private void HandleTranscriptionComplete(Scribe.ElevenLabsResponse response)
     {
+        // In laptop mode, use simple approach without networking
+        if (gameManager.laptopMode)
+        {
+            Debug.Log("JSONToLLM (Laptop Mode): Received transcription. Merging placeholders...");
+
+            tokenDictionary.Clear();
+            if (response.words != null)
+            {
+                foreach (var w in response.words)
+                {
+                    float timeKey = w.start;
+                    if (!tokenDictionary.ContainsKey(timeKey))
+                        tokenDictionary[timeKey] = new List<object>();
+                    tokenDictionary[timeKey].Add(w.text);
+                }
+            }
+
+            if (keyboard != null)
+            {
+                foreach (var pair in keyboard.annotationTimes)
+                {
+                    float annotationTime = pair.Value;
+                    int annotationIndex = pair.Key;
+
+                    if (!tokenDictionary.ContainsKey(annotationTime))
+                        tokenDictionary[annotationTime] = new List<object>();
+
+                    tokenDictionary[annotationTime].Add($"[{annotationIndex}]");
+                }
+            }
+
+            laptopModeTranscriptionComplete = true;
+            isTranscriptionComplete = true;
+
+            Debug.Log("Merged words + placeholders. Token dictionary:");
+            foreach (var kvp in tokenDictionary.OrderBy(k => k.Key))
+            {
+                Debug.Log($"Time={kvp.Key:F2} => {string.Join(", ", kvp.Value)}");
+            }
+            return;
+        }
+
+        // Multiplayer mode: Use server-client synchronization
         if (Runner.IsServer)
         {
             Debug.Log("JSONToLLM: Received transcription. Merging placeholders...");
@@ -444,7 +491,6 @@ public class JSONToLLM : NetworkBehaviour
 
             if (keyboard != null)
             {
-                // Insert bracket placeholders
                 foreach (var pair in keyboard.annotationTimes)
                 {
                     float annotationTime = pair.Value;
@@ -456,8 +502,6 @@ public class JSONToLLM : NetworkBehaviour
                     tokenDictionary[annotationTime].Add($"[{annotationIndex}]");
                 }
             }
-
-            // isTranscriptionComplete = true;
 
             Debug.Log("Merged words + placeholders. Token dictionary:");
             foreach (var kvp in tokenDictionary.OrderBy(k => k.Key))
@@ -490,7 +534,7 @@ public class JSONToLLM : NetworkBehaviour
     
     public bool HasClientSavedVideo()
     {
-        return clientVideoSaveComplete;
+        return gameManager.laptopMode ? true : clientVideoSaveComplete;
     }
 
     public void ResetClientVideoSaveStatus()
@@ -514,7 +558,7 @@ public class JSONToLLM : NetworkBehaviour
     // Add this method on the server to check client status
     public bool HasClientReceivedAllData()
     {
-        return clientHasReceivedAllData;
+        return gameManager.laptopMode ? true : clientHasReceivedAllData;
     }
 
     // Add this to reset state between recordings
@@ -603,6 +647,10 @@ public class JSONToLLM : NetworkBehaviour
     
     public bool AreAllChunksReceived()
     {
+        if (gameManager.laptopMode)
+        {
+            return laptopModeTranscriptionComplete;
+        }
         if (Runner.IsServer)
         {
             return isTranscriptionComplete; // Server is done once it sends all chunks
@@ -694,7 +742,7 @@ public class JSONToLLM : NetworkBehaviour
 
     public void WriteFile()
     {
-        if (!AreAllChunksReceived())
+        if (!gameManager.laptopMode && !AreAllChunksReceived())
         {
             Debug.LogError($"Warning: Writing file before all chunks received! ({totalChunksReceived}/{totalChunksSent})");
         }
@@ -702,7 +750,7 @@ public class JSONToLLM : NetworkBehaviour
         Debug.Log($"Creating JSON with tokenDictionary containing {tokenDictionary.Count} entries");
         CreateJSONString();
     }
-    
+
     // public void WriteFile2()
     // {
     //     CreateJSONString2();
@@ -802,7 +850,10 @@ public class JSONToLLM : NetworkBehaviour
     {
         // Reset any state needed for a new recording
         ResetSegmentData();
-        ResetClientReceiveStatus(); // Make sure this gets called
+        if (!gameManager.laptopMode)
+        {
+            ResetClientReceiveStatus();
+        }
         Debug.Log("Prepared for new recording session");
     }
     
@@ -818,14 +869,18 @@ public class JSONToLLM : NetworkBehaviour
         totalChunksSent = 0;
         totalChunksReceived = 0;
         isTranscriptionComplete = false;
-        clientHasReceivedAllData = false; // Make sure this gets reset!
+        laptopModeTranscriptionComplete = false;
+        clientHasReceivedAllData = false;
     
         // Reset recording state
         videoIsRecording = false;
         isLogging = false;
     
-        // Sync reset to clients
-        RPC_ResetNetworkSync();
+        // Only sync to clients if in multiplayer mode
+        if (!gameManager.laptopMode && Runner != null && Runner.IsServer)
+        {
+            RPC_ResetNetworkSync();
+        }
     
         Debug.Log("Segment data has been reset completely.");
     }

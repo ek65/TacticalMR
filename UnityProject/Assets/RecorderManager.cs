@@ -63,18 +63,18 @@ public class RecorderManager : MonoBehaviour
         m_Settings.OutputFormat = MovieRecorderSettings.VideoRecorderOutputFormat.MP4;
         m_Settings.VideoBitRateMode = VideoBitrateMode.Low;
 
-        m_Settings.ImageInputSettings = new GameViewInputSettings
-        {
-            OutputWidth = 1200,
-            OutputHeight = 1080
-        };
+        // m_Settings.ImageInputSettings = new GameViewInputSettings
+        // {
+        //     OutputWidth = 1200,
+        //     OutputHeight = 1080
+        // };
 
         m_Settings.AudioInputSettings.PreserveAudio = m_RecordAudio;
 
         // Setup recording
         controllerSettings.AddRecorderSettings(m_Settings);
         controllerSettings.SetRecordModeToManual();
-        controllerSettings.FrameRate = 5.0f;
+        controllerSettings.FrameRate = 30.0f;
         
         // Make sure to set IsRecordingProcessing to false
         IsRecordingProcessing = false;
