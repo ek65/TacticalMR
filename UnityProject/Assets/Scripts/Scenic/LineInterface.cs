@@ -9,12 +9,11 @@ using System;
 using Fusion;
 using Pathfinding;
 
-// TODO: Rename script, this is the player logic script
-public class BallInterface : NetworkBehaviour
+public class LineInterface : NetworkBehaviour
 {
     [Networked(OnChanged = nameof(OnNameChanged))] public NetworkString<_32> ObjName { get; set; }
     
-    static void OnNameChanged(Changed<BallInterface> changed)
+    static void OnNameChanged(Changed<LineInterface> changed)
     {
         changed.Behaviour.UpdateGameObjectName();
     }
@@ -36,7 +35,7 @@ public class BallInterface : NetworkBehaviour
     public void RPC_InstantiateValues()
     {
         ObjectsList objectList = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<ObjectsList>();
-        objectList.ballObject = this.gameObject;
+        objectList.lineObject = this.gameObject;
         objectList.scenicObjects.Add(this.gameObject);
     }
 }

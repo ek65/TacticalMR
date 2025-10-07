@@ -29,7 +29,6 @@ public class HumanInterface : NetworkBehaviour
     public GameObject circleGenerator;
     
     private TimelineManager tlManager;
-    // private ConvaiNPC npc;
     private ChatBehaviour chatBehaviour;
     private ObjectsList objectList;
 
@@ -40,8 +39,6 @@ public class HumanInterface : NetworkBehaviour
     public List<GameObject> arrowObjects;
 
     public GameObject forwardArrow;
-    // private GameObject circle1;
-    // private GameObject arrow0;
 
     public string explanation;
     
@@ -51,7 +48,6 @@ public class HumanInterface : NetworkBehaviour
     public bool isMoving;
     public Vector3 xMark;
     public bool triggerPass;
-    // public bool ballPossession;
     [Networked] public NetworkBool ballPossession { get; set; }
     public GameObject ball;
     public Transform ballPosition;
@@ -73,9 +69,7 @@ public class HumanInterface : NetworkBehaviour
     public bool objectPossession;
     public GameObject grabbedObject;
     public Transform objectPosition;
-
     
-    // public string behavior = "Idle";
     [Networked] public NetworkString<_32> behavior { get; set; }
     public string currAction = "No Action"; // just for debugging to see what actions function is being called
     private KeyboardInput keyboardInput;
@@ -99,7 +93,6 @@ public class HumanInterface : NetworkBehaviour
         exitScene = GetComponent<ExitScenario>();
         source = GetComponent<AudioSource>();
         tlManager = GameObject.FindGameObjectWithTag("TimelineManager").GetComponent<TimelineManager>();
-        // npc = GameObject.FindGameObjectWithTag("Character").GetComponent<ConvaiNPC>();
         
         // TODO: RE-ADD, IMPLEMENT IsRobotScenario Bool in Scenic Manager, DISABLED FOR NOW FOR VR TESTING
         chatBehaviour = GameObject.FindGameObjectWithTag("Character").GetComponentInChildren<ChatBehaviour>();
@@ -108,7 +101,6 @@ public class HumanInterface : NetworkBehaviour
         jsonToLLM = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<JSONToLLM>();
         circleObjects = new List<GameObject>();
         arrowObjects = new List<GameObject>();
-        // SpawnCircle(this.transform.position); // spawn the circle around the coach
         ballOwnership = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<BallOwnership>();
         
         if (ally)
@@ -139,7 +131,6 @@ public class HumanInterface : NetworkBehaviour
             }
             forwardArrow = SpawnArrow(pos, forward * 8.5f);
             forwardArrow.GetComponentInChildren<ArrowGenerator>().RPC_SetActiveState(false);
-            // forwardArrow.SetActive(false);
         }
         
         if (objectList.humanPlayers.Count == 0 && !isViewer)
