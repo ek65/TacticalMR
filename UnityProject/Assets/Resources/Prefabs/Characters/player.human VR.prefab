@@ -7837,22 +7837,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 384686566afb54528b014901628ae937, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _interpolationDataSource: 0
   moveSpeed: 6
-  exitScenario: {fileID: 0}
   timelineManager: {fileID: 0}
-  countdownText: {fileID: 0}
-  saveDemoCanvas: {fileID: 0}
-  recordAudio: {fileID: 0}
-  clickOrder: 0
-  segmentStarted: 0
-  activationConditionMet: 0
-  restarting: 0
-  canClick: 1
-  segmentStartTime: 0
   rb: {fileID: 0}
   movement: {x: 0, y: 0, z: 0}
-  explanation: 
   recordingDot: {fileID: 0}
 --- !u!54 &3351509275040309747
 Rigidbody:
@@ -7941,7 +7929,6 @@ MonoBehaviour:
   NetworkedBehaviours:
   - {fileID: 7745263205284773318}
   - {fileID: 7931071149889132123}
-  - {fileID: 5054592114027826075}
   - {fileID: 7668797452144117548}
   - {fileID: 6178500587796633393}
   - {fileID: 8474700309481995762}
@@ -28031,7 +28018,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   replayIdentity:
-    id: 59694
+    id: 24704
   replayObject:
     reference: {fileID: 2433544687417556146}
   replayBodyPosition: 6
@@ -28056,7 +28043,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   instantiateIdentity: 1
   replayIdentity:
-    id: 65274
+    id: 52979
   prefabIdentity:
     id: 16648
   observedComponents:
@@ -28080,7 +28067,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   replayIdentity:
-    id: 21291
+    id: 31619
   replayObject:
     reference: {fileID: 2433544687417556146}
   replayPosition: 23
@@ -28104,7 +28091,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   replayIdentity:
-    id: 48140
+    id: 27756
   replayObject:
     reference: {fileID: 2433544687417556146}
   replayRootBonePosition: 23
@@ -30371,7 +30358,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   replayIdentity:
-    id: 42649
+    id: 57983
   replayObject:
     reference: {fileID: 3432044319954464094}
   replayRootBonePosition: 23
@@ -30465,7 +30452,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   replayIdentity:
-    id: 20974
+    id: 22162
   replayObject:
     reference: {fileID: 3432044319954464094}
   replayPosition: 23
@@ -30490,7 +30477,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   instantiateIdentity: 1
   replayIdentity:
-    id: 27556
+    id: 34554
   prefabIdentity:
     id: 65519
   observedComponents:
@@ -30514,7 +30501,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   replayIdentity:
-    id: 62771
+    id: 1988
   replayObject:
     reference: {fileID: 3432044319954464094}
   replayBodyPosition: 6

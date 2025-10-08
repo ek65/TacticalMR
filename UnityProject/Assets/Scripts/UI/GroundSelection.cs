@@ -16,12 +16,14 @@ public class GroundSelection : MonoBehaviour, IPointerClickHandler, IPointerEnte
     private RaycastHit raycastHit;
     
     private KeyboardInput keyboardInput;
+    private ProgramSynthesisManager programSynthesisManager;
     private TimelineManager tlManager;
 
     private void Start()
     {
         cam = Camera.main;
         keyboardInput = GameObject.FindGameObjectWithTag("keyboard").GetComponent<KeyboardInput>();
+        programSynthesisManager = GameObject.FindGameObjectWithTag("ProgramSynthesisManager").GetComponent<ProgramSynthesisManager>();
     }
 
     private void Update()
@@ -84,7 +86,7 @@ public class GroundSelection : MonoBehaviour, IPointerClickHandler, IPointerEnte
         GameManager gm = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
         if (gm.isHost)
         {
-            if (keyboardInput.canClick)
+            if (programSynthesisManager.canClick)
             {
                 if (placedGroundHighlighter != null)
                 {

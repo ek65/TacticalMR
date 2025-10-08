@@ -19,6 +19,8 @@ public class JSONToLLM : NetworkBehaviour
     public string jsonString;
     public TimelineManager timelineManager;
     private GameManager gameManager;
+    private ProgramSynthesisManager programSynthesisManager;
+    private AnnotationManager annotationManager;
     
     // So we can start/stop the video in FixedUpdate
     public RecorderManager recorderManager;
@@ -175,6 +177,8 @@ public class JSONToLLM : NetworkBehaviour
         // The RecorderManager is presumably on a GameObject tagged "RecorderManager"
         recorderManager = GameObject.FindGameObjectWithTag("RecorderManager").GetComponent<RecorderManager>();
 #endif
+        programSynthesisManager = GameObject.FindGameObjectWithTag("ProgramSynthesisManager").GetComponent<ProgramSynthesisManager>();
+        annotationManager = GameObject.FindGameObjectWithTag("ProgramSynthesisManager").GetComponent<AnnotationManager>();
 
         scribe = FindObjectOfType<Scribe>();
         if (scribe != null)
@@ -259,12 +263,12 @@ public class JSONToLLM : NetworkBehaviour
     
     public void AddStoppedTime()
     {
-        keyboard.explanation = BuildSentenceFromTokens();
+        programSynthesisManager.explanation = BuildSentenceFromTokens();
         
         StoppedTime stoppedTime = new StoppedTime
         {
             timestopped = timelineManager.RewindTimeIndex,
-            narration = keyboard.explanation
+            narration = programSynthesisManager.explanation
         };
         rewindableRootSegment.StoppedTimes.Add(stoppedTime);
     }
@@ -449,7 +453,7 @@ public class JSONToLLM : NetworkBehaviour
 
             if (keyboard != null)
             {
-                foreach (var pair in keyboard.annotationTimes)
+                foreach (var pair in annotationManager.annotationTimes)
                 {
                     float annotationTime = pair.Value;
                     int annotationIndex = pair.Key;
@@ -491,7 +495,7 @@ public class JSONToLLM : NetworkBehaviour
 
             if (keyboard != null)
             {
-                foreach (var pair in keyboard.annotationTimes)
+                foreach (var pair in annotationManager.annotationTimes)
                 {
                     float annotationTime = pair.Value;
                     int annotationIndex = pair.Key;
@@ -627,7 +631,7 @@ public class JSONToLLM : NetworkBehaviour
         }
         
         // Now sync the annotations
-        keyboard.SyncAnnotationsToClients();
+        annotationManager.SyncAnnotationsToClients();
         
         // Mark transcription as complete only after both dictionary and annotations are synced
         isTranscriptionComplete = true;
@@ -764,7 +768,7 @@ public class JSONToLLM : NetworkBehaviour
         var sortedTokens = tokenDictionary
             .OrderBy(kvp => kvp.Key)
             .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
-        keyboard.explanation = BuildSentenceFromTokens();
+        programSynthesisManager.explanation = BuildSentenceFromTokens();
     
         object finalScene;
       
@@ -773,12 +777,12 @@ public class JSONToLLM : NetworkBehaviour
                 scene = new
                 {
                     id = jsonDirectory.drillID,
-                    language = keyboard.explanation,
+                    language = programSynthesisManager.explanation,
                     step = 0.02,
                     objects = myRootSegment.objects,
-                    annotations = keyboard.GetAnnotationsAsJson(),
+                    annotations = annotationManager.GetAnnotationsAsJson(),
                     tokens = sortedTokens,
-                    clickTimes = keyboard.annotationTimes
+                    clickTimes = annotationManager.annotationTimes
                 }
             };
 
@@ -795,40 +799,7 @@ public class JSONToLLM : NetworkBehaviour
 
         Debug.Log($"Segment written to {filename}");
     }
-    
-    // public void CreateJSONString2()
-    // {
-    //     PopulateSegment2();
-    //     AddStoppedTime();
-    //     
-    //     JSONDirectory jsonDirectory = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<JSONDirectory>();
-    //     
-    //     var settings = new JsonSerializerSettings
-    //     {
-    //         ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
-    //         Formatting = Formatting.Indented,
-    //         ContractResolver = new CamelCasePropertyNamesContractResolver()
-    //     };
-    //
-    //     object finalScene;
-    //   
-    //     finalScene = new
-    //     {
-    //         scene = new
-    //         {
-    //             TimeSeries = rewindableRootSegment.Timeseries,
-    //             StoppedTimes = rewindableRootSegment.StoppedTimes
-    //         }
-    //     };
-    //     
-    //     jsonString = JsonConvert.SerializeObject(finalScene, settings);
-    //     filename = jsonDirectory.InstantiateJSONEditPath() + ".json";
-    //     File.WriteAllText(filename, jsonString);
-    //
-    //     Debug.Log($"Edited recording written to {filename}");
-    // }
 
-    
     private string BuildSentenceFromTokens()
     {
         var sortedTokens = tokenDictionary.OrderBy(kvp => kvp.Key);
@@ -863,7 +834,7 @@ public class JSONToLLM : NetworkBehaviour
         myRootSegment = new RootSegment();
         time = 0;
         tokenDictionary.Clear();
-        keyboard.explanation = "";
+        programSynthesisManager.explanation = "";
     
         // Reset network synchronization state
         totalChunksSent = 0;
@@ -908,7 +879,7 @@ public class JSONToLLM : NetworkBehaviour
     void FixedUpdate()
     {
       
-        if (activateSystemRecording && keyboard.segmentStarted) // if system recording and segment started, we want to start logging
+        if (activateSystemRecording && programSynthesisManager.segmentStarted) // if system recording and segment started, we want to start logging
         {
             isLogging = true;
             Debug.Log("started logging");

@@ -28,7 +28,7 @@ namespace Whisper.Samples
         private string currentPhrase = "";
         private string finalTranscriptionString = "";
         private bool phraseUpdated = false;
-        private KeyboardInput keyboard;
+        private ProgramSynthesisManager programSynthesisManager;
         public bool transDone = false;
         public int tokenOrder = 0;
         public bool isSpeechDetected = false;
@@ -38,7 +38,7 @@ namespace Whisper.Samples
         // Initialize the necessary components, set up event listeners, and start the transcription stream
         private async void Start()
         {
-            keyboard = GameObject.FindGameObjectWithTag("keyboard").GetComponent<KeyboardInput>();
+            programSynthesisManager = GameObject.FindGameObjectWithTag("ProgramSynthesisManager").GetComponent<ProgramSynthesisManager>();
             jsonToLLM = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<JSONToLLM>();
             _stream = await whisper.CreateStream(microphoneRecord);
             _stream.OnResultUpdated += OnResult;
@@ -92,7 +92,7 @@ namespace Whisper.Samples
             currentPhrase = "";
             finalTranscriptionString = "";
             annotationKeys.Clear();
-            keyboard.explanation = ""; // Clear the explanation in KeyboardInput
+            programSynthesisManager.explanation = ""; // Clear the explanation in KeyboardInput
             jsonToLLM.ResetSegmentData(); // Clear tokens in JSONToLLM
             Debug.Log("Transcription data has been reset.");
         }
@@ -188,7 +188,7 @@ namespace Whisper.Samples
             Debug.Log($"Final transcription: {finalTranscriptionString}");
 
             // Pass the cleaned transcription to the keyboard
-            keyboard.OnTranscriptionFinished(finalTranscriptionString);
+            programSynthesisManager.OnTranscriptionFinished(finalTranscriptionString);
             transDone = true;
 
             Debug.Log("NEW TRANSCRIPTION");

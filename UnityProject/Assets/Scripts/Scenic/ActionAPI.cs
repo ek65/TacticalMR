@@ -221,14 +221,16 @@ public class ActionAPI : NetworkBehaviour
 
     public void SegmentStart()
     {
-        KeyboardInput keyboardInput = GameObject.FindGameObjectWithTag("keyboard").GetComponent<KeyboardInput>();
-        keyboardInput.StartSegment();
+        ProgramSynthesisManager programSynthesisManager =
+            GameObject.FindGameObjectWithTag("ProgramSynthesisManager").GetComponent<ProgramSynthesisManager>();
+        programSynthesisManager.StartSegment();
     }
     
     public void SegmentEnd()
     {
-        KeyboardInput keyboardInput = GameObject.FindGameObjectWithTag("keyboard").GetComponent<KeyboardInput>();
-        keyboardInput.StopSegment();
+        ProgramSynthesisManager programSynthesisManager =
+            GameObject.FindGameObjectWithTag("ProgramSynthesisManager").GetComponent<ProgramSynthesisManager>();
+        programSynthesisManager.StartSegment();
     }
 
     #endregion
@@ -1465,102 +1467,16 @@ public class ActionAPI : NetworkBehaviour
             GameObject closestPlayer = FindClosestPlayerToFinalPos(finalPos);
         if (closestPlayer != null)
         {
-            KeyboardInput keyboardInput = GameObject.FindGameObjectWithTag("keyboard").GetComponent<KeyboardInput>();
-            JSONToLLM jsonToLLM = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<JSONToLLM>();
-
-            int passID = keyboardInput.clickOrder;
-            float passTime = jsonToLLM.time;
+            AnnotationManager annotationManager = GameObject.FindGameObjectWithTag("ProgramSynthesisManager").GetComponent<AnnotationManager>();
             
-            keyboardInput.annotation.Add(passID, new Dictionary<string, object>
-            {
-                { "type", "Pass" },
-                { "from", this.name },
-                { "to", closestPlayer.name }
-            });
-
-            keyboardInput.annotationDescriptions.Add(passID, $"({this.name} passed to {closestPlayer.name})");
-            keyboardInput.annotationTimes.Add(passID, passTime);
-            Debug.Log($"Pass action recorded with ID {passID}, from: {this.name} to: {closestPlayer.name} at time: {passTime}");
-            keyboardInput.clickOrder++; 
+            annotationManager.CreatePassAnnotation(this.gameObject, closestPlayer);
         } else if (closestPlayer == null)
         {
-            KeyboardInput keyboardInput = GameObject.FindGameObjectWithTag("keyboard").GetComponent<KeyboardInput>();
-            JSONToLLM jsonToLLM = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<JSONToLLM>();
-
-            int passID = keyboardInput.clickOrder;
-            float passTime = jsonToLLM.time;
-
-            var pointDict = new Dictionary<string, float>
-            {
-                { "x", finalPos.x },
-                { "y", finalPos.z }
-            };
-            keyboardInput.annotation.Add(passID, new Dictionary<string, object>
-            {
-                { "type", "Through Pass" },
-                { "from", this.name},
-                { "to", pointDict }
-            });
-        
-            keyboardInput.annotationDescriptions.Add(passID, $"({this.name} passed to position: {pointDict})");
-    
-            keyboardInput.annotationTimes.Add(passID, passTime);
-            Debug.Log($"Through Pass action recorded with ID {passID} at time: {passTime}");
-            keyboardInput.clickOrder++; 
-        }
-            // RPC_LogPass();
-
-        }
-    }
-
-    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
-    private void RPC_LogPass()
-    {
-        GameObject closestPlayer = FindClosestPlayerToFinalPos(finalPos);
-        if (closestPlayer != null)
-        {
-            KeyboardInput keyboardInput = GameObject.FindGameObjectWithTag("keyboard").GetComponent<KeyboardInput>();
-            JSONToLLM jsonToLLM = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<JSONToLLM>();
-
-            int passID = keyboardInput.clickOrder;
-            float passTime = jsonToLLM.time;
+            AnnotationManager annotationManager = GameObject.FindGameObjectWithTag("ProgramSynthesisManager").GetComponent<AnnotationManager>();
             
-            keyboardInput.annotation.Add(passID, new Dictionary<string, object>
-            {
-                { "type", "Pass" },
-                { "from", this.name },
-                { "to", closestPlayer.name }
-            });
+            annotationManager.CreateThroughPassAnnotation(this.gameObject, finalPos);
+        }
 
-            keyboardInput.annotationDescriptions.Add(passID, $"({this.name} passed to {closestPlayer.name})");
-            keyboardInput.annotationTimes.Add(passID, passTime);
-            Debug.Log($"Pass action recorded with ID {passID}, from: {this.name} to: {closestPlayer.name} at time: {passTime}");
-            keyboardInput.clickOrder++; 
-        } else if (closestPlayer == null)
-        {
-            KeyboardInput keyboardInput = GameObject.FindGameObjectWithTag("keyboard").GetComponent<KeyboardInput>();
-            JSONToLLM jsonToLLM = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<JSONToLLM>();
-
-            int passID = keyboardInput.clickOrder;
-            float passTime = jsonToLLM.time;
-
-            var pointDict = new Dictionary<string, float>
-            {
-                { "x", finalPos.x },
-                { "y", finalPos.z }
-            };
-            keyboardInput.annotation.Add(passID, new Dictionary<string, object>
-            {
-                { "type", "Through Pass" },
-                { "from", this.name},
-                { "to", pointDict }
-            });
-        
-            keyboardInput.annotationDescriptions.Add(passID, $"({this.name} passed to position: {pointDict})");
-    
-            keyboardInput.annotationTimes.Add(passID, passTime);
-            Debug.Log($"Through Pass action recorded with ID {passID} at time: {passTime}");
-            keyboardInput.clickOrder++; 
         }
     }
 

@@ -21,7 +21,7 @@ public class JSONDirectory : NetworkBehaviour
     private DirectoryInfo demoFolder;
     private DirectoryInfo videoFolder;
     private DirectoryInfo jsonSegmentFolder;
-    private KeyboardInput keyboardInput;
+    private ProgramSynthesisManager programSynthesisManager;
     private JSONToLLM jsonToLLM;
     private bool initialDemo = true;
 
@@ -69,7 +69,7 @@ public class JSONDirectory : NetworkBehaviour
 
     private void Start()
     {
-        keyboardInput = GameObject.FindGameObjectWithTag("keyboard").GetComponent<KeyboardInput>();
+        programSynthesisManager = GameObject.FindGameObjectWithTag("ProgramSynthesisManager").GetComponent<ProgramSynthesisManager>();
         jsonToLLM = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<JSONToLLM>();
     }
 
@@ -291,7 +291,7 @@ public class JSONDirectory : NetworkBehaviour
     private IEnumerator UnpauseAndEndScenario()
     {
         JSONToLLM jsonToLLM = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<JSONToLLM>();
-        keyboardInput.RPC_CanvasSetActive(false);
+        programSynthesisManager.RPC_CanvasSetActive(false);
         // while (!jsonToLLM.isTranscriptionComplete) // Wait until transcription is done
         // {
         //     yield return new WaitForSeconds(0.5f);
@@ -303,12 +303,12 @@ public class JSONDirectory : NetworkBehaviour
         groundSelection.ClearGroundHighlights();
         
         // adding this reset here in case, it also resets in ObjectsList.cs in Reset()
-        keyboardInput.timelineManager.Unpause();
-        keyboardInput.exitScenario.EndScenario();
-        keyboardInput.canClick = true;
-        keyboardInput.restarting = false;
-        keyboardInput.timelineManager.Reset();
-        keyboardInput.ResetJsonData();
+        programSynthesisManager.timelineManager.Unpause();
+        programSynthesisManager.exitScenario.EndScenario();
+        programSynthesisManager.canClick = true;
+        programSynthesisManager.restarting = false;
+        programSynthesisManager.timelineManager.Reset();
+        programSynthesisManager.ResetJsonData();
         HumanInterface humanInterface = GameObject.FindGameObjectWithTag("human").GetComponent<HumanInterface>();
         humanInterface.ResetHuman();
     }

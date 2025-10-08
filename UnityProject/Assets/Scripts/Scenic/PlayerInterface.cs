@@ -10,7 +10,7 @@ using Fusion;
 using Pathfinding;
 
 // TODO: Rename script, this is the player logic script
-public class PlayerInterface : NetworkBehaviour
+public class PlayerInterface : NetworkBehaviour, IObjectInterface
 {
     [Networked(OnChanged = nameof(OnNameChanged))] public NetworkString<_32> ObjName { get; set; }
     
@@ -57,6 +57,9 @@ public class PlayerInterface : NetworkBehaviour
     public bool objectPossession;
     public GameObject grabbedObject;
     
+    private ProgramSynthesisManager programSynthesisManager;
+    private AnnotationManager annotationManager;
+    
     private void Start()
     {
         if (enemy)
@@ -89,6 +92,9 @@ public class PlayerInterface : NetworkBehaviour
         
         ObjectsList objectList = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<ObjectsList>();
         objectList.scenicPlayers.Add(this.gameObject);
+        
+        programSynthesisManager = GameObject.FindGameObjectWithTag("ProgramSynthesisManager").GetComponent<ProgramSynthesisManager>();
+        annotationManager = GameObject.FindGameObjectWithTag("ProgramSynthesisManager").GetComponent<AnnotationManager>();
     }
 
     // Update is called once per frame
@@ -248,55 +254,12 @@ public class PlayerInterface : NetworkBehaviour
     
     private void LogIntercept()
     {
-        int interceptID = keyboardInput.clickOrder;
-        float interceptTime = jsonToLLM.time;
-        
-        keyboardInput.annotation.Add(keyboardInput.clickOrder, new Dictionary<string, string>
-        {
-            { "type", "Intercept" },
-            { "player", this.name }
-        });
-
-        keyboardInput.annotationTimes.Add(interceptID, interceptTime);
-        Debug.Log($"Intercept action recorded with ID {interceptID} at time: {interceptTime}");
-        keyboardInput.clickOrder++; 
-        // RPC_LogIntercept();
+        annotationManager.CreateInterceptAnnotation(this.gameObject);
     }
     
     private void LogReceiveBall()
     {
-        int receiveBallID = keyboardInput.clickOrder;
-        float receiveBallTime = jsonToLLM.time;
-        keyboardInput.annotation.Add(receiveBallID, new Dictionary<string, object>
-        {
-            { "type", "ReceiveBall" },
-            { "player", this.gameObject.name }
-        });
-        keyboardInput.annotationDescriptions.Add(receiveBallID, $"({this.gameObject.name} received the ball)");
-        
-        keyboardInput.annotationTimes.Add(receiveBallID, receiveBallTime);
-        Debug.Log($"ReceiveBall action recorded with ID {receiveBallID} at time: {receiveBallTime}");
-        
-        keyboardInput.clickOrder++;
-        // RPC_LogReceiveBall();
-    }
-    
-    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
-    private void RPC_LogReceiveBall()
-    {
-        int receiveBallID = keyboardInput.clickOrder;
-        float receiveBallTime = jsonToLLM.time;
-        keyboardInput.annotation.Add(receiveBallID, new Dictionary<string, object>
-        {
-            { "type", "ReceiveBall" },
-            { "player", this.gameObject.name }
-        });
-        keyboardInput.annotationDescriptions.Add(receiveBallID, $"({this.gameObject.name} received the ball)");
-        
-        keyboardInput.annotationTimes.Add(receiveBallID, receiveBallTime);
-        Debug.Log($"ReceiveBall action recorded with ID {receiveBallID} at time: {receiveBallTime}");
-        
-        keyboardInput.clickOrder++;
+        annotationManager.CreateReceivePassAnnotation(this.gameObject);
     }
     
     public void LosePossession()

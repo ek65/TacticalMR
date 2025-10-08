@@ -13,7 +13,7 @@ using Pathfinding;
 using UnityEngine.InputSystem;
 using Utilities.Extensions;
 
-public class HumanInterface : NetworkBehaviour
+public class HumanInterface : NetworkBehaviour, IObjectInterface
 {
     [Networked(OnChanged = nameof(OnNameChanged))] public NetworkString<_32> ObjName { get; set; }
     public bool isVR = false;
@@ -73,6 +73,8 @@ public class HumanInterface : NetworkBehaviour
     [Networked] public NetworkString<_32> behavior { get; set; }
     public string currAction = "No Action"; // just for debugging to see what actions function is being called
     private KeyboardInput keyboardInput;
+    private ProgramSynthesisManager programSynthesisManager;
+    private AnnotationManager annotationManager;
     private JSONToLLM jsonToLLM;
     
     // TODO: RE-ADD, IMPLEMENT IsRobotScenario Bool in Scenic Manager, DISABLED FOR NOW FOR VR TESTING
@@ -98,6 +100,8 @@ public class HumanInterface : NetworkBehaviour
         chatBehaviour = GameObject.FindGameObjectWithTag("Character").GetComponentInChildren<ChatBehaviour>();
         objectList = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<ObjectsList>();
         keyboardInput = GameObject.FindGameObjectWithTag("keyboard").GetComponent<KeyboardInput>();
+        programSynthesisManager = GameObject.FindGameObjectWithTag("ProgramSynthesisManager").GetComponent<ProgramSynthesisManager>();
+        annotationManager = GameObject.FindGameObjectWithTag("ProgramSynthesisManager").GetComponent<AnnotationManager>();
         jsonToLLM = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<JSONToLLM>();
         circleObjects = new List<GameObject>();
         arrowObjects = new List<GameObject>();
@@ -440,20 +444,7 @@ public class HumanInterface : NetworkBehaviour
     
     private void LogTriggerPass(GameObject teammate)
     {
-        int eventID = keyboardInput.clickOrder;
-        float eventTime = jsonToLLM.time;
-    
-        keyboardInput.annotation.Add(eventID, new Dictionary<string, object>
-        {
-            { "type", "TriggerPass" },
-            { "from", teammate.name }
-        });
-        Debug.Log(keyboardInput.annotation);
-    
-        keyboardInput.annotationDescriptions.Add(eventID, $"(Coach told {teammate.name} to pass the ball)");
-        Debug.Log($"Added trigger pass to annotations at {eventTime:F2}s, key {eventTime}");
-        keyboardInput.annotationTimes.Add(eventID, eventTime);
-        keyboardInput.clickOrder++;
+        annotationManager.CreateTriggerPassAnnotation(teammate);
     }
     
     private void OnTriggerEnter(Collider other)
@@ -482,35 +473,7 @@ public class HumanInterface : NetworkBehaviour
 
     private void LogIntercept()
     {
-        int interceptID = keyboardInput.clickOrder;
-        float interceptTime = jsonToLLM.time;
-        
-        keyboardInput.annotation.Add(keyboardInput.clickOrder, new Dictionary<string, string>
-        {
-            { "type", "Intercept" },
-            { "player", this.name }
-        });
-
-        keyboardInput.annotationTimes.Add(interceptID, interceptTime);
-        Debug.Log($"Intercept action recorded with ID {interceptID} at time: {interceptTime}");
-        keyboardInput.clickOrder++; 
-        // RPC_LogIntercept();
-    }
-
-    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
-    private void RPC_LogIntercept()
-    {
-        int interceptID = keyboardInput.clickOrder;
-        float interceptTime = jsonToLLM.time;
-        
-        keyboardInput.annotation.Add(keyboardInput.clickOrder, new Dictionary<string, string>
-        {
-            { "type", "Intercept" }
-        });
-
-        keyboardInput.annotationTimes.Add(interceptID, interceptTime);
-        Debug.Log($"Intercept action recorded with ID {interceptID} at time: {interceptTime}");
-        keyboardInput.clickOrder++; 
+        annotationManager.CreateInterceptAnnotation(this.gameObject);
     }
     
     private void LogPass()
@@ -521,50 +484,7 @@ public class HumanInterface : NetworkBehaviour
             return;
         }
 
-        int passID = keyboardInput.clickOrder;
-        float passTime = jsonToLLM.time;
-    
-        GameObject targetPlayer = closestPlayerInDirection;
-        keyboardInput.annotation.Add(passID, new Dictionary<string, object>
-        {
-            { "type", "Pass" },
-            { "from", this.name },
-            { "to", targetPlayer.name }
-        });
-
-        keyboardInput.annotationDescriptions.Add(passID, $"({this.name} passed to {targetPlayer.name})");
-        
-        keyboardInput.annotationTimes.Add(passID, passTime);
-        Debug.Log($"Pass action recorded with ID {passID}, from: {this.name} to: {targetPlayer.name} at time: {passTime}");
-        keyboardInput.clickOrder++; 
-        // RPC_LogPass();
-    }
-    
-    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
-    private void RPC_LogPass()
-    {
-        if (closestPlayerInDirection == null)
-        {
-            Debug.LogWarning("No target player found for pass.");
-            return;
-        }
-
-        int passID = keyboardInput.clickOrder;
-        float passTime = jsonToLLM.time;
-    
-        GameObject targetPlayer = closestPlayerInDirection;
-        keyboardInput.annotation.Add(passID, new Dictionary<string, object>
-        {
-            { "type", "Pass" },
-            { "from", this.name },
-            { "to", targetPlayer.name }
-        });
-
-        keyboardInput.annotationDescriptions.Add(passID, $"({this.name} passed to {targetPlayer.name})");
-        
-        keyboardInput.annotationTimes.Add(passID, passTime);
-        Debug.Log($"Pass action recorded with ID {passID}, from: {this.name} to: {targetPlayer.name} at time: {passTime}");
-        keyboardInput.clickOrder++; 
+        annotationManager.CreatePassAnnotation(this.gameObject, closestPlayerInDirection);
     }
     
     private void LogShootGoal()
@@ -576,156 +496,101 @@ public class HumanInterface : NetworkBehaviour
             return;
         }
 
-        int passID = keyboardInput.clickOrder;
-        float passTime = jsonToLLM.time;
-    
-        keyboardInput.annotation.Add(passID, new Dictionary<string, object>
-        {
-            { "type", "Shoot Goal" },
-            { "from", this.name },
-            { "to", goalObj.name }
-        });
-
-        keyboardInput.annotationDescriptions.Add(passID, $"({this.name} shot towards Goal)");
-        
-        keyboardInput.annotationTimes.Add(passID, passTime);
-        Debug.Log($"Shoot goal action recorded with ID {passID}, from: {this.name} at time: {passTime}");
-        keyboardInput.clickOrder++; 
+        annotationManager.CreateShootGoalAnnotation(this.gameObject, goalObj);
     }
     
-    public void PickUp()
-    {
-        actionAPI.PickUp();
-        Debug.Log("Picking up");
-        LogPickUp();
-    }
-
-    public void PutDown()
-    {
-        actionAPI.PutDown(transform.position + transform.forward * 1f + Vector3.up * 1f);
-        Debug.Log("Putting down");
-        LogPutDown();
-    }
-
-    private void LogPickUp()
-    {
-        int eventID = keyboardInput.clickOrder;
-        float eventTime = jsonToLLM.time;
-        Debug.Log("test");
-    
-        keyboardInput.annotation.Add(eventID, new Dictionary<string, object>
-        {
-            { "type", "PickUp" },
-            { "player", this.name }
-        });
-        Debug.Log(keyboardInput.annotation);
-    
-        keyboardInput.annotationDescriptions.Add(eventID, $"({this.name} picked up an object)");
-        Debug.Log($"Added pick up to annotations at {eventTime:F2}s, key {eventTime}");
-        keyboardInput.annotationTimes.Add(eventID, eventTime);
-        keyboardInput.clickOrder++;
-    }
-
-    private void LogPutDown()
-    {
-        int eventID = keyboardInput.clickOrder;
-        float eventTime = jsonToLLM.time;
-        Debug.Log("test put down");
-    
-        keyboardInput.annotation.Add(eventID, new Dictionary<string, object>
-        {
-            { "type", "PutDown" },
-            { "player", this.name }
-        });
-        Debug.Log(keyboardInput.annotation);
-    
-        keyboardInput.annotationDescriptions.Add(eventID, $"({this.name} put down an object)");
-        keyboardInput.annotationTimes.Add(eventID, eventTime);
-        keyboardInput.clickOrder++;
-    }
-    
-
     private void LogThroughPass(Vector3 pos)
     {
-        int passID = keyboardInput.clickOrder;
-        float passTime = jsonToLLM.time;
-
-        var pointDict = new Dictionary<string, float>
-        {
-            { "x", pos.x },
-            { "y", pos.z }
-        };
-        keyboardInput.annotation.Add(passID, new Dictionary<string, object>
-        {
-            { "type", "Through Pass" },
-            { "from", this.name},
-            { "to", pointDict }
-        });
-        
-        keyboardInput.annotationDescriptions.Add(passID, $"({this.name} passed to position: {pointDict})");
-    
-        keyboardInput.annotationTimes.Add(passID, passTime);
-        Debug.Log($"Through Pass action recorded with ID {passID} at time: {passTime}");
-        keyboardInput.clickOrder++; 
-        // RPC_LogThroughPass(pos);
+        annotationManager.CreateThroughPassAnnotation(this.gameObject, pos);
     }
-
-    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
-    private void RPC_LogThroughPass(Vector3 pos)
+    
+    private void LogReceiveBall()
     {
-        int passID = keyboardInput.clickOrder;
-        float passTime = jsonToLLM.time;
-
-        var pointDict = new Dictionary<string, float>
-        {
-            { "x", pos.x },
-            { "y", pos.z }
-        };
-        keyboardInput.annotation.Add(passID, new Dictionary<string, object>
-        {
-            { "type", "Through Pass" },
-            { "from", this.name},
-            { "to", pointDict }
-        });
-        
-        keyboardInput.annotationDescriptions.Add(passID, $"({this.name} passed to position: {pointDict})");
-    
-        keyboardInput.annotationTimes.Add(passID, passTime);
-        Debug.Log($"Through Pass action recorded with ID {passID} at time: {passTime}");
-        keyboardInput.clickOrder++; 
+        annotationManager.CreateReceivePassAnnotation(this.gameObject);
     }
     
-    public void Packaging()
-    {
-        actionAPI.Packaging();
-        Debug.Log("Packaging action triggered.");
-        LogPackaging();
-    }
-
-    private void LogPackaging()
-    {
-        int eventID = keyboardInput.clickOrder;
-        float eventTime = jsonToLLM.time;
-    
-        GameObject targetObject = FindNearestObject();
-        if (targetObject == null)
-        {
-            Debug.LogError("No object found for Packaging.");
-            return;
-        }
-
-        keyboardInput.annotation.Add(eventID, new Dictionary<string, object>
-        {
-            { "type", "Packaging" },
-            { "player", this.name },
-            { "object", targetObject.name }
-        });
-
-        keyboardInput.annotationDescriptions.Add(eventID, $"({this.name} packaged {targetObject.name})");
-
-        keyboardInput.annotationTimes.Add(eventID, eventTime);
-        keyboardInput.clickOrder++;
-    }
+    // TODO: Reimplement for factory setting
+    // public void PickUp()
+    // {
+    //     actionAPI.PickUp();
+    //     Debug.Log("Picking up");
+    //     LogPickUp();
+    // }
+    //
+    // public void PutDown()
+    // {
+    //     actionAPI.PutDown(transform.position + transform.forward * 1f + Vector3.up * 1f);
+    //     Debug.Log("Putting down");
+    //     LogPutDown();
+    // }
+    //
+    // private void LogPickUp()
+    // {
+    //     int eventID = keyboardInput.clickOrder;
+    //     float eventTime = jsonToLLM.time;
+    //     Debug.Log("test");
+    //
+    //     keyboardInput.annotation.Add(eventID, new Dictionary<string, object>
+    //     {
+    //         { "type", "PickUp" },
+    //         { "player", this.name }
+    //     });
+    //     Debug.Log(keyboardInput.annotation);
+    //
+    //     keyboardInput.annotationDescriptions.Add(eventID, $"({this.name} picked up an object)");
+    //     Debug.Log($"Added pick up to annotations at {eventTime:F2}s, key {eventTime}");
+    //     keyboardInput.annotationTimes.Add(eventID, eventTime);
+    //     keyboardInput.clickOrder++;
+    // }
+    //
+    // private void LogPutDown()
+    // {
+    //     int eventID = keyboardInput.clickOrder;
+    //     float eventTime = jsonToLLM.time;
+    //     Debug.Log("test put down");
+    //
+    //     keyboardInput.annotation.Add(eventID, new Dictionary<string, object>
+    //     {
+    //         { "type", "PutDown" },
+    //         { "player", this.name }
+    //     });
+    //     Debug.Log(keyboardInput.annotation);
+    //
+    //     keyboardInput.annotationDescriptions.Add(eventID, $"({this.name} put down an object)");
+    //     keyboardInput.annotationTimes.Add(eventID, eventTime);
+    //     keyboardInput.clickOrder++;
+    // }
+    // public void Packaging()
+    // {
+    //     actionAPI.Packaging();
+    //     Debug.Log("Packaging action triggered.");
+    //     LogPackaging();
+    // }
+    //
+    // private void LogPackaging()
+    // {
+    //     int eventID = keyboardInput.clickOrder;
+    //     float eventTime = jsonToLLM.time;
+    //
+    //     GameObject targetObject = FindNearestObject();
+    //     if (targetObject == null)
+    //     {
+    //         Debug.LogError("No object found for Packaging.");
+    //         return;
+    //     }
+    //
+    //     keyboardInput.annotation.Add(eventID, new Dictionary<string, object>
+    //     {
+    //         { "type", "Packaging" },
+    //         { "player", this.name },
+    //         { "object", targetObject.name }
+    //     });
+    //
+    //     keyboardInput.annotationDescriptions.Add(eventID, $"({this.name} packaged {targetObject.name})");
+    //
+    //     keyboardInput.annotationTimes.Add(eventID, eventTime);
+    //     keyboardInput.clickOrder++;
+    // }
 
     private GameObject FindNearestObject()
     {
@@ -756,42 +621,7 @@ public class HumanInterface : NetworkBehaviour
         ballOwnership.SetBallOwner(this.gameObject);
         actionAPI.ReceiveBall(other.transform.position);
     }
-    
-    private void LogReceiveBall()
-    {
-        int receiveBallID = keyboardInput.clickOrder;
-        float receiveBallTime = jsonToLLM.time;
-        keyboardInput.annotation.Add(receiveBallID, new Dictionary<string, object>
-        {
-            { "type", "ReceiveBall" },
-            { "player", this.gameObject.name }
-        });
-        keyboardInput.annotationDescriptions.Add(receiveBallID, $"({this.gameObject.name} received the ball)");
-        
-        keyboardInput.annotationTimes.Add(receiveBallID, receiveBallTime);
-        Debug.Log($"ReceiveBall action recorded with ID {receiveBallID} at time: {receiveBallTime}");
-        
-        keyboardInput.clickOrder++;
-        // RPC_LogReceiveBall();
-    }
 
-    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
-    private void RPC_LogReceiveBall()
-    {
-        int receiveBallID = keyboardInput.clickOrder;
-        float receiveBallTime = jsonToLLM.time;
-        keyboardInput.annotation.Add(receiveBallID, new Dictionary<string, object>
-        {
-            { "type", "ReceiveBall" },
-            { "player", this.gameObject.name }
-        });
-        keyboardInput.annotationDescriptions.Add(receiveBallID, $"({this.gameObject.name} received the ball)");
-        
-        keyboardInput.annotationTimes.Add(receiveBallID, receiveBallTime);
-        Debug.Log($"ReceiveBall action recorded with ID {receiveBallID} at time: {receiveBallTime}");
-        
-        keyboardInput.clickOrder++;
-    }
     public void LosePossession()
     {
         if (ball)

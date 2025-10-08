@@ -54,6 +54,7 @@ TagManager:
   - QDSUIToggleCheckboxRadio
   - QDSUISection
   - viewer
+  - ProgramSynthesisManager
   layers:
   - Default
   - TransparentFX

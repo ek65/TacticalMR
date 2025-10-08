@@ -23,6 +23,7 @@ public class ControllerInput : MonoBehaviour
     private JSONToLLM jsonToLLM; 
     private TimelineManager tlManager;
     // private ScenarioManager scenarioManager;
+    private ProgramSynthesisManager programSynthesisManager;
 
     public Vector3 playerDirection;
 
@@ -36,6 +37,7 @@ public class ControllerInput : MonoBehaviour
         exitScenario = this.GetComponent<ExitScenario>();
         tlManager = GameObject.FindGameObjectWithTag("TimelineManager").GetComponent<TimelineManager>();
         // scenarioManager = GameObject.FindGameObjectWithTag("ScenarioManager").GetComponent<ScenarioManager>();
+        programSynthesisManager = GameObject.FindGameObjectWithTag("ProgramSynthesisManager").GetComponent<ProgramSynthesisManager>();
     }
 
     private void OnEnable()
@@ -97,7 +99,7 @@ public class ControllerInput : MonoBehaviour
     // Creating these public handle functions so that Meta controller mapping component can also call them
     public void HandleControllerPause()
     {
-        keyboardInput.HandlePause();
+        programSynthesisManager.HandlePause();
     }
 
     private void ControllerRestart(InputAction.CallbackContext ctx)
@@ -106,7 +108,7 @@ public class ControllerInput : MonoBehaviour
     }
     public void HandleControllerRestart()
     {
-        keyboardInput.HandleRestart();
+        programSynthesisManager.HandleRestart();
     }
     
     private void ControllerSegment(InputAction.CallbackContext ctx)
@@ -116,7 +118,7 @@ public class ControllerInput : MonoBehaviour
     
     public void HandleControllerSegment()
     {
-        keyboardInput.HandleSegment();
+        programSynthesisManager.HandleSegment();
     }
     
     // Forcibly Take Possession of Ball from nearby player
@@ -202,45 +204,46 @@ public class ControllerInput : MonoBehaviour
         }
     }
     
-    private void ControllerPackaging(InputAction.CallbackContext ctx)
-    {
-        if (tlManager.Paused) return;
-        HumanInterface humanInterface = this.GetComponent<HumanInterface>();
-        humanInterface.Packaging();
-    }
-    private void ControllerPickUp(InputAction.CallbackContext ctx)
-    {
-        HandleControllerPickUp();
-    }
-    
-    public void HandleControllerPickUp()
-    {
-        Debug.Log("in Controller pickup");
-        
-        if (tlManager.Paused)
-        {
-            return;
-        }
-        HumanInterface humanInterface = this.GetComponent<HumanInterface>();
-        humanInterface.PickUp();
-    }
-    
-    private void ControllerPutDown(InputAction.CallbackContext ctx)
-    {
-        HandleControllerPutDown();
-    }
-    
-    public void HandleControllerPutDown()
-    {
-        Debug.Log("in Controller putdown");
-
-        if (tlManager.Paused)
-        {
-            return;
-        }
-        HumanInterface humanInterface = this.GetComponent<HumanInterface>();
-        humanInterface.PutDown();
-    }
+    // TODO: Reimplement factory actions
+    // private void ControllerPackaging(InputAction.CallbackContext ctx)
+    // {
+    //     if (tlManager.Paused) return;
+    //     HumanInterface humanInterface = this.GetComponent<HumanInterface>();
+    //     humanInterface.Packaging();
+    // }
+    // private void ControllerPickUp(InputAction.CallbackContext ctx)
+    // {
+    //     HandleControllerPickUp();
+    // }
+    //
+    // public void HandleControllerPickUp()
+    // {
+    //     Debug.Log("in Controller pickup");
+    //     
+    //     if (tlManager.Paused)
+    //     {
+    //         return;
+    //     }
+    //     HumanInterface humanInterface = this.GetComponent<HumanInterface>();
+    //     humanInterface.PickUp();
+    // }
+    //
+    // private void ControllerPutDown(InputAction.CallbackContext ctx)
+    // {
+    //     HandleControllerPutDown();
+    // }
+    //
+    // public void HandleControllerPutDown()
+    // {
+    //     Debug.Log("in Controller putdown");
+    //
+    //     if (tlManager.Paused)
+    //     {
+    //         return;
+    //     }
+    //     HumanInterface humanInterface = this.GetComponent<HumanInterface>();
+    //     humanInterface.PutDown();
+    // }
     
     private void Movement()
     {

@@ -10,17 +10,19 @@ public class OutlineSelection : NetworkBehaviour, IPointerClickHandler, IPointer
     private Outline outline;
     public bool stayOutlined = false;
     private KeyboardInput keyboardInput;
+    private ProgramSynthesisManager programSynthesisManager;
     
     private void Start()
     {
         outline = gameObject.GetComponent<Outline>();
         keyboardInput = GameObject.FindGameObjectWithTag("keyboard").GetComponent<KeyboardInput>();
+        programSynthesisManager = GameObject.FindGameObjectWithTag("ProgramSynthesisManager").GetComponent<ProgramSynthesisManager>();
     }
 
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        if (keyboardInput.canClick)
+        if (programSynthesisManager.canClick)
         {
             // stayOutlined = !stayOutlined;
             keyboardInput.HandleAnnotationClick();
@@ -43,7 +45,7 @@ public class OutlineSelection : NetworkBehaviour, IPointerClickHandler, IPointer
 #if UNITY_ANDROID
     public void OnRayClick()
     {
-        if (keyboardInput.canClick)
+        if (programSynthesisManager.canClick)
         {
             // CLICKED
             keyboardInput.HandleAnnotationClick();

@@ -57,7 +57,7 @@ public class FSMVisualizer : MonoBehaviour
     
     [Header("Annotation")]
     public Button annotateButton;
-    private KeyboardInput keyboardInput;
+    private AnnotationManager annotationManager;
     private JSONToLLM jsonToLLM;
     // Track selected item for annotation
     private int selectedStateId = -1;
@@ -574,11 +574,7 @@ public class FSMVisualizer : MonoBehaviour
     
     void SetupAnnotateButton()
     {
-        keyboardInput = FindObjectOfType<KeyboardInput>();
-        if (keyboardInput == null)
-        {
-            Debug.LogError("[FSMVisualizer] KeyboardInput component not found!");
-        }
+        annotationManager = GameObject.FindGameObjectWithTag("ProgramSynthesisManager").GetComponent<AnnotationManager>();
         
         jsonToLLM = FindObjectOfType<JSONToLLM>();
     
@@ -590,9 +586,9 @@ public class FSMVisualizer : MonoBehaviour
     
     void HandleAnnotateClick()
     {
-        if (keyboardInput == null)
+        if (annotationManager == null)
         {
-            Log("KeyboardInput not found for annotation");
+            Log("annotationManager not found for annotation");
             return;
         }
     
@@ -605,45 +601,21 @@ public class FSMVisualizer : MonoBehaviour
         if (isStateSelected)
         {
             // Node annotation
-            Dictionary<string, object> nodeAnnotation = new Dictionary<string, object>
-            {
-                { "type", "node annotation" },
-                { "stateId", selectedStateId },
-                { "description", descriptionText.text }
-            };
-        
-            keyboardInput.annotation.Add(keyboardInput.clickOrder, nodeAnnotation);
-            keyboardInput.annotationDescriptions.Add(keyboardInput.clickOrder, $"Node annotation: State {selectedStateId}");
+            annotationManager.CreateFsmNodeAnnotation(selectedStateId, descriptionText);
             
             // Highlight the annotated node
             annotatedStates.Add(selectedStateId);
             HighlightAnnotatedNode(selectedStateId);
-        
-            Log($"Added node annotation for state {selectedStateId}, key {keyboardInput.clickOrder}");
         }
         else
         {
             // Edge annotation  
-            Dictionary<string, object> edgeAnnotation = new Dictionary<string, object>
-            {
-                { "type", "edge annotation" },
-                { "transitionId", selectedTransitionId },
-                { "description", descriptionText.text }
-            };
-        
-            keyboardInput.annotation.Add(keyboardInput.clickOrder, edgeAnnotation);
-            keyboardInput.annotationDescriptions.Add(keyboardInput.clickOrder, $"Edge annotation: Transition {selectedTransitionId}");
+            annotationManager.CreateFsmEdgeAnnotation(selectedTransitionId, descriptionText);
             
             // Highlight the annotated transition
             annotatedTransitions.Add(selectedTransitionId);
             HighlightAnnotatedTransition(selectedTransitionId);
-        
-            Log($"Added edge annotation for transition {selectedTransitionId}, key {keyboardInput.clickOrder}");
         }
-        
-        keyboardInput.annotationTimes.Add(keyboardInput.clickOrder, Time.time - keyboardInput.segmentStartTime);
-    
-        keyboardInput.clickOrder++;
     }
     
     void HighlightAnnotatedNode(int stateId)
