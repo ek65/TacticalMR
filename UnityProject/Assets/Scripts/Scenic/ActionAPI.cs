@@ -5,7 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Runtime.ConstrainedExecution;
 using Fusion;
-using OpenAI.Samples.Chat;
+using Old.OpenAI.Samples.Chat;
 using Pathfinding;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -157,7 +157,7 @@ public class ActionAPI : NetworkBehaviour
         // }
         CallPause();
         
-        ChatBehaviour chatBehaviour = GameObject.FindGameObjectWithTag("Character").GetComponentInChildren<ChatBehaviour>();
+        OldChatBehaviour chatBehaviour = GameObject.FindGameObjectWithTag("Character").GetComponentInChildren<OldChatBehaviour>();
         // if (chatBehaviour != null)
         // {
         //     // Call the new method to set the text and submit
@@ -171,7 +171,7 @@ public class ActionAPI : NetworkBehaviour
         StartCoroutine(WaitForChat(text, chatBehaviour));
     }
     
-    IEnumerator WaitForChat(string text, ChatBehaviour chatBehaviour)
+    IEnumerator WaitForChat(string text, OldChatBehaviour chatBehaviour)
     {
         if (chatBehaviour != null)
         {
@@ -193,7 +193,7 @@ public class ActionAPI : NetworkBehaviour
     
     public void Explain(string text)
     {
-        ChatBehaviour chatBehaviour = GameObject.FindGameObjectWithTag("Character").GetComponentInChildren<ChatBehaviour>();
+        OldChatBehaviour chatBehaviour = GameObject.FindGameObjectWithTag("Character").GetComponentInChildren<OldChatBehaviour>();
         if (chatBehaviour != null)
         {
             chatBehaviour.SetInputTextAndSubmit(text);

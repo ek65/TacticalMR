@@ -1,16 +1,4 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Numerics;
-using Fusion;
-using Oculus.Interaction;
-using OpenAI.Samples.Chat;
-using TMPro;
 using UnityEngine;
-using UnityEngine.InputSystem;
-using UnityEngine.UI;
-using Utilities.Extensions;
-using Whisper.Samples;
 using Vector3 = UnityEngine.Vector3;
 
 public class KeyboardInput : MonoBehaviour

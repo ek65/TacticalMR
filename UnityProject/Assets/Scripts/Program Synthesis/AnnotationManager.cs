@@ -1,9 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Fusion;
-using OpenAI.Samples.Chat;
 using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class AnnotationManager : NetworkBehaviour

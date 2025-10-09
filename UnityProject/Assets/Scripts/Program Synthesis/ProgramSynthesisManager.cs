@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Fusion;
 using Meta.WitAi.Windows;
-using OpenAI.Samples.Chat;
+using Old.OpenAI.Samples.Chat;
 using TMPro;
 using UnityEngine;
 
@@ -19,7 +19,7 @@ public class ProgramSynthesisManager : NetworkBehaviour
     public ExitScenario exitScenario;
     public TimelineManager timelineManager;
     private JSONToLLM jsonToLLM;
-    private ChatBehaviour chatBehaviour;
+    private OldChatBehaviour chatBehaviour;
     private JSONDirectory jsonDirectory;
     private RecorderManager recorderManager;
     private GameManager gameManager;
@@ -50,7 +50,7 @@ public class ProgramSynthesisManager : NetworkBehaviour
         timelineManager = GameObject.FindGameObjectWithTag("TimelineManager").GetComponent<TimelineManager>();
         jsonToLLM = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<JSONToLLM>();
         countdownText = GameObject.FindGameObjectWithTag("countdown").GetComponent<TextMeshProUGUI>();
-        chatBehaviour = GameObject.FindGameObjectWithTag("Character").GetComponent<ChatBehaviour>();
+        chatBehaviour = GameObject.FindGameObjectWithTag("Character").GetComponent<OldChatBehaviour>();
         jsonDirectory = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<JSONDirectory>();
         gameManager = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
 #if UNITY_EDITOR

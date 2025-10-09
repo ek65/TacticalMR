@@ -8,7 +8,6 @@ using System.Reflection;
 using System;
 using System.Linq;
 using Fusion;
-using OpenAI.Samples.Chat;
 using Pathfinding;
 using UnityEngine.InputSystem;
 using Utilities.Extensions;
@@ -29,7 +28,6 @@ public class HumanInterface : NetworkBehaviour, IObjectInterface
     public GameObject circleGenerator;
     
     private TimelineManager tlManager;
-    private ChatBehaviour chatBehaviour;
     private ObjectsList objectList;
 
     private bool circleSpawned = false;
@@ -97,7 +95,6 @@ public class HumanInterface : NetworkBehaviour, IObjectInterface
         tlManager = GameObject.FindGameObjectWithTag("TimelineManager").GetComponent<TimelineManager>();
         
         // TODO: RE-ADD, IMPLEMENT IsRobotScenario Bool in Scenic Manager, DISABLED FOR NOW FOR VR TESTING
-        chatBehaviour = GameObject.FindGameObjectWithTag("Character").GetComponentInChildren<ChatBehaviour>();
         objectList = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<ObjectsList>();
         keyboardInput = GameObject.FindGameObjectWithTag("keyboard").GetComponent<KeyboardInput>();
         programSynthesisManager = GameObject.FindGameObjectWithTag("ProgramSynthesisManager").GetComponent<ProgramSynthesisManager>();
