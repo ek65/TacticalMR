@@ -6,6 +6,7 @@ using System;
 using UnityEngine;
 using System.Collections.Generic;
 using Fusion;
+using Meta.XR.Movement;
 using Assert = UnityEngine.Assertions.Assert;
 
 namespace Oculus.Movement.Effects

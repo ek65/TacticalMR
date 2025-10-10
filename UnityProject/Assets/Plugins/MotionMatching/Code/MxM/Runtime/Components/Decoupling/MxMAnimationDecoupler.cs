@@ -106,7 +106,7 @@ namespace MxM
             Animator animator = GetComponentInChildren<Animator>();
             if(animator != null)
             {
-                if (animator.updateMode == AnimatorUpdateMode.AnimatePhysics)
+                if (animator.updateMode == AnimatorUpdateMode.Fixed)
                     m_fixedUpdate = true;
                 else
                     m_fixedUpdate = false;

@@ -84,7 +84,7 @@ public class SoccerBall : MonoBehaviour
         float distanceToDestination = horizontalDelta.magnitude;
 
         // Get current horizontal velocity
-        Vector3 horizontalVelocity = new Vector3(_rb.velocity.x, 0f, _rb.velocity.z);
+        Vector3 horizontalVelocity = new Vector3(_rb.linearVelocity.x, 0f, _rb.linearVelocity.z);
         float currentSpeed = horizontalVelocity.magnitude;
 
         // Check if we should stop
@@ -108,11 +108,11 @@ public class SoccerBall : MonoBehaviour
         FindGroundHeight();
         
         // Only intervene if ball is bouncing upward significantly
-        if (_rb.velocity.y > maxUpwardVelocity)
+        if (_rb.linearVelocity.y > maxUpwardVelocity)
         {
-            Vector3 vel = _rb.velocity;
+            Vector3 vel = _rb.linearVelocity;
             vel.y = Mathf.Min(vel.y, maxUpwardVelocity);
-            _rb.velocity = vel;
+            _rb.linearVelocity = vel;
         }
 
         // Check if we're significantly above ground
@@ -121,12 +121,12 @@ public class SoccerBall : MonoBehaviour
         float heightDifference = currentHeight - targetHeight;
         
         // Only snap to ground if we're way too high or if we're falling and close to ground
-        if (heightDifference > groundOffset * 2f && _rb.velocity.y <= 0)
+        if (heightDifference > groundOffset * 2f && _rb.linearVelocity.y <= 0)
         {
             // Ball is falling from high - let physics handle it but prepare to stop bounce
             _isGrounded = false;
         }
-        else if (heightDifference < -0.05f || (heightDifference > 0.05f && heightDifference < 0.15f && _rb.velocity.y <= 0))
+        else if (heightDifference < -0.05f || (heightDifference > 0.05f && heightDifference < 0.15f && _rb.linearVelocity.y <= 0))
         {
             // Gently adjust position only if needed - don't constantly override
             Vector3 pos = transform.position;
@@ -134,11 +134,11 @@ public class SoccerBall : MonoBehaviour
             transform.position = pos;
             
             // Only stop upward velocity, preserve horizontal motion for rolling
-            if (_rb.velocity.y > 0.1f)
+            if (_rb.linearVelocity.y > 0.1f)
             {
-                Vector3 vel = _rb.velocity;
+                Vector3 vel = _rb.linearVelocity;
                 vel.y = 0f;
-                _rb.velocity = vel;
+                _rb.linearVelocity = vel;
             }
             
             _isGrounded = true;
@@ -181,7 +181,7 @@ public class SoccerBall : MonoBehaviour
         // Predict overshoot - if we'll be closer to destination after moving backwards
         if (currentSpeed > 0.1f)
         {
-            Vector3 nextFramePosition = transform.position + new Vector3(_rb.velocity.x, 0f, _rb.velocity.z) * Time.fixedDeltaTime;
+            Vector3 nextFramePosition = transform.position + new Vector3(_rb.linearVelocity.x, 0f, _rb.linearVelocity.z) * Time.fixedDeltaTime;
             Vector3 nextFrameDelta = destination - nextFramePosition;
             nextFrameDelta.y = 0f;
             
@@ -204,7 +204,7 @@ public class SoccerBall : MonoBehaviour
         }
 
         // Get horizontal velocity
-        Vector3 horizontalVelocity = new Vector3(_rb.velocity.x, 0f, _rb.velocity.z);
+        Vector3 horizontalVelocity = new Vector3(_rb.linearVelocity.x, 0f, _rb.linearVelocity.z);
         
         // Check if we're moving away from the destination
         // Dot product will be negative if velocity is pointing away from destination
@@ -239,7 +239,7 @@ public class SoccerBall : MonoBehaviour
         Vector3 desiredDirection = horizontalDelta.normalized;
         
         // Current horizontal velocity direction
-        Vector3 currentHorizontalVelocity = new Vector3(_rb.velocity.x, 0f, _rb.velocity.z);
+        Vector3 currentHorizontalVelocity = new Vector3(_rb.linearVelocity.x, 0f, _rb.linearVelocity.z);
         Vector3 currentDirection = currentHorizontalVelocity.normalized;
 
         // Only apply gentle guidance - much less aggressive than before
@@ -278,7 +278,7 @@ public class SoccerBall : MonoBehaviour
         transform.position = pos;
 
         // Kill all motion completely - ensure no residual velocity
-        _rb.velocity = Vector3.zero;
+        _rb.linearVelocity = Vector3.zero;
         _rb.angularVelocity = Vector3.zero;
         
         // Briefly make kinematic to prevent any physics interference, then restore
@@ -307,7 +307,7 @@ public class SoccerBall : MonoBehaviour
         _rb.isKinematic = wasKinematic;
         
         // Ensure velocity is still zero after restoring physics
-        _rb.velocity = Vector3.zero;
+        _rb.linearVelocity = Vector3.zero;
         _rb.angularVelocity = Vector3.zero;
     }
 
@@ -330,9 +330,9 @@ public class SoccerBall : MonoBehaviour
         if (isGroundCollision)
         {
             // Stop vertical velocity to prevent bouncing but keep horizontal movement and spin
-            Vector3 vel = _rb.velocity;
+            Vector3 vel = _rb.linearVelocity;
             vel.y = 0f;
-            _rb.velocity = vel;
+            _rb.linearVelocity = vel;
             // Don't touch angular velocity - let the ball spin naturally!
             _isGrounded = true;
             
@@ -348,7 +348,7 @@ public class SoccerBall : MonoBehaviour
         }
 
         // Reduce velocity after non-ground collision but maintain some spin
-        _rb.velocity *= 0.8f;
+        _rb.linearVelocity *= 0.8f;
         _rb.angularVelocity *= 0.9f; // Slight reduction but keep spinning
     }
 
@@ -381,7 +381,7 @@ public class SoccerBall : MonoBehaviour
         yield return new WaitForFixedUpdate();
         
         // Calculate rolling angular velocity based on horizontal movement
-        Vector3 horizontalVelocity = new Vector3(_rb.velocity.x, 0f, _rb.velocity.z);
+        Vector3 horizontalVelocity = new Vector3(_rb.linearVelocity.x, 0f, _rb.linearVelocity.z);
         if (horizontalVelocity.magnitude > 0.1f)
         {
             // Calculate proper rolling angular velocity (v = ωr, so ω = v/r)

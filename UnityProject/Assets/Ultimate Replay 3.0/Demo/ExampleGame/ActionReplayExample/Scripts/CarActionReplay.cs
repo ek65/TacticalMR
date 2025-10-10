@@ -193,7 +193,7 @@ namespace UltimateReplay.Demo
             lapStartTime = Time.time;
 
             // Reset forces
-            playerCar.GetComponent<Rigidbody>().velocity = Vector3.zero;
+            playerCar.GetComponent<Rigidbody>().linearVelocity = Vector3.zero;
             playerCar.GetComponent<Rigidbody>().angularVelocity = Vector3.zero;
 
             timer.text = "00:00:000";

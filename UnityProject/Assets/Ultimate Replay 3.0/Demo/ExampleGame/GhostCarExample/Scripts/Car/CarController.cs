@@ -173,7 +173,7 @@ namespace UltimateReplay.Demo
 
                 // Update wheel visuals
                 wheelTransform.localPosition = new Vector3(0f, y, 0f);
-                wheelTransform.Rotate(Vector3.right, XZVector(rb.velocity).magnitude * 1f * dir * 0.2f);
+                wheelTransform.Rotate(Vector3.right, XZVector(rb.linearVelocity).magnitude * 1f * dir * 0.2f);
 
                 // Update wheel visuals
                 wheel.UpdateWheelVisuals(index < 2);
@@ -213,8 +213,8 @@ namespace UltimateReplay.Demo
         private void UpdateCarPhysics()
         {
             // Get car velocity
-            Vector3 velocityXZ = XZVector(rb.velocity);
-            Vector3 temp = thisTransform.InverseTransformDirection(XZVector(rb.velocity));
+            Vector3 velocityXZ = XZVector(rb.linearVelocity);
+            Vector3 temp = thisTransform.InverseTransformDirection(XZVector(rb.linearVelocity));
 
             // Get direction
             dir = Mathf.Sign(thisTransform.InverseTransformDirection(velocityXZ).z);
@@ -268,7 +268,7 @@ namespace UltimateReplay.Demo
                     yawInfluence = Mathf.Clamp(1f - slideForce, 0.05f, 1f);
 
                     // get car speed
-                    float magnitude = rb.velocity.magnitude;
+                    float magnitude = rb.linearVelocity.magnitude;
                     wheelSlip = true;
 
                     if (magnitude < 8f)
@@ -344,12 +344,12 @@ namespace UltimateReplay.Demo
 
                 // Apply drag so that car comes to a full stop
                 if (applyDrag == true)
-                    rb.drag = (1f - Mathf.Abs(speed)) * 30f;
+                    rb.linearDamping = (1f - Mathf.Abs(speed)) * 30f;
                 else
-                    rb.drag = 0f;
+                    rb.linearDamping = 0f;
             }
             else
-                rb.drag = 0f;
+                rb.linearDamping = 0f;
         }
 
         private static Vector3 XZVector(Vector3 v)

@@ -22,10 +22,10 @@ public class BallInteraction_networked : NetworkBehaviour
 		transform.position = position;
 
 		// limit speed of ball
-		var currentSpeed = GetComponent<Rigidbody>().velocity;
+		var currentSpeed = GetComponent<Rigidbody>().linearVelocity;
 		if (currentSpeed.magnitude > maxSpeed)
 		{
-			GetComponent<Rigidbody>().velocity = currentSpeed.normalized * maxSpeed;
+			GetComponent<Rigidbody>().linearVelocity = currentSpeed.normalized * maxSpeed;
 		}
 	}
 

@@ -53,8 +53,8 @@ public class Rewindable : MonoBehaviour
         }
         Rigidbody r = GetComponent<Rigidbody>();
 
-        savedVelocity = r.velocity;
-        r.velocity = Vector3.zero;
+        savedVelocity = r.linearVelocity;
+        r.linearVelocity = Vector3.zero;
         isKinematic = r.isKinematic;
         r.isKinematic = true;
         savedAngularVelocity = r.angularVelocity;
@@ -76,7 +76,7 @@ public class Rewindable : MonoBehaviour
         
         r.constraints = savedConstraints;
         
-        r.velocity = savedVelocity;
+        r.linearVelocity = savedVelocity;
         r.angularVelocity = savedAngularVelocity;
         
         r.WakeUp();

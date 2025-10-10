@@ -190,9 +190,9 @@ public class JSONStatusMaker : MonoBehaviour
     }
     void AddBallData(GameObject disc, Ball dData) {
         Rigidbody rb = disc.GetComponent<Rigidbody>();
-        dData.movementData.speed = rb.velocity.magnitude;
+        dData.movementData.speed = rb.linearVelocity.magnitude;
         Vector3ToJsonClass(rb.angularVelocity, dData.movementData.angularVelocity);
-        Vector3ToJsonClass(rb.velocity, dData.movementData.velocity);
+        Vector3ToJsonClass(rb.linearVelocity, dData.movementData.velocity);
         Vector3ToJsonClass(disc.transform.position, dData.movementData.transform);
         QuaternionToJsonClass(disc.transform.rotation, dData.movementData.rotation);
         // DiscOwnership ownership = disc.GetComponent<DiscOwnership>();

@@ -42,7 +42,7 @@ namespace UltimateReplay.Demo
             if(rotateSpeed > body.maxAngularVelocity)
                 body.maxAngularVelocity = rotateSpeed;
 
-            body.velocity = direction * (speed + additionalSpeed);
+            body.linearVelocity = direction * (speed + additionalSpeed);
             body.angularVelocity = transform.right * rotateSpeed;
 
             // Trigger sound effect
@@ -76,7 +76,7 @@ namespace UltimateReplay.Demo
                 damage.TakeDamage(2.6f, owner);
 
                 // Reset velocity
-                body.velocity = Vector3.zero;
+                body.linearVelocity = Vector3.zero;
                 body.angularVelocity = Vector3.zero;
 
                 // Disable body
@@ -102,7 +102,7 @@ namespace UltimateReplay.Demo
                     if (dot >= -0.8f && dot <= 0.2f)
                     {
                         // Reset velocity
-                        body.velocity = Vector3.zero;
+                        body.linearVelocity = Vector3.zero;
                         body.angularVelocity = Vector3.zero;
 
                         // Disable body
