@@ -14,7 +14,8 @@ using Utilities.Extensions;
 
 public class HumanInterface : NetworkBehaviour, IObjectInterface
 {
-    [Networked(OnChanged = nameof(OnNameChanged))] public NetworkString<_32> ObjName { get; set; }
+    [Networked, OnChangedRender(nameof(UpdateGameObjectName))]
+    public NetworkString<_32> ObjName { get; set; }
     public bool isVR = false;
 
     public bool isViewer = false;
@@ -390,11 +391,6 @@ public class HumanInterface : NetworkBehaviour, IObjectInterface
         if (Object.HasStateAuthority) {
             behavior = "Idle";
         }
-    }
-    
-    static void OnNameChanged(Changed<HumanInterface> changed)
-    {
-        changed.Behaviour.UpdateGameObjectName();
     }
     
     private void UpdateGameObjectName()

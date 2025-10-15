@@ -11,12 +11,8 @@ using Pathfinding;
 
 public class LineInterface : NetworkBehaviour
 {
-    [Networked(OnChanged = nameof(OnNameChanged))] public NetworkString<_32> ObjName { get; set; }
-    
-    static void OnNameChanged(Changed<LineInterface> changed)
-    {
-        changed.Behaviour.UpdateGameObjectName();
-    }
+    [Networked, OnChangedRender(nameof(UpdateGameObjectName))]
+    public NetworkString<_32> ObjName { get; set; }
     
     private void UpdateGameObjectName()
     {

@@ -11,12 +11,8 @@ using Pathfinding;
 
 public class BallInterface : NetworkBehaviour
 {
-    [Networked(OnChanged = nameof(OnNameChanged))] public NetworkString<_32> ObjName { get; set; }
-    
-    static void OnNameChanged(Changed<BallInterface> changed)
-    {
-        changed.Behaviour.UpdateGameObjectName();
-    }
+    [Networked, OnChangedRender(nameof(UpdateGameObjectName))]
+    public NetworkString<_32> ObjName { get; set; }
     
     private void UpdateGameObjectName()
     {

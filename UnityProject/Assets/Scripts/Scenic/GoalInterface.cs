@@ -12,12 +12,8 @@ using Pathfinding;
 // TODO: Rename script, this is the player logic script
 public class GoalInterface : NetworkBehaviour
 {
-    [Networked(OnChanged = nameof(OnNameChanged))] public NetworkString<_32> ObjName { get; set; }
-    
-    static void OnNameChanged(Changed<GoalInterface> changed)
-    {
-        changed.Behaviour.UpdateGameObjectName();
-    }
+    [Networked, OnChangedRender(nameof(UpdateGameObjectName))]
+    public NetworkString<_32> ObjName { get; set; }
     
     private void UpdateGameObjectName()
     {

@@ -12,7 +12,8 @@ using Pathfinding;
 // TODO: Rename script, this is the player logic script
 public class PlayerInterface : NetworkBehaviour, IObjectInterface
 {
-    [Networked(OnChanged = nameof(OnNameChanged))] public NetworkString<_32> ObjName { get; set; }
+    [Networked, OnChangedRender(nameof(UpdateGameObjectName))]
+    public NetworkString<_32> ObjName { get; set; }
     
     public bool enemy;
     public bool ally;
@@ -164,11 +165,6 @@ public class PlayerInterface : NetworkBehaviour, IObjectInterface
         if (Object.HasStateAuthority && richAI != null) {
             currVelocity = richAI.velocity;
         }
-    }
-    
-    static void OnNameChanged(Changed<PlayerInterface> changed)
-    {
-        changed.Behaviour.UpdateGameObjectName();
     }
     
     private void UpdateGameObjectName()

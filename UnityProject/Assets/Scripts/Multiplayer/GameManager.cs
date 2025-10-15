@@ -9,7 +9,7 @@ using Oculus.Platform;
 using Oculus.Platform.Models;
 using UnityEngine.SceneManagement;
 
-public class GameManager : NetworkBehaviour, INetworkRunnerCallbacks
+public class GameManager : MonoBehaviour, INetworkRunnerCallbacks
 {
 	#region Generic
 
@@ -115,7 +115,6 @@ public class GameManager : NetworkBehaviour, INetworkRunnerCallbacks
 
 	#region Networking with Photon Fusion
 
-	[HideInInspector]
 	public NetworkRunner _runner;
 
 	public int sessionNum = 0;
@@ -123,27 +122,56 @@ public class GameManager : NetworkBehaviour, INetworkRunnerCallbacks
 
 	async void StartGame(GameMode mode)
 	{
-		// Create the Fusion runner and let it know that we will be providing user input
 		Debug.Log("in StartGame with mode: " + mode);
-		_runner = gameObject.AddComponent<NetworkRunner>();
-		
+    
+		if (_runner == null)
+		{
+			_runner = gameObject.AddComponent<NetworkRunner>();
+			_runner.AddCallbacks(this);
+		}
+
 		// In laptop mode or host mode, we provide input
 		_runner.ProvideInput = (laptopMode || isHost);
 		Debug.Log("we provide input: " + (laptopMode || isHost));
+    
+		// Build a NetworkSceneInfo from the current scene
+		var scene = SceneRef.FromIndex(SceneManager.GetActiveScene().buildIndex);
+		var sceneInfo = new NetworkSceneInfo();
+		if (scene.IsValid)
+		{
+			sceneInfo.AddSceneRef(scene, LoadSceneMode.Additive);
+		}
+    
+		// Create unique session name
+		string sessionName = laptopMode 
+			? "LaptopMode" 
+			: $"GameRoom_{sessionNum}_{System.Guid.NewGuid().ToString().Substring(0, 8)}";
 
-		// Start or join (depends on gamemode) a session with a specific name
-		await _runner.StartGame(new StartGameArgs()
+		Debug.Log($"Starting game: Mode={mode}, Session={sessionName}");
+
+		// Start or join session
+		var result = await _runner.StartGame(new StartGameArgs()
 		{
 			GameMode = mode,
-			SessionName = laptopMode ? "LaptopMode" : ("GameRoom" + sessionNum),
-			Scene = SceneManager.GetActiveScene().buildIndex,
+			SessionName = sessionName,
+			Scene = scene,
 			SceneManager = gameObject.AddComponent<NetworkSceneManagerDefault>()
 		});
+    
+		if (!result.Ok)
+		{
+			Debug.LogError($"StartGame failed: {result.ShutdownReason}");
+			Debug.LogError($"Error message: {result.ErrorMessage}");
+		}
+		else
+		{
+			Debug.Log($"StartGame successful. Mode={mode}, Session={sessionName}");
+		}
 	}
 
 	[SerializeField] private NetworkPrefabRef _playerPrefab;
 	private Dictionary<PlayerRef, NetworkObject> _spawnedCharacters = new Dictionary<PlayerRef, NetworkObject>();
-
+	
 	public void OnPlayerJoined(NetworkRunner runner, PlayerRef player)
 	{
 		if (runner.IsServer)
@@ -187,26 +215,16 @@ public class GameManager : NetworkBehaviour, INetworkRunnerCallbacks
 
 	public void OnInput(NetworkRunner runner, NetworkInput input)
 	{
-		// var data = new NetworkInputData();
-		//
-		// // player movement
-		// if (Input.GetKey(KeyCode.W))
-		// 	data.Direction += Vector3.forward;
-		//
-		// if (Input.GetKey(KeyCode.S))
-		// 	data.Direction += Vector3.back;
-		//
-		// if (Input.GetKey(KeyCode.A))
-		// 	data.Direction += Vector3.left;
-		//
-		// if (Input.GetKey(KeyCode.D))
-		// 	data.Direction += Vector3.right;
-		//
-		// // player tries to intercept the ball
-		// data.TryIntercept = Input.GetKey(KeyCode.I);
-		//
-		// input.Set(data);
 		return;
+	}
+	
+	public void OnShutdown(NetworkRunner runner, ShutdownReason shutdownReason)
+	{
+		Debug.LogError($"Shutdown: {shutdownReason}");
+		if (runner.IsCloudReady == false)
+		{
+			Debug.LogError("Cloud was not ready");
+		}
 	}
 
 	#endregion
@@ -218,8 +236,26 @@ public class GameManager : NetworkBehaviour, INetworkRunnerCallbacks
 	{
 		return;
 	}
+	
+	public void OnDisconnectedFromServer(NetworkRunner runner, NetDisconnectReason reason)
+	{
+		return;
+	}
+	
+	public void OnObjectExitAOI(NetworkRunner runner, NetworkObject obj, PlayerRef player)
+	{
+		return;
+	}
 
-	public void OnShutdown(NetworkRunner runner, ShutdownReason shutdownReason) => Debug.Log("Shutdown: " + shutdownReason);
+	public void OnObjectEnterAOI(NetworkRunner runner, NetworkObject obj, PlayerRef player)
+	{
+		return;
+	}
+	
+	public void OnReliableDataProgress(NetworkRunner runner, PlayerRef player, ReliableKey key, float progress)
+	{
+		return;
+	}
 
 	public void OnConnectedToServer(NetworkRunner runner) => Debug.Log("OnConnectedToServer, we are " + (runner.IsServer ? "server" : "client"));
 
@@ -230,6 +266,10 @@ public class GameManager : NetworkBehaviour, INetworkRunnerCallbacks
 	public void OnConnectFailed(NetworkRunner runner, NetAddress remoteAddress, NetConnectFailedReason reason) => Debug.Log("OnConnectFailed: " + reason);
 
 	public void OnUserSimulationMessage(NetworkRunner runner, SimulationMessagePtr message) => Debug.Log("OnUserSimulationMessage: " + message);
+	public void OnReliableDataReceived(NetworkRunner runner, PlayerRef player, ReliableKey key, ArraySegment<byte> data)
+	{
+		return;
+	}
 
 	public void OnSessionListUpdated(NetworkRunner runner, List<SessionInfo> sessionList) => Debug.Log("OnSessionListUpdated");
 
