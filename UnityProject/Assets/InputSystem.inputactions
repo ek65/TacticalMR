@@ -72,7 +72,7 @@
                     "name": "ThroughPass",
                     "type": "Button",
                     "id": "227cc767-8841-464d-a7f7-b5e18d610680",
-                    "expectedControlType": "Button",
+                    "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
@@ -100,6 +100,24 @@
                     "type": "Button",
                     "id": "db9f244e-3333-408e-a921-56428460630c",
                     "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "TriggerPass",
+                    "type": "Button",
+                    "id": "cb4db198-6da2-4cd5-bb99-af4aed204013",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "ShootGoal",
+                    "type": "Button",
+                    "id": "15a6839e-5c3e-4276-b201-0dbcdae97244",
+                    "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
@@ -224,6 +242,28 @@
                     "processors": "",
                     "groups": "",
                     "action": "Packaging",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "7b5852c5-859c-4cb9-b93b-96613b12d3a1",
+                    "path": "<Gamepad>/rightShoulder",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "TriggerPass",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "2d8f8c04-960e-473d-b645-6be752d31d4c",
+                    "path": "<Gamepad>/leftShoulder",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ShootGoal",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

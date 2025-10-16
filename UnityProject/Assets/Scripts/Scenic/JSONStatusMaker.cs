@@ -3,64 +3,97 @@ using UnityEngine;
 using Newtonsoft.Json;
 using Pathfinding;
 
+/// <summary>
+/// Serializes Unity game state data to JSON format for communication with the Scenic simulation system.
+/// Converts player positions, ball state, and game status into structured data that can be transmitted
+/// over the network to external AI systems for analysis and decision making.
+/// </summary>
 public class JSONStatusMaker : MonoBehaviour
 {
+    #region Private Fields
+    /// <summary>
+    /// Reference to the central object list manager
+    /// </summary>
     ObjectsList objectList;
+    
+    /// <summary>
+    /// Reference to ball ownership tracking system
+    /// </summary>
     BallOwnership ownership;
+    
+    /// <summary>
+    /// Root data structure for JSON serialization
+    /// </summary>
     Root root;
-    // private TickData tickData;
-    private bool snapTurnedLastTimestep;
+    
+    /// <summary>
+    /// Tracks previous tick for change detection
+    /// </summary>
     private int lastTick;
+    
+    /// <summary>
+    /// Reference to the ZMQ server for tick information
+    /// </summary>
     private ZMQServer server;
+    #endregion
+
+    #region Unity Lifecycle
     void Start()
     {
-        //we want to start this from the server?
         var scenicManager = GameObject.FindGameObjectWithTag("ScenicManager");
         objectList = scenicManager.GetComponent<ObjectsList>();
         ownership = scenicManager.GetComponent<BallOwnership>();
         lastTick = -1;
         server = GetComponent<ZMQServer>();
     }
-    public string getUnityData()
-    {
-        // var test = root.TickData.Ball.movementData.transform;
-        //lets set this to false so that we do not re-send if not true
-        // Debug.LogError("test: " + test.x +"," + test.y +","+ test.z);
-        snapTurnedLastTimestep = false;
-        return JsonConvert.SerializeObject(root);
-    }
+
     void LateUpdate()
     {
+        UpdateGameStateData();
+    }
+    #endregion
+
+    #region Public Methods
+    /// <summary>
+    /// Serializes current game state to JSON string for transmission to Scenic
+    /// </summary>
+    /// <returns>JSON string containing complete game state data</returns>
+    public string getUnityData()
+    {
+        return JsonConvert.SerializeObject(root);
+    }
+    #endregion
+
+    #region Private Methods
+    /// <summary>
+    /// Updates the complete game state data structure with current information
+    /// </summary>
+    private void UpdateGameStateData()
+    {
         lastTick = server.lastTick;
-        //pull the ball and the players from objects list and get their data.
+        
         Root r = new Root();
-        //We need to change this later when we expand to 1-4 players.
         r.TickData.numPlayers = objectList.humanPlayers.Count + objectList.scenicPlayers.Count;
         GameObject ball = objectList.ballObject;
+        
+        // Process human players
         for (int i = 0; i < objectList.humanPlayers.Count; i++)
         {
             GameObject humanPlayer = objectList.humanPlayers[i];
             Player p = new Player();
-            // p.leftController = new ControllerInputData();
-            // p.rightController = new ControllerInputData();
             AddPlayerData(humanPlayer, p, true);
-            // Rigidbody rb = humanPlayer.GetComponentInChildren<Rigidbody>();
-            // GameObject rig = rb.gameObject;
-            // ObjectList xrRigObjects = rig.GetComponent<ObjectList>();
-            // GameObject leftController = xrRigObjects.leftController;
-            // GameObject rightController = xrRigObjects.rightController;
-            // AddControllerData(rig, leftController, p.leftController, true);
-            // AddControllerData(rig, rightController, p.rightController, false);
-        
             r.TickData.HumanPlayers.Add(p);
         }
+        
+        // Process AI-controlled scenic players
         for (int i = 0; i < objectList.scenicPlayers.Count; i++)
         {
             Player p = new Player();
             AddPlayerData(objectList.scenicPlayers[i], p, false);
-            // Debug.LogError(p.movementData);
             r.TickData.ScenicPlayers.Add(p);
         }
+        
+        // Process other scenic objects (goals, lines, etc.)
         for (int i = 0; i < objectList.scenicObjects.Count; i++)
         {
             GameObject obj = objectList.scenicObjects[i];
@@ -70,9 +103,9 @@ public class JSONStatusMaker : MonoBehaviour
                 AddObjectData(obj, p);
                 r.TickData.ScenicObjects.Add(p);
             }
-            
         }
 
+        // Process ball data
         if (ball != null)
         {
             AddBallData(ball, r.TickData.Ball);
@@ -80,150 +113,157 @@ public class JSONStatusMaker : MonoBehaviour
 
         root = r;
     }
-    // UNUSED. Left for reference (from echo arena project) if we want to add a whole new class for controller data
-    /*void AddControllerData(GameObject humanRig, GameObject controller, ControllerInputData cData, bool isLeftController)
+
+    /// <summary>
+    /// Extracts and formats player data for JSON serialization
+    /// </summary>
+    /// <param name="player">Player GameObject to extract data from</param>
+    /// <param name="pData">Player data structure to populate</param>
+    /// <param name="isHuman">Whether this is a human-controlled player</param>
+    void AddPlayerData(GameObject player, Player pData, bool isHuman) 
     {
-        //NOTE: this does not read the actual button press but rather if they are in "Thrust" or not
-        Thrust controllerThrust = controller.GetComponent<Thrust>();
-        cData.primaryButton = controllerThrust.thrustOn;
-        if (isLeftController)
+        if (isHuman)
         {
-            cData.primary2DAxisClick = controllerThrust.boostOn;
+            AddHumanPlayerData(player, pData);
         }
         else
         {
-            cData.primary2DAxisClick = controllerThrust.brakeOn;
-            bool snapTurnOnFrame = controller.GetComponent<SnapTurnMonitor>().snapTurnEnabled;
-            if (!snapTurnedLastTimestep && snapTurnOnFrame)
-            {
-                //ensure we send on timestep
-                cData.primary2DAxis = true;
-                snapTurnedLastTimestep = true;
-            }
+            AddScenicPlayerData(player, pData);
         }
-        Holder holder = humanRig.GetComponent<Holder>();
-        Debug.LogWarning("This is what the human grip looks like: " + holder.altHeld.ToString());
-        if (holder.altHeld){
-            //player is holding something --> just set true, we can compare with ball to see if it is holding ball or wall or nothing
-            cData.gripButton = true;
-        }
-    }*/
-    void AddPlayerData(GameObject player, Player pData, bool isHuman) {
-        
-        
-        // Unused for now
-        // pData.clientID = ((int)player.GetComponent<NetworkObject>().NetworkObjectId);
-        
-        /* NOTE: We can't get speed, velocity, and angular velocity from rigidbody because we're using this RichAI pathfinding thing for movement
-        angular velocity sent is (0,0,0) right now since we don't have a way to get it from rigidbody and it's not really important.
-        If we really DO want angular velocity, we have to calculate it ourselves */
-        
-        // Vector3ToJsonClass(rb.angularVelocity, pData.movementData.angularVelocity);
-        // Vector3ToJsonClass(rb.velocity, pData.movementData.velocity);
-        
-        if (isHuman)
-        {
-            HumanInterface hI = player.GetComponent<HumanInterface>();
-            
-            //NOTE: We go from (x,y,z) to (x,z,y) because that is how scenic handles the coordinate system.
-            Vector3 pos = player.transform.position;
-            if (hI.isVR)
-            {
-                pos = hI.vrTransform.position;
-            }
-            Vector3ToJsonClass(pos, pData.movementData.transform);
-
-            Quaternion rot = player.transform.rotation;
-            if (hI.isVR)
-            {
-                rot = hI.vrTransform.rotation;
-            }
-            QuaternionToJsonClass(rot, pData.movementData.rotation);
-
-            // dont need to set endScenario back to false here because it is set to false in InstantiateScenicObject on the next simulation
-            if (player.GetComponent<ExitScenario>() != null && lastTick > 5)
-            {
-                pData.movementData.stopButton = player.GetComponent<ExitScenario>().endScenario;
-            }
-
-            TimelineManager tlManager =
-                GameObject.FindGameObjectWithTag("TimelineManager").GetComponent<TimelineManager>();
-            pData.movementData.pause = tlManager.Paused;
-
-            // TODO: should change this when we have better movement system for human
-            Vector3 velo = GameObject.FindGameObjectWithTag("keyboard").GetComponent<KeyboardInput>().movement;
-            if (hI.isVR)
-            {
-                velo = hI.velocity;
-            }
-            Vector3ToJsonClass(velo, pData.movementData.velocity);
-            pData.movementData.speed = velo.magnitude;
-            pData.movementData.ballPossession = hI.ballPossession;
-            pData.movementData.isMoving = hI.isMoving;
-            Vector3ToJsonClass(hI.xMark, pData.movementData.xMark);
-            pData.movementData.triggerPass = hI.triggerPass;
-            pData.movementData.behavior = hI.behavior.Value;
-            
-        }
-        else // non-human player
-        {
-            //NOTE: We go from (x,y,z) to (x,z,y) because that is how scenic handles the coordinate system.
-            Vector3ToJsonClass(player.transform.position, pData.movementData.transform);
-            QuaternionToJsonClass(player.transform.rotation, pData.movementData.rotation);
-            
-            PlayerInterface pI = player.GetComponent<PlayerInterface>();
-            pData.movementData.ballPossession = pI.ballPossession;
-            pData.movementData.isMoving = pI.isMoving;
-            pData.movementData.behavior = pI.behavior.Value;
-            Vector3 velo = pI.currVelocity;
-            Vector3ToJsonClass(velo, pData.movementData.velocity);
-            pData.movementData.speed = velo.magnitude;
-        }
-        
     }
+
+    /// <summary>
+    /// Adds human player specific data including VR support and input handling
+    /// </summary>
+    /// <param name="player">Human player GameObject</param>
+    /// <param name="pData">Player data structure to populate</param>
+    private void AddHumanPlayerData(GameObject player, Player pData)
+    {
+        HumanInterface hI = player.GetComponent<HumanInterface>();
+        
+        // Handle position (VR vs standard)
+        Vector3 pos = player.transform.position;
+        if (hI.isVR)
+        {
+            pos = hI.vrTransform.position;
+        }
+        Vector3ToJsonClass(pos, pData.movementData.transform);
+
+        // Handle rotation (VR vs standard)
+        Quaternion rot = player.transform.rotation;
+        if (hI.isVR)
+        {
+            rot = hI.vrTransform.rotation;
+        }
+        QuaternionToJsonClass(rot, pData.movementData.rotation);
+
+        // Handle exit scenario detection
+        if (player.GetComponent<ExitScenario>() != null && lastTick > 5)
+        {
+            pData.movementData.stopButton = player.GetComponent<ExitScenario>().endScenario;
+        }
+
+        // Handle pause state
+        TimelineManager tlManager = GameObject.FindGameObjectWithTag("TimelineManager").GetComponent<TimelineManager>();
+        pData.movementData.pause = tlManager.Paused;
+
+        // Handle velocity (keyboard vs VR)
+        Vector3 velo = GameObject.FindGameObjectWithTag("keyboard").GetComponent<KeyboardInput>().movement;
+        if (hI.isVR)
+        {
+            velo = hI.velocity;
+        }
+        Vector3ToJsonClass(velo, pData.movementData.velocity);
+        pData.movementData.speed = velo.magnitude;
+        
+        // Add game state information
+        pData.movementData.ballPossession = hI.ballPossession;
+        pData.movementData.isMoving = hI.isMoving;
+        Vector3ToJsonClass(hI.xMark, pData.movementData.xMark);
+        pData.movementData.triggerPass = hI.triggerPass;
+        pData.movementData.behavior = hI.behavior.Value;
+    }
+
+    /// <summary>
+    /// Adds AI-controlled scenic player data
+    /// </summary>
+    /// <param name="player">Scenic player GameObject</param>
+    /// <param name="pData">Player data structure to populate</param>
+    private void AddScenicPlayerData(GameObject player, Player pData)
+    {
+        Vector3ToJsonClass(player.transform.position, pData.movementData.transform);
+        QuaternionToJsonClass(player.transform.rotation, pData.movementData.rotation);
+        
+        PlayerInterface pI = player.GetComponent<PlayerInterface>();
+        pData.movementData.ballPossession = pI.ballPossession;
+        pData.movementData.isMoving = pI.isMoving;
+        pData.movementData.behavior = pI.behavior.Value;
+        Vector3 velo = pI.currVelocity;
+        Vector3ToJsonClass(velo, pData.movementData.velocity);
+        pData.movementData.speed = velo.magnitude;
+    }
+
+    /// <summary>
+    /// Extracts data from static objects like goals and field markers
+    /// </summary>
+    /// <param name="obj">Object to extract data from</param>
+    /// <param name="oData">Data structure to populate</param>
     void AddObjectData(GameObject obj, Player oData)
     {
-        // NOTE: "Player" class can still be an object
         Vector3ToJsonClass(obj.transform.position, oData.movementData.transform);
         QuaternionToJsonClass(obj.transform.rotation, oData.movementData.rotation);
-        // oData.clientID = ((int) obj.GetComponent<NetworkObject>().NetworkObjectId);
     }
-    void AddBallData(GameObject disc, Ball dData) {
+
+    /// <summary>
+    /// Extracts ball physics and ownership data
+    /// </summary>
+    /// <param name="disc">Ball GameObject</param>
+    /// <param name="dData">Ball data structure to populate</param>
+    void AddBallData(GameObject disc, Ball dData) 
+    {
         Rigidbody rb = disc.GetComponent<Rigidbody>();
         dData.movementData.speed = rb.linearVelocity.magnitude;
         Vector3ToJsonClass(rb.angularVelocity, dData.movementData.angularVelocity);
         Vector3ToJsonClass(rb.linearVelocity, dData.movementData.velocity);
         Vector3ToJsonClass(disc.transform.position, dData.movementData.transform);
         QuaternionToJsonClass(disc.transform.rotation, dData.movementData.rotation);
-        // DiscOwnership ownership = disc.GetComponent<DiscOwnership>();
         dData.movementData.heldByHuman = ownership.heldByHuman;
         dData.movementData.heldByScenic = ownership.heldByScenic;
-        // dData.clientID = ((int)disc.GetComponent<NetworkObject>().NetworkObjectId);
     }
-    void Vector3ListToJsonList(List<Vector3> v3List, List<Vector3Json> v3jList)
-    {
-        for(int i = 0; i < v3List.Count; i++)
-        {
-            Vector3Json v3j = new Vector3Json();
-            Vector3ToJsonClass(v3List[i], v3j);
-            v3jList.Add(v3j);
-        }
-    }
+    #endregion
+
+    #region Coordinate System Conversion
+    /// <summary>
+    /// Converts Unity Vector3 to JSON format with coordinate system transformation.
+    /// Unity uses (x,y,z) while Scenic uses (x,z,y) coordinate system.
+    /// </summary>
+    /// <param name="v">Unity Vector3</param>
+    /// <param name="vj">JSON Vector3 structure to populate</param>
     void Vector3ToJsonClass(Vector3 v, Vector3Json vj)
     {
-        //we change to (x,z,y) for scenic
         vj.x = v.x;
-        vj.z = v.y;
-        vj.y = v.z;
+        vj.z = v.y;  // Unity Y becomes Scenic Z
+        vj.y = v.z;  // Unity Z becomes Scenic Y
     }
+
+    /// <summary>
+    /// Converts Unity Quaternion to JSON format with coordinate system transformation
+    /// </summary>
+    /// <param name="q">Unity Quaternion</param>
+    /// <param name="qj">JSON Quaternion structure to populate</param>
     void QuaternionToJsonClass(Quaternion q, QuaternionJson qj)
     {
         qj.x = q.x;
-        qj.z = q.y;
-        qj.y = q.z;
+        qj.z = q.y;  // Unity Y becomes Scenic Z
+        qj.y = q.z;  // Unity Z becomes Scenic Y
         qj.w = q.w;
     }
-    // Root myDeserializedClass = JsonConvert.DeserializeObject<Root>(myJsonResponse); 
+    #endregion
+
+    #region JSON Data Structures
+    /// <summary>
+    /// JSON representation of a 3D vector with Scenic coordinate system
+    /// </summary>
     public class Vector3Json
     {
         public Vector3Json()
@@ -236,6 +276,10 @@ public class JSONStatusMaker : MonoBehaviour
         public float y { get; set; }
         public float z { get; set; }
     }
+
+    /// <summary>
+    /// JSON representation of a quaternion rotation
+    /// </summary>
     public class QuaternionJson
     {
         public QuaternionJson()
@@ -250,21 +294,14 @@ public class JSONStatusMaker : MonoBehaviour
         public float z { get; set; }
         public float w { get; set; }
     }
-    /*
-    public class Vector2Json
-    {
-        public Vector2Json()
-        {
-            this.x = 0f;
-            this.y = 0f;
-        }
-        public float x { get; set; }
-        public float y { get; set; }
-    }
-    */
+
+    /// <summary>
+    /// Movement and state data for any game object
+    /// </summary>
     public class MovementData
     {
-        public MovementData(){
+        public MovementData()
+        {
             transform = new Vector3Json();
             speed = 0.0f;
             velocity = new Vector3Json();
@@ -280,6 +317,7 @@ public class JSONStatusMaker : MonoBehaviour
             heldByScenic = false;
             behavior = "";
         }
+        
         public Vector3Json transform { get; set; }
         public float speed { get; set; }
         public Vector3Json velocity { get; set; }
@@ -294,59 +332,41 @@ public class JSONStatusMaker : MonoBehaviour
         public bool heldByHuman { get; set; }
         public bool heldByScenic { get; set; }
         public string behavior { get; set; }
-        
-    }
-    public class ControllerInputData
-    {
-    /*
-    Modeled off of https://docs.unity3d.com/2020.3/Documentation/Manual/xr_input.html
-    */
-    //NOTE: This is biased towards obtaining what action the human is acting. This will NOT get raw input data.
-        public ControllerInputData()
-        {
-            //primary2DAxis = new Vector2Json();
-            //Because of scenic running at 60hz and scenic at 10, snap turn happens on a single frame. We cannot capture that raw input consistently.
-            primary2DAxis = false;
-            primaryButton = false;
-            secondaryButton = false;
-            gripButton = false;
-            primary2DAxisClick = false;
-            //Note, these two are unused for now
-            triggerButton = false;
-            menuButton = false;
-        }
-        public bool primary2DAxis;
-        public bool primaryButton;
-        public bool secondaryButton;
-        public bool gripButton;
-        public bool triggerButton;
-        public bool menuButton;
-        public bool primary2DAxisClick;
     }
 
+    /// <summary>
+    /// Ball-specific data structure
+    /// </summary>
     public class Ball
     {
-        public Ball() {
+        public Ball() 
+        {
             movementData = new MovementData();
         }
-        public MovementData movementData {get; set;}
-        
-        //TODO: We need to define this within a ball
-        public int clientID {get; set;}
+        public MovementData movementData { get; set; }
+        public int clientID { get; set; }
     }
 
+    /// <summary>
+    /// Player data structure (also used for static objects)
+    /// </summary>
     public class Player
     {
-        public Player() {
+        public Player() 
+        {
             movementData = new MovementData();
         }
-        public MovementData movementData {get; set;}
-        public int clientID {get; set;}
+        public MovementData movementData { get; set; }
+        public int clientID { get; set; }
     }
 
+    /// <summary>
+    /// Complete tick data for one simulation frame
+    /// </summary>
     public class TickData
     {
-        public TickData(){
+        public TickData()
+        {
             this.Ball = new Ball();
             this.numPlayers = 0;
             this.HumanPlayers = new List<Player>();
@@ -359,11 +379,17 @@ public class JSONStatusMaker : MonoBehaviour
         public List<Player> ScenicPlayers { get; set; }
         public List<Player> ScenicObjects { get; set; }
     }
+
+    /// <summary>
+    /// Root data structure for JSON serialization
+    /// </summary>
     public class Root
     {
-        public Root(){
+        public Root()
+        {
             this.TickData = new TickData();
         }
         public TickData TickData { get; set; }
     }
+    #endregion
 }

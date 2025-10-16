@@ -5,8 +5,19 @@ using UnityEngine.UI;
 using TMPro;
 using Newtonsoft.Json;
 
+/// <summary>
+/// Visualizes finite state machines (FSM) as interactive UI diagrams with nodes and transitions.
+/// Loads FSM data from JSON resources and creates clickable node/edge representations.
+/// Supports annotation of states and transitions for demonstration recording.
+/// Automatically handles complex layouts using breadth-first search and virtual root injection.
+/// </summary>
 public class FSMVisualizer : MonoBehaviour
 {
+    #region Data Structures
+
+    /// <summary>
+    /// Represents a single state in the finite state machine
+    /// </summary>
     [System.Serializable]
     public class State
     {
@@ -15,6 +26,9 @@ public class FSMVisualizer : MonoBehaviour
         public string description;
     }
 
+    /// <summary>
+    /// Represents a transition between two states in the finite state machine
+    /// </summary>
     [System.Serializable]
     public class Transition
     {
@@ -25,6 +39,9 @@ public class FSMVisualizer : MonoBehaviour
         public string description;
     }
 
+    /// <summary>
+    /// Root container for FSM data loaded from JSON
+    /// </summary>
     [System.Serializable]
     public class FSMData
     {
@@ -32,60 +49,111 @@ public class FSMVisualizer : MonoBehaviour
         public List<Transition> transitions = new();
     }
 
+    #endregion
+
+    #region Configuration
+
     [Header("UI References")]
+    [Tooltip("Container for all FSM node elements")]
     public RectTransform nodesContainer;
+    
+    [Tooltip("Prefab for creating state node buttons")]
     public GameObject nodeButtonPrefab;
+    
+    [Tooltip("Text component for displaying state/transition descriptions")]
     public TMP_Text descriptionText;
-    [Tooltip("Resources/<fsmDataPath>.json")]
+    
+    [Tooltip("Path to FSM JSON file in Resources folder (without .json extension)")]
     public string fsmDataPath;
 
     [Header("Layout Settings")]
+    [Tooltip("Fixed width for all state nodes")]
     public float fixedNodeWidth = 250f;
+    
+    [Tooltip("Vertical padding within nodes")]
     public float paddingY = 20f;
+    
+    [Tooltip("Maximum height allowed for nodes")]
     public float maxHeight = 200f;
+    
+    [Tooltip("Horizontal spacing between columns")]
     public float spacingX = 60f;
+    
+    [Tooltip("Vertical spacing between nodes")]
     public float spacingY = 60f;
+    
+    [Tooltip("Maximum font size for node text")]
     public int maxFontSize = 36;
+    
+    [Tooltip("Minimum font size for node text")]
     public int minFontSize = 14;
+    
+    [Tooltip("Starting X position for layout")]
     public float startX = 100f;
 
-    [Header("Visuals")]
+    [Header("Visual Styling")]
+    [Tooltip("Color for transition lines")]
     public Color transitionColor = Color.red;
+    
+    [Tooltip("Thickness of transition lines")]
     public float transitionThickness = 6f;
+    
+    [Tooltip("Size of arrow heads on transitions")]
     public Vector2 arrowHeadSize = new Vector2(28, 28);
+    
+    [Tooltip("Sprite for arrow heads")]
     public Sprite arrowSprite;
     
-    [Header("Annotation")]
+    [Header("Annotation System")]
+    [Tooltip("Button for creating annotations")]
     public Button annotateButton;
+    
     private AnnotationManager annotationManager;
     private JSONToLLM jsonToLLM;
-    // Track selected item for annotation
+    
+    [Header("Selection Tracking")]
     private int selectedStateId = -1;
     private int selectedTransitionId = -1;
     private bool isStateSelected = false;
-    // Track annotated items for highlighting
+    
+    [Header("Annotation Highlighting")]
     private HashSet<int> annotatedStates = new HashSet<int>();
     private HashSet<int> annotatedTransitions = new HashSet<int>();
     
     [Header("Debug")]
+    [Tooltip("Enable verbose logging for debugging")]
     public bool logVerbose = true;
 
-    private readonly Dictionary<int, GameObject> stateNodes = new();
-    private readonly Dictionary<int, float> stateHeights = new();   // pre-measured
-    private readonly Dictionary<int, float> stateWidths  = new();   // pre-measured (all fixedNodeWidth but stored anyway)
+    #endregion
 
+    #region Runtime Data
+
+    private readonly Dictionary<int, GameObject> stateNodes = new();
+    private readonly Dictionary<int, float> stateHeights = new();
+    private readonly Dictionary<int, float> stateWidths  = new();
+
+    #endregion
+
+    #region Initialization
+
+    /// <summary>
+    /// Initialize FSM visualization and annotation system
+    /// </summary>
     void Start()
     {
         TryRun();
         SetupAnnotateButton();
     }
 
-    #region Bootstrap
-
+    /// <summary>
+    /// Main initialization method with comprehensive error handling
+    /// Loads JSON data, processes FSM structure, and creates visual representation
+    /// </summary>
     void TryRun()
     {
         try
         {
+            // Validate required components
             if (nodesContainer == null)
             {
                 Debug.LogError("[FSMVisualizer] nodesContainer is not assigned.");
@@ -98,6 +166,7 @@ public class FSMVisualizer : MonoBehaviour
                 return;
             }
 
+            // Load and parse JSON data
             string json = LoadJson();
             if (string.IsNullOrWhiteSpace(json))
             {
@@ -124,9 +193,9 @@ public class FSMVisualizer : MonoBehaviour
 
             Log($"FSM loaded: {fsm.states.Count} states, {fsm.transitions.Count} transitions");
 
+            // Process FSM structure and create visualization
             InjectVirtualRoot(fsm);
             PreMeasureNodes(fsm.states);
-
             CreateNodesBFS(fsm.states, fsm.transitions);
             CreateTransitions(fsm.transitions);
         }
@@ -136,6 +205,10 @@ public class FSMVisualizer : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Load FSM JSON data from Resources folder
+    /// </summary>
+    /// <returns>JSON string or null if file not found</returns>
     string LoadJson()
     {
         Log($"Loading FSM JSON from Resources/{fsmDataPath}.json");
@@ -152,15 +225,18 @@ public class FSMVisualizer : MonoBehaviour
 
     #endregion
 
-    #region Utility Methods
+    #region Text Processing
 
     /// <summary>
-    /// Removes content within parentheses from state names only if the parentheses contain a lambda (λ).
+    /// Clean state names by removing lambda expressions and empty parentheses
+    /// Removes content within parentheses only if they contain lambda (λ) or are empty
     /// Examples: 
     /// - "MoveTo(λ_target0(), True)" becomes "MoveTo" (contains lambda)
     /// - "Pass(teammate)" stays "Pass(teammate)" (no lambda)
     /// - "StopAndReceiveBall()" becomes "StopAndReceiveBall" (empty parentheses)
     /// </summary>
+    /// <param name="name">Original state name</param>
+    /// <returns>Cleaned state name for display</returns>
     string CleanStateName(string name)
     {
         if (string.IsNullOrEmpty(name))
@@ -173,7 +249,7 @@ public class FSMVisualizer : MonoBehaviour
         {
             string parenthesesContent = name.Substring(openParen + 1, closeParen - openParen - 1);
             
-            // Only hide parentheses content if it contains lambda (λ or \u03bb)
+            // Only hide parentheses content if it contains lambda (λ or unicode lambda)
             if (parenthesesContent.Contains("\u03bb") || parenthesesContent.Contains("λ"))
             {
                 return name.Substring(0, openParen).Trim();
@@ -192,16 +268,19 @@ public class FSMVisualizer : MonoBehaviour
 
     #endregion
 
-    #region Virtual Root Injection
+    #region Graph Structure Processing
 
     /// <summary>
-    /// Always ensure there is a virtual root (ID = 0). It connects to all states that have no parent.
-    /// If there are no such states (fully cyclic graph), it connects to ALL real states to guarantee reachability.
+    /// Inject virtual root node to ensure graph connectivity
+    /// Creates a root node (ID = 0) that connects to all orphaned states
+    /// Essential for proper breadth-first traversal and layout
     /// </summary>
+    /// <param name="fsm">FSM data to modify</param>
     void InjectVirtualRoot(FSMData fsm)
     {
         Log("Injecting virtual root node (ID = 0)");
 
+        // Ensure virtual root exists
         bool rootExists = fsm.states.Exists(s => s.id == 0);
         if (!rootExists)
         {
@@ -213,42 +292,25 @@ public class FSMVisualizer : MonoBehaviour
             });
         }
 
-        // Build set of states that have parents
+        // Find states that have no parent (orphaned states)
         HashSet<int> hasParent = new();
         foreach (var t in fsm.transitions)
             hasParent.Add(t.to);
 
-        // Collect real roots (no parent)
+        // Collect orphaned states (excluding virtual root)
         List<State> orphans = new();
         foreach (var s in fsm.states)
             if (s.id != 0 && !hasParent.Contains(s.id))
                 orphans.Add(s);
 
-        // if (orphans.Count == 0)
-        // {
-        //     // Fully cyclic (or every node has a parent). Connect virtual root to all real nodes.
-        //     Log("No orphan states found. Graph seems cyclic. Connecting virtual root to ALL states.");
-        //     foreach (var s in fsm.states)
-        //     {
-        //         if (s.id == 0) continue;
-        //         fsm.transitions.Add(new Transition
-        //         {
-        //             id = -s.id, // mark as virtual
-        //             from = 0,
-        //             to = s.id,
-        //             condition = "virtual",
-        //             description = "Auto-connect (cyclic graph)"
-        //         });
-        //         Log($"  0 -> {s.id} ({s.name})");
-        //     }
-        // }
+        // Connect virtual root to orphaned states
         if (orphans.Count != 0)
         {
             foreach (var s in orphans)
             {
                 fsm.transitions.Add(new Transition
                 {
-                    id = -s.id, // virtual
+                    id = -s.id, // negative ID marks as virtual
                     from = 0,
                     to = s.id,
                     condition = "virtual",
@@ -261,13 +323,18 @@ public class FSMVisualizer : MonoBehaviour
 
     #endregion
 
-    #region Pre-measure
+    #region Node Measurement
 
+    /// <summary>
+    /// Pre-measure all nodes to determine optimal sizes for layout
+    /// Creates temporary instances to measure text rendering dimensions
+    /// </summary>
+    /// <param name="states">List of states to measure</param>
     void PreMeasureNodes(List<State> states)
     {
         Log("Pre-measuring node sizes");
 
-        // Create a hidden measuring instance of the prefab
+        // Create hidden measuring instance
         GameObject measurer = Instantiate(nodeButtonPrefab);
         measurer.hideFlags = HideFlags.HideAndDontSave;
         measurer.SetActive(false);
@@ -280,10 +347,12 @@ public class FSMVisualizer : MonoBehaviour
             return;
         }
 
+        // Measure each state
         foreach (var s in states)
         {
-            // Use cleaned name for measurement
             string displayName = CleanStateName(s.name);
+            
+            // Configure text component for measurement
             label.text = displayName;
             label.enableWordWrapping = true;
             label.enableAutoSizing = true;
@@ -293,10 +362,12 @@ public class FSMVisualizer : MonoBehaviour
             label.overflowMode = TextOverflowModes.Overflow;
             label.ForceMeshUpdate();
 
+            // Calculate dimensions
             float width = fixedNodeWidth;
             Vector2 preferred = label.GetPreferredValues(displayName, width, Mathf.Infinity);
             float height = Mathf.Min(preferred.y + paddingY, maxHeight);
 
+            // Store measurements
             stateWidths[s.id] = width;
             stateHeights[s.id] = height;
 
@@ -308,18 +379,23 @@ public class FSMVisualizer : MonoBehaviour
 
     #endregion
 
-    #region Layout (BFS, cycle-safe)
+    #region Layout Generation
 
+    /// <summary>
+    /// Create node layout using breadth-first search for hierarchical positioning
+    /// Handles cycle-safe traversal and groups nodes by depth layers
+    /// </summary>
+    /// <param name="states">List of states to layout</param>
+    /// <param name="transitions">List of transitions for adjacency</param>
     void CreateNodesBFS(List<State> states, List<Transition> transitions)
     {
         Log("Begin CreateNodesBFS()");
 
-        // Build lookups
+        // Build state lookup and adjacency lists
         Dictionary<int, State> stateLookup = new();
         foreach (var s in states)
             stateLookup[s.id] = s;
 
-        // Adjacency (children)
         Dictionary<int, List<int>> adj = new();
         foreach (var t in transitions)
         {
@@ -329,7 +405,7 @@ public class FSMVisualizer : MonoBehaviour
                 adj[t.from].Add(t.to);
         }
 
-        // BFS from 0 (virtual root)
+        // Perform BFS from virtual root to assign depths
         Dictionary<int, int> depth = new();
         Queue<int> q = new Queue<int>();
 
@@ -342,6 +418,7 @@ public class FSMVisualizer : MonoBehaviour
         depth[0] = 0;
         q.Enqueue(0);
 
+        // BFS traversal
         while (q.Count > 0)
         {
             int u = q.Dequeue();
@@ -356,14 +433,14 @@ public class FSMVisualizer : MonoBehaviour
                 }
             }
         }
+
         Log("Node Depth Assignments:");
         foreach (var kvp in depth)
         {
             Log($"  State {kvp.Key} → Depth {kvp.Value}");
         }
 
-        // Any state not reached by BFS (shouldn't happen after injection, but just in case),
-        // attach it to depth 1.
+        // Handle unreachable states (shouldn't happen after injection)
         foreach (var s in states)
         {
             if (!depth.ContainsKey(s.id))
@@ -373,7 +450,7 @@ public class FSMVisualizer : MonoBehaviour
             }
         }
 
-        // Group by depth
+        // Group states by depth and create layout
         SortedDictionary<int, List<int>> layers = new();
         foreach (var kvp in depth)
         {
@@ -382,19 +459,19 @@ public class FSMVisualizer : MonoBehaviour
             layers[kvp.Value].Add(kvp.Key);
         }
 
-        // For reproducibility order layers by id (except root first)
+        // Sort layers for reproducible layout
         foreach (var layer in layers.Values)
             layer.Sort();
 
-        // Place nodes per layer
+        // Position nodes layer by layer
         foreach (var kvp in layers)
         {
             int d = kvp.Key;
             List<int> ids = kvp.Value;
 
-            float layerWidthX = startX + (d-3.5f) * spacingX;
+            float layerWidthX = startX + (d - 3.5f) * spacingX;
 
-            // Compute total height for this layer to center vertically
+            // Calculate vertical centering
             float totalHeight = 0f;
             for (int i = 0; i < ids.Count; i++)
             {
@@ -404,69 +481,86 @@ public class FSMVisualizer : MonoBehaviour
                 if (i < ids.Count - 1) totalHeight += spacingY;
             }
 
-            // center around 0
             float startYForLayer = totalHeight * 0.5f;
             float yCursor = startYForLayer;
 
             Log($"Placing layer {d} with {ids.Count} nodes. totalHeight={totalHeight}, startY={startYForLayer}");
 
+            // Place each node in the layer
             foreach (int id in ids)
             {
-                State s = stateLookup[id];
-                float w = stateWidths[id];
-                float h = stateHeights[id];
-
-                // Create node GO
-                GameObject node = Instantiate(nodeButtonPrefab, nodesContainer);
-                node.name = $"State_{id}_{CleanStateName(s.name)}";
-                RectTransform rect = node.GetComponent<RectTransform>();
-
-                // TMP - Use cleaned name for display
-                TMP_Text label = node.GetComponentInChildren<TMP_Text>();
-                string displayName = CleanStateName(s.name);
-                label.text = displayName;
-                label.enableWordWrapping = true;
-                label.enableAutoSizing = true;
-                label.fontSizeMax = maxFontSize;
-                label.fontSizeMin = minFontSize;
-                label.alignment = TextAlignmentOptions.Center;
-                label.overflowMode = TextOverflowModes.Overflow;
-                label.ForceMeshUpdate();
-
-                rect.sizeDelta = new Vector2(w, h);
-
-                float yPos = - (yCursor - h * 0.5f);
-                rect.anchoredPosition = new Vector2(layerWidthX, yPos);
-
-                Log($"  Placed state {id} '{displayName}' (original: '{s.name}') at ({layerWidthX}, {yPos}) depth={d}");
-
-                int capturedId = id;
-                string capturedDesc = s.description;
-                var btn = node.GetComponent<Button>();
-                if (btn != null)
-                {
-                    btn.onClick.AddListener(() =>
-                    {
-                        selectedStateId = capturedId;
-                        selectedTransitionId = -1;
-                        isStateSelected = true;
-    
-                        if (descriptionText != null)
-                            descriptionText.text = $"[State {capturedId}] {displayName}\n{capturedDesc}";
-                        Log($"State {capturedId} clicked: {capturedDesc}");
-                    });
-                }
-
-                stateNodes[id] = node;
-                yCursor -= (h + spacingY);
+                CreateNodeUI(id, stateLookup[id], layerWidthX, yCursor, d);
+                yCursor -= (stateHeights[id] + spacingY);
             }
         }
     }
 
+    /// <summary>
+    /// Create individual node UI element with proper positioning and interaction
+    /// </summary>
+    /// <param name="id">State ID</param>
+    /// <param name="state">State data</param>
+    /// <param name="x">X position</param>
+    /// <param name="y">Y cursor position</param>
+    /// <param name="depth">Depth in hierarchy</param>
+    void CreateNodeUI(int id, State state, float x, float y, int depth)
+    {
+        float w = stateWidths[id];
+        float h = stateHeights[id];
+        string displayName = CleanStateName(state.name);
+
+        // Create node GameObject
+        GameObject node = Instantiate(nodeButtonPrefab, nodesContainer);
+        node.name = $"State_{id}_{displayName}";
+        RectTransform rect = node.GetComponent<RectTransform>();
+
+        // Configure text display
+        TMP_Text label = node.GetComponentInChildren<TMP_Text>();
+        label.text = displayName;
+        label.enableWordWrapping = true;
+        label.enableAutoSizing = true;
+        label.fontSizeMax = maxFontSize;
+        label.fontSizeMin = minFontSize;
+        label.alignment = TextAlignmentOptions.Center;
+        label.overflowMode = TextOverflowModes.Overflow;
+        label.ForceMeshUpdate();
+
+        // Position and size node
+        rect.sizeDelta = new Vector2(w, h);
+        float yPos = -(y - h * 0.5f);
+        rect.anchoredPosition = new Vector2(x, yPos);
+
+        // Configure click interaction
+        int capturedId = id;
+        string capturedDesc = state.description;
+        var btn = node.GetComponent<Button>();
+        if (btn != null)
+        {
+            btn.onClick.AddListener(() =>
+            {
+                selectedStateId = capturedId;
+                selectedTransitionId = -1;
+                isStateSelected = true;
+
+                if (descriptionText != null)
+                    descriptionText.text = $"[State {capturedId}] {displayName}\n{capturedDesc}";
+                Log($"State {capturedId} clicked: {capturedDesc}");
+            });
+        }
+
+        stateNodes[id] = node;
+        Log($"  Placed state {id} '{displayName}' at ({x}, {yPos}) depth={depth}");
+    }
+
     #endregion
 
-    #region Transitions
+    #region Transition Visualization
 
+    /// <summary>
+    /// Create visual representations of all transitions with lines and arrows
+    /// Calculates proper edge attachment points and arrow positioning
+    /// </summary>
+    /// <param name="transitions">List of transitions to visualize</param>
     void CreateTransitions(List<Transition> transitions)
     {
         Log("Begin CreateTransitions()");
@@ -479,78 +573,117 @@ public class FSMVisualizer : MonoBehaviour
                 continue;
             }
 
-            RectTransform fromRect = stateNodes[trans.from].GetComponent<RectTransform>();
-            RectTransform toRect = stateNodes[trans.to].GetComponent<RectTransform>();
-
-            Vector2 from = fromRect.anchoredPosition;
-            Vector2 to = toRect.anchoredPosition;
-            Vector2 direction = (to - from).normalized;
-
-            // Get true half extents in the direction of the transition
-            Vector2 fromSize = fromRect.rect.size;
-            Vector2 toSize = toRect.rect.size;
-
-            float fromPadding = GetNodeEdgeOffset(direction, fromSize);
-            float toPadding = GetNodeEdgeOffset(-direction, toSize); // opposite dir
-
-            Vector2 start = from + direction * fromPadding;
-            Vector2 end = to - direction * toPadding;
-
-            Vector2 mid = (start + end) / 2f;
-            float length = Vector2.Distance(start, end);
-            float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-
-            GameObject lineGO = new GameObject($"UILine_{trans.id}", typeof(RectTransform), typeof(Image), typeof(Button));
-            RectTransform rect = lineGO.GetComponent<RectTransform>();
-            rect.SetParent(nodesContainer, false);
-            rect.pivot = new Vector2(0.5f, 0.5f);
-            rect.anchoredPosition = mid;
-            rect.sizeDelta = new Vector2(length, transitionThickness);
-            rect.rotation = Quaternion.Euler(0, 0, angle);
-
-            Image img = lineGO.GetComponent<Image>();
-            img.color = transitionColor;
-
-            Button btn = lineGO.GetComponent<Button>();
-            // Note: We only show the description, not the condition, for cleaner visualization
-            string desc = $"[Transition {trans.id}] {trans.description}";
-            if (btn != null)
-            {
-                btn.onClick.AddListener(() =>
-                {
-                    selectedStateId = -1;
-                    selectedTransitionId = trans.id;
-                    isStateSelected = false;
-    
-                    if (descriptionText != null)
-                        descriptionText.text = desc;
-                    Log($"Transition {trans.id} clicked: {desc}");
-                });
-            }
-
-            // Arrowhead
-            GameObject arrow = new GameObject("ArrowHead", typeof(RectTransform), typeof(Image));
-            RectTransform arrowRect = arrow.GetComponent<RectTransform>();
-            arrowRect.SetParent(nodesContainer, false);
-            arrowRect.pivot = new Vector2(0.5f, 0.5f);
-            arrowRect.sizeDelta = arrowHeadSize;
-            arrowRect.anchoredPosition = end - direction * 5f; // small inward nudge
-            arrowRect.rotation = Quaternion.Euler(0, 0, angle);
-
-            Image arrowImg = arrow.GetComponent<Image>();
-            arrowImg.sprite = arrowSprite;
-            arrowImg.color = transitionColor;
-            arrowImg.type = Image.Type.Simple;
-            arrowImg.preserveAspect = true;
-
-            Log($"Created transition {trans.id}: {trans.from} -> {trans.to} (condition hidden from visualization)");
+            CreateTransitionUI(trans);
         }
     }
 
     /// <summary>
-    /// Calculates how far from a node's center to offset the transition line
-    /// so it visually attaches to the edge of the node.
+    /// Create UI elements for a single transition (line + arrow)
     /// </summary>
+    /// <param name="trans">Transition data</param>
+    void CreateTransitionUI(Transition trans)
+    {
+        RectTransform fromRect = stateNodes[trans.from].GetComponent<RectTransform>();
+        RectTransform toRect = stateNodes[trans.to].GetComponent<RectTransform>();
+
+        // Calculate connection points
+        Vector2 from = fromRect.anchoredPosition;
+        Vector2 to = toRect.anchoredPosition;
+        Vector2 direction = (to - from).normalized;
+
+        // Calculate edge offsets to attach to node boundaries
+        Vector2 fromSize = fromRect.rect.size;
+        Vector2 toSize = toRect.rect.size;
+
+        float fromPadding = GetNodeEdgeOffset(direction, fromSize);
+        float toPadding = GetNodeEdgeOffset(-direction, toSize);
+
+        Vector2 start = from + direction * fromPadding;
+        Vector2 end = to - direction * toPadding;
+
+        // Create transition line
+        CreateTransitionLine(trans, start, end, direction);
+        
+        // Create arrow head
+        CreateArrowHead(trans, end, direction);
+
+        Log($"Created transition {trans.id}: {trans.from} -> {trans.to}");
+    }
+
+    /// <summary>
+    /// Create the line portion of a transition
+    /// </summary>
+    /// <param name="trans">Transition data</param>
+    /// <param name="start">Start position</param>
+    /// <param name="end">End position</param>
+    /// <param name="direction">Direction vector</param>
+    void CreateTransitionLine(Transition trans, Vector2 start, Vector2 end, Vector2 direction)
+    {
+        Vector2 mid = (start + end) / 2f;
+        float length = Vector2.Distance(start, end);
+        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+
+        GameObject lineGO = new GameObject($"UILine_{trans.id}", typeof(RectTransform), typeof(Image), typeof(Button));
+        RectTransform rect = lineGO.GetComponent<RectTransform>();
+        rect.SetParent(nodesContainer, false);
+        rect.pivot = new Vector2(0.5f, 0.5f);
+        rect.anchoredPosition = mid;
+        rect.sizeDelta = new Vector2(length, transitionThickness);
+        rect.rotation = Quaternion.Euler(0, 0, angle);
+
+        Image img = lineGO.GetComponent<Image>();
+        img.color = transitionColor;
+
+        // Configure click interaction
+        Button btn = lineGO.GetComponent<Button>();
+        string desc = $"[Transition {trans.id}] {trans.description}";
+        if (btn != null)
+        {
+            btn.onClick.AddListener(() =>
+            {
+                selectedStateId = -1;
+                selectedTransitionId = trans.id;
+                isStateSelected = false;
+
+                if (descriptionText != null)
+                    descriptionText.text = desc;
+                Log($"Transition {trans.id} clicked: {desc}");
+            });
+        }
+    }
+
+    /// <summary>
+    /// Create arrow head for transition
+    /// </summary>
+    /// <param name="trans">Transition data</param>
+    /// <param name="end">End position</param>
+    /// <param name="direction">Direction vector</param>
+    void CreateArrowHead(Transition trans, Vector2 end, Vector2 direction)
+    {
+        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+
+        GameObject arrow = new GameObject("ArrowHead", typeof(RectTransform), typeof(Image));
+        RectTransform arrowRect = arrow.GetComponent<RectTransform>();
+        arrowRect.SetParent(nodesContainer, false);
+        arrowRect.pivot = new Vector2(0.5f, 0.5f);
+        arrowRect.sizeDelta = arrowHeadSize;
+        arrowRect.anchoredPosition = end - direction * 5f; // small inward nudge
+        arrowRect.rotation = Quaternion.Euler(0, 0, angle);
+
+        Image arrowImg = arrow.GetComponent<Image>();
+        arrowImg.sprite = arrowSprite;
+        arrowImg.color = transitionColor;
+        arrowImg.type = Image.Type.Simple;
+        arrowImg.preserveAspect = true;
+    }
+
+    /// <summary>
+    /// Calculate edge offset for proper line attachment to node boundaries
+    /// Determines how far from node center to place connection point
+    /// </summary>
+    /// <param name="direction">Direction vector from node</param>
+    /// <param name="nodeSize">Size of the node</param>
+    /// <returns>Distance from center to edge</returns>
     float GetNodeEdgeOffset(Vector2 direction, Vector2 nodeSize)
     {
         direction.Normalize();
@@ -560,30 +693,35 @@ public class FSMVisualizer : MonoBehaviour
         if (dx == 0 && dy == 0)
             return 0;
 
-        // Find the minimum scale factor so the direction vector fits within the box
+        // Find minimum scale to fit direction within node bounds
         float scaleX = (nodeSize.x / 2f) / dx;
         float scaleY = (nodeSize.y / 2f) / dy;
         float scale = Mathf.Min(scaleX, scaleY);
 
-        return scale + 6f; // +6 for buffer
+        return scale + 6f; // +6 for visual buffer
     }
 
     #endregion
-    
-    #region Annotations
-    
+
+    #region Annotation System
+
+    /// <summary>
+    /// Initialize annotation system integration
+    /// </summary>
     void SetupAnnotateButton()
     {
         annotationManager = GameObject.FindGameObjectWithTag("ProgramSynthesisManager").GetComponent<AnnotationManager>();
-        
         jsonToLLM = FindObjectOfType<JSONToLLM>();
-    
+
         if (annotateButton != null)
         {
             annotateButton.onClick.AddListener(HandleAnnotateClick);
         }
     }
-    
+
+    /// <summary>
+    /// Handle annotation button clicks for selected states or transitions
+    /// </summary>
     void HandleAnnotateClick()
     {
         if (annotationManager == null)
@@ -591,7 +729,7 @@ public class FSMVisualizer : MonoBehaviour
             Log("annotationManager not found for annotation");
             return;
         }
-    
+
         if (selectedStateId == -1 && selectedTransitionId == -1)
         {
             Log("No node or transition selected for annotation");
@@ -600,24 +738,24 @@ public class FSMVisualizer : MonoBehaviour
 
         if (isStateSelected)
         {
-            // Node annotation
+            // Annotate selected state
             annotationManager.CreateFsmNodeAnnotation(selectedStateId, descriptionText);
-            
-            // Highlight the annotated node
             annotatedStates.Add(selectedStateId);
             HighlightAnnotatedNode(selectedStateId);
         }
         else
         {
-            // Edge annotation  
+            // Annotate selected transition
             annotationManager.CreateFsmEdgeAnnotation(selectedTransitionId, descriptionText);
-            
-            // Highlight the annotated transition
             annotatedTransitions.Add(selectedTransitionId);
             HighlightAnnotatedTransition(selectedTransitionId);
         }
     }
-    
+
+    /// <summary>
+    /// Highlight an annotated state node with color change
+    /// </summary>
+    /// <param name="stateId">ID of state to highlight</param>
     void HighlightAnnotatedNode(int stateId)
     {
         if (stateNodes.ContainsKey(stateId))
@@ -631,9 +769,13 @@ public class FSMVisualizer : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Highlight an annotated transition with color change
+    /// </summary>
+    /// <param name="transitionId">ID of transition to highlight</param>
     void HighlightAnnotatedTransition(int transitionId)
     {
-        // Find transition line by name
+        // Highlight transition line
         GameObject transitionLine = GameObject.Find($"UILine_{transitionId}");
         if (transitionLine != null)
         {
@@ -642,8 +784,8 @@ public class FSMVisualizer : MonoBehaviour
             {
                 lineImage.color = Color.yellow;
             }
-        
-            // Also highlight the arrowhead if it exists
+
+            // Also highlight the arrow head
             Transform arrowHead = transitionLine.transform.parent.Find("ArrowHead");
             if (arrowHead != null)
             {
@@ -655,16 +797,25 @@ public class FSMVisualizer : MonoBehaviour
             }
         }
     }
+
     #endregion
 
-    #region Utils
+    #region Utility Methods
 
+    /// <summary>
+    /// Log message if verbose logging is enabled
+    /// </summary>
+    /// <param name="msg">Message to log</param>
     void Log(string msg)
     {
         if (logVerbose)
             Debug.Log("[FSMVisualizer] " + msg);
     }
 
+    /// <summary>
+    /// Log warning message if verbose logging is enabled
+    /// </summary>
+    /// <param name="msg">Warning message to log</param>
     void LogWarning(string msg)
     {
         if (logVerbose)

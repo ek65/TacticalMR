@@ -4,32 +4,40 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
+/// <summary>
+/// Handles deselection interactions for ground highlight markers.
+/// Provides click and ray-based interaction methods to clear ground position highlights.
+/// Used on UI elements that allow users to remove position markers from the scene.
+/// </summary>
 public class GroundDeselection : MonoBehaviour, IPointerClickHandler
 {
+    /// <summary>
+    /// Handle mouse click events to deselect ground highlights
+    /// Clears all active ground position markers when clicked
+    /// </summary>
+    /// <param name="eventData">Event data containing click information</param>
     public void OnPointerClick(PointerEventData eventData)
     {
-        // if (eventData.button == PointerEventData.InputButton.Right)
-        // clicking on the X again should remove it
-        GroundSelection groundSelection = GameObject.FindGameObjectWithTag("Ground")
-            .GetComponent<GroundSelection>();
-        groundSelection.ClearGroundHighlights();
-        // Destroy(this.gameObject);
+        ClearGroundHighlights();
     }
     
+    /// <summary>
+    /// Handle VR ray-based click events to deselect ground highlights
+    /// Provides the same functionality as mouse clicks but for VR interaction
+    /// </summary>
     public void OnRayClick()
     {
-        // clicking on the X again should remove it
+        ClearGroundHighlights();
+    }
+
+    /// <summary>
+    /// Clear all ground highlights by calling the GroundSelection manager
+    /// Removes position markers and resets ground selection state
+    /// </summary>
+    private void ClearGroundHighlights()
+    {
         GroundSelection groundSelection = GameObject.FindGameObjectWithTag("Ground")
             .GetComponent<GroundSelection>();
         groundSelection.ClearGroundHighlights();
-        // Destroy(this.gameObject);
     }
-
-    // public void OnTriggerEnter(Collider other)
-    // {
-    //     if (other.gameObject.CompareTag("human") && !this.gameObject.CompareTag("GroundHover"))
-    //     {
-    //         Destroy(this.gameObject);
-    //     }
-    // }
 }

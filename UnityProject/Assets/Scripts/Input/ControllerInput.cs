@@ -4,6 +4,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+/// <summary>
+/// Handles gamepad/controller input for player movement and game actions.
+/// Manages both movement (analog stick) and discrete actions (buttons) for gameplay.
+/// Integrates with multiple game systems including timeline management, scenario control, and soccer mechanics.
+/// Provides public methods for external controller mapping systems (like Meta Quest controllers).
+/// </summary>
 public class ControllerInput : MonoBehaviour
 {
     private InputSystem inputSystem;
@@ -48,9 +54,10 @@ public class ControllerInput : MonoBehaviour
         inputSystem.PlayerControls.Restart.performed += ControllerRestart; // Y Button
         inputSystem.PlayerControls.Segment.performed += ControllerSegment; // X Button
         // soccer actions
-            inputSystem.PlayerControls.Intercept.performed += ControllerIntercept; // Left Trigger
-            inputSystem.PlayerControls.Pass.performed += ControllerPass; // Right Trigger
-            inputSystem.PlayerControls.ThroughPass.performed += ControllerThroughPass; // Right Bumper 
+        inputSystem.PlayerControls.Intercept.performed += ControllerIntercept; // Left Trigger
+        inputSystem.PlayerControls.Pass.performed += ControllerPass; // Right Trigger
+        inputSystem.PlayerControls.TriggerPass.performed += ControllerTriggerPass; // Right Shoulder
+        inputSystem.PlayerControls.ShootGoal.performed += ControllerShoot; // Left Shoulder
         // factory actions
             // inputSystem.PlayerControls.PickUp.performed += ControllerPickUp; // Left Trigger 
             // inputSystem.PlayerControls.PutDown.performed += ControllerPutDown; // Right Trigger
@@ -180,6 +187,11 @@ public class ControllerInput : MonoBehaviour
         }
         HumanInterface humanInterface = this.GetComponent<HumanInterface>();
         humanInterface.ShootGoal();
+    }
+    
+    private void ControllerTriggerPass(InputAction.CallbackContext ctx)
+    {
+        HandleControllerTriggerPass();
     }
     
     public void HandleControllerTriggerPass()

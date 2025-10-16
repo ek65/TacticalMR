@@ -5,6 +5,12 @@ using Fusion;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
+/// <summary>
+/// Manages object outline selection and highlighting for both desktop and VR interaction modes.
+/// Provides visual feedback through outline effects when objects are hovered or selected.
+/// Integrates with annotation systems to handle object-based interactions and recordings.
+/// Supports networking for synchronized outline states across multiple clients.
+/// </summary>
 public class OutlineSelection : NetworkBehaviour, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler
 {
     private Outline outline;

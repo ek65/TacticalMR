@@ -9,6 +9,11 @@ using Oculus.Platform;
 using Oculus.Platform.Models;
 using UnityEngine.SceneManagement;
 
+/// <summary>
+/// Central game manager that handles networking setup, player spawning, and game mode coordination.
+/// Supports three primary modes: Host (VR headset), Client (laptop observer), and Laptop Mode (single-player).
+/// Manages Photon Fusion networking, Scenic integration, and cross-platform compatibility.
+/// </summary>
 public class GameManager : MonoBehaviour, INetworkRunnerCallbacks
 {
 	#region Generic

@@ -4,42 +4,89 @@ using Fusion;
 using TMPro;
 using UnityEngine;
 
+/// <summary>
+/// Manages event annotations for AI analysis and program synthesis.
+/// Tracks player actions, interactions, and user inputs to create comprehensive annotations
+/// that can be used for machine learning and behavioral analysis.
+/// Handles network synchronization of annotations across multiplayer sessions.
+/// </summary>
 public class AnnotationManager : NetworkBehaviour
 {
+    #region Component References
     [Header("Scene References")]
     private JSONToLLM jsonToLLM;
     private GameManager gameManager;
     private ProgramSynthesisManager programSynthesisManager;
+    #endregion
 
+    #region Annotation Storage
     [Header("Annotations")]
+    /// <summary>
+    /// Main annotation dictionary mapping annotation IDs to annotation data
+    /// </summary>
     public Dictionary<int, object> annotation = new Dictionary<int, object>();
-    public Dictionary<int, string> annotationDescriptions = new Dictionary<int, string>();
-    public Dictionary<GameObject, int> objectToKey = new Dictionary<GameObject, int>();
-    public Dictionary<int, float> annotationTimes = new Dictionary<int, float>();
-    public int clickOrder = 0; 
     
+    /// <summary>
+    /// Human-readable descriptions for each annotation
+    /// </summary>
+    public Dictionary<int, string> annotationDescriptions = new Dictionary<int, string>();
+    
+    /// <summary>
+    /// Maps GameObjects to their annotation keys for quick lookup
+    /// </summary>
+    public Dictionary<GameObject, int> objectToKey = new Dictionary<GameObject, int>();
+    
+    /// <summary>
+    /// Stores the timestamp for each annotation relative to segment start
+    /// </summary>
+    public Dictionary<int, float> annotationTimes = new Dictionary<int, float>();
+    
+    /// <summary>
+    /// Sequential ID counter for annotation ordering
+    /// </summary>
+    public int clickOrder = 0;
+    
+    /// <summary>
+    /// Whether annotations have been synchronized across clients
+    /// </summary>
+    public bool annotationsReady = false;
+    #endregion
+
+    #region Unity Lifecycle
     void Start()
     {
-        jsonToLLM = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<JSONToLLM>();
-        gameManager = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
-        programSynthesisManager = this.gameObject.GetComponent<ProgramSynthesisManager>();
-
-        Debug.Log("KeyboardInput script initialized");
+        InitializeComponents();
+        Debug.Log("AnnotationManager script initialized");
     }
 
-    // Update is called once per frame
     void Update()
     {
         
     }
-    
-    // Struct to hold Annotation data for RPCs
+    #endregion
+
+    #region Initialization
+    /// <summary>
+    /// Initializes component references
+    /// </summary>
+    private void InitializeComponents()
+    {
+        jsonToLLM = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<JSONToLLM>();
+        gameManager = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
+        programSynthesisManager = this.gameObject.GetComponent<ProgramSynthesisManager>();
+    }
+    #endregion
+
+    #region Network Synchronization Structures
+    /// <summary>
+    /// Network-serializable structure for transmitting annotation data across clients
+    /// </summary>
     public struct AnnotationData : INetworkStruct
     {
         public int AnnotationID;
         public byte AnnotationType; // 0 = GameObject, 1 = Vector3, 2 = Dictionary
     
-        // For Vector3 type
+        // For Vector3 type annotations
         public float PositionX;
         public float PositionY;
         public float PositionZ;
@@ -69,12 +116,16 @@ public class AnnotationManager : NetworkBehaviour
         public float PointX;
         public float PointY;
     }
-    
+    #endregion
+
+    #region Network Synchronization
+    /// <summary>
+    /// Synchronizes all annotations from server to clients in chunks to handle network limitations
+    /// </summary>
     public void SyncAnnotationsToClients()
     {
         if (gameManager.laptopMode || !Runner.IsServer) return;
         
-        // First, clear client annotations
         RPC_ClearAnnotations();
         
         List<AnnotationData> allAnnotations = new List<AnnotationData>();
@@ -87,52 +138,79 @@ public class AnnotationManager : NetworkBehaviour
             string description = annotationDescriptions.ContainsKey(id) ? annotationDescriptions[id] : "";
             float time = annotationTimes.ContainsKey(id) ? annotationTimes[id] : 0f;
             
-            AnnotationData data = new AnnotationData();
-            data.AnnotationID = id;
-            data.Description = description;
-            data.AnnotationTime = time;
-            
-            if (value is GameObject go)
-            {
-                data.AnnotationType = 0; // GameObject
-                data.ObjectName = go.name;
-            }
-            else if (value is Vector3 vector)
-            {
-                data.AnnotationType = 1; // Vector3
-                data.PositionX = vector.x;
-                data.PositionY = vector.y;
-                data.PositionZ = vector.z;
-            }
-            else if (value is Dictionary<string, object> dictValue)
-            {
-                data.AnnotationType = 2; // Dictionary
-                
-                // Handle common dictionary fields
-                if (dictValue.ContainsKey("type"))
-                    data.DictType = dictValue["type"].ToString();
-                    
-                if (dictValue.ContainsKey("player") || dictValue.ContainsKey("from"))
-                    data.DictFrom = dictValue.ContainsKey("player") ? dictValue["player"].ToString() : dictValue["from"].ToString();
-                    
-                if (dictValue.ContainsKey("to"))
-                {
-                    if (dictValue["to"] is Dictionary<string, float> pointDict)
-                    {
-                        data.PointX = pointDict.ContainsKey("x") ? pointDict["x"] : 0f;
-                        data.PointY = pointDict.ContainsKey("y") ? pointDict["y"] : 0f;
-                    }
-                    else
-                    {
-                        data.DictTo = dictValue["to"].ToString();
-                    }
-                }
-            }
-            
+            AnnotationData data = CreateAnnotationData(id, value, description, time);
             allAnnotations.Add(data);
         }
         
-        // Send annotations in chunks
+        // Send annotations in manageable chunks
+        SendAnnotationChunks(allAnnotations);
+        
+        RPC_FinishAnnotationSync();
+        
+        Debug.Log($"SERVER: Sent {allAnnotations.Count} annotations to clients");
+    }
+
+    /// <summary>
+    /// Creates network annotation data from local annotation entry
+    /// </summary>
+    private AnnotationData CreateAnnotationData(int id, object value, string description, float time)
+    {
+        AnnotationData data = new AnnotationData();
+        data.AnnotationID = id;
+        data.Description = description;
+        data.AnnotationTime = time;
+        
+        if (value is GameObject go)
+        {
+            data.AnnotationType = 0; // GameObject
+            data.ObjectName = go.name;
+        }
+        else if (value is Vector3 vector)
+        {
+            data.AnnotationType = 1; // Vector3
+            data.PositionX = vector.x;
+            data.PositionY = vector.y;
+            data.PositionZ = vector.z;
+        }
+        else if (value is Dictionary<string, object> dictValue)
+        {
+            data.AnnotationType = 2; // Dictionary
+            PopulateDictionaryData(ref data, dictValue);
+        }
+        
+        return data;
+    }
+
+    /// <summary>
+    /// Populates dictionary-specific fields in annotation data
+    /// </summary>
+    private void PopulateDictionaryData(ref AnnotationData data, Dictionary<string, object> dictValue)
+    {
+        if (dictValue.ContainsKey("type"))
+            data.DictType = dictValue["type"].ToString();
+            
+        if (dictValue.ContainsKey("player") || dictValue.ContainsKey("from"))
+            data.DictFrom = dictValue.ContainsKey("player") ? dictValue["player"].ToString() : dictValue["from"].ToString();
+            
+        if (dictValue.ContainsKey("to"))
+        {
+            if (dictValue["to"] is Dictionary<string, float> pointDict)
+            {
+                data.PointX = pointDict.ContainsKey("x") ? pointDict["x"] : 0f;
+                data.PointY = pointDict.ContainsKey("y") ? pointDict["y"] : 0f;
+            }
+            else
+            {
+                data.DictTo = dictValue["to"].ToString();
+            }
+        }
+    }
+
+    /// <summary>
+    /// Sends annotation data in chunks to avoid network packet size limits
+    /// </summary>
+    private void SendAnnotationChunks(List<AnnotationData> allAnnotations)
+    {
         const int CHUNK_SIZE = 5; // Adjust based on complexity
         
         for (int i = 0; i < allAnnotations.Count; i += CHUNK_SIZE)
@@ -147,25 +225,11 @@ public class AnnotationManager : NetworkBehaviour
             
             RPC_ReceiveAnnotationChunk(chunk);
         }
-        
-        // Signal that all annotations have been sent
-        RPC_FinishAnnotationSync();
-        
-        Debug.Log($"SERVER: Sent {allAnnotations.Count} annotations to clients");
     }
-    
-    public string GetDescriptionAnnotation(GameObject go)
-    {
-        return $"(Coach is pointing at {go.name})";
-    }
-    
-    public bool annotationsReady = false;
 
-    public bool AreAnnotationsSynced()
-    {
-        return gameManager.laptopMode ? true : annotationsReady;
-    }
-    
+    /// <summary>
+    /// Network RPC to clear annotations on all clients
+    /// </summary>
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
     private void RPC_ClearAnnotations()
     {
@@ -179,6 +243,9 @@ public class AnnotationManager : NetworkBehaviour
         }
     }
     
+    /// <summary>
+    /// Network RPC to receive annotation chunk data
+    /// </summary>
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
     private void RPC_ReceiveAnnotationChunk(AnnotationData[] chunk)
     {
@@ -186,77 +253,102 @@ public class AnnotationManager : NetworkBehaviour
         {
             foreach (var data in chunk)
             {
-                int id = data.AnnotationID;
-                
-                // Add to annotationTimes
-                annotationTimes[id] = data.AnnotationTime;
-                
-                // Add to annotationDescriptions
-                annotationDescriptions[id] = data.Description.ToString();
-                
-                // Add to annotation based on type
-                if (data.AnnotationType == 0) // GameObject
-                {
-                    // For GameObject references, we need to find the object by name
-                    string objectName = data.ObjectName.ToString();
-                    GameObject foundObj = GameObject.Find(objectName);
-                    
-                    if (foundObj != null)
-                    {
-                        annotation[id] = foundObj;
-                    }
-                    else
-                    {
-                        Debug.LogError($"CLIENT: Could not find GameObject named {objectName}");
-                        // Create a placeholder dictionary to avoid null references
-                        annotation[id] = new Dictionary<string, object> { { "type", "Reference" }, { "obj", objectName } };
-                    }
-                }
-                else if (data.AnnotationType == 1) // Vector3
-                {
-                    annotation[id] = new Vector3(data.PositionX, data.PositionY, data.PositionZ);
-                }
-                else if (data.AnnotationType == 2) // Dictionary
-                {
-                    Dictionary<string, object> dict = new Dictionary<string, object>();
-                    
-                    if (!string.IsNullOrEmpty(data.DictType.ToString()))
-                        dict["type"] = data.DictType.ToString();
-                        
-                    if (!string.IsNullOrEmpty(data.DictFrom.ToString()))
-                    {
-                        // Handle player or from
-                        if (data.DictType.ToString() == "ReceiveBall" || 
-                            data.DictType.ToString() == "PickUp" || 
-                            data.DictType.ToString() == "PutDown" || 
-                            data.DictType.ToString() == "Packaging")
-                        {
-                            dict["player"] = data.DictFrom.ToString();
-                        }
-                        else
-                        {
-                            dict["from"] = data.DictFrom.ToString();
-                        }
-                    }
-                    
-                    if (!string.IsNullOrEmpty(data.DictTo.ToString()))
-                    {
-                        dict["to"] = data.DictTo.ToString();
-                    }
-                    else if (data.PointX != 0 || data.PointY != 0)
-                    {
-                        // Point coordinates
-                        dict["to"] = new Dictionary<string, float> { { "x", data.PointX }, { "y", data.PointY } };
-                    }
-                    
-                    annotation[id] = dict;
-                }
+                ProcessReceivedAnnotation(data);
             }
             
             Debug.Log($"CLIENT: Received {chunk.Length} annotations");
         }
     }
+
+    /// <summary>
+    /// Processes received annotation data and reconstructs local annotation dictionaries
+    /// </summary>
+    private void ProcessReceivedAnnotation(AnnotationData data)
+    {
+        int id = data.AnnotationID;
+        
+        annotationTimes[id] = data.AnnotationTime;
+        annotationDescriptions[id] = data.Description.ToString();
+        
+        if (data.AnnotationType == 0) // GameObject
+        {
+            ProcessGameObjectAnnotation(id, data);
+        }
+        else if (data.AnnotationType == 1) // Vector3
+        {
+            annotation[id] = new Vector3(data.PositionX, data.PositionY, data.PositionZ);
+        }
+        else if (data.AnnotationType == 2) // Dictionary
+        {
+            ProcessDictionaryAnnotation(id, data);
+        }
+    }
+
+    /// <summary>
+    /// Processes GameObject reference annotations
+    /// </summary>
+    private void ProcessGameObjectAnnotation(int id, AnnotationData data)
+    {
+        string objectName = data.ObjectName.ToString();
+        GameObject foundObj = GameObject.Find(objectName);
+        
+        if (foundObj != null)
+        {
+            annotation[id] = foundObj;
+        }
+        else
+        {
+            Debug.LogError($"CLIENT: Could not find GameObject named {objectName}");
+            annotation[id] = new Dictionary<string, object> { { "type", "Reference" }, { "obj", objectName } };
+        }
+    }
+
+    /// <summary>
+    /// Processes dictionary-based annotations
+    /// </summary>
+    private void ProcessDictionaryAnnotation(int id, AnnotationData data)
+    {
+        Dictionary<string, object> dict = new Dictionary<string, object>();
+        
+        if (!string.IsNullOrEmpty(data.DictType.ToString()))
+            dict["type"] = data.DictType.ToString();
+            
+        if (!string.IsNullOrEmpty(data.DictFrom.ToString()))
+        {
+            // Handle player or from fields based on annotation type
+            if (IsPlayerBasedAnnotation(data.DictType.ToString()))
+            {
+                dict["player"] = data.DictFrom.ToString();
+            }
+            else
+            {
+                dict["from"] = data.DictFrom.ToString();
+            }
+        }
+        
+        if (!string.IsNullOrEmpty(data.DictTo.ToString()))
+        {
+            dict["to"] = data.DictTo.ToString();
+        }
+        else if (data.PointX != 0 || data.PointY != 0)
+        {
+            dict["to"] = new Dictionary<string, float> { { "x", data.PointX }, { "y", data.PointY } };
+        }
+        
+        annotation[id] = dict;
+    }
+
+    /// <summary>
+    /// Determines if annotation type uses "player" field instead of "from"
+    /// </summary>
+    private bool IsPlayerBasedAnnotation(string type)
+    {
+        return type == "ReceiveBall" || type == "PickUp" || type == "PutDown" || type == "Packaging";
+    }
     
+    /// <summary>
+    /// Network RPC to signal annotation sync completion
+    /// </summary>
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
     private void RPC_FinishAnnotationSync()
     {
@@ -266,7 +358,30 @@ public class AnnotationManager : NetworkBehaviour
             Debug.Log($"CLIENT: All annotations synced. Total annotations: {annotation.Count}");
         }
     }
+    #endregion
+
+    #region Utility Methods
+    /// <summary>
+    /// Generates description text for object reference annotations
+    /// </summary>
+    public string GetDescriptionAnnotation(GameObject go)
+    {
+        return $"(Coach is pointing at {go.name})";
+    }
     
+    /// <summary>
+    /// Checks if annotations have been properly synchronized across clients
+    /// </summary>
+    public bool AreAnnotationsSynced()
+    {
+        return gameManager.laptopMode ? true : annotationsReady;
+    }
+    #endregion
+
+    #region JSON Export
+    /// <summary>
+    /// Converts annotations to JSON-serializable format for export to LLM systems
+    /// </summary>
     public List<Dictionary<string, object>> GetAnnotationsAsJson()
     {
         var annotationsList = new List<Dictionary<string, object>>();
@@ -294,16 +409,14 @@ public class AnnotationManager : NetworkBehaviour
                     { "point", new { x = vector.x, y = vector.z } }
                 });
             }
-            // NEW: handle dictionary-based annotations (e.g. "PickUp", "Pass", etc.)
             else if (value is Dictionary<string, object> dictValue)
             {
-                // Start by creating a fresh dictionary for the JSON entry
                 var annotationDict = new Dictionary<string, object>
                 {
                     ["id"] = id.ToString()
                 };
 
-                // Merge user-defined fields from your log calls
+                // Merge user-defined fields from logged actions
                 foreach (var kvp in dictValue)
                 {
                     annotationDict[kvp.Key] = kvp.Value;
@@ -315,29 +428,32 @@ public class AnnotationManager : NetworkBehaviour
 
         return annotationsList;
     }
-    
+    #endregion
+
+    #region Annotation Creation Methods
+    /// <summary>
+    /// Creates annotation for pause action during gameplay
+    /// </summary>
     public void CreatePauseActionAnnotation(float segmentStartTime)
     {
-        // Create a dictionary with the PauseAction type
         Dictionary<string, object> pauseAction = new Dictionary<string, object>
         {
             { "type", "PauseAction" }
         };
             
-        // Add to annotations with current click order
         annotation.Add(clickOrder, pauseAction);
         annotationDescriptions.Add(clickOrder, "Coach paused the game");
             
-        // Record the time of pause relative to segment start
         float pauseTime = Time.time - segmentStartTime;
         annotationTimes.Add(clickOrder, pauseTime);
             
         Debug.Log($"Added PauseAction annotation at {pauseTime:F2}s, key {clickOrder}");
-            
-        // Increment click order for next annotation
         clickOrder++;
     }
 
+    /// <summary>
+    /// Creates annotation for object click/selection events
+    /// </summary>
     public void CreateObjectClickAnnotation(GameObject clickedObject, float segmentStartTime)
     {
         annotation.Add(clickOrder, clickedObject);
@@ -351,6 +467,9 @@ public class AnnotationManager : NetworkBehaviour
         clickOrder++;
     }
     
+    /// <summary>
+    /// Creates annotation for position click events
+    /// </summary>
     public void CreatePositionClickAnnotation(Vector3 clickedPosition, float segmentStartTime)
     {
         annotation.Add(clickOrder, clickedPosition);
@@ -363,6 +482,9 @@ public class AnnotationManager : NetworkBehaviour
         clickOrder++;
     }
 
+    /// <summary>
+    /// Creates annotation for trigger pass events (coach instructing player to pass)
+    /// </summary>
     public void CreateTriggerPassAnnotation(GameObject teammate)
     {
         int eventID = clickOrder;
@@ -373,14 +495,17 @@ public class AnnotationManager : NetworkBehaviour
             { "type", "TriggerPass" },
             { "from", teammate.name }
         });
-        Debug.Log(annotation);
     
         annotationDescriptions.Add(eventID, $"(Coach told {teammate.name} to pass the ball)");
-        Debug.Log($"Added trigger pass to annotations at {eventTime:F2}s, key {eventTime}");
         annotationTimes.Add(eventID, eventTime);
+        
+        Debug.Log($"Added trigger pass to annotations at {eventTime:F2}s, key {eventID}");
         clickOrder++;
     }
 
+    /// <summary>
+    /// Creates annotation for ball interception events
+    /// </summary>
     public void CreateInterceptAnnotation(GameObject player)
     {
         int interceptID = clickOrder;
@@ -397,45 +522,53 @@ public class AnnotationManager : NetworkBehaviour
         clickOrder++; 
     }
 
+    /// <summary>
+    /// Creates annotation for player-to-player pass events
+    /// </summary>
     public void CreatePassAnnotation(GameObject player, GameObject closestPlayerInDirection)
     {
         int passID = clickOrder;
         float passTime = jsonToLLM.time;
     
-        GameObject targetPlayer = closestPlayerInDirection;
         annotation.Add(passID, new Dictionary<string, object>
         {
             { "type", "Pass" },
             { "from", player.name },
-            { "to", targetPlayer.name }
+            { "to", closestPlayerInDirection.name }
         });
 
-        annotationDescriptions.Add(passID, $"({player.name} passed to {targetPlayer.name})");
-        
+        annotationDescriptions.Add(passID, $"({player.name} passed to {closestPlayerInDirection.name})");
         annotationTimes.Add(passID, passTime);
-        Debug.Log($"Pass action recorded with ID {passID}, from: {player.name} to: {targetPlayer.name} at time: {passTime}");
+        
+        Debug.Log($"Pass action recorded with ID {passID}, from: {player.name} to: {closestPlayerInDirection.name} at time: {passTime}");
         clickOrder++;
     }
 
+    /// <summary>
+    /// Creates annotation for goal shooting events
+    /// </summary>
     public void CreateShootGoalAnnotation(GameObject player, GameObject goalObj)
     {
-        int passID = clickOrder;
-        float passTime = jsonToLLM.time;
+        int shootID = clickOrder;
+        float shootTime = jsonToLLM.time;
     
-        annotation.Add(passID, new Dictionary<string, object>
+        annotation.Add(shootID, new Dictionary<string, object>
         {
             { "type", "Shoot Goal" },
             { "from", player.name },
             { "to", goalObj.name }
         });
 
-        annotationDescriptions.Add(passID, $"({player.name} shot towards Goal)");
+        annotationDescriptions.Add(shootID, $"({player.name} shot towards Goal)");
+        annotationTimes.Add(shootID, shootTime);
         
-        annotationTimes.Add(passID, passTime);
-        Debug.Log($"Shoot goal action recorded with ID {passID}, from: {player.name} at time: {passTime}");
+        Debug.Log($"Shoot goal action recorded with ID {shootID}, from: {player.name} at time: {shootTime}");
         clickOrder++; 
     }
 
+    /// <summary>
+    /// Creates annotation for through pass events (passing to open space)
+    /// </summary>
     public void CreateThroughPassAnnotation(GameObject player, Vector3 pos)
     {
         int passID = clickOrder;
@@ -446,6 +579,7 @@ public class AnnotationManager : NetworkBehaviour
             { "x", pos.x },
             { "y", pos.z }
         };
+        
         annotation.Add(passID, new Dictionary<string, object>
         {
             { "type", "Through Pass" },
@@ -454,32 +588,38 @@ public class AnnotationManager : NetworkBehaviour
         });
         
         annotationDescriptions.Add(passID, $"({player.name} passed to position: {pointDict})");
-    
         annotationTimes.Add(passID, passTime);
+        
         Debug.Log($"Through Pass action recorded with ID {passID} at time: {passTime}");
         clickOrder++; 
     }
 
+    /// <summary>
+    /// Creates annotation for ball reception events
+    /// </summary>
     public void CreateReceivePassAnnotation(GameObject player)
     {
         int receiveBallID = clickOrder;
         float receiveBallTime = jsonToLLM.time;
+        
         annotation.Add(receiveBallID, new Dictionary<string, object>
         {
             { "type", "ReceiveBall" },
             { "player", player.gameObject.name }
         });
+        
         annotationDescriptions.Add(receiveBallID, $"({player.gameObject.name} received the ball)");
-        
         annotationTimes.Add(receiveBallID, receiveBallTime);
-        Debug.Log($"ReceiveBall action recorded with ID {receiveBallID} at time: {receiveBallTime}");
         
+        Debug.Log($"ReceiveBall action recorded with ID {receiveBallID} at time: {receiveBallTime}");
         clickOrder++;
     }
 
+    /// <summary>
+    /// Creates annotation for finite state machine node interactions
+    /// </summary>
     public void CreateFsmNodeAnnotation(int selectedStateId, TMP_Text descriptionText)
     {
-        // Node annotation
         Dictionary<string, object> nodeAnnotation = new Dictionary<string, object>
         {
             { "type", "node annotation" },
@@ -488,15 +628,16 @@ public class AnnotationManager : NetworkBehaviour
         };
         
         annotationTimes.Add(clickOrder, Time.time - programSynthesisManager.segmentStartTime);
-
         annotation.Add(clickOrder, nodeAnnotation);
         annotationDescriptions.Add(clickOrder, $"Node annotation: State {selectedStateId}");
         
         Debug.Log($"Added node annotation for state {selectedStateId}, key {clickOrder}");
-        
         clickOrder++;
     }
 
+    /// <summary>
+    /// Creates annotation for finite state machine edge/transition interactions
+    /// </summary>
     public void CreateFsmEdgeAnnotation(int selectedTransitionId, TMP_Text descriptionText)
     {
         Dictionary<string, object> edgeAnnotation = new Dictionary<string, object>
@@ -507,12 +648,11 @@ public class AnnotationManager : NetworkBehaviour
         };
         
         annotationTimes.Add(clickOrder, Time.time - programSynthesisManager.segmentStartTime);
-        
         annotation.Add(clickOrder, edgeAnnotation);
         annotationDescriptions.Add(clickOrder, $"Edge annotation: Transition {selectedTransitionId}");
         
         Debug.Log($"Added edge annotation for transition {selectedTransitionId}, key {clickOrder}");
-        
         clickOrder++;
     }
+    #endregion
 }

@@ -11,32 +11,54 @@ using Newtonsoft.Json.Serialization;
 using Unity.VisualScripting.Antlr3.Runtime;
 using Whisper.Samples;
 
+/// <summary>
+/// Manages JSON data collection, transcription processing, and file output for demonstration recordings.
+/// Handles both laptop mode (single player) and multiplayer networking with client-server synchronization.
+/// Coordinates video recording, audio transcription, and annotation data into structured JSON format.
+/// </summary>
 public class JSONToLLM : NetworkBehaviour
 {
+    [Header("Input and Scene References")]
     public KeyboardInput keyboard;
     public ObjectsList objectsList;
-    private string filename;
-    public string jsonString;
     public TimelineManager timelineManager;
+    public RecorderManager recorderManager;
+    
+    [Header("Component References")]
     private GameManager gameManager;
     private ProgramSynthesisManager programSynthesisManager;
     private AnnotationManager annotationManager;
+    private Scribe scribe;
     
-    // So we can start/stop the video in FixedUpdate
-    public RecorderManager recorderManager;
-
+    [Header("File Output")]
+    private string filename;
+    public string jsonString;
+    
+    [Header("Timing and State")]
     public float time;  // Time index for capturing scene data
-    public NetworkBool isTranscriptionComplete = false;
-    public bool isLogging = false;
-
     public int recordingNum = -1; 
+    public bool isLogging = false;
     public bool voiceActivated = false;
     public bool videoIsRecording;
     public bool loggingStartedByUnpause = false;
-
+    
+    [Header("Network Synchronization")]
+    public NetworkBool isTranscriptionComplete = false;
+    private bool laptopModeTranscriptionComplete = false;
+    public int totalChunksSent = 0;
+    public int totalChunksReceived = 0;
+    private bool clientHasReceivedAllData = false;
+    public bool clientVideoSaveComplete = false;
+    
+    [Header("Recording Mode")]
     [Tooltip("Used to record system jsons/videos")]
     public bool activateSystemRecording = false; 
 
+    #region Data Structures for JSON Serialization
+    
+    /// <summary>
+    /// Represents a 2D position in the game world
+    /// </summary>
     [System.Serializable]
     public class Position
     {
@@ -49,6 +71,9 @@ public class JSONToLLM : NetworkBehaviour
         }
     }
 
+    /// <summary>
+    /// Represents object orientation as an angle
+    /// </summary>
     [System.Serializable]
     public class Orientation
     {
@@ -63,6 +88,9 @@ public class JSONToLLM : NetworkBehaviour
         }
     }
 
+    /// <summary>
+    /// Represents 2D velocity vector
+    /// </summary>
     [System.Serializable]
     public class Velocity
     {
@@ -75,6 +103,9 @@ public class JSONToLLM : NetworkBehaviour
         }
     }
 
+    /// <summary>
+    /// Represents corner/boundary objects in the scene
+    /// </summary>
     [System.Serializable]
     public class Corner
     {
@@ -85,6 +116,9 @@ public class JSONToLLM : NetworkBehaviour
         public List<Orientation> orientation = new List<Orientation>();
     }
 
+    /// <summary>
+    /// Represents player objects with behavior and possession data
+    /// </summary>
     [System.Serializable]
     public class Player
     {
@@ -97,6 +131,9 @@ public class JSONToLLM : NetworkBehaviour
         public List<Orientation> orientation = new List<Orientation>();
     }
 
+    /// <summary>
+    /// Represents the ball object in the scene
+    /// </summary>
     [System.Serializable]
     public class Ball
     {
@@ -107,6 +144,9 @@ public class JSONToLLM : NetworkBehaviour
         public List<Orientation> orientation = new List<Orientation>();
     }
 
+    /// <summary>
+    /// Represents goal objects in the scene
+    /// </summary>
     [System.Serializable]
     public class Goal
     {
@@ -117,6 +157,9 @@ public class JSONToLLM : NetworkBehaviour
         public List<Orientation> orientation = new List<Orientation>();
     }
 
+    /// <summary>
+    /// Root container for a single segment's data
+    /// </summary>
     [System.Serializable]
     public class RootSegment
     {
@@ -124,6 +167,9 @@ public class JSONToLLM : NetworkBehaviour
         public List<object> objects = new List<object>();
     }
     
+    /// <summary>
+    /// Object data for a specific timestep in rewindable format
+    /// </summary>
     [System.Serializable]
     public class ObjectData
     {
@@ -134,6 +180,9 @@ public class JSONToLLM : NetworkBehaviour
         public string behavior;   // Behavior (e.g., "ActionID1")
     }
     
+    /// <summary>
+    /// Timestep data for rewindable timeline
+    /// </summary>
     [System.Serializable]
     public class TimeStep
     {
@@ -141,6 +190,9 @@ public class JSONToLLM : NetworkBehaviour
         public List<ObjectData> objects;  // List of objects in this timestep
     }
 
+    /// <summary>
+    /// Represents a moment when time was stopped with narration
+    /// </summary>
     [System.Serializable]
     public class StoppedTime
     {
@@ -148,6 +200,9 @@ public class JSONToLLM : NetworkBehaviour
         public string narration; // Narration text
     }
     
+    /// <summary>
+    /// Alternative root segment format with rewindable timeline support
+    /// </summary>
     [System.Serializable]
     public class RootSegment2
     {
@@ -155,7 +210,9 @@ public class JSONToLLM : NetworkBehaviour
         public List<StoppedTime> StoppedTimes; // List of stopped times
     }
 
+    #endregion
 
+    [Header("Data Storage")]
     public RootSegment myRootSegment = new RootSegment();
     public RootSegment2 rewindableRootSegment = new RootSegment2();
     private List<RootSegment> segmentsList = new List<RootSegment>();
@@ -163,10 +220,9 @@ public class JSONToLLM : NetworkBehaviour
     // Key = timestamp float, Value = list of tokens (strings or placeholders)
     public Dictionary<float, List<object>> tokenDictionary = new Dictionary<float, List<object>>();
 
-    private Scribe scribe;
-    
-    private bool laptopModeTranscriptionComplete = false;
-
+    /// <summary>
+    /// Initialize component references and subscribe to transcription events
+    /// </summary>
     void Start()
     {
         keyboard = GameObject.FindGameObjectWithTag("keyboard").GetComponent<KeyboardInput>();
@@ -174,12 +230,12 @@ public class JSONToLLM : NetworkBehaviour
         gameManager = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
         
 #if UNITY_EDITOR
-        // The RecorderManager is presumably on a GameObject tagged "RecorderManager"
         recorderManager = GameObject.FindGameObjectWithTag("RecorderManager").GetComponent<RecorderManager>();
 #endif
         programSynthesisManager = GameObject.FindGameObjectWithTag("ProgramSynthesisManager").GetComponent<ProgramSynthesisManager>();
         annotationManager = GameObject.FindGameObjectWithTag("ProgramSynthesisManager").GetComponent<AnnotationManager>();
 
+        // Subscribe to transcription completion events
         scribe = FindObjectOfType<Scribe>();
         if (scribe != null)
         {
@@ -191,6 +247,9 @@ public class JSONToLLM : NetworkBehaviour
         }
     }
 
+    /// <summary>
+    /// Clean up event subscriptions
+    /// </summary>
     private void OnDestroy()
     {
         if (scribe != null)
@@ -201,66 +260,21 @@ public class JSONToLLM : NetworkBehaviour
 
     void Update()
     {
-        // any per-frame logic here
+        // Per-frame logic can be added here if needed
     }
 
-    // Called in FixedUpdate if isLogging = true
+    /// <summary>
+    /// Called in FixedUpdate when isLogging = true to capture scene data
+    /// </summary>
     public void PopulateSegment()
     {
-        // Debug.LogError("in populate segment");
         PopulateSceneObjects();
         myRootSegment.timestep = timelineManager.TimeIndex;
     }
     
-    // public void PopulateSegment2()
-    // {
-    //     rewindableRootSegment.Timeseries = new List<TimeStep>();
-    //
-    //     // Populate Timeseries
-    //     
-    //     // Determine the maximum number of timesteps
-    //     int maxTimesteps = timelineManager.Timeseries.Values
-    //         .Select(ts => ts.positions.Count)
-    //         .DefaultIfEmpty(0)
-    //         .Max();
-    //     
-    //     // Iterate over each timestep
-    //     for (int timeIndex = 0; timeIndex < maxTimesteps; timeIndex++)
-    //     {
-    //         TimeStep timeStep = new TimeStep
-    //         {
-    //             timestep = timeIndex,
-    //             objects = new List<ObjectData>()
-    //         };
-    //
-    //         // Iterate over each GameObject in Timeseries
-    //         foreach (var entry in timelineManager.Timeseries)
-    //         {
-    //             GameObject obj = entry.Key;
-    //             RewindableTimeSeries timeSeries = entry.Value;
-    //
-    //             if (timeIndex < timeSeries.positions.Count)
-    //             {
-    //                 Vector3 position = timeSeries.positions[timeIndex];
-    //                 Quaternion rotation = timeSeries.rotations[timeIndex];
-    //
-    //                 ObjectData objectData = new ObjectData
-    //                 {
-    //                     objectName = obj.name,
-    //                     pos = new Position(position),
-    //                     rot = new Orientation(rotation),
-    //                     action = timeSeries.currAction,
-    //                     behavior = timeSeries.currBehavior
-    //                 };
-    //
-    //                 timeStep.objects.Add(objectData);
-    //             }
-    //         }
-    //
-    //         rewindableRootSegment.Timeseries.Add(timeStep);
-    //     }
-    // }
-    
+    /// <summary>
+    /// Add a stopped time entry with narration to the rewindable segment
+    /// </summary>
     public void AddStoppedTime()
     {
         programSynthesisManager.explanation = BuildSentenceFromTokens();
@@ -273,113 +287,58 @@ public class JSONToLLM : NetworkBehaviour
         rewindableRootSegment.StoppedTimes.Add(stoppedTime);
     }
 
+    /// <summary>
+    /// Populate the current segment with scene object data
+    /// Collects position, velocity, and state data for all tracked objects
+    /// </summary>
     public void PopulateSceneObjects()
     {
-        // Debug.LogError("in populate scene objects");
         if (objectsList == null)
         {
             return;
         }
         
-        // corners
-        // for (int i = 1; i <= 4; i++)
-        // {
-        //     GameObject cornerGO = GameObject.Find("corner" + i);
-        //     if (cornerGO != null)
-        //     {
-        //         var cornerData = (Corner)myRootSegment.objects
-        //             .Find(obj => obj is Corner c && c.id == "corner" + i);
-        //
-        //         if (cornerData == null)
-        //         {
-        //             cornerData = new Corner { id = "corner" + i };
-        //             myRootSegment.objects.Add(cornerData);
-        //         }
-        //
-        //         cornerData.position.Add(new Position(cornerGO.transform.position));
-        //         cornerData.velocity.Add(new Velocity(Vector3.zero));
-        //         cornerData.orientation.Add(new Orientation(cornerGO.transform));
-        //     }
-        // }
-        
-        // defense players
+        // Process defense players
         foreach (GameObject currPlayer in objectsList.defensePlayers)
         {
             AddOrUpdatePlayer(currPlayer, "Teammate");
         }
-        // offense players
+        
+        // Process offense players
         foreach (GameObject currPlayer in objectsList.offensePlayers)
         {
             AddOrUpdatePlayer(currPlayer, "Opponent");
         }
-        // coach/human players
+        
+        // Process coach/human players
         foreach (GameObject humanPlayer in objectsList.humanPlayers)
         {
             AddOrUpdatePlayer(humanPlayer, "Coach", "expert");
         }
 
-        // ball
+        // Process ball object
         var ballData = (Ball)myRootSegment.objects.Find(obj => obj is Ball);
         if (ballData == null)
         {
             ballData = new Ball { id = "ball" };
             myRootSegment.objects.Add(ballData);
         }
-        
-        // if (objectsList.ballObject != null)
-        // {
-        //     var ballGO = objectsList.ballObject;
-        //
-        //     ballData.position.Add(new Position(ballGO.transform.position));
-        //     ballData.orientation.Add(new Orientation(ballGO.transform));
-        //     Rigidbody ballRB = ballGO.GetComponent<Rigidbody>();
-        //     ballData.velocity.Add(new Velocity(ballRB.velocity));
-        // }
 
-        // goal
+        // Process goal object
         Goal goalData2 = (Goal)myRootSegment.objects.Find(obj => obj is Goal g && g.id == "goal");
         if (goalData2 == null)
         {
             goalData2 = new Goal { id = "goal" };
             myRootSegment.objects.Add(goalData2);
         }
-
-        // if (objectsList.goalObject != null)
-        // {
-        //     var goalGO = objectsList.goalObject;
-        //     
-        //     Vector3 zeroVector = Vector3.zero;
-        //     goalData2.velocity.Add(new Velocity(zeroVector));
-        //     goalData2.position.Add(new Position(goalGO.transform.position));
-        //     goalData2.orientation.Add(new Orientation(goalGO.transform));
-        //     
-        //     // Transform leftPost = goalGO.transform.Find("goal_leftpost");
-        //     // Transform rightPost = goalGO.transform.Find("goal_rightpost");
-        //     //
-        //     // Goal leftGoalPost = (Goal)myRootSegment.objects
-        //     //     .Find(obj => obj is Goal g && g.id == "goal_leftpost");
-        //     // if (leftGoalPost == null)
-        //     // {
-        //     //     leftGoalPost = new Goal { id = "goal_leftpost", type = "Goal" };
-        //     //     myRootSegment.objects.Add(leftGoalPost);
-        //     // }
-        //     // leftGoalPost.position.Add(new Position(leftPost.position));
-        //     // leftGoalPost.velocity.Add(new Velocity(Vector3.zero));
-        //     // leftGoalPost.orientation.Add(new Orientation(leftPost));
-        //     //
-        //     // Goal rightGoalPost = (Goal)myRootSegment.objects
-        //     //     .Find(obj => obj is Goal g && g.id == "goal_rightpost");
-        //     // if (rightGoalPost == null)
-        //     // {
-        //     //     rightGoalPost = new Goal { id = "goal_rightpost", type = "Goal" };
-        //     //     myRootSegment.objects.Add(rightGoalPost);
-        //     // }
-        //     // rightGoalPost.position.Add(new Position(rightPost.position));
-        //     // rightGoalPost.velocity.Add(new Velocity(Vector3.zero));
-        //     // rightGoalPost.orientation.Add(new Orientation(rightPost));
-        // }
     }
     
+    /// <summary>
+    /// Add or update player data in the current segment
+    /// </summary>
+    /// <param name="playerGO">Player GameObject to process</param>
+    /// <param name="type">Player type (Teammate, Opponent, Coach)</param>
+    /// <param name="behaviorOverride">Optional behavior override</param>
     private void AddOrUpdatePlayer(GameObject playerGO, string type, string behaviorOverride = null)
     {
         var existingPlayer = (Player)myRootSegment.objects
@@ -397,44 +356,17 @@ public class JSONToLLM : NetworkBehaviour
             };
             myRootSegment.objects.Add(existingPlayer);
         }
-        
-        // Transform _transform = playerGO.transform;
-        // if (type == "Coach" && playerGO.GetComponent<HumanInterface>().isVR)
-        // {
-        //     _transform = playerGO.GetComponent<HumanInterface>().vrTransform;
-        // }
-        //
-        // existingPlayer.position.Add(new Position(_transform.position));
-        //
-        // Vector3 velocity = (type == "Coach")
-        //     ? keyboard.movement
-        //     : playerGO.GetComponent<PlayerInterface>().currVelocity;
-        //
-        // if (type == "Coach" && playerGO.GetComponent<HumanInterface>().isVR)
-        // {
-        //     velocity = playerGO.GetComponent<HumanInterface>().velocity;
-        // }
-        //
-        // existingPlayer.velocity.Add(new Velocity(velocity));
-        // existingPlayer.orientation.Add(new Orientation(_transform));
-        //
-        // bool hasBall = false;
-        // if (type == "Coach")
-        // {
-        //     hasBall = playerGO.GetComponent<HumanInterface>().ballPossession;
-        // }
-        // else
-        // {
-        //     hasBall = playerGO.GetComponent<PlayerInterface>().ballPossession;
-        // }
-        // existingPlayer.ballPossession.Add(hasBall);
     }
     
-    
-    // Called when ElevenLabs transcription is done
+    #region Transcription and Networking
+
+    /// <summary>
+    /// Handle completion of ElevenLabs transcription
+    /// Merges transcription words with annotation placeholders based on timing
+    /// </summary>
     private void HandleTranscriptionComplete(Scribe.ElevenLabsResponse response)
     {
-        // In laptop mode, use simple approach without networking
+        // Laptop mode: Simple approach without networking
         if (gameManager.laptopMode)
         {
             Debug.Log("JSONToLLM (Laptop Mode): Received transcription. Merging placeholders...");
@@ -517,18 +449,12 @@ public class JSONToLLM : NetworkBehaviour
         }
     }
     
-    // Add a new property to track how many chunks were sent by the server
-    public int totalChunksSent = 0;
-    // Add a property to track how many chunks were received by the client
-    public int totalChunksReceived = 0;
-    
-    private bool clientHasReceivedAllData = false;
-    public bool clientVideoSaveComplete = false;
-    
+    /// <summary>
+    /// RPC for clients to notify server that video save is complete
+    /// </summary>
     [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
     public void RPC_NotifyVideoSaveComplete()
     {
-        // Only the server will execute this code
         if (Runner.IsServer)
         {
             clientVideoSaveComplete = true;
@@ -536,22 +462,28 @@ public class JSONToLLM : NetworkBehaviour
         }
     }
     
+    /// <summary>
+    /// Check if client has completed video saving
+    /// </summary>
     public bool HasClientSavedVideo()
     {
         return gameManager.laptopMode ? true : clientVideoSaveComplete;
     }
 
+    /// <summary>
+    /// Reset client video save status for next recording
+    /// </summary>
     public void ResetClientVideoSaveStatus()
     {
         clientVideoSaveComplete = false;
     }
 
-
-    // Add this method for clients to notify the server
+    /// <summary>
+    /// RPC for clients to notify server that all data chunks have been received
+    /// </summary>
     [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
     public void RPC_NotifyChunksReceived()
     {
-        // Only the server will execute this code
         if (Runner.IsServer)
         {
             clientHasReceivedAllData = true;
@@ -559,25 +491,32 @@ public class JSONToLLM : NetworkBehaviour
         }
     }
     
-    // Add this method on the server to check client status
+    /// <summary>
+    /// Check if client has received all data chunks
+    /// </summary>
     public bool HasClientReceivedAllData()
     {
         return gameManager.laptopMode ? true : clientHasReceivedAllData;
     }
 
-    // Add this to reset state between recordings
+    /// <summary>
+    /// Reset client receive status for next recording session
+    /// </summary>
     public void ResetClientReceiveStatus()
     {
         clientHasReceivedAllData = false;
         clientVideoSaveComplete = false;
     }
     
+    /// <summary>
+    /// Synchronize token dictionary from server to all clients
+    /// Breaks data into chunks to handle network message size limits
+    /// </summary>
     private void SyncDictionaryToClients()
     {
-        // First, clear the clients' dictionaries
         RPC_ClearDictionary();
         
-        // Convert dictionary to a format we can send
+        // Convert dictionary to network-serializable format
         List<KeyValueData> allData = new List<KeyValueData>();
         
         foreach (var kvp in tokenDictionary)
@@ -589,7 +528,7 @@ public class JSONToLLM : NetworkBehaviour
                 
                 if (token.ToString().StartsWith("[") && token.ToString().EndsWith("]"))
                 {
-                    // It's a placeholder
+                    // Handle annotation placeholders
                     string indexStr = token.ToString().Trim('[', ']');
                     if (int.TryParse(indexStr, out int index))
                     {
@@ -599,7 +538,7 @@ public class JSONToLLM : NetworkBehaviour
                 }
                 else
                 {
-                    // It's a text token
+                    // Handle text tokens
                     data.IsPlaceholder = 0;
                     data.TextToken = token.ToString();
                 }
@@ -608,16 +547,14 @@ public class JSONToLLM : NetworkBehaviour
             }
         }
         
-        // Now actually chunk the data and send it
-        const int CHUNK_SIZE = 20; // Adjust based on token size
+        // Chunk the data for network transmission
+        const int CHUNK_SIZE = 20;
         totalChunksSent = Mathf.CeilToInt((float)allData.Count / CHUNK_SIZE);
         
-        // Send the total number of chunks to expect
         RPC_SetExpectedChunkCount(totalChunksSent);
         
         for (int i = 0; i < allData.Count; i += CHUNK_SIZE)
         {
-            // Get the current chunk
             int currentChunkSize = Mathf.Min(CHUNK_SIZE, allData.Count - i);
             KeyValueData[] chunk = new KeyValueData[currentChunkSize];
             
@@ -626,18 +563,19 @@ public class JSONToLLM : NetworkBehaviour
                 chunk[j] = allData[i + j];
             }
             
-            // Send this chunk
             RPC_ReceiveDictionaryChunk(chunk);
         }
         
-        // Now sync the annotations
+        // Sync annotations after dictionary
         annotationManager.SyncAnnotationsToClients();
         
-        // Mark transcription as complete only after both dictionary and annotations are synced
         isTranscriptionComplete = true;
         Debug.Log("SERVER: All chunks sent, marked transcription as complete");
     }
     
+    /// <summary>
+    /// RPC to set expected chunk count on clients
+    /// </summary>
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
     private void RPC_SetExpectedChunkCount(int count)
     {
@@ -649,6 +587,9 @@ public class JSONToLLM : NetworkBehaviour
         }
     }
     
+    /// <summary>
+    /// Check if all data chunks have been received
+    /// </summary>
     public bool AreAllChunksReceived()
     {
         if (gameManager.laptopMode)
@@ -657,27 +598,29 @@ public class JSONToLLM : NetworkBehaviour
         }
         if (Runner.IsServer)
         {
-            return isTranscriptionComplete; // Server is done once it sends all chunks
+            return isTranscriptionComplete;
         }
         
         return totalChunksReceived >= totalChunksSent && totalChunksSent > 0;
     }
     
-    // Struct to hold key-value data that Fusion can serialize
+    /// <summary>
+    /// Network serializable struct for token dictionary data
+    /// </summary>
     public struct KeyValueData : INetworkStruct
     {
         public float TimeKey;
         public byte IsPlaceholder; // 0 = text, 1 = placeholder
         
-        // For text tokens
         [Networked, Capacity(64)]
         public NetworkString<_64> TextToken { get; set; }
         
-        // For placeholder tokens
         public int PlaceholderIndex;
     }
     
-    // RPC to clear the dictionary
+    /// <summary>
+    /// RPC to clear client token dictionaries
+    /// </summary>
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
     private void RPC_ClearDictionary()
     {
@@ -687,6 +630,9 @@ public class JSONToLLM : NetworkBehaviour
         }
     }
     
+    /// <summary>
+    /// RPC to receive dictionary data chunks on clients
+    /// </summary>
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
     private void RPC_ReceiveDictionaryChunk(KeyValueData[] chunk)
     {
@@ -703,12 +649,10 @@ public class JSONToLLM : NetworkBehaviour
             
                 if (data.IsPlaceholder == 1)
                 {
-                    // It's a placeholder
                     tokenDictionary[timeKey].Add($"[{data.PlaceholderIndex}]");
                 }
                 else
                 {
-                    // It's a text token
                     tokenDictionary[timeKey].Add(data.TextToken.ToString());
                 }
             }
@@ -716,22 +660,22 @@ public class JSONToLLM : NetworkBehaviour
             totalChunksReceived++;
             Debug.Log($"Received chunk {totalChunksReceived}/{totalChunksSent}");
             
-            // Check if all chunks have been received
+            // Check if all chunks received
             if (totalChunksReceived >= totalChunksSent && totalChunksSent > 0)
             {
                 Debug.Log("CLIENT: All dictionary chunks received, notifying server");
-                RPC_NotifyChunksReceived(); // Notify the server
+                RPC_NotifyChunksReceived();
                 isTranscriptionComplete = true;
             }
         }
-        
     }
     
-    // RPC to signal dictionary sync is complete
+    /// <summary>
+    /// RPC to signal dictionary synchronization completion
+    /// </summary>
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
     private void RPC_FinishDictionarySync()
     {
-        // Log completion if we're a client
         if (Runner.IsClient)
         {
             Debug.Log("Token dictionary sync complete. Entries:");
@@ -744,6 +688,14 @@ public class JSONToLLM : NetworkBehaviour
         isTranscriptionComplete = true;
     }
 
+    #endregion
+
+    #region File Operations
+
+    /// <summary>
+    /// Write the collected data to JSON file
+    /// Ensures all chunks are received before writing in multiplayer mode
+    /// </summary>
     public void WriteFile()
     {
         if (!gameManager.laptopMode && !AreAllChunksReceived())
@@ -755,11 +707,10 @@ public class JSONToLLM : NetworkBehaviour
         CreateJSONString();
     }
 
-    // public void WriteFile2()
-    // {
-    //     CreateJSONString2();
-    // }
-
+    /// <summary>
+    /// Create and serialize the complete JSON structure for the demonstration
+    /// Combines scene data, transcription tokens, annotations, and metadata
+    /// </summary>
     public void CreateJSONString()
     {
         recordingNum++;
@@ -770,21 +721,19 @@ public class JSONToLLM : NetworkBehaviour
             .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
         programSynthesisManager.explanation = BuildSentenceFromTokens();
     
-        object finalScene;
-      
-            finalScene = new
+        object finalScene = new
+        {
+            scene = new
             {
-                scene = new
-                {
-                    id = jsonDirectory.drillID,
-                    language = programSynthesisManager.explanation,
-                    step = 0.02,
-                    objects = myRootSegment.objects,
-                    annotations = annotationManager.GetAnnotationsAsJson(),
-                    tokens = sortedTokens,
-                    clickTimes = annotationManager.annotationTimes
-                }
-            };
+                id = jsonDirectory.drillID,
+                language = programSynthesisManager.explanation,
+                step = 0.02,
+                objects = myRootSegment.objects,
+                annotations = annotationManager.GetAnnotationsAsJson(),
+                tokens = sortedTokens,
+                clickTimes = annotationManager.annotationTimes
+            }
+        };
 
         var settings = new JsonSerializerSettings
         {
@@ -800,6 +749,10 @@ public class JSONToLLM : NetworkBehaviour
         Debug.Log($"Segment written to {filename}");
     }
 
+    /// <summary>
+    /// Build a complete sentence from the token dictionary
+    /// Concatenates all tokens in chronological order
+    /// </summary>
     private string BuildSentenceFromTokens()
     {
         var sortedTokens = tokenDictionary.OrderBy(kvp => kvp.Key);
@@ -813,13 +766,19 @@ public class JSONToLLM : NetworkBehaviour
             }
         }
     
-        // Optionally, trim any extra whitespace
         return sb.ToString().Trim();
     }
-    
+
+    #endregion
+
+    #region State Management
+
+    /// <summary>
+    /// Prepare system for a new recording session
+    /// Resets all state and synchronization data
+    /// </summary>
     public void PrepareForNewRecording()
     {
-        // Reset any state needed for a new recording
         ResetSegmentData();
         if (!gameManager.laptopMode)
         {
@@ -828,6 +787,10 @@ public class JSONToLLM : NetworkBehaviour
         Debug.Log("Prepared for new recording session");
     }
     
+    /// <summary>
+    /// Reset all segment data and networking state
+    /// Clears collected data and prepares for new recording
+    /// </summary>
     public void ResetSegmentData()
     {
         // Reset segment data
@@ -847,7 +810,7 @@ public class JSONToLLM : NetworkBehaviour
         videoIsRecording = false;
         isLogging = false;
     
-        // Only sync to clients if in multiplayer mode
+        // Sync reset to clients in multiplayer mode
         if (!gameManager.laptopMode && Runner != null && Runner.IsServer)
         {
             RPC_ResetNetworkSync();
@@ -856,30 +819,35 @@ public class JSONToLLM : NetworkBehaviour
         Debug.Log("Segment data has been reset completely.");
     }
     
+    /// <summary>
+    /// RPC to reset network synchronization state on all clients
+    /// </summary>
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
     public void RPC_ResetNetworkSync()
     {
-        // For both server and client
         totalChunksSent = 0;
         totalChunksReceived = 0;
         isTranscriptionComplete = false;
     
-        // Client-specific reset
         if (Runner.IsClient)
         {
             myRootSegment = new RootSegment();
             time = 0;
             tokenDictionary.Clear();
-        
-            // Notify server that reset is complete
             Debug.Log("CLIENT: Network sync state reset complete");
         }
     }
 
+    #endregion
+
+    /// <summary>
+    /// Main update loop for data collection and video recording
+    /// Handles automatic logging and video recording based on system state
+    /// </summary>
     void FixedUpdate()
     {
-      
-        if (activateSystemRecording && programSynthesisManager.segmentStarted) // if system recording and segment started, we want to start logging
+        // Start logging for system recording when segment begins
+        if (activateSystemRecording && programSynthesisManager.segmentStarted)
         {
             isLogging = true;
             Debug.Log("started logging");
@@ -887,7 +855,6 @@ public class JSONToLLM : NetworkBehaviour
         
         if (isLogging)
         {
-            // Debug.Log("JSON LOGGING");
             time += 0.02f;
 #if UNITY_EDITOR
             PopulateSegment();
@@ -898,17 +865,5 @@ public class JSONToLLM : NetworkBehaviour
             }
 #endif
         }
-        else if (!isLogging)
-        {
-#if UNITY_EDITOR
-            // being handled in keyboardinput.FileCoroutine() now
-            // if (recorderManager.RecorderController.IsRecording())
-            // {
-            //     recorderManager.StopRecording();
-            //     videoIsRecording = recorderManager.RecorderController.IsRecording();
-            // }
-#endif
-        }
     }
-
 }

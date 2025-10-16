@@ -94,7 +94,7 @@ public partial class @InputSystem: IInputActionCollection2, IDisposable
                     ""name"": ""ThroughPass"",
                     ""type"": ""Button"",
                     ""id"": ""227cc767-8841-464d-a7f7-b5e18d610680"",
-                    ""expectedControlType"": ""Button"",
+                    ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
@@ -122,6 +122,24 @@ public partial class @InputSystem: IInputActionCollection2, IDisposable
                     ""type"": ""Button"",
                     ""id"": ""db9f244e-3333-408e-a921-56428460630c"",
                     ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""TriggerPass"",
+                    ""type"": ""Button"",
+                    ""id"": ""cb4db198-6da2-4cd5-bb99-af4aed204013"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""ShootGoal"",
+                    ""type"": ""Button"",
+                    ""id"": ""15a6839e-5c3e-4276-b201-0dbcdae97244"",
+                    ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
@@ -248,6 +266,28 @@ public partial class @InputSystem: IInputActionCollection2, IDisposable
                     ""action"": ""Packaging"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""7b5852c5-859c-4cb9-b93b-96613b12d3a1"",
+                    ""path"": ""<Gamepad>/rightShoulder"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""TriggerPass"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""2d8f8c04-960e-473d-b645-6be752d31d4c"",
+                    ""path"": ""<Gamepad>/leftShoulder"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ShootGoal"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -267,6 +307,8 @@ public partial class @InputSystem: IInputActionCollection2, IDisposable
         m_PlayerControls_PickUp = m_PlayerControls.FindAction("PickUp", throwIfNotFound: true);
         m_PlayerControls_PutDown = m_PlayerControls.FindAction("PutDown", throwIfNotFound: true);
         m_PlayerControls_Packaging = m_PlayerControls.FindAction("Packaging", throwIfNotFound: true);
+        m_PlayerControls_TriggerPass = m_PlayerControls.FindAction("TriggerPass", throwIfNotFound: true);
+        m_PlayerControls_ShootGoal = m_PlayerControls.FindAction("ShootGoal", throwIfNotFound: true);
     }
 
     ~@InputSystem()
@@ -344,6 +386,8 @@ public partial class @InputSystem: IInputActionCollection2, IDisposable
     private readonly InputAction m_PlayerControls_PickUp;
     private readonly InputAction m_PlayerControls_PutDown;
     private readonly InputAction m_PlayerControls_Packaging;
+    private readonly InputAction m_PlayerControls_TriggerPass;
+    private readonly InputAction m_PlayerControls_ShootGoal;
     public struct PlayerControlsActions
     {
         private @InputSystem m_Wrapper;
@@ -359,6 +403,8 @@ public partial class @InputSystem: IInputActionCollection2, IDisposable
         public InputAction @PickUp => m_Wrapper.m_PlayerControls_PickUp;
         public InputAction @PutDown => m_Wrapper.m_PlayerControls_PutDown;
         public InputAction @Packaging => m_Wrapper.m_PlayerControls_Packaging;
+        public InputAction @TriggerPass => m_Wrapper.m_PlayerControls_TriggerPass;
+        public InputAction @ShootGoal => m_Wrapper.m_PlayerControls_ShootGoal;
         public InputActionMap Get() { return m_Wrapper.m_PlayerControls; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -401,6 +447,12 @@ public partial class @InputSystem: IInputActionCollection2, IDisposable
             @Packaging.started += instance.OnPackaging;
             @Packaging.performed += instance.OnPackaging;
             @Packaging.canceled += instance.OnPackaging;
+            @TriggerPass.started += instance.OnTriggerPass;
+            @TriggerPass.performed += instance.OnTriggerPass;
+            @TriggerPass.canceled += instance.OnTriggerPass;
+            @ShootGoal.started += instance.OnShootGoal;
+            @ShootGoal.performed += instance.OnShootGoal;
+            @ShootGoal.canceled += instance.OnShootGoal;
         }
 
         private void UnregisterCallbacks(IPlayerControlsActions instance)
@@ -438,6 +490,12 @@ public partial class @InputSystem: IInputActionCollection2, IDisposable
             @Packaging.started -= instance.OnPackaging;
             @Packaging.performed -= instance.OnPackaging;
             @Packaging.canceled -= instance.OnPackaging;
+            @TriggerPass.started -= instance.OnTriggerPass;
+            @TriggerPass.performed -= instance.OnTriggerPass;
+            @TriggerPass.canceled -= instance.OnTriggerPass;
+            @ShootGoal.started -= instance.OnShootGoal;
+            @ShootGoal.performed -= instance.OnShootGoal;
+            @ShootGoal.canceled -= instance.OnShootGoal;
         }
 
         public void RemoveCallbacks(IPlayerControlsActions instance)
@@ -468,5 +526,7 @@ public partial class @InputSystem: IInputActionCollection2, IDisposable
         void OnPickUp(InputAction.CallbackContext context);
         void OnPutDown(InputAction.CallbackContext context);
         void OnPackaging(InputAction.CallbackContext context);
+        void OnTriggerPass(InputAction.CallbackContext context);
+        void OnShootGoal(InputAction.CallbackContext context);
     }
 }

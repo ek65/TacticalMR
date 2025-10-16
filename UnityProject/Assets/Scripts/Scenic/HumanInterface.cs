@@ -12,78 +12,196 @@ using Pathfinding;
 using UnityEngine.InputSystem;
 using Utilities.Extensions;
 
+/// <summary>
+/// Main interface for human player objects in the networked multiplayer environment.
+/// Handles both VR and non-VR player interactions, ball possession, movement, and communication with AI systems.
+/// Implements IObjectInterface to receive commands from Scenic simulation.
+/// </summary>
 public class HumanInterface : NetworkBehaviour, IObjectInterface
 {
+    #region Network Properties
     [Networked, OnChangedRender(nameof(UpdateGameObjectName))]
     public NetworkString<_32> ObjName { get; set; }
-    public bool isVR = false;
-
-    public bool isViewer = false;
     
-    private int localTick;  // NOTE: This is not the true tick and is what we will use to internally record a timestep.
-
-    private ExitScenario exitScene;
-    private AudioSource source;
-    public ActionAPI actionAPI;
-    public GameObject arrowGenerator;
-    public GameObject circleGenerator;
-    
-    private TimelineManager tlManager;
-    private ObjectsList objectList;
-
-    private bool circleSpawned = false;
-    private bool arrowSpawned = false;
-
-    public List<GameObject> circleObjects;
-    public List<GameObject> arrowObjects;
-
-    public GameObject forwardArrow;
-
-    public string explanation;
-    
-    public float distToBall;
-    public Vector3 ballOnTheGround;
-
-    public bool isMoving;
-    public Vector3 xMark;
-    public bool triggerPass;
     [Networked] public NetworkBool ballPossession { get; set; }
-    public GameObject ball;
-    public Transform ballPosition;
-    private bool canPossessBall = true;
-    public bool canKickBall = true;
-    BallOwnership ballOwnership;
-    public GameObject closestPlayerInDirection;
-    
-    private Queue<Vector3> positionHistory = new Queue<Vector3>();
-    private Queue<float> timeHistory = new Queue<float>();
-    private int maxHistoryFrames = 5; // Average over 5 frames
-    private float minDeltaTime = 0.01f; // Minimum deltaTime to consider
-    private Vector3 lastPosition;
-    public Vector3 velocity;
-    
-    public Transform vrTransform;
-    public GameObject vrCollider;
-    
-    public bool objectPossession;
-    public GameObject grabbedObject;
-    public Transform objectPosition;
     
     [Networked] public NetworkString<_32> behavior { get; set; }
-    public string currAction = "No Action"; // just for debugging to see what actions function is being called
+    #endregion
+
+    #region Inspector Fields
+    /// <summary>
+    /// Whether this player is using VR controls
+    /// </summary>
+    public bool isVR = false;
+
+    /// <summary>
+    /// Whether this player is just viewing (spectator mode)
+    /// </summary>
+    public bool isViewer = false;
+    
+    /// <summary>
+    /// Reference to ActionAPI for executing player actions
+    /// </summary>
+    public ActionAPI actionAPI;
+    
+    /// <summary>
+    /// Prefab for generating arrow indicators
+    /// </summary>
+    public GameObject arrowGenerator;
+    
+    /// <summary>
+    /// Prefab for generating circle indicators
+    /// </summary>
+    public GameObject circleGenerator;
+
+    /// <summary>
+    /// Forward direction arrow for ball possession
+    /// </summary>
+    public GameObject forwardArrow;
+
+    /// <summary>
+    /// Ball object reference
+    /// </summary>
+    public GameObject ball;
+    
+    /// <summary>
+    /// Position where ball attaches when possessed
+    /// </summary>
+    public Transform ballPosition;
+    
+    /// <summary>
+    /// VR headset transform for VR players
+    /// </summary>
+    public Transform vrTransform;
+    
+    /// <summary>
+    /// VR collision detection object
+    /// </summary>
+    public GameObject vrCollider;
+    
+    /// <summary>
+    /// Position where objects are held in factory scenarios
+    /// </summary>
+    public Transform objectPosition;
+
+    /// <summary>
+    /// UI text displaying current behavior
+    /// </summary>
+    public FloatingText floatingBehaviorText;
+    
+    /// <summary>
+    /// UI text displaying player name
+    /// </summary>
+    public FloatingText floatingNameText;
+
+    /// <summary>
+    /// Player shirt renderer for team colors
+    /// </summary>
+    public Renderer shirt;
+    #endregion
+
+    #region Private Fields
+    private int localTick;
+    private ExitScenario exitScene;
+    private AudioSource source;
+    private TimelineManager tlManager;
+    private ObjectsList objectList;
+    private bool circleSpawned = false;
+    private bool arrowSpawned = false;
+    private bool canPossessBall = true;
+    private Queue<Vector3> positionHistory = new Queue<Vector3>();
+    private Queue<float> timeHistory = new Queue<float>();
+    private int maxHistoryFrames = 5;
+    private float minDeltaTime = 0.01f;
+    private Vector3 lastPosition;
     private KeyboardInput keyboardInput;
     private ProgramSynthesisManager programSynthesisManager;
     private AnnotationManager annotationManager;
     private JSONToLLM jsonToLLM;
+    #endregion
+
+    #region Public Properties
+    /// <summary>
+    /// Current player explanation text
+    /// </summary>
+    public string explanation;
     
-    // TODO: RE-ADD, IMPLEMENT IsRobotScenario Bool in Scenic Manager, DISABLED FOR NOW FOR VR TESTING
-    public FloatingText floatingBehaviorText;
-    public FloatingText floatingNameText;
+    /// <summary>
+    /// Distance to ball in world units
+    /// </summary>
+    public float distToBall;
     
+    /// <summary>
+    /// Ball position projected to ground level
+    /// </summary>
+    public Vector3 ballOnTheGround;
+
+    /// <summary>
+    /// Whether player is currently moving
+    /// </summary>
+    public bool isMoving;
+    
+    /// <summary>
+    /// Target position marker for UI
+    /// </summary>
+    public Vector3 xMark;
+    
+    /// <summary>
+    /// Whether to trigger automatic pass to teammate
+    /// </summary>
+    public bool triggerPass;
+    
+    /// <summary>
+    /// Whether player can kick ball (debounce mechanism)
+    /// </summary>
+    public bool canKickBall = true;
+    
+    /// <summary>
+    /// Current player velocity vector
+    /// </summary>
+    public Vector3 velocity;
+    
+    /// <summary>
+    /// Closest player in forward direction for passing
+    /// </summary>
+    public GameObject closestPlayerInDirection;
+    
+    /// <summary>
+    /// Whether holding object in factory scenarios
+    /// </summary>
+    public bool objectPossession;
+    
+    /// <summary>
+    /// Currently held object reference
+    /// </summary>
+    public GameObject grabbedObject;
+    
+    /// <summary>
+    /// Current action being performed (for debugging)
+    /// </summary>
+    public string currAction = "No Action";
+    
+    /// <summary>
+    /// Whether player is on allied team
+    /// </summary>
     public bool ally = true;
-    public Renderer shirt;
+
+    /// <summary>
+    /// List of circle indicator objects
+    /// </summary>
+    public List<GameObject> circleObjects;
     
-    // Start is called before the first frame update
+    /// <summary>
+    /// List of arrow indicator objects
+    /// </summary>
+    public List<GameObject> arrowObjects;
+    #endregion
+
+    #region Component References
+    BallOwnership ballOwnership;
+    #endregion
+
+    #region Unity Lifecycle
     void Start()
     {
         lastPosition = transform.position;
@@ -91,32 +209,86 @@ public class HumanInterface : NetworkBehaviour, IObjectInterface
         {
             lastPosition = vrTransform.position;
         }
+        
+        InitializeComponents();
+        SetupTeamColors();
+        InitializeBallPossession();
+        SetupUI();
+        SetupVRCamera();
+        HandlePlayerRegistration();
+    }
+    
+    void Update()
+    {
+        UpdateBallTracking();
+        UpdateVelocityCalculation();
+        HandleBallPossessionVisuals();
+        CalculateSmoothedVelocity();
+        HandlePathfindingRadiusAdjustment();
+    }
+    
+    private void LateUpdate()
+    {
+        // Reset AI target position if not actively moving to a position
+        if (this.GetComponent<AIDestinationSetter>())
+        {
+            AIDestinationSetter dest = this.GetComponent<AIDestinationSetter>();
+            if (currAction != "MoveToPos" && dest.target != null)
+            {
+                dest.target.localPosition = Vector3.zero;
+            }
+        }
+    }
+    #endregion
+
+    #region Initialization Methods
+    /// <summary>
+    /// Initializes component references
+    /// </summary>
+    private void InitializeComponents()
+    {
         exitScene = GetComponent<ExitScenario>();
         source = GetComponent<AudioSource>();
         tlManager = GameObject.FindGameObjectWithTag("TimelineManager").GetComponent<TimelineManager>();
-        
-        // TODO: RE-ADD, IMPLEMENT IsRobotScenario Bool in Scenic Manager, DISABLED FOR NOW FOR VR TESTING
         objectList = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<ObjectsList>();
         keyboardInput = GameObject.FindGameObjectWithTag("keyboard").GetComponent<KeyboardInput>();
         programSynthesisManager = GameObject.FindGameObjectWithTag("ProgramSynthesisManager").GetComponent<ProgramSynthesisManager>();
         annotationManager = GameObject.FindGameObjectWithTag("ProgramSynthesisManager").GetComponent<AnnotationManager>();
         jsonToLLM = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<JSONToLLM>();
-        circleObjects = new List<GameObject>();
-        arrowObjects = new List<GameObject>();
         ballOwnership = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<BallOwnership>();
         
+        circleObjects = new List<GameObject>();
+        arrowObjects = new List<GameObject>();
+    }
+
+    /// <summary>
+    /// Sets up team colors based on allegiance
+    /// </summary>
+    private void SetupTeamColors()
+    {
         if (ally)
         {
             shirt.material.SetColor("_Color", Color.blue);
         }
+    }
 
+    /// <summary>
+    /// Initializes ball possession state
+    /// </summary>
+    private void InitializeBallPossession()
+    {
         ballPossession = false;
         if (ball == null)
         {
             ball = GameObject.FindGameObjectWithTag("ball");
         }
-        
-        // TODO: RE-ADD, IMPLEMENT IsRobotScenario Bool in Scenic Manager, DISABLED FOR NOW FOR VR TESTING
+    }
+
+    /// <summary>
+    /// Sets up UI elements and forward arrow
+    /// </summary>
+    private void SetupUI()
+    {
         floatingNameText.SetText2(this.gameObject.name);
         GameManager gm = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
         if (gm.isHost)
@@ -134,7 +306,47 @@ public class HumanInterface : NetworkBehaviour, IObjectInterface
             forwardArrow = SpawnArrow(pos, forward * 8.5f);
             forwardArrow.GetComponentInChildren<ArrowGenerator>().RPC_SetActiveState(false);
         }
+    }
+
+    /// <summary>
+    /// Configures VR camera settings for multiplayer
+    /// </summary>
+    private void SetupVRCamera()
+    {
+        GameManager gm = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
+        Camera vrCam = GameObject.Find("CenterEyeAnchor")?.GetComponent<Camera>();
         
+        if (!gm.isHost && vrCam != null)
+        {
+            vrCam.enabled = false;
+        }
+        
+        // Configure info canvas for VR
+        GameObject infoCanvas = GameObject.FindGameObjectWithTag("InfoCanvas");
+        if (gm.isHost && infoCanvas != null && vrCam != null)
+        {
+            infoCanvas.GetComponent<Canvas>().worldCamera = Camera.main;
+            infoCanvas.transform.SetParent(vrCam.gameObject.transform);
+            
+            RectTransform pausedText = GameObject.Find("Paused Text")?.GetComponent<RectTransform>();
+            RectTransform recordingDot = GameObject.Find("Recording Dot")?.GetComponent<RectTransform>();
+            
+            if (pausedText != null)
+                pausedText.anchoredPosition = new Vector3(pausedText.position.x, 100);
+            
+            if (recordingDot != null)
+            {
+                recordingDot.anchoredPosition = new Vector3(250, 200);
+                recordingDot.gameObject.SetActive(false);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Handles player registration in object lists
+    /// </summary>
+    private void HandlePlayerRegistration()
+    {
         if (objectList.humanPlayers.Count == 0 && !isViewer)
         {
             objectList.humanPlayers.Add(this.gameObject);
@@ -144,59 +356,14 @@ public class HumanInterface : NetworkBehaviour, IObjectInterface
         {
             objectList.viewerPlayer = this.gameObject;
         }
-        
-        // make sure vr cam is not enabled for client
-        Camera vrCam = GameObject.Find("CenterEyeAnchor").GetComponent<Camera>();
-        if (!gm.isHost && vrCam != null)
-        {
-            vrCam.enabled = false;
-        }
-        
-        // find gameobject with tag "InfoCanvas" and assign the canvas object to this object's camera
-        GameObject infoCanvas = GameObject.FindGameObjectWithTag("InfoCanvas");
-        RectTransform t = GameObject.Find("Paused Text").GetComponent<RectTransform>();
-        RectTransform t2 = GameObject.Find("Recording Dot").GetComponent<RectTransform>();
-        if (gm.isHost && infoCanvas != null)
-        {
-            infoCanvas.GetComponent<Canvas>().worldCamera = Camera.main;
-
-            // set the parent of the canvas to the vr camera and scale it down
-            infoCanvas.transform.SetParent(vrCam.gameObject.transform);
-            // infoCanvas.transform.localScale = new Vector3(0.001f, 0.001f, 0.001f);
-            
-            t.anchoredPosition = new Vector3(t.position.x, 100);
-            
-            t2.anchoredPosition = new Vector3(250, 200);
-            t2.gameObject.SetActive(false);
-        }
-
-        // if (isViewer)
-        // {
-        //     t.SetActive(false);
-        // }
-        t2.gameObject.SetActive(false);
     }
-    
-    private void LateUpdate()
-    {
-        // make sure ai target position is set back to 0 if behavior is not "MoveTo"
-        if (this.GetComponent<AIDestinationSetter>())
-        {
-            AIDestinationSetter dest = this.GetComponent<AIDestinationSetter>();
-            if (currAction != "MoveToPos" && dest.target != null)
-            {
-                dest.target.localPosition = Vector3.zero;
-            }
-        }
-    }
-    
-    private void RPC_SetActive(bool active)
-    {
-        gameObject.SetActive(active);
-    }
+    #endregion
 
-    // Update is called once per frame
-    void Update()
+    #region Update Methods
+    /// <summary>
+    /// Updates ball tracking and distance calculations
+    /// </summary>
+    private void UpdateBallTracking()
     {
         if (ball == null)
         {
@@ -215,7 +382,13 @@ public class HumanInterface : NetworkBehaviour, IObjectInterface
             }
             distToBall = Vector3.Distance(pos, ballOnTheGround);
         }
+    }
 
+    /// <summary>
+    /// Updates velocity calculation for movement tracking
+    /// </summary>
+    private void UpdateVelocityCalculation()
+    {
         if (!isVR)
         {
             velocity = (transform.position - lastPosition) / Time.deltaTime;
@@ -226,20 +399,22 @@ public class HumanInterface : NetworkBehaviour, IObjectInterface
             velocity = (vrTransform.position - lastPosition) / Time.deltaTime;
             lastPosition = vrTransform.position;
         }
-        
+    }
+
+    /// <summary>
+    /// Handles visual indicators for ball possession
+    /// </summary>
+    private void HandleBallPossessionVisuals()
+    {
         GameManager gm = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
         
-        // TODO: RE-ADD, IMPLEMENT IsRobotScenario Bool in Scenic Manager, DISABLED FOR NOW FOR VR TESTING
-        // closestPlayerInDirection = GetClosestToLinePoint(objectList.defensePlayers);
         if (ballPossession)
         {
             if (gm.isHost)
             {
-                // make sure teammate does not pass when human has ball
                 triggerPass = false;
                 
                 forwardArrow.GetComponentInChildren<ArrowGenerator>().RPC_SetActiveState(true);
-                // forwardArrow.SetActive(true);
                 ArrowGenerator arrow = forwardArrow.GetComponentInChildren<ArrowGenerator>();
                 Vector3 pos = transform.position;
                 Vector3 forward = transform.forward;
@@ -247,7 +422,6 @@ public class HumanInterface : NetworkBehaviour, IObjectInterface
                 {
                     pos = vrTransform.position;
                     pos.y = 0.1f;
-                    // Flatten the forward vector to only rotate around Y-axis
                     forward = vrTransform.forward;
                     forward.y = 0;
                     forward.Normalize();
@@ -264,10 +438,13 @@ public class HumanInterface : NetworkBehaviour, IObjectInterface
                 forwardArrow.GetComponentInChildren<ArrowGenerator>().RPC_SetActiveState(false);
             }
         }
-        
-        CalculateSmoothedVelocity();
-        
-        // Set RichAI radius to .1 when moving to avoid weird pathing behavior
+    }
+
+    /// <summary>
+    /// Adjusts pathfinding radius based on movement state
+    /// </summary>
+    private void HandlePathfindingRadiusAdjustment()
+    {
         if (this.GetComponent<RichAI>() != null)
         {
             RichAI aiNav = this.GetComponent<RichAI>();
@@ -280,77 +457,26 @@ public class HumanInterface : NetworkBehaviour, IObjectInterface
                 aiNav.radius = 0.5f;
             }
         }
-
-        // string currResponse = "";
-        // // if (chatBehaviour.sentences.Length > 0)
-        // // {
-        // //     currResponse = chatBehaviour.sentences[chatBehaviour.sentenceIndex];
-        // // }
-        // if (circleObjects.Count > 0 && circleObjects[0] != null)
-        // {
-        //     var temp = new Vector3(this.transform.position.x, 2f, this.transform.position.z);
-        //     circleObjects[0].transform.position = temp;
-        // }
-        // // if (currResponse != null || currResponse != "")
-        // // {
-        // //     Debug.LogError("current response: " + currResponse);
-        // // }
-        // if (!circleSpawned && ContainsAll(currResponse, "closest", "opponent"))
-        // {
-        //     circleSpawned = true;
-        //     if (objectList.scenicPlayers[0] != null)
-        //     {
-        //         GameObject closest = objectList.scenicPlayers[0]; // hardcoded closest opponent
-        //         SpawnCircle(closest.transform.position); 
-        //     }
-        // } 
-        // if (!arrowSpawned && ContainsAll(currResponse, "move in", "within a meter"))
-        // {
-        //     arrowSpawned = true;
-        //     if (objectList.scenicPlayers[0] != null)
-        //     {
-        //         GameObject closest = objectList.scenicPlayers[0]; // hardcoded closest opponent
-        //         SpawnArrow(this.transform.position, closest.transform.position);
-        //     }
-        // }
-        // if (tlManager.Paused == false && (circleObjects.Count > 1 || arrowObjects.Count > 0))
-        // {
-        //     if (circleObjects.Count > 1)
-        //     {
-        //         for (int i = 1; i < circleObjects.Count; i++)
-        //         {
-        //             Destroy(circleObjects[i]);
-        //         }
-        //         circleObjects.RemoveRange(1, circleObjects.Count - 1);
-        //     }
-        //     if (arrowObjects.Count > 0)
-        //     {
-        //         for (int i = 0; i < arrowObjects.Count; i++)
-        //         {
-        //             Destroy(arrowObjects[i]);
-        //         }
-        //         arrowObjects.RemoveRange(0, arrowObjects.Count - 1);
-        //     }
-        //     circleSpawned = false;
-        //     arrowSpawned = false;
-        // }
-
     }
-    
+    #endregion
+
+    #region Velocity Calculation
+    /// <summary>
+    /// Calculates smoothed velocity over multiple frames to reduce jitter
+    /// </summary>
     private void CalculateSmoothedVelocity()
     {
-        // Add current position and time to history
-        positionHistory.Enqueue(transform.position);
+        Vector3 currentPos = isVR ? vrTransform.position : transform.position;
+        
+        positionHistory.Enqueue(currentPos);
         timeHistory.Enqueue(Time.time);
         
-        // Remove old entries if we exceed max frames
         while (positionHistory.Count > maxHistoryFrames)
         {
             positionHistory.Dequeue();
             timeHistory.Dequeue();
         }
         
-        // Calculate velocity if we have enough history
         if (positionHistory.Count >= 2)
         {
             Vector3[] positions = positionHistory.ToArray();
@@ -359,10 +485,6 @@ public class HumanInterface : NetworkBehaviour, IObjectInterface
             Vector3 oldestPosition = positions[0];
             float oldestTime = times[0];
             Vector3 currentPosition = positions[positions.Length - 1];
-            if (isVR)
-            {
-                currentPosition = vrTransform.position;
-            }
             float currentTime = times[times.Length - 1];
             
             float deltaTime = currentTime - oldestTime;
@@ -373,8 +495,7 @@ public class HumanInterface : NetworkBehaviour, IObjectInterface
             }
             else
             {
-                // If deltaTime is too small, keep previous velocity or set to zero
-                if (velocity.magnitude < 0.01f) // Very small velocity threshold
+                if (velocity.magnitude < 0.01f)
                 {
                     velocity = Vector3.zero;
                 }
@@ -385,8 +506,9 @@ public class HumanInterface : NetworkBehaviour, IObjectInterface
             velocity = Vector3.zero;
         }
     }
+    #endregion
 
-    
+    #region Network Methods
     public override void Spawned() {
         if (Object.HasStateAuthority) {
             behavior = "Idle";
@@ -399,19 +521,9 @@ public class HumanInterface : NetworkBehaviour, IObjectInterface
         floatingNameText.SetText2(this.gameObject.name);
     }
     
-    // static void OnBallPossessionChanged(Changed<HumanInterface> changed)
-    // {
-    //     changed.Behaviour.UpdateBallPossession();
-    // }
-    //
-    // private void UpdateBallPossession()
-    // {
-    //     ballPossession = networkedBallPossession;
-    // }
-    
     public void SetObjectName(string newName)
     {
-        ObjName = newName; // This will trigger OnNameChanged() on all clients
+        ObjName = newName;
     }
     
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
@@ -420,26 +532,16 @@ public class HumanInterface : NetworkBehaviour, IObjectInterface
         if (isAlly)
         {
             ally = true;
-            
             ObjectsList objectList = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<ObjectsList>();
             objectList.humanPlayers.Add(this.gameObject);
         }
     }
-    
-    // triggerPass should be disabled after it is set true
-    public IEnumerator SetTriggerPass(GameObject teammate)
-    {
-        triggerPass = true;
-        LogTriggerPass(teammate);
-        yield return new WaitForSeconds(0.1f);
-        triggerPass = false;
-    }
-    
-    private void LogTriggerPass(GameObject teammate)
-    {
-        annotationManager.CreateTriggerPassAnnotation(teammate);
-    }
-    
+    #endregion
+
+    #region Ball Possession System
+    /// <summary>
+    /// Handles ball collision for automatic possession
+    /// </summary>
     private void OnTriggerEnter(Collider other)
     {
         GameManager gm = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
@@ -453,17 +555,394 @@ public class HumanInterface : NetworkBehaviour, IObjectInterface
         }
     }
     
+    /// <summary>
+    /// Forcibly takes possession of ball from opponent
+    /// </summary>
     public void ForciblyGainPossession()
     {
         if (ballOwnership.heldByScenic && canPossessBall && distToBall < 2f)
         {
-            // Debug.LogError("forcibly get ball");
             LogIntercept();
             ballOwnership.ballOwner.GetComponent<PlayerInterface>().LosePossession();
             GainPossession(ball);
         }
     }
+    
+    /// <summary>
+    /// Takes possession of the ball and updates game state
+    /// </summary>
+    private void GainPossession(GameObject other)
+    {
+        int layerIgnoreBallCollision = LayerMask.NameToLayer("PlayerBall");
+        this.gameObject.layer = layerIgnoreBallCollision;
+        if (isVR && !isViewer)
+        {
+            vrCollider.layer = layerIgnoreBallCollision;
+        }
+        
+        ball.transform.position = ballPosition.position;
+        ball.transform.SetParent(ballPosition);
+        ball.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
+        ballPossession = true;
+        ballOwnership.SetScenicOwnership(false);
+        ballOwnership.SetHumanOwnership(true);
+        ballOwnership.SetBallOwner(this.gameObject);
+        actionAPI.ReceiveBall(other.transform.position);
+    }
 
+    /// <summary>
+    /// Releases ball possession
+    /// </summary>
+    public void LosePossession()
+    {
+        if (ball)
+        {
+            StartCoroutine(PossessionDebounce());
+            ball.transform.SetParent(null);
+            ball.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
+            ballPossession = false;
+            ballOwnership.SetHumanOwnership(false);
+            ballOwnership.SetBallOwner(null);
+        }
+    }
+
+    /// <summary>
+    /// Prevents immediate re-possession after losing ball
+    /// </summary>
+    private IEnumerator PossessionDebounce()
+    {
+        canPossessBall = false;
+        yield return new WaitForSeconds(2.5f);
+        canPossessBall = true;  
+        this.gameObject.layer = LayerMask.NameToLayer("Default");
+        if (isVR && !isViewer)
+        {
+            vrCollider.layer = LayerMask.NameToLayer("Default");
+        }
+    }
+    
+    /// <summary>
+    /// Prevents rapid consecutive kicks
+    /// </summary>
+    public IEnumerator KickDebounce()
+    {
+        canKickBall = false;
+        yield return new WaitForSeconds(2.5f);
+        canKickBall = true;
+    }
+    #endregion
+
+    #region Player Actions
+    /// <summary>
+    /// Passes ball to closest teammate in forward direction
+    /// </summary>
+    public void PassToPlayer()
+    {
+        if (!ballPossession || !canKickBall)
+        {
+            return;
+        }
+
+        closestPlayerInDirection = GetClosestToLinePoint(objectList.defensePlayers);
+        if (closestPlayerInDirection == null)
+        {
+            return;
+        }
+        LogPass();
+        actionAPI.GroundPassFast(closestPlayerInDirection.transform.position);
+        StartCoroutine(ResetToMovementController());
+        closestPlayerInDirection = null;
+    }
+    
+    /// <summary>
+    /// Shoots ball towards goal
+    /// </summary>
+    public void ShootGoal()
+    {
+        if (!ballPossession || !canKickBall)
+        {
+            return;
+        }
+
+        GameObject goalObj = objectList.goalObject; 
+        if (goalObj == null)
+        {
+            return;
+        }
+        
+        LogShootGoal();
+        
+        Vector3 goalPosition = goalObj.transform.position;
+        Vector3 currentPosition = isVR ? vrTransform.position : transform.position;
+        Vector3 targetPosition = goalPosition;
+        
+        actionAPI.GroundPassFast(targetPosition);
+        StartCoroutine(ResetToMovementController());
+    }
+    
+    /// <summary>
+    /// Performs through pass in forward direction
+    /// </summary>
+    public void ThroughPass()
+    {
+        if (!ballPossession || !canKickBall)
+        {
+            return;
+        }
+
+        Vector3 pos = transform.position;
+        Vector3 forward = transform.forward;
+        if (isVR)
+        {
+            pos = vrTransform.position;
+            pos.y = 0.1f;
+            forward = vrTransform.forward;
+            forward.y = 0;
+            forward.Normalize();
+        }
+        
+        Vector3 passPosition = pos + forward * 8.5f;
+        LogThroughPass(passPosition);
+        actionAPI.GroundPassFast(passPosition);
+        StartCoroutine(ResetToMovementController());
+    }
+    #endregion
+
+    #region Helper Methods
+    /// <summary>
+    /// Finds closest player along forward ray for passing
+    /// </summary>
+    private GameObject GetClosestToLinePoint(List<GameObject> points) {
+        Vector3 pos = transform.position;
+        Vector3 forward = transform.forward;
+        if (isVR)
+        {
+            pos = vrTransform.position;
+            pos.y = 0.1f;
+            forward = vrTransform.forward;
+            forward.y = 0;
+            forward.Normalize();
+        }
+        Ray ray = new Ray(pos, forward * 8.5f);
+        
+        GameObject closestPoint = null;
+        float minDist = Mathf.Infinity;
+        
+        float maxDistanceFromRay = 1.0f;
+        float maxForwardDotThreshold = 0.5f;
+        
+        foreach (var obj in points)
+        {
+            Vector3 toPlayer = obj.transform.position - pos;
+            toPlayer.y = 0;
+
+            float dot = Vector3.Dot(forward, toPlayer.normalized);
+            if (dot < maxForwardDotThreshold) continue;
+
+            Vector3 closestPointOnRay = GetClosestPointOnRay(ray, obj.transform.position);
+            float distanceFromRay = Vector3.Distance(closestPointOnRay, obj.transform.position);
+
+            if (distanceFromRay > maxDistanceFromRay) continue;
+
+            float distanceAlongRay = Vector3.Distance(pos, closestPointOnRay);
+            if (distanceAlongRay < minDist)
+            {
+                minDist = distanceAlongRay;
+                closestPoint = obj;
+            }
+        }
+
+        return closestPoint;
+    }
+    
+    /// <summary>
+    /// Calculates closest point on a ray to a given position
+    /// </summary>
+    private Vector3 GetClosestPointOnRay(Ray ray, Vector3 point)
+    {
+        Vector3 rayToPoint = point - ray.origin;
+        float t = Vector3.Dot(rayToPoint, ray.direction);
+
+        if (t <= 0)
+        {
+            return ray.origin;
+        }
+        else
+        {
+            return ray.origin + ray.direction * t;
+        }
+    }
+
+    /// <summary>
+    /// Resets animation controller after action completion
+    /// </summary>
+    private IEnumerator ResetToMovementController()
+    {
+        while (actionAPI.alreadyInAnimation)
+        {
+            yield return null;
+        }
+        yield return new WaitForSeconds(1.0f);
+        actionAPI.RPC_SetAnimController("Movement");
+    }
+
+    /// <summary>
+    /// Sets up pass trigger for AI teammates
+    /// </summary>
+    public IEnumerator SetTriggerPass(GameObject teammate)
+    {
+        triggerPass = true;
+        LogTriggerPass(teammate);
+        yield return new WaitForSeconds(0.1f);
+        triggerPass = false;
+    }
+
+    /// <summary>
+    /// Sets movement state with small delay for synchronization
+    /// </summary>
+    public IEnumerator SetIsMoving(bool isMoving)
+    {
+        yield return new WaitForSeconds(0.05f);
+        this.isMoving = isMoving;
+    }
+    #endregion
+
+    #region Object Spawning
+    /// <summary>
+    /// Spawns visual circle indicator at position
+    /// </summary>
+    public void SpawnCircle(Vector3 pos)
+    {
+        pos = new Vector3(pos.x, 2f, pos.z);
+        GameObject circle = Instantiate(circleGenerator, pos, circleGenerator.transform.rotation);
+        circleObjects.Add(circle);
+        if (circleObjects.Count == 1)
+        {
+            circle.GetComponent<Renderer>().material.SetColor("_Color", Color.yellow);
+        }
+        else if (circleObjects.Count > 1)
+        {
+            circle.GetComponent<Renderer>().material.SetColor("_Color", Color.red);
+        }
+    }
+
+    /// <summary>
+    /// Spawns networked arrow indicator between two positions
+    /// </summary>
+    public GameObject SpawnArrow(Vector3 from, Vector3 to)
+    {
+        Vector3 spawnPos = new Vector3(from.x, from.y, from.z);
+        NetworkRunner runner = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>()._runner;
+        NetworkObject temp = runner.Spawn(arrowGenerator, spawnPos, Quaternion.identity);
+        GameObject arrow = temp.gameObject;
+        arrow.GetComponentInChildren<ArrowGenerator>().SetOrigin(from);
+        arrow.GetComponentInChildren<ArrowGenerator>().SetTarget(to);
+        arrowObjects.Add(arrow);
+        arrow.GetComponentInChildren<Renderer>().material.SetColor("_Color", new Color(1f, 0.92f, 0.016f, 0.25f));
+        return arrow;
+    }
+    #endregion
+
+    #region Utility Methods
+    /// <summary>
+    /// Checks if source string contains all specified values
+    /// </summary>
+    public static bool ContainsAll(string source, params string[] values)
+    {
+        return values.All(x => source.Contains(x));
+    }
+
+    /// <summary>
+    /// Plays audio clip once
+    /// </summary>
+    public void PlayAudioClip()
+    {
+        source.PlayOneShot(source.clip);
+    }
+
+    /// <summary>
+    /// Sets transform position and rotation with physics handling
+    /// </summary>
+    public void SetTransform(Vector3 pos, Quaternion rot)
+    {
+        source.PlayOneShot(source.clip);
+        this.GetComponent<Rigidbody>().isKinematic = false;
+        this.transform.position = pos;
+        this.transform.rotation = rot;
+
+        if (isVR)
+        {
+            vrTransform.position = pos;
+            vrTransform.rotation = rot;
+        }
+        
+        this.GetComponent<Rigidbody>().isKinematic = true;
+
+        Debug.LogWarning("Local: I am transforming to: " + pos.ToString());
+
+        ResetHuman();
+    }
+
+    /// <summary>
+    /// Sets position for specified game object
+    /// </summary>
+    public void SetTransform2(GameObject go, Vector3 pos)
+    {
+        source.PlayOneShot(source.clip);
+        go.transform.position = pos;
+    }
+
+    /// <summary>
+    /// Resets human player to default state
+    /// </summary>
+    public void ResetHuman()
+    {
+        LosePossession();
+        triggerPass = false;
+        isMoving = false;
+        xMark = Vector3.zero;
+        ballPossession = false;
+        
+        if (actionAPI)
+        {
+            actionAPI.alreadyInAnimation = false;
+            actionAPI.RPC_SetAnimController("Movement");
+        }
+
+        if (forwardArrow)
+        {
+            forwardArrow.GetComponentInChildren<ArrowGenerator>().RPC_SetActiveState(false);
+        }
+        
+        if (this.GetComponent<AIDestinationSetter>())
+        {
+            AIDestinationSetter dest = this.GetComponent<AIDestinationSetter>();
+            dest.target.localPosition = Vector3.zero;
+            actionAPI.stopMovement = true;
+            
+            this.GetComponent<Animator>().SetFloat("VelZ", 0);
+            this.GetComponent<Animator>().SetFloat("VelX", 0);
+        }
+        
+        localTick = 0;
+    }
+
+    /// <summary>
+    /// Finds nearest grabbable object for factory scenarios
+    /// </summary>
+    private GameObject FindNearestObject()
+    {
+        GameObject[] grabbableObjects = GameObject.FindGameObjectsWithTag("Grabbable");
+        Vector3 originPosition = this.gameObject.transform.position;
+
+        return grabbableObjects
+            .Where(obj => Vector3.Distance(obj.transform.position, originPosition) <= 5f)
+            .OrderBy(obj => Vector3.Distance(obj.transform.position, originPosition))
+            .FirstOrDefault();
+    }
+    #endregion
+
+    #region Logging Methods
     private void LogIntercept()
     {
         annotationManager.CreateInterceptAnnotation(this.gameObject);
@@ -501,437 +980,26 @@ public class HumanInterface : NetworkBehaviour, IObjectInterface
     {
         annotationManager.CreateReceivePassAnnotation(this.gameObject);
     }
-    
-    // TODO: Reimplement for factory setting
-    // public void PickUp()
-    // {
-    //     actionAPI.PickUp();
-    //     Debug.Log("Picking up");
-    //     LogPickUp();
-    // }
-    //
-    // public void PutDown()
-    // {
-    //     actionAPI.PutDown(transform.position + transform.forward * 1f + Vector3.up * 1f);
-    //     Debug.Log("Putting down");
-    //     LogPutDown();
-    // }
-    //
-    // private void LogPickUp()
-    // {
-    //     int eventID = keyboardInput.clickOrder;
-    //     float eventTime = jsonToLLM.time;
-    //     Debug.Log("test");
-    //
-    //     keyboardInput.annotation.Add(eventID, new Dictionary<string, object>
-    //     {
-    //         { "type", "PickUp" },
-    //         { "player", this.name }
-    //     });
-    //     Debug.Log(keyboardInput.annotation);
-    //
-    //     keyboardInput.annotationDescriptions.Add(eventID, $"({this.name} picked up an object)");
-    //     Debug.Log($"Added pick up to annotations at {eventTime:F2}s, key {eventTime}");
-    //     keyboardInput.annotationTimes.Add(eventID, eventTime);
-    //     keyboardInput.clickOrder++;
-    // }
-    //
-    // private void LogPutDown()
-    // {
-    //     int eventID = keyboardInput.clickOrder;
-    //     float eventTime = jsonToLLM.time;
-    //     Debug.Log("test put down");
-    //
-    //     keyboardInput.annotation.Add(eventID, new Dictionary<string, object>
-    //     {
-    //         { "type", "PutDown" },
-    //         { "player", this.name }
-    //     });
-    //     Debug.Log(keyboardInput.annotation);
-    //
-    //     keyboardInput.annotationDescriptions.Add(eventID, $"({this.name} put down an object)");
-    //     keyboardInput.annotationTimes.Add(eventID, eventTime);
-    //     keyboardInput.clickOrder++;
-    // }
-    // public void Packaging()
-    // {
-    //     actionAPI.Packaging();
-    //     Debug.Log("Packaging action triggered.");
-    //     LogPackaging();
-    // }
-    //
-    // private void LogPackaging()
-    // {
-    //     int eventID = keyboardInput.clickOrder;
-    //     float eventTime = jsonToLLM.time;
-    //
-    //     GameObject targetObject = FindNearestObject();
-    //     if (targetObject == null)
-    //     {
-    //         Debug.LogError("No object found for Packaging.");
-    //         return;
-    //     }
-    //
-    //     keyboardInput.annotation.Add(eventID, new Dictionary<string, object>
-    //     {
-    //         { "type", "Packaging" },
-    //         { "player", this.name },
-    //         { "object", targetObject.name }
-    //     });
-    //
-    //     keyboardInput.annotationDescriptions.Add(eventID, $"({this.name} packaged {targetObject.name})");
-    //
-    //     keyboardInput.annotationTimes.Add(eventID, eventTime);
-    //     keyboardInput.clickOrder++;
-    // }
 
-    private GameObject FindNearestObject()
+    private void LogTriggerPass(GameObject teammate)
     {
-        GameObject[] grabbableObjects = GameObject.FindGameObjectsWithTag("Grabbable");
-        Vector3 originPosition = this.gameObject.transform.position;
-
-        return grabbableObjects
-            .Where(obj => Vector3.Distance(obj.transform.position, originPosition) <= 5f)
-            .OrderBy(obj => Vector3.Distance(obj.transform.position, originPosition))
-            .FirstOrDefault();
+        annotationManager.CreateTriggerPassAnnotation(teammate);
     }
-    
-    private void GainPossession(GameObject other)
-    {
-        int layerIgnoreBallCollision = LayerMask.NameToLayer("PlayerBall");
-        this.gameObject.layer = layerIgnoreBallCollision;
-        if (isVR && !isViewer)
-        {
-            vrCollider.layer = layerIgnoreBallCollision;
-        }
-        
-        ball.transform.position = ballPosition.position;
-        ball.transform.SetParent(ballPosition);
-        ball.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
-        ballPossession = true;
-        ballOwnership.SetScenicOwnership(false);
-        ballOwnership.SetHumanOwnership(true);
-        ballOwnership.SetBallOwner(this.gameObject);
-        actionAPI.ReceiveBall(other.transform.position);
-    }
+    #endregion
 
-    public void LosePossession()
-    {
-        if (ball)
-        {
-            StartCoroutine(PossessionDebounce());
-            ball.transform.SetParent(null);
-            ball.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
-            ballPossession = false;
-            ballOwnership.SetHumanOwnership(false);
-            ballOwnership.SetBallOwner(null);
-        }
-    }
-
-    public void PassToPlayer()
-    {
-        if (!ballPossession || !canKickBall)
-        {
-            return;
-        }
-
-        closestPlayerInDirection = GetClosestToLinePoint(objectList.defensePlayers);
-        if (closestPlayerInDirection == null)
-        {
-            return;
-        }
-        LogPass();
-        actionAPI.GroundPassFast(closestPlayerInDirection.transform.position);
-        StartCoroutine(ResetToMovementController());
-        closestPlayerInDirection = null;
-    }
-    
-    public void ShootGoal()
-    {
-        if (!ballPossession || !canKickBall)
-        {
-            return;
-        }
-
-        GameObject goalObj = objectList.goalObject; 
-        if (goalObj == null)
-        {
-            return;
-        }
-        
-        LogShootGoal();
-        
-        Vector3 goalPosition = goalObj.transform.position;
-        Vector3 currentPosition = transform.position;
-        if (isVR)
-        {
-            currentPosition = vrTransform.position;
-        }
-        
-        Vector3 direction = goalPosition - currentPosition;
-        float currentDistance = direction.magnitude;
-        
-        Vector3 targetPosition;
-        
-        // // If the distance is greater than 8.5, clamp it
-        // if (currentDistance > 8.5f)
-        // {
-        //     // Normalize the direction and multiply by max distance
-        //     direction = direction.normalized;
-        //     targetPosition = currentPosition + direction * 8.5f;
-        // }
-        // else
-        // {
-        //     // Use the original goal position if it's within range
-        //     targetPosition = goalPosition;
-        // }
-        
-        targetPosition = goalPosition;
-        
-        actionAPI.GroundPassFast(targetPosition);
-        StartCoroutine(ResetToMovementController());
-    }
-    
-    public void ThroughPass()
-    {
-        if (!ballPossession || !canKickBall)
-        {
-            return;
-        }
-
-        Vector3 pos = transform.position;
-        Vector3 forward = transform.forward;
-        if (isVR)
-        {
-            pos = vrTransform.position;
-            pos.y = 0.1f;
-            forward = vrTransform.forward;
-            forward.y = 0;
-            forward.Normalize();
-        }
-        
-        Vector3 passPosition = pos + forward * 8.5f;
-        LogThroughPass(passPosition);
-        actionAPI.GroundPassFast(passPosition);
-        StartCoroutine(ResetToMovementController());
-    }
-
-    private IEnumerator ResetToMovementController()
-    {
-        while (actionAPI.alreadyInAnimation)
-        {
-            yield return null;
-        }
-        yield return new WaitForSeconds(1.0f);
-        actionAPI.RPC_SetAnimController("Movement");
-        // actionAPI.alreadyInAnimation = true;
-        // yield return new WaitForSeconds(1.0f);
-        // actionAPI.SetAnimController("Movement");
-        // actionAPI.alreadyInAnimation = false;
-    }
-
-
-    private GameObject GetClosestToLinePoint(List<GameObject> points) {
-        Vector3 pos = transform.position;
-        Vector3 forward = transform.forward;
-        if (isVR)
-        {
-            pos = vrTransform.position;
-            pos.y = 0.1f;
-            forward = vrTransform.forward;
-            forward.y = 0;
-            forward.Normalize();
-        }
-        Ray ray = new Ray(pos, forward * 8.5f);
-        
-        GameObject closestPoint = null;
-        float minDist = Mathf.Infinity;
-        
-        float maxDistanceFromRay = 1.0f; // ← How far off the ray a player can be
-        float maxForwardDotThreshold = 0.5f; // ← Between -1 (behind) to 1 (fully ahead)
-        
-        foreach (var obj in points)
-        {
-            Vector3 toPlayer = obj.transform.position - pos;
-            toPlayer.y = 0;
-
-            // Ignore if behind
-            float dot = Vector3.Dot(forward, toPlayer.normalized);
-            if (dot < maxForwardDotThreshold) continue;
-
-            // Closest point on the ray
-            Vector3 closestPointOnRay = GetClosestPointOnRay(ray, obj.transform.position);
-            float distanceFromRay = Vector3.Distance(closestPointOnRay, obj.transform.position);
-
-            // Ignore if too far from ray
-            if (distanceFromRay > maxDistanceFromRay) continue;
-
-            float distanceAlongRay = Vector3.Distance(pos, closestPointOnRay);
-            if (distanceAlongRay < minDist)
-            {
-                minDist = distanceAlongRay;
-                closestPoint = obj;
-            }
-        }
-
-        return closestPoint;
-    }
-    
-    private Vector3 GetClosestPointOnRay(Ray ray, Vector3 point)
-    {
-        Vector3 rayToPoint = point - ray.origin;
-        float t = Vector3.Dot(rayToPoint, ray.direction);
-
-        if (t <= 0)
-        {
-            return ray.origin;
-        }
-        else
-        {
-            return ray.origin + ray.direction * t;
-        }
-    }
-    
-    private IEnumerator PossessionDebounce()
-    {
-        canPossessBall = false;
-        yield return new WaitForSeconds(2.5f);
-        canPossessBall = true;  
-        this.gameObject.layer = LayerMask.NameToLayer("Default");
-        if (isVR && !isViewer)
-        {
-            vrCollider.layer = LayerMask.NameToLayer("Default");
-        }
-    }
-    
-    public IEnumerator KickDebounce()
-    {
-        canKickBall = false;
-        yield return new WaitForSeconds(2.5f);
-        canKickBall = true;
-    }
-    
-    public static bool ContainsAll(string source, params string[] values)
-    {
-        // Debug.LogError("values: " + values[0]);
-        return values.All(x => source.Contains(x));
-    }
-
-    public void PlayAudioClip()
-    {
-        source.PlayOneShot(source.clip);
-    }
-    
-    public IEnumerator SetIsMoving(bool isMoving)
-    {
-        yield return new WaitForSeconds(0.05f);
-        this.isMoving = isMoving;
-    }
-    
-    public void SetTransform(Vector3 pos, Quaternion rot)
-    {
-        // Debug.LogError("In SetTransform: " + pos);
-        source.PlayOneShot(source.clip);
-        this.GetComponent<Rigidbody>().isKinematic = false;
-        this.transform.position = pos;
-        this.transform.rotation = rot;
-
-        if (isVR)
-        {
-            vrTransform.position = pos;
-            vrTransform.rotation = rot;
-        }
-        
-        this.GetComponent<Rigidbody>().isKinematic = true;
-
-        Debug.LogWarning("Local: I am transforming to: " + pos.ToString());
-
-        ResetHuman();
-    }
-
-    public void SetTransform2(GameObject go, Vector3 pos)
-    {
-        source.PlayOneShot(source.clip);
-        go.transform.position = pos;
-
-    }
-
-    public void ResetHuman()
-    {
-        LosePossession();
-        triggerPass = false;
-        isMoving = false;
-        xMark = Vector3.zero;
-        ballPossession = false;
-        
-        if (actionAPI)
-        {
-            actionAPI.alreadyInAnimation = false;
-            actionAPI.RPC_SetAnimController("Movement");
-        }
-
-        if (forwardArrow)
-        {
-            forwardArrow.GetComponentInChildren<ArrowGenerator>().RPC_SetActiveState(false);
-            // forwardArrow.SetActive(false);
-        }
-        
-        if (this.GetComponent<AIDestinationSetter>())
-        {
-            AIDestinationSetter dest = this.GetComponent<AIDestinationSetter>();
-            RichAI aiNav = this.GetComponent<RichAI>();
-            
-            dest.target.localPosition = Vector3.zero;
-            actionAPI.stopMovement = true;
-            
-            this.GetComponent<Animator>().SetFloat("VelZ", 0);
-            this.GetComponent<Animator>().SetFloat("VelX", 0);
-        }
-        
-        localTick = 0;
-    }
-    
-    public void SpawnCircle(Vector3 pos)
-    {
-        pos = new Vector3(pos.x, 2f, pos.z);
-        GameObject circle = Instantiate(circleGenerator, pos, circleGenerator.transform.rotation);
-        circleObjects.Add(circle);
-        if (circleObjects.Count == 1) // 0th circle should always be the one circling the coach
-        {
-            circle.GetComponent<Renderer>().material.SetColor("_Color", Color.yellow);
-        }
-        else if (circleObjects.Count > 1)
-        {
-            circle.GetComponent<Renderer>().material.SetColor("_Color", Color.red);
-
-        }
-    }
-
-    public GameObject SpawnArrow(Vector3 from, Vector3 to)
-    {
-        Vector3 spawnPos = new Vector3(from.x, from.y, from.z);
-        // GameObject arrow = Instantiate(arrowGenerator, spawnPos, arrowGenerator.transform.rotation);
-        NetworkRunner runner = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>()._runner;
-        NetworkObject temp = runner.Spawn(arrowGenerator, spawnPos, Quaternion.identity);
-        GameObject arrow = temp.gameObject;
-        arrow.GetComponentInChildren<ArrowGenerator>().SetOrigin(from);
-        arrow.GetComponentInChildren<ArrowGenerator>().SetTarget(to);
-        arrowObjects.Add(arrow);
-        arrow.GetComponentInChildren<Renderer>().material.SetColor("_Color", new Color(1f, 0.92f, 0.016f, 0.25f));
-        return arrow;
-    }
-    
+    #region IObjectInterface Implementation
+    /// <summary>
+    /// Applies movement data from Scenic simulation using reflection
+    /// </summary>
     public void ApplyMovement(ScenicMovementData data)
     {
         localTick += 1;
-        // Debug.Log(GetComponent<Rigidbody>().velocity);
         if (localTick < 4)
         {
             return;
         }
         
-        // TODO: RE-ADD, IMPLEMENT IsRobotScenario Bool in Scenic Manager, DISABLED FOR NOW FOR VR TESTING
-        // if player is already in kick animation, dont update behavior text yet
+        // Update behavior text if not in animation
         if (!actionAPI.alreadyInAnimation)
         {
             if (data.behavior == " " || data.behavior == "" || data.behavior == "Idle")
@@ -965,15 +1033,13 @@ public class HumanInterface : NetworkBehaviour, IObjectInterface
             }
             Type type = actionAPI.GetType();
             MethodInfo method = type.GetMethod(data.actionFunc);
-            
-            // Debug.LogError("im in here");
 
             method.Invoke(actionAPI, data.actionArgs.ToArray());
         }
-        else //idle
+        else
         {
-            // Debug.LogError("im in here2");
             actionAPI.stopMovement = true;
         }
     }
+    #endregion
 }

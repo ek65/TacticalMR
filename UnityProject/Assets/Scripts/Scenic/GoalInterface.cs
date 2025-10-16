@@ -9,25 +9,41 @@ using System;
 using Fusion;
 using Pathfinding;
 
-// TODO: Rename script, this is the player logic script
+/// <summary>
+/// Network interface for goal objects in the soccer simulation.
+/// Handles network synchronization of goal name and registration with the object management system.
+/// </summary>
 public class GoalInterface : NetworkBehaviour
 {
+    #region Network Properties
     [Networked, OnChangedRender(nameof(UpdateGameObjectName))]
     public NetworkString<_32> ObjName { get; set; }
+    #endregion
     
+    #region Network Methods
+    /// <summary>
+    /// Updates the GameObject name when the networked name changes
+    /// </summary>
     private void UpdateGameObjectName()
     {
         gameObject.name = ObjName.ToString();
     }
     
+    /// <summary>
+    /// Sets the object name (only accessible by state authority)
+    /// </summary>
+    /// <param name="newName">New name for the goal object</param>
     public void SetObjectName(string newName)
     {
-        if (Object.HasStateAuthority) // Only the host or owner should update this
+        if (Object.HasStateAuthority)
         {
-            ObjName = newName; // This will trigger OnNameChanged() on all clients
+            ObjName = newName;
         }
     }
     
+    /// <summary>
+    /// Network RPC to register goal in the global object list
+    /// </summary>
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
     public void RPC_InstantiateValues()
     {
@@ -35,4 +51,5 @@ public class GoalInterface : NetworkBehaviour
         objectList.goalObject = this.gameObject;
         objectList.scenicObjects.Add(this.gameObject);
     }
+    #endregion
 }

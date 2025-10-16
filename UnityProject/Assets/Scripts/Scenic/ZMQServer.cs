@@ -1,61 +1,108 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-
 using UnityEngine;
 using Newtonsoft.Json;
 using NetMQ;
 
+/// <summary>
+/// Main server component that manages communication between Unity and the Scenic simulation system.
+/// Handles JSON parsing, object synchronization, and movement data application.
+/// Coordinates with ZMQRequester for network communication and manages simulation state.
+/// </summary>
 public class ZMQServer : MonoBehaviour
 {
+    #region Inspector Fields
     [SerializeField] private string ip;
-
     [SerializeField] private string port = "5555";
+    #endregion
 
+    #region Private Fields
     private ScenicParser parser;
-    // Start is called before the first frame update
     private ZMQRequester zmqRequester;
-
-    public int lastTick;
     private ObjectsList objectList;
-
-    private bool destroyed;
-
     private JSONStatusMaker sender;
-
     private TimelineManager tlManager;
-    
-    // Used in ApplyMovement to skip the first loop into the next update since objects are not correctly assigned yet
+    private bool destroyed;
     private bool firstApplyMovement = true;
+    #endregion
 
+    #region Public Properties
+    /// <summary>
+    /// Last processed tick number for synchronization
+    /// </summary>
+    public int lastTick;
+    #endregion
+
+    #region Unity Lifecycle
     void Start()
+    {
+        ValidateConfiguration();
+        InitializeNetworking();
+        InitializeComponents();
+    }
+
+    void Update()
+    {
+        HandleOutgoingData();
+        HandleIncomingData();
+    }
+
+    private void OnDestroy()
+    {
+        CleanupNetworking();
+    }
+
+    private void OnApplicationQuit()
+    {
+        CleanupNetworking();
+    }
+    #endregion
+
+    #region Initialization
+    /// <summary>
+    /// Validates that required network configuration is set
+    /// </summary>
+    private void ValidateConfiguration()
     {
         if (ip == null || port == null)
         {
-            throw new System.Exception();
+            throw new System.Exception("IP and Port must be configured for ZMQ communication");
         }
+    }
 
+    /// <summary>
+    /// Initializes ZMQ networking as server
+    /// </summary>
+    private void InitializeNetworking()
+    {
         bool isServer = true;
         zmqRequester = new ZMQRequester(ip, port, isServer);
         zmqRequester.Start();
         destroyed = false;
-
         lastTick = -1;
+    }
 
+    /// <summary>
+    /// Initializes component references
+    /// </summary>
+    private void InitializeComponents()
+    {
         objectList = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<ObjectsList>();
         parser = new ScenicParser();
-
         sender = this.gameObject.GetComponent<JSONStatusMaker>();
-
         tlManager = GameObject.FindGameObjectWithTag("TimelineManager").GetComponent<TimelineManager>();
-
     }
-    void Update()
+    #endregion
+
+    #region Data Handling
+    /// <summary>
+    /// Handles outgoing data transmission to Scenic
+    /// </summary>
+    private void HandleOutgoingData()
     {
-        // sends to scenic
         if (tlManager.Paused)
         {
-            // zmqRequester.SetReady(false);
             zmqRequester.SetSendData(null);
         }
         else
@@ -63,73 +110,84 @@ public class ZMQServer : MonoBehaviour
             string newSendData = sender.getUnityData();
             zmqRequester.SetSendData(newSendData);
         }
-        
-        // zmqRequester.SetReady(true);
+    }
 
-        // gets json from scenic
+    /// <summary>
+    /// Handles incoming data from Scenic and processes simulation updates
+    /// </summary>
+    private void HandleIncomingData()
+    {
         string newData = zmqRequester.GetData();
-        if (newData == null || newData.Equals("Null") || newData.Equals(""))
+        if (string.IsNullOrEmpty(newData) || newData.Equals("Null"))
         {
             return;
         }
-        // Debug.Log(newData);
         
-            ScenicParser.ScenicJson jsonResult = parser.ParseData(newData);
-            int scenicTick = GetTickFromData(jsonResult);
-            int newTick = -1;
-            if (!destroyed || scenicTick == 0)
-            {
-                newTick = scenicTick;
-                destroyed = false;
-            }
-            if (newTick == lastTick)
-            {
-                return;
-            }
-            if (newTick > lastTick + 10)
-            {
-                Debug.LogError("A scenic tick might have been skipped. Last Tick = " + lastTick.ToString() + " New Tick = " + newTick.ToString());
-            }
-            lastTick = newTick;
-            List<ScenicMovementData> mvData = ParseMovementData(jsonResult);
-            ApplyMovement(mvData);
+        ProcessScenicData(newData);
     }
 
-    private void OnDestroy()
+    /// <summary>
+    /// Processes received JSON data from Scenic simulation
+    /// </summary>
+    /// <param name="jsonData">Raw JSON string from Scenic</param>
+    private void ProcessScenicData(string jsonData)
     {
-        zmqRequester.server.Close();
-        zmqRequester.server.Dispose();
-        zmqRequester.Stop();
-        //Following command crashes my editor for some reason
-        // NetMQConfig.Cleanup(false); 
+        ScenicParser.ScenicJson jsonResult = parser.ParseData(jsonData);
+        int scenicTick = GetTickFromData(jsonResult);
+        int newTick = -1;
+        
+        if (!destroyed || scenicTick == 0)
+        {
+            newTick = scenicTick;
+            destroyed = false;
+        }
+        
+        if (newTick == lastTick)
+        {
+            return;
+        }
+        
+        if (newTick > lastTick + 10)
+        {
+            Debug.LogError("A scenic tick might have been skipped. Last Tick = " + lastTick.ToString() + " New Tick = " + newTick.ToString());
+        }
+        
+        lastTick = newTick;
+        List<ScenicMovementData> mvData = ParseMovementData(jsonResult);
+        ApplyMovement(mvData);
     }
+    #endregion
 
-    private void OnApplicationQuit()
-    {
-        zmqRequester.server.Close();
-        zmqRequester.server.Dispose();
-        zmqRequester.Stop();
-        // NetMQConfig.Cleanup(); 
-    }
-
+    #region Movement Processing
+    /// <summary>
+    /// Parses movement data from Scenic JSON
+    /// </summary>
+    /// <param name="data">Parsed Scenic JSON data</param>
+    /// <returns>List of movement data for each object</returns>
     private List<ScenicMovementData> ParseMovementData(ScenicParser.ScenicJson data)
     {
-        // Debug.Log("Parse Movement Data!");
         List<ScenicMovementData> moveData = parser.ScenicMovementParser(data);
-        //init = true;
         return moveData;
     }
 
+    /// <summary>
+    /// Extracts tick number from Scenic data for synchronization
+    /// </summary>
+    /// <param name="data">Scenic JSON data</param>
+    /// <returns>Current simulation tick number</returns>
     private int GetTickFromData(ScenicParser.ScenicJson data)
     {
-        int tick = -1;
-        tick = data.TimestepNumber;
-        return tick;
+        return data.TimestepNumber;
     }
 
+    /// <summary>
+    /// Applies movement data to corresponding Unity objects.
+    /// Handles player synchronization and ensures proper object mapping.
+    /// </summary>
+    /// <param name="movementData">List of movement data for all objects</param>
     private void ApplyMovement(List<ScenicMovementData> movementData)
     {
-        // We want to ensure players spawned. We use this check.
+        // Validate player count synchronization
         int numPlayersCheck = 0;
         int[] listOfScenicPlayerIndices = new int[movementData.Count];
         int[] listOfScenicObjectIndices = new int[movementData.Count];
@@ -137,7 +195,10 @@ public class ZMQServer : MonoBehaviour
         int currScenicObjectListIdx = 0;
         int currMovementDataIndex = 0;
         int aiAgentIndex = 0;
+        
         TimelineManager tlManager = FindObjectOfType<TimelineManager>();
+        
+        // Map movement data to object types
         foreach (ScenicMovementData s in movementData)
         {
             if (s.model.modelType == "Player" || s.model.modelType == "Robot")
@@ -146,24 +207,18 @@ public class ZMQServer : MonoBehaviour
                 currScenicPlayerListIdx += 1;
                 numPlayersCheck++;
             }
-            // else if (s.model.modelType == "aiAgent")
-            // {
-            //     aiAgentIndex = currMovementDataIndex;
-            // }
             else if(s.model.modelType == "Human" || s.model.modelType == "Coach")
             {
-                //broadcast the pause boolean which may be set by scenic AI agent at any given moment. TimelineManager would handle it
-                // tlManager.NotifyPauseStatus(s.pause);
-                HumanInterface human = objectList.humanPlayers[0].GetComponentInChildren<HumanInterface>();
-                human.ApplyMovement(movementData[aiAgentIndex]);
+                if (objectList.humanPlayers.Count > 0)
+                {
+                    HumanInterface human = objectList.humanPlayers[0].GetComponentInChildren<HumanInterface>();
+                    human.ApplyMovement(movementData[aiAgentIndex]);
+                }
             }
-            // else if (s.model.modelType != "player.human")
-            // {
-            //     listOfScenicObjectIndices[currScenicObjectListIdx] = currMovementDataIndex;
-            //     currScenicObjectListIdx += 1;
-            // }
             currMovementDataIndex += 1;
         }
+        
+        // Validate object synchronization
         if (numPlayersCheck != objectList.scenicPlayers.Count)
         {
             if (firstApplyMovement)
@@ -174,9 +229,9 @@ public class ZMQServer : MonoBehaviour
             Debug.LogError("Scenic Players Mismatched? MovementData Received = " + movementData.Count + " Scenic Players = " + objectList.scenicPlayers.Count);
         }
 
+        // Apply movement to scenic players
         for (int i = 0; i < numPlayersCheck; i++)
         {
-            //Note: Because we apply controls at a set index, this *should* retain order...
             int currPlayerIdx = listOfScenicPlayerIndices[i];
             PlayerInterface p = objectList.scenicPlayers[i].GetComponentInChildren<PlayerInterface>();
             if (tlManager.Paused)
@@ -189,22 +244,7 @@ public class ZMQServer : MonoBehaviour
             }
         }
         
-        // if (objectList.AIAgent != null)
-        // {
-        //     AIInterface ai = objectList.AIAgent.GetComponentInChildren<AIInterface>();
-        //     ai.ApplyMovement(movementData[aiAgentIndex]);
-        // }
-        
-        /**
-        for (int i = 0; i < objectList.scenicPlayers.Count; i ++)
-        {   
-            if (movementData[i].model.modelType == "player.scenic")
-            {
-                Debug.LogError(i);
-                PlayerInterface p = objectList.scenicPlayers[i].GetComponentInChildren<PlayerInterface>();
-                p.ApplyMovement(movementData[i]);
-            }
-        }*/
+        // Apply movement to other scenic objects
         for (int i = 0; i < objectList.scenicObjects.Count; i++)
         {
             PlayerInterface p = objectList.scenicObjects[i].GetComponentInChildren<PlayerInterface>();
@@ -214,60 +254,30 @@ public class ZMQServer : MonoBehaviour
                 p.ApplyMovement(movementData[currObjectIdx]);
             }
         }
-        //checking for human players to apply to
-        // foreach (ScenicMovementData s in movementData){
-        //     if (s.model.modelType == "player.human")
-        //     {
-        //         this.enableThrustFromData = s.thBoActive;
-        //         this.enableBrakeFromData = s.hud.brakeActive;
-        //         string[] hudMessages;
-        //         hudMessages = s.hud.message.ToArray();
-        //         foreach(string str in hudMessages)
-        //         {
-        //             Debug.LogWarning(str);
-        //         }
-        //         try {
-        //             HumanInterface p = objectList.humanPlayers[0].GetComponentInChildren<HumanInterface>();
-        //             p.SetDataServerRpc(hudMessages);
-        //             p.SetDataClientRpc(hudMessages);
-        //             if (s.doLineDraw)
-        //             {
-        //                 p.SetLineDestClientRpc(s.lineDestination.ToArray(), true);
-        //                 p.SetLineDestServerRpc(s.lineDestination.ToArray(), true);
-        //             }
-        //             //p.ApplyMovementClientRpc();
-        //             
-        //         } catch {
-        //             Debug.LogError("Human not spawned in yet");
-        //         }
-        //     }
-        // }
-        //Debug.Log(objectList.scenicObjects.Count);
-        //Make a new function that finds the human player SERVER SIDE. This means that you get it from the objects list and save it.
-        //The reason for this is because HumanInterface has issues saving the data when received server side. 
+    }
+    #endregion
+
+    #region Cleanup
+    /// <summary>
+    /// Properly closes ZMQ networking resources
+    /// </summary>
+    private void CleanupNetworking()
+    {
+        if (zmqRequester?.server != null)
+        {
+            zmqRequester.server.Close();
+            zmqRequester.server.Dispose();
+        }
+        zmqRequester?.Stop();
     }
 
-
-    //[ServerRpc]
+    /// <summary>
+    /// Resets tick counter for new simulation runs
+    /// </summary>
     public void ResetTickServerRpc()
     {
-        //Debug.LogError("RESTTING TICK");
-        // skipSelected = false;
         destroyed = true;
         lastTick = -1;
     }
+    #endregion
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -11,6 +11,11 @@ using UnityEditor.Recorder.Encoder;
 using UnityEditor.Recorder.Input;
 #endif
 
+/// <summary>
+/// Manages video recording functionality within the Unity Editor for capturing gameplay sessions.
+/// Provides automated recording capabilities for documentation, analysis, and replay purposes.
+/// Only available in Unity Editor builds due to dependency on UnityEditor.Recorder.
+/// </summary>
 public class RecorderManager : MonoBehaviour
 {
 #if UNITY_EDITOR

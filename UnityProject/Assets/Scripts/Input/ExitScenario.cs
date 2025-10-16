@@ -7,133 +7,115 @@ using UltimateReplay.Storage;
 using Unity.VisualScripting;
 using Utilities.Extensions;
 
+/// <summary>
+/// Manages scenario termination and VR interaction controls.
+/// Handles ending simulation scenarios, toggling VR ray interactions, and managing body visibility.
+/// Communicates with Scenic system to signal scenario completion and trigger new simulations.
+/// Provides utility functions for VR-specific interaction management.
+/// </summary>
 public class ExitScenario : MonoBehaviour
 {
-    // public OVRInput.Button button;
+    [Header("VR Controller Configuration")]
+    [Tooltip("Index trigger button for VR interactions")]
     public OVRInput.Button indexTrigger;
-    public OVRInput.Controller controllerRight;
-    public OVRInput.Controller controllerLeft;
-    public OVRInput.Button buttonX;
-    public OVRInput.Button buttonY;
-    // public bool recordingActive = false;
     
+    [Tooltip("Right hand controller reference")]
+    public OVRInput.Controller controllerRight;
+    
+    [Tooltip("Left hand controller reference")]
+    public OVRInput.Controller controllerLeft;
+    
+    [Tooltip("X button on VR controller")]
+    public OVRInput.Button buttonX;
+    
+    [Tooltip("Y button on VR controller")]
+    public OVRInput.Button buttonY;
+    
+    [Header("System References")]
     private KeyboardInput keyboardInput;
 
+    [Header("Scenario State")]
+    [Tooltip("Flag indicating if scenario should end (read by Scenic system)")]
     public bool endScenario;
 
-    // public GameObject playerHuman;
-    // public GameObject bodyTrackingTarget;
-    //
-    // private ReplayRecordOperation recordOp;
-    // private ReplayStorage storage;
+    #region Initialization
 
-    // Start is called before the first frame update
+    /// <summary>
+    /// Initialize scenario state and component references
+    /// </summary>
     void Start()
     {
         endScenario = false;
         keyboardInput = GameObject.FindGameObjectWithTag("keyboard").GetComponent<KeyboardInput>();
-        // storage = new ReplayMemoryStorage("MyReplay");
     }
 
-    // Update is called once per frame
+    #endregion
+
+    #region Update Loop
+
+    /// <summary>
+    /// Update loop for handling VR controller input
+    /// Currently contains placeholder logic for future VR control implementation
+    /// </summary>
     void Update()
     {
-        // endScenario = false;
-        // if (OVRInput.GetDown(buttonX, controllerRight))
-        // {
-        //     EndScenario();
-        // }
-        //
-        // if (OVRInput.GetDown(buttonY, controllerRight))
-        // {
-        //     Debug.LogError("I HIT THE PAUSE BUTTON");
-        //     keyboardInput.HandlePause();
-        // }
-        //
-        // if (OVRInput.GetDown(buttonX, controllerLeft))
-        // {
-        //     ToggleRayInteractor();
-        //     // HideBody();
-        // }
-        
-        // TODO: enable this for recording & playback, put this in another class and call from Keyboard Input
-        // if(OVRInput.GetDown(buttonX, controllerLeft) && !recordingActive)
-        // {
-        //     recordingActive = true;
-        //     recordOp = ReplayManager.BeginRecording(storage);
-        // } else if (OVRInput.GetDown(buttonX, controllerLeft) && recordingActive)
-        // {
-        //     recordingActive = false;
-        //     recordOp.StopRecording();
-        // }
-        // if(OVRInput.GetDown(buttonY, controllerLeft) && !recordingActive)
-        // {
-        //     bodyTrackingTarget.GetComponent<OVRBody>().enabled = false;
-        //     // detach from parent
-        //     bodyTrackingTarget.transform.parent = null;
-        //     ReplayPlaybackOperation playbackOp = ReplayManager.BeginPlayback(storage);
-        //     
-        // }
-        
-        // if (Input.GetKeyDown("space") && !recordingActive)
-        // {
-        //     recordingActive = true;
-        //     recordOp = ReplayManager.BeginRecording(storage);
-        //     
-        // } else if (Input.GetKeyDown("space") && recordingActive)
-        // {
-        //     recordingActive = false;
-        //     recordOp.StopRecording();
-        // }
-        //
-        // if (Input.GetKeyDown(KeyCode.P) && !recordingActive)
-        // {
-        //     bodyTrackingTarget.GetComponent<OVRBody>().enabled = false;
-        //     // detach from parent
-        //     bodyTrackingTarget.transform.parent = null;
-        //     ReplayPlaybackOperation playbackOp = ReplayManager.BeginPlayback(storage);
-        // }
-
+        // VR controller input handling can be implemented here
+        // Currently disabled but ready for future VR control features
     }
 
+    #endregion
+
+    #region VR Interaction Management
+
+    /// <summary>
+    /// Toggle the VR ray interactor on/off
+    /// Allows users to enable or disable VR pointing/selection functionality
+    /// </summary>
     public void ToggleRayInteractor()
     {
         if (GameObject.FindGameObjectWithTag("human") != null)
         {
             RayInteractor rayInteractor = GameObject.FindGameObjectWithTag("RightRay").GetComponent<RayInteractor>();
-            if (rayInteractor.enabled)
-            {
-                rayInteractor.enabled = false;
-            }
-            else
-            {
-                rayInteractor.enabled = true;
-            }
+            rayInteractor.enabled = !rayInteractor.enabled;
         }
     }
     
+    /// <summary>
+    /// Toggle visibility of the VR user's body representation
+    /// Hides or shows the avatar body for the VR user
+    /// </summary>
     public void HideBody()
     {
         if (GameObject.FindGameObjectWithTag("human") != null)
         {
-            GameObject go = GameObject.FindGameObjectWithTag("human").transform
+            GameObject avatarBody = GameObject.FindGameObjectWithTag("human").transform
                 .FindChildRecursive("ArmatureSkinningUpdateRetargetUser").gameObject;
-            go.SetActive(!go.activeSelf);
+            avatarBody.SetActive(!avatarBody.activeSelf);
         }
     }
-    
-    // Sets the endScenario flag to true. Scenic reads this and will terminate, and generate a new simulation
-    // human fades and moves position instead of spawning a new human; in InstantiateScenicObject.cs
-    // sends endScenario to JSONStatusMaker.cs
+
+    #endregion
+
+    #region Scenario Management
+
+    /// <summary>
+    /// End the current scenario and signal for new simulation generation
+    /// Sets the endScenario flag that Scenic reads to terminate and generate new simulations
+    /// Handles cleanup of visual effects and prepares for scenario transition
+    /// </summary>
     public void EndScenario()
     {
+        // Stop any active particle effects
         if (GameObject.FindGameObjectWithTag("goal"))
         {
             GameObject.FindGameObjectWithTag("goal").GetComponent<ParticleSystem>().Stop();
         }
+        
+        // Signal scenario end to Scenic system
         endScenario = true;
-        // bodyTrackingTarget.transform.parent = playerHuman.transform;
-        // bodyTrackingTarget.GetComponent<OVRBody>().enabled = true;
+        
+        // Additional cleanup can be added here for scenario transitions
     }
 
+    #endregion
 }

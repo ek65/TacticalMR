@@ -7,15 +7,14 @@ using Old.OpenAI.Samples.Chat;
 using TMPro;
 using UnityEngine;
 
-
-/*
- * Contains functions related to generating to creating the JSON for program synthesis,
- * such as recording, pausing/unpausing, and annotating.
- * JSON is constructed in JSONToLLM.cs
- */
+/// <summary>
+/// Manages the program synthesis recording workflow including segment control, audio recording,
+/// annotation handling, and coordination between multiple systems for demonstration capture.
+/// Handles both laptop mode (single player) and VR multiplayer scenarios with proper synchronization.
+/// </summary>
 public class ProgramSynthesisManager : NetworkBehaviour
 {
-    [Header("Scene References")]
+    [Header("Core System References")]
     public ExitScenario exitScenario;
     public TimelineManager timelineManager;
     private JSONToLLM jsonToLLM;
@@ -25,26 +24,32 @@ public class ProgramSynthesisManager : NetworkBehaviour
     private GameManager gameManager;
     private AnnotationManager annotationManager;
 
-    [Header("UI / Output")]
+    [Header("UI Components")]
     public TextMeshProUGUI countdownText;
     public GameObject saveDemoCanvas;
+    public GameObject recordingDot;
 
     [Header("Audio Recording")]
     public RecordAudio recordAudio;
 
-    [Header("Segment / Logging State")]
+    [Header("Segment Control State")]
     public bool segmentStarted = false;
     public bool activationConditionMet = false;
     public bool restarting = false;
     public bool canClick = true;
     public float segmentStartTime = 0f;
+    
+    [Header("Interaction Modes")]
     private bool isAnnotationMode = false;
     private bool isPositionMode = false;
     private bool isReferenceMode = false;
+    
+    [Header("Output Data")]
     public string explanation;
     
-    public GameObject recordingDot;
-    
+    /// <summary>
+    /// Initialize all component references and system dependencies
+    /// </summary>
     void Start()
     {
         timelineManager = GameObject.FindGameObjectWithTag("TimelineManager").GetComponent<TimelineManager>();
@@ -58,11 +63,15 @@ public class ProgramSynthesisManager : NetworkBehaviour
 #endif
         annotationManager = this.gameObject.GetComponent<AnnotationManager>();
 
-        Debug.Log("KeyboardInput script initialized");
+        Debug.Log("ProgramSynthesisManager initialized");
     }
 
+    /// <summary>
+    /// Update loop to handle dynamic reference resolution
+    /// </summary>
     void Update()
     {
+        // Resolve exit scenario reference if not set
         if (exitScenario == null)
         {
             GameObject human = GameObject.FindGameObjectWithTag("human");
@@ -71,14 +80,20 @@ public class ProgramSynthesisManager : NetworkBehaviour
         }
     }
     
+    #region Timeline Control Methods
+    
+    /// <summary>
+    /// Handle pause/unpause toggle for the timeline
+    /// Manages logging state and creates pause annotations during segments
+    /// </summary>
     public void HandlePause()
     {
         if (timelineManager.Paused)
         {
+            // Unpause timeline and activate logging if segment is running
             timelineManager.Unpause();
             activationConditionMet = true;
 
-            // If a segment is running, tell JSONToLLM to start logging
             if (segmentStarted && activationConditionMet && !jsonToLLM.isLogging)
             {
                 jsonToLLM.isLogging = true;
@@ -86,13 +101,13 @@ public class ProgramSynthesisManager : NetworkBehaviour
         }
         else
         {
-            // Add annotation for pausing
+            // Create pause annotation if segment is active
             if (segmentStarted)
             {
                 annotationManager.CreatePauseActionAnnotation(segmentStartTime);
             }
             
-            // clear ground highlights upon pause
+            // Clear UI elements and pause timeline
             GroundSelection groundSelection = GameObject.FindGameObjectWithTag("Ground")
                 .GetComponent<GroundSelection>();
             groundSelection.ClearGroundHighlights();
@@ -101,29 +116,36 @@ public class ProgramSynthesisManager : NetworkBehaviour
         }
     }
 
-    // Restart scenario
+    /// <summary>
+    /// Handle scenario restart with proper state management
+    /// Shows save dialog and manages canvas positioning for VR mode
+    /// </summary>
     public void HandleRestart()
     {
+        // Prevent restart during active logging
         if (jsonToLLM.isLogging)
         {
             return;
         }
+        
+        // Hide save canvas if already shown
         if (saveDemoCanvas.activeSelf)
         {
             saveDemoCanvas.SetActive(false);
             return;
         }
+        
         restarting = true;
-
         canClick = false;
 
-        // saveDemoCanvas.GetComponent<Canvas>().worldCamera = GameObject.Find("CenterEyeAnchor").GetComponent<Camera>();
         if (gameManager.laptopMode)
         {
+            // Simple activation for laptop mode
             saveDemoCanvas.SetActive(true);
         }
         else
         {
+            // VR mode: Position canvas in front of user
             RPC_CanvasSetActive(true);
             ObjectsList objectsList = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<ObjectsList>();
         
@@ -134,6 +156,7 @@ public class ProgramSynthesisManager : NetworkBehaviour
                 vrTrans = objectsList.viewerPlayer.GetComponent<HumanInterface>().vrTransform;
             }
         
+            // Position canvas in front of VR user
             Vector3 canvasPos = vrTrans.position + vrTrans.forward * 5f;
             canvasPos.y = Mathf.Max(canvasPos.y, 3f);
             saveDemoCanvas.transform.position = canvasPos;
@@ -142,16 +165,26 @@ public class ProgramSynthesisManager : NetworkBehaviour
         }
     }
     
+    /// <summary>
+    /// Network RPC to synchronize canvas state across all clients
+    /// </summary>
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
     public void RPC_CanvasSetActive(bool active)
     {
         saveDemoCanvas.SetActive(active);
     }
 
-    // Press B: toggle segment (start/stop)
+    #endregion
+
+    #region Segment Recording Control
+
+    /// <summary>
+    /// Toggle segment recording state based on current timeline state
+    /// Handles pause/unpause coordination with segment start/stop
+    /// </summary>
     public void HandleSegment()
     {
-        // If unpaused, pause it first
+        // Ensure timeline is paused before toggling segment
         if (!timelineManager.Paused)
         {
             timelineManager.Pause();
@@ -166,7 +199,7 @@ public class ProgramSynthesisManager : NetworkBehaviour
         }
         else
         {
-            // If paused, toggle the segment
+            // Toggle segment state when already paused
             if (timelineManager.isRecordingSegment)
             {
                 StopSegment();
@@ -178,11 +211,12 @@ public class ProgramSynthesisManager : NetworkBehaviour
         }
     }
 
-    // Start the segment + audio
-    // (Video is started automatically in JSONToLLM.FixedUpdate if isLogging==true)
+    /// <summary>
+    /// Start segment recording with proper mode detection
+    /// Initiates audio recording and sets up data collection
+    /// </summary>
     public void StartSegment()
     {
-        // In laptop mode, use simple direct call
         if (gameManager.laptopMode)
         {
             StartSegmentInternal();
@@ -193,78 +227,82 @@ public class ProgramSynthesisManager : NetworkBehaviour
         }
     }
     
+    /// <summary>
+    /// Network RPC to start segment recording on all clients
+    /// </summary>
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
     public void RPC_StartSegment()
     {
         StartSegmentInternal();
     }
 
+    /// <summary>
+    /// Internal implementation of segment start logic
+    /// Resets previous recording state and initializes new recording session
+    /// </summary>
     public void StartSegmentInternal()
     {
         GameManager gm = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
-        // if (!gm.isHost)
-        // {
-            if (segmentStarted) return;
-            
-            // Reset state from previous recordings
-            jsonToLLM.PrepareForNewRecording();
-            
-            // Ensure recorder is reset for new recording
+        
+        if (segmentStarted) return;
+        
+        // Reset state from previous recordings
+        jsonToLLM.PrepareForNewRecording();
+        
+        // Re-initialize recorder for new session
 #if UNITY_EDITOR
-            if (recorderManager != null)
-            {
-                // Force re-initialization of the recorder
-                recorderManager.Initialize();
-                Debug.Log("Re-initialized RecorderManager for new segment");
-            }
+        if (recorderManager != null)
+        {
+            recorderManager.Initialize();
+            Debug.Log("Re-initialized RecorderManager for new segment");
+        }
 #endif
 
-            timelineManager.isRecordingSegment = true;
-            segmentStarted = true;
-            timelineManager.segmentCount++;
+        // Set recording state
+        timelineManager.isRecordingSegment = true;
+        segmentStarted = true;
+        timelineManager.segmentCount++;
 
-            recordingDot.SetActive(true);
+        recordingDot.SetActive(true);
+        segmentStartTime = Time.time;
 
-            segmentStartTime = Time.time;
-
-            if (gm.isHost || gm.laptopMode)
+        // Start audio recording for host/laptop mode
+        if (gm.isHost || gm.laptopMode)
+        {
+            if (recordAudio != null)
             {
-                if (recordAudio != null)
-                {
-                    recordAudio.StartRecording();
-                    Debug.Log("Audio recording started with the segment.");
-                }
-                else
-                {
-                    Debug.LogWarning("No RecordAudio reference set in KeyboardInput!");
-                }
+                recordAudio.StartRecording();
+                Debug.Log("Audio recording started with the segment.");
             }
+            else
+            {
+                Debug.LogWarning("No RecordAudio reference set!");
+            }
+        }
 
-        // Force JSONToLLM to start logging so video can start in FixedUpdate
-            jsonToLLM.isLogging = true;
+        // Enable JSON data logging
+        jsonToLLM.isLogging = true;
 
 #if UNITY_EDITOR
-            // Folder setup if needed
-      
-            if (jsonDirectory.InitialDemo)
-            {
-                jsonDirectory.InstantiateInitialFolders();
-                jsonDirectory.InitialDemo = false;
-                Debug.Log("Directory created");
-            }
-            jsonDirectory.InstantiateDemoFolders();
-            
-            Debug.Log("Started new segment recording (audio). JSONToLLM will auto-start video in FixedUpdate.");
+        // Set up directory structure for first demo
+        if (jsonDirectory.InitialDemo)
+        {
+            jsonDirectory.InstantiateInitialFolders();
+            jsonDirectory.InitialDemo = false;
+            Debug.Log("Directory created");
+        }
+        jsonDirectory.InstantiateDemoFolders();
+        
+        Debug.Log("Started new segment recording. Video will auto-start in FixedUpdate.");
 #endif
-
-        // }
     }
 
-    // Stop the segment + audio
-    // (Video is stopped automatically in JSONToLLM.FixedUpdate if isLogging==false)
+    /// <summary>
+    /// Stop segment recording and begin processing pipeline
+    /// Triggers audio stop and initiates file processing coroutines
+    /// </summary>
     public void StopSegment()
     {
-        // In laptop mode, use simple direct call
         if (gameManager.laptopMode)
         {
             StopSegmentInternal();
@@ -275,26 +313,31 @@ public class ProgramSynthesisManager : NetworkBehaviour
         }
     }
     
+    /// <summary>
+    /// Network RPC to stop segment recording on all clients
+    /// </summary>
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
     public void RPC_StopSegment()
     {
         StopSegmentInternal();
     }
     
+    /// <summary>
+    /// Internal implementation of segment stop logic
+    /// Stops recording, cleans up UI, and starts processing pipeline
+    /// </summary>
     private void StopSegmentInternal()
     {
         if (!segmentStarted) return;
 
-        // jsonToLLM.voiceActivated = false;
         Debug.Log("Stopped segment recording");
         timelineManager.isRecordingSegment = false;
-        jsonToLLM.isLogging = false; // triggers video stop in JSONToLLM - NOT ANYMORE, now done in FileCoroutine
+        jsonToLLM.isLogging = false;
         segmentStarted = false;
         
         recordingDot.SetActive(false);
-        // jsonToLLM.activateSystemRecording = true;
-        // Stop audio
         
+        // Stop audio recording for host/laptop mode
         GameManager gm = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
         if (gm.isHost || gm.laptopMode)
         {
@@ -305,13 +348,23 @@ public class ProgramSynthesisManager : NetworkBehaviour
             }
         }
 
+        // Clean up UI
         GroundSelection groundSelection = GameObject.FindGameObjectWithTag("Ground")
             .GetComponent<GroundSelection>();
-            groundSelection.ClearGroundHighlights();
+        groundSelection.ClearGroundHighlights();
 
+        // Start file processing pipeline
         StartCoroutine(ChainedCoroutines());
     }
+
+    #endregion
+
+    #region Processing Pipeline Coroutines
     
+    /// <summary>
+    /// JSON processing coroutine - placeholder for future expansion
+    /// Currently provides timing coordination between processing steps
+    /// </summary>
     IEnumerator JSONCoroutine()
     {
         Debug.Log("Started JSON Coroutine at timestamp : " + Time.time);
@@ -319,36 +372,45 @@ public class ProgramSynthesisManager : NetworkBehaviour
         yield return new WaitForSeconds(1);
     }
 
+    /// <summary>
+    /// Main coroutine chain coordinator
+    /// Orchestrates the sequence of file processing operations
+    /// </summary>
     IEnumerator ChainedCoroutines()
     {
         yield return FileCoroutine();
     }
 
+    /// <summary>
+    /// File processing coroutine that handles transcription, JSON creation, and video processing
+    /// Coordinates complex synchronization between multiple systems and network clients
+    /// </summary>
     IEnumerator FileCoroutine()
     {
         Debug.Log("Started File Coroutine at timestamp : " + Time.time);
+        
+        // Wait for transcription processing to complete
         yield return ProcessingTranscript();
         
-        // Write the JSON file BEFORE stopping the recording
 #if UNITY_EDITOR
-        // First write the JSON file
+        // Write JSON file after transcription is complete
         jsonToLLM.WriteFile();
         Debug.Log("JSON file has been successfully written");
 #endif
     
+        // Reset JSON data for next recording
         ResetJsonData();
         
 #if UNITY_EDITOR
-        // Only then stop the recording
+        // Handle video recording stop and processing
         if (recorderManager != null && recorderManager.RecorderController != null)
         {
             Debug.Log("Now stopping video recording...");
             recorderManager.StopRecording();
             
-            // Only wait for processing in multiplayer client mode
+            // Client-specific video processing in multiplayer mode
             if (!gameManager.laptopMode && gameManager._runner.IsClient)
             {
-                // Wait for the recording to be processed with a timeout
                 float startTime = Time.time;
                 float timeout = 30f;
         
@@ -369,10 +431,8 @@ public class ProgramSynthesisManager : NetworkBehaviour
                     Debug.Log("CLIENT: Video processing completed successfully");
                 }
             
-                // Release resources
+                // Clean up and notify server
                 recorderManager.ReleaseRecorderResources();
-        
-                // Notify server that video has been saved
                 jsonToLLM.RPC_NotifyVideoSaveComplete();
                 Debug.Log("CLIENT: Notified server that video save is complete");
             }
@@ -380,11 +440,15 @@ public class ProgramSynthesisManager : NetworkBehaviour
 #endif
     }
 
+    /// <summary>
+    /// Transcription processing coroutine with mode-specific handling
+    /// Manages UI feedback and client-server synchronization for transcription completion
+    /// </summary>
     private IEnumerator ProcessingTranscript()
     {
         GameManager gm = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
         
-        // Laptop mode: Simple waiting without client synchronization
+        // Laptop mode: Simple transcription waiting
         if (gm.laptopMode)
         {
             jsonToLLM.isTranscriptionComplete = false;
@@ -407,7 +471,7 @@ public class ProgramSynthesisManager : NetworkBehaviour
             yield break;
         }
         
-        // Multiplayer mode: Full synchronization logic
+        // Multiplayer host mode: Complex synchronization with clients
         if (gm.isHost && !gm.laptopMode)
         {
             jsonToLLM.isTranscriptionComplete = false;
@@ -418,6 +482,7 @@ public class ProgramSynthesisManager : NetworkBehaviour
             int dotCount = 0;
             countdownText.fontSize = 40;
 
+            // Wait for transcription processing
             while (!jsonToLLM.isTranscriptionComplete)
             {
                 countdownText.text = $"{baseText}{new string('.', dotCount % 4)}";
@@ -427,7 +492,7 @@ public class ProgramSynthesisManager : NetworkBehaviour
 
             Debug.Log("SERVER: Transcription processing complete");
             
-            // Now wait for client to confirm it received all data
+            // Wait for client data reception confirmation
             baseText = "WAITING FOR CLIENT \n(DO NOT RESTART YET)";
             dotCount = 0;
         
@@ -446,12 +511,12 @@ public class ProgramSynthesisManager : NetworkBehaviour
                 Debug.LogError("SERVER: Timed out waiting for client to receive data");
             }
             
-            // Now wait for client to confirm it saved the video
+            // Wait for client video save confirmation
             baseText = "WAITING FOR VIDEO SAVE \n(DO NOT RESTART YET)";
             dotCount = 0;
 
             startTime = Time.time;
-            timeout = 30f; // Longer timeout for video saving
+            timeout = 30f;
 
             while (!jsonToLLM.HasClientSavedVideo() && (Time.time - startTime < timeout))
             {
@@ -470,7 +535,7 @@ public class ProgramSynthesisManager : NetworkBehaviour
         }
         else
         {
-            // Client-specific processing
+            // Client mode: Wait for data reception and processing
             countdownText.gameObject.SetActive(true);
             countdownText.color = Color.red;
             countdownText.fontSize = 40;
@@ -479,9 +544,9 @@ public class ProgramSynthesisManager : NetworkBehaviour
             int chunkDotCount = 0;
         
             float startTime = Time.time;
-            float timeout = 30f; // Increase timeout for longer recordings
+            float timeout = 30f;
         
-            // Client waits for both dictionary chunks and annotations
+            // Wait for both dictionary chunks and annotations
             while ((!jsonToLLM.AreAllChunksReceived() || !annotationManager.AreAnnotationsSynced()) && (Time.time - startTime < timeout))
             {
                 if (!jsonToLLM.AreAllChunksReceived())
@@ -504,7 +569,7 @@ public class ProgramSynthesisManager : NetworkBehaviour
             {
                 Debug.LogError($"CLIENT: Timed out waiting for data! Chunks: " +
                                $"{jsonToLLM.totalChunksReceived}/{jsonToLLM.totalChunksSent}, Annotations synced: {annotationManager.AreAnnotationsSynced()}");
-                // Notify server anyway to avoid deadlock
+                // Notify server to prevent deadlock
                 jsonToLLM.RPC_NotifyChunksReceived();
             }
             else
@@ -513,17 +578,26 @@ public class ProgramSynthesisManager : NetworkBehaviour
                 jsonToLLM.RPC_NotifyChunksReceived();
             }
         }
-
-        // If you don’t want to auto-restart the segment, comment the next line:
-        // StartSegment();
     }
+
+    #endregion
+
+    #region Event Handlers and Utilities
     
+    /// <summary>
+    /// Handle transcription completion event
+    /// </summary>
+    /// <param name="finalTranscription">The completed transcription text</param>
     public void OnTranscriptionFinished(string finalTranscription)
     {
         Debug.Log("Processed Transcription: " + finalTranscription);
         explanation = finalTranscription;
     }
 
+    /// <summary>
+    /// Execute an action with a delay to prevent rapid successive clicks
+    /// </summary>
+    /// <param name="handleClickAction">Action to execute after delay</param>
     public IEnumerator HandleClickWithDelay(Action handleClickAction)
     {
         canClick = false;
@@ -531,42 +605,51 @@ public class ProgramSynthesisManager : NetworkBehaviour
         yield return new WaitForSeconds(0.5f);
         canClick = true;
     }
+
+    #endregion
+
+    #region Annotation and Interaction Handling
     
-    
+    /// <summary>
+    /// Handle object annotation mode - allows clicking on objects to create annotations
+    /// Uses raycasting to detect clicked objects and creates corresponding annotations
+    /// </summary>
     public void HandleAnnotationMode()
     {
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         
-        GameManager gm = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
 #if UNITY_ANDROID && !UNITY_EDITOR
         ray = GameObject.FindGameObjectWithTag("RightRay").GetComponent<RayInteractor>().Ray;
 #endif
         if (Physics.Raycast(ray, out RaycastHit hit))
         {
             GameObject clickedObject = hit.collider.gameObject;
-
             annotationManager.CreateObjectClickAnnotation(clickedObject, segmentStartTime);
         }
-        // RPC_HandleAnnotationMode();
     }
 
+    /// <summary>
+    /// Network RPC version of annotation mode handling
+    /// </summary>
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
     private void RPC_HandleAnnotationMode()
     {
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         
-        GameManager gm = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
 #if UNITY_ANDROID && !UNITY_EDITOR
         ray = GameObject.FindGameObjectWithTag("RightRay").GetComponent<RayInteractor>().Ray;
 #endif
         if (Physics.Raycast(ray, out RaycastHit hit))
         {
             GameObject clickedObject = hit.collider.gameObject;
-            
             annotationManager.CreateObjectClickAnnotation(clickedObject, segmentStartTime);
         }
     }
 
+    /// <summary>
+    /// Handle position annotation mode - allows clicking on ground positions
+    /// Creates position markers and annotations for spatial references
+    /// </summary>
     public void HandlePositionMode()
     {
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -584,9 +667,11 @@ public class ProgramSynthesisManager : NetworkBehaviour
 
             annotationManager.CreatePositionClickAnnotation(clickedPosition, segmentStartTime);
         }
-        // RPC_HandlePositionMode();
     }
 
+    /// <summary>
+    /// Network RPC version of position mode handling
+    /// </summary>
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
     private void RPC_HandlePositionMode()
     {
@@ -597,21 +682,20 @@ public class ProgramSynthesisManager : NetworkBehaviour
         if (Physics.Raycast(ray, out RaycastHit hit))
         {
             Vector3 clickedPosition = hit.point;
-            
             annotationManager.CreatePositionClickAnnotation(clickedPosition, segmentStartTime);
         }
     }
+
+    #endregion
+
+    #region Data Management
     
-    
-    
+    /// <summary>
+    /// Reset all JSON data and annotation state
+    /// Chooses between local and networked reset based on game mode
+    /// </summary>
     public void ResetJsonData()
     {   
-// #if UNITY_EDITOR
-//         if (recorderManager.RecorderController.IsRecording())
-//         {
-//             recorderManager.StopRecording();
-//         }
-// #endif
         if (gameManager.laptopMode)
         {
             ResetJsonDataInternal();
@@ -622,12 +706,19 @@ public class ProgramSynthesisManager : NetworkBehaviour
         }
     }
     
+    /// <summary>
+    /// Network RPC to reset JSON data on all clients
+    /// </summary>
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
     public void RPC_ResetJsonData()
     {
         ResetJsonDataInternal();
     }
 
+    /// <summary>
+    /// Internal implementation of data reset
+    /// Clears all collected annotation and segment data
+    /// </summary>
     private void ResetJsonDataInternal()
     {
         annotationManager.annotation.Clear();
@@ -638,4 +729,6 @@ public class ProgramSynthesisManager : NetworkBehaviour
         annotationManager.annotationsReady = false;
         jsonToLLM.ResetSegmentData();
     }
+
+    #endregion
 }

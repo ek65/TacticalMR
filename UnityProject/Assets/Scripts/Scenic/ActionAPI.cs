@@ -11,25 +11,35 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.AI;
 
-#region For Mathematical Reference
-// parabola Equation if used (x-5)^2 = -4(25/8)(y-2) => y = -2/25(x^2 - 10x)  (in this Max Distance 10)
-// parabola Equation if used (x-(d/2))^2 = -4((d/2)^2/8)(y-2)) => y = (8 (d x - x^2))/d^2
+#region Mathematical Reference for Parabolic Trajectories
+// Parabola equations for ball trajectory calculations:
+// Standard form: (x-5)^2 = -4(25/8)(y-2) => y = -2/25(x^2 - 10x)  (Max Distance 10)
+// General form: (x-(d/2))^2 = -4((d/2)^2/8)(y-2)) => y = (8 (d x - x^2))/d^2
 #endregion
 
+/// <summary>
+/// Main API class for handling all player actions including movement, ball interactions, and animations.
+/// Provides a comprehensive interface for soccer gameplay mechanics in a networked multiplayer environment.
+/// </summary>
 public class ActionAPI : NetworkBehaviour
 {
+    #region Inspector Fields
     [SerializeField] float playerRunningSpeed = 1f;
     [SerializeField] float timeDuration = 5f;
     [SerializeField] float goalWidth = 7.44f;
     [SerializeField] GameObject soccerBall;
+    #endregion
 
+    #region Public Properties
     public Vector3 test;
-
     public bool stopMovement = false;
+    public bool alreadyInAnimation = false;
+    #endregion
+
+    #region Private Fields
     string transitionTo = "t";
 
-    // public bool waitToReceiveBall = false;
-
+    // Force multipliers for different ball actions
     float forceFactor = 7f;
     float weakPassForce = 1f;
     float strongPassForce = 10f;
@@ -39,15 +49,14 @@ public class ActionAPI : NetworkBehaviour
 
     float rotationDuration = 0.4f;
     
-    // for ball movement in MoveBall() 
+    // Ball movement parameters set by SetMoveBallValues()
     private Vector3 finalPos;
     private float aerialOffset;
     private float forceMagnitude;
     private Vector3 ballPositionAtPassTime;
+    #endregion
 
-    public bool alreadyInAnimation = false;
-    
-
+    #region Unity Lifecycle
     private void Start()
     {
         if (soccerBall == null)
@@ -63,6 +72,7 @@ public class ActionAPI : NetworkBehaviour
             soccerBall = GameObject.FindGameObjectWithTag("ball");
         }
 
+        // Reset animation flag when returning to Movement controller
         if (this.GetComponent<Animator>().isActiveAndEnabled && this.GetComponent<Animator>().runtimeAnimatorController != null)
         {
             string currAnimationController = this.GetComponent<Animator>().runtimeAnimatorController.name;
@@ -71,74 +81,88 @@ public class ActionAPI : NetworkBehaviour
                 alreadyInAnimation = false;
             }
         }
-
-        // Debug.LogError(this.GetComponent<Animator>().runtimeAnimatorController.name);
     }
+    #endregion
 
-
-    #region API Methods for BlendTrees
+    #region API Methods for BlendTree Animations
+    /// <summary>
+    /// Sets player to idle state by zeroing all movement parameters
+    /// </summary>
     public void Idle()
     {
         this.gameObject.GetComponent<Animator>().SetFloat("VelZ", 0);
         this.gameObject.GetComponent<Animator>().SetFloat("VelX", 0);
     }
     
+    /// <summary>
+    /// Moves player to specified position using standard movement controller
+    /// </summary>
+    /// <param name="destinationPosition">Target world position</param>
+    /// <param name="speed">Movement speed multiplier</param>
+    /// <param name="lookAt">Whether to look at destination while moving</param>
     public void MoveToPos(Vector3 destinationPosition, float speed = 2f, bool lookAt = false)
     {
-        // TODO: replace this anim controller with movement, need to merge humanoid AI movement with the movement controller
-        //SetAnimController("Humanoid");
         GameManager gm = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
         if (gm.isHost)
         {
             RPC_SetAnimController("Movement");
         }
-        // SetAnimController("Movement");
         StartCoroutine(MoveToPosHelper(destinationPosition, lookAt));
-        //StartCoroutine(MovementLerp(destinationPosition, lookAt));
     }
     
+    /// <summary>
+    /// Moves player using factory-specific movement controller (for industrial scenarios)
+    /// </summary>
     public void FactoryMoveToPos(Vector3 destinationPosition, float speed = 1f, bool lookAt = false)
     {
-        // TODO: replace this anim controller with movement, need to merge humanoid AI movement with the movement controller
-        //SetAnimController("Humanoid");
         GameManager gm = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
         if (gm.isHost)
         {
             RPC_SetAnimController("FactoryMovement");
         }
-        // SetAnimController("FactoryMovement");
         StartCoroutine(MoveToPosHelper(destinationPosition, lookAt));
-        //StartCoroutine(MovementLerp(destinationPosition, lookAt));
     }
     
+    /// <summary>
+    /// Moves to position while continuously looking at the ball
+    /// </summary>
     public void MoveToPosLookAtBall(Vector3 destinationPosition, float speed = 2f, bool lookAt = true)
     {
-        // TODO: replace this anim controller with movement, need to merge humanoid AI movement with the movement controller
-        //SetAnimController("Humanoid");
         GameManager gm = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
         if (gm.isHost)
         {
             RPC_SetAnimController("Movement");
         }
-        // SetAnimController("Movement");
         StartCoroutine(MoveToPosHelper(destinationPosition, true));
-        //StartCoroutine(MovementLerp(destinationPosition, lookAt));
     }
 
+    /// <summary>
+    /// Sets the player's movement speed
+    /// </summary>
     public void SetPlayerSpeed(float speed)
     {
         playerRunningSpeed = speed;
     }
 
+    /// <summary>
+    /// Outputs debug message to console (for Scenic script debugging)
+    /// </summary>
     public void ScenicPrint(string output) {
         Debug.Log(output);
     }
     
+    /// <summary>
+    /// Moves player while dribbling ball to destination
+    /// </summary>
     public void DribbleFromOnePositionToAnother(Vector3 destinationPosition)
     {
         SetAnimController("Dribbling");
         StartCoroutine(DribbleLerp(destinationPosition));
     }
+
+    /// <summary>
+    /// Performs header shot towards destination with specified height
+    /// </summary>
     public void BallHeaderShoot(Vector3 destinationPosition, string ballProjectileHeight)
     {
         SetAnimController("Headers");
@@ -146,36 +170,25 @@ public class ActionAPI : NetworkBehaviour
     }
     #endregion
     
-    #region Methods for Human/AI Agent
+    #region Methods for Human/AI Agent Communication
+    /// <summary>
+    /// Makes character speak text through chat system with timeline pause/unpause
+    /// </summary>
     public void Speak(string text)
     {
-        // ConvaiNPC charObj = GameObject.FindGameObjectWithTag("Character").GetComponentInChildren<ConvaiNPC>();
-        // charObj.HandleInputSubmission(text);
-        // if (this.gameObject.name == "Unknown")
-        // {
-        //     Debug.LogError("Speak: " + text);
-        // }
         CallPause();
         
         OldChatBehaviour chatBehaviour = GameObject.FindGameObjectWithTag("Character").GetComponentInChildren<OldChatBehaviour>();
-        // if (chatBehaviour != null)
-        // {
-        //     // Call the new method to set the text and submit
-        //     chatBehaviour.SetInputTextAndSubmit(text);
-        // }
-        // else
-        // {
-        //     Debug.LogError("ChatBehaviour instance not found in the scene.");
-        // }
-        
         StartCoroutine(WaitForChat(text, chatBehaviour));
     }
     
+    /// <summary>
+    /// Coroutine that waits for speech to finish before unpausing timeline
+    /// </summary>
     IEnumerator WaitForChat(string text, OldChatBehaviour chatBehaviour)
     {
         if (chatBehaviour != null)
         {
-            // Call the new method to set the text and submit
             chatBehaviour.SetInputTextAndSubmit(text);
         }
         else
@@ -191,6 +204,9 @@ public class ActionAPI : NetworkBehaviour
         CallUnpause();
     }
     
+    /// <summary>
+    /// Makes character explain something without pausing timeline
+    /// </summary>
     public void Explain(string text)
     {
         OldChatBehaviour chatBehaviour = GameObject.FindGameObjectWithTag("Character").GetComponentInChildren<OldChatBehaviour>();
@@ -204,14 +220,19 @@ public class ActionAPI : NetworkBehaviour
         }
     }
 
+    /// <summary>
+    /// Pauses the timeline manager
+    /// </summary>
     public void CallPause()
     {
         TimelineManager tlManager =
             GameObject.FindGameObjectWithTag("TimelineManager").GetComponent<TimelineManager>();
         tlManager.Pause();
-
     }
     
+    /// <summary>
+    /// Unpauses the timeline manager
+    /// </summary>
     public void CallUnpause()
     {
         TimelineManager tlManager =
@@ -219,6 +240,9 @@ public class ActionAPI : NetworkBehaviour
         tlManager.Unpause();
     }
 
+    /// <summary>
+    /// Starts a new program synthesis segment
+    /// </summary>
     public void SegmentStart()
     {
         ProgramSynthesisManager programSynthesisManager =
@@ -226,28 +250,24 @@ public class ActionAPI : NetworkBehaviour
         programSynthesisManager.StartSegment();
     }
     
+    /// <summary>
+    /// Ends current program synthesis segment
+    /// </summary>
     public void SegmentEnd()
     {
         ProgramSynthesisManager programSynthesisManager =
             GameObject.FindGameObjectWithTag("ProgramSynthesisManager").GetComponent<ProgramSynthesisManager>();
         programSynthesisManager.StartSegment();
     }
-
     #endregion
 
     #region API Methods for Singleton Animations
 
-    #region PlayersSingletonMethods
-
-    // public void WaitToReceiveBall(Vector3 receiveFrom)
-    // {
-    //     SetAnimController("Movement");
-    //     stopMovement = true;
-    //     waitToReceiveBall = true;
-    //     StartCoroutine(LookTowards(receiveFrom, null));
-    // }
+    #region Player Singleton Methods
     
-    // factory setting 
+    /// <summary>
+    /// Picks up nearest grabbable object within range (for factory scenarios)
+    /// </summary>
     public void PickUp() 
     {
         if (this.GetComponent<Animator>().isActiveAndEnabled == true)
@@ -277,12 +297,12 @@ public class ActionAPI : NetworkBehaviour
                 closestObject.transform.position = pI.objectPosition.position;
                 closestObject.transform.SetParent(pI.objectPosition);
 
-                // Disable gravity when picked up
+                // Disable physics when picked up
                 Rigidbody rb = closestObject.GetComponent<Rigidbody>();
                 if (rb != null)
                 {
                     rb.useGravity = false;
-                    rb.isKinematic = true; // Optional: Prevent physics interactions
+                    rb.isKinematic = true;
                 }
 
                 pI.objectPossession = true;
@@ -312,12 +332,12 @@ public class ActionAPI : NetworkBehaviour
                 closestObject.transform.position = hI.objectPosition.position;
                 closestObject.transform.SetParent(hI.objectPosition);
 
-                // Disable gravity when picked up
+                // Disable physics when picked up
                 Rigidbody rb = closestObject.GetComponent<Rigidbody>();
                 if (rb != null)
                 {
                     rb.useGravity = false;
-                    rb.isKinematic = true; // Optional: Prevent physics interactions
+                    rb.isKinematic = true;
                 }
 
                 hI.objectPossession = true;
@@ -331,6 +351,9 @@ public class ActionAPI : NetworkBehaviour
         }
     }
 
+    /// <summary>
+    /// Puts down currently held object at specified position
+    /// </summary>
     public void PutDown(Vector3 putDownPosition)
     {
         if (this.GetComponent<Animator>().isActiveAndEnabled == true)
@@ -353,12 +376,12 @@ public class ActionAPI : NetworkBehaviour
             droppedObject.transform.SetParent(null);
             droppedObject.transform.position = putDownPosition;
 
-            // Re-enable gravity after putting it down
+            // Re-enable physics after putting down
             Rigidbody rb = droppedObject.GetComponent<Rigidbody>();
             if (rb != null)
             {
                 rb.useGravity = true;
-                rb.isKinematic = false; // Optional: Restore physics interactions
+                rb.isKinematic = false;
             }
 
             pI.grabbedObject = null;
@@ -380,12 +403,12 @@ public class ActionAPI : NetworkBehaviour
             droppedObject.transform.SetParent(null);
             droppedObject.transform.position = putDownPosition;
 
-            // Re-enable gravity after putting it down
+            // Re-enable physics after putting down
             Rigidbody rb = droppedObject.GetComponent<Rigidbody>();
             if (rb != null)
             {
                 rb.useGravity = true;
-                rb.isKinematic = false; // Optional: Restore physics interactions
+                rb.isKinematic = false;
             }
 
             hI.grabbedObject = null;
@@ -396,11 +419,11 @@ public class ActionAPI : NetworkBehaviour
                 StartCoroutine(LookTowards(putDownPosition, "PutDown"));
             }
         }
-
-        
     }
 
-
+    /// <summary>
+    /// Performs packaging action on nearest object (for factory scenarios)
+    /// </summary>
     public void Packaging()
     {
         if (this.GetComponent<Animator>() == true)
@@ -423,6 +446,9 @@ public class ActionAPI : NetworkBehaviour
         }
     }
 
+    /// <summary>
+    /// Changes object color after specified delay (visual feedback for packaging)
+    /// </summary>
     private IEnumerator ChangeObjectColorAfterDelay(GameObject targetObject, Color color, float delay)
     {
         yield return new WaitForSeconds(delay);
@@ -438,6 +464,9 @@ public class ActionAPI : NetworkBehaviour
         }
     }
 
+    /// <summary>
+    /// Finds nearest grabbable object within 5 units
+    /// </summary>
     private GameObject FindNearestObject()
     {
         GameObject[] grabbableObjects = GameObject.FindGameObjectsWithTag("Grabbable");
@@ -449,8 +478,9 @@ public class ActionAPI : NetworkBehaviour
             .FirstOrDefault();
     }
 
-
-    // soccer
+    /// <summary>
+    /// Prepares to receive ball from specified direction
+    /// </summary>
     public void ReceiveBall(Vector3 receiveFrom)
     {
         HumanInterface hI = this.GetComponent<HumanInterface>();
@@ -484,6 +514,9 @@ public class ActionAPI : NetworkBehaviour
         }
     }
     
+    /// <summary>
+    /// Forcibly intercepts the ball (defensive action)
+    /// </summary>
     public void InterceptBall()
     {
         HumanInterface hI = this.GetComponent<HumanInterface>();
@@ -501,12 +534,18 @@ public class ActionAPI : NetworkBehaviour
         }
     }
 
+    /// <summary>
+    /// Makes player look at specified position
+    /// </summary>
     public void LookAt(Vector3 lookAtPosition)
     {
         stopMovement = true;
         StartCoroutine(LookTowards(lookAtPosition, null));
     }
     
+    /// <summary>
+    /// Performs tackle animation towards specified direction
+    /// </summary>
     public void TackleBall(Vector3 tackleFrom)
     {
         SetAnimController("Movement");
@@ -514,6 +553,9 @@ public class ActionAPI : NetworkBehaviour
         StartCoroutine(LookTowards(tackleFrom, "StrongTackle"));
     }
 
+    /// <summary>
+    /// Performs slow ground pass to destination
+    /// </summary>
     public void GroundPassSlow(Vector3 destinationPosition)
     {
         stopMovement = true;
@@ -523,6 +565,9 @@ public class ActionAPI : NetworkBehaviour
         SetMoveBallValues(destinationPosition, 0, weakPassForce);
     }
 
+    /// <summary>
+    /// Performs fast ground pass to destination with automatic target finding for human players
+    /// </summary>
     public void GroundPassFast(Vector3 destinationPosition)
     {
         stopMovement = true;
@@ -541,10 +586,9 @@ public class ActionAPI : NetworkBehaviour
         PlayerInterface pI = this.GetComponent<PlayerInterface>();
         if (pI)
         {
-            // If X is (0,0,0) then pass to coach 
+            // Special case: pass to coach when destination is zero vector
             if (destinationPosition == Vector3.zero)
             {
-                // Find the coach in the scene
                 GameObject human = GameObject.FindGameObjectWithTag("human");
                 if (human != null)
                 {
@@ -556,7 +600,6 @@ public class ActionAPI : NetworkBehaviour
                     }
                     else
                     {
-                        // Fallback: use current position
                         destinationPosition = human.transform.position;
                         if (human.GetComponent<HumanInterface>().isVR)
                         {
@@ -576,19 +619,15 @@ public class ActionAPI : NetworkBehaviour
             {
                 RPC_SetAnimController("Dribbling");
             }
-            // SetAnimController("Dribbling");
-            // Debug.LogError(this.GetComponent<Animator>().runtimeAnimatorController.name);
-            // Debug.LogError(this.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0));
-            // Debug.LogError("in gpf2");
+            
             StartCoroutine(LookTowards(destinationPosition, "GroundPassFast"));
-
             StartCoroutine(this.GetComponent<PlayerInterface>().KickDebounce());
             
             ballPositionAtPassTime = soccerBall.transform.position;
             SetMoveBallValues(destinationPosition, 0, strongPassForce);
         } else if (hI)
         {
-            // if human pass, find closest player in objectsList.defensePlayers destinationPosition within 2 meters
+            // For human players, find closest defensive player near destination
             if (this.gameObject.CompareTag("human"))
             {
                 ObjectsList objectList = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<ObjectsList>();
@@ -615,7 +654,6 @@ public class ActionAPI : NetworkBehaviour
                     }
                     else
                     {
-                        // Fallback: use current position
                         destinationPosition = closestPlayer.transform.position;
                     }
                 }
@@ -626,14 +664,10 @@ public class ActionAPI : NetworkBehaviour
             {
                 RPC_SetAnimController("Dribbling");
             }
-            // SetAnimController("Dribbling");
-            // Debug.LogError(this.GetComponent<Animator>().runtimeAnimatorController.name);
-            // Debug.LogError(this.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0));
-            // Debug.LogError("in gpf2");
+            
             if (!hI.isVR)
             {
                 StartCoroutine(LookTowards(destinationPosition, "GroundPassFast"));
-                
                 StartCoroutine(this.GetComponent<HumanInterface>().KickDebounce());
             }
 
@@ -645,9 +679,11 @@ public class ActionAPI : NetworkBehaviour
                 MoveBall();
             }
         }
-        
     }
 
+    /// <summary>
+    /// Performs aerial pass with specified trajectory height
+    /// </summary>
     public void AirPass(Vector3 destinationPosition, string ballProjectileHeight)
     {
         stopMovement = true;
@@ -657,6 +693,9 @@ public class ActionAPI : NetworkBehaviour
         SetMoveBallValues(destinationPosition, VerticalForce(ballProjectileHeight), airPassForce);
     }
 
+    /// <summary>
+    /// Performs left-footed chip shot
+    /// </summary>
     public void ChipLeft(Vector3 destinationPosition, string ballProjectileHeight)
     {
         GameObject selfPlayer = this.gameObject;
@@ -667,6 +706,9 @@ public class ActionAPI : NetworkBehaviour
         SetMoveBallValues(destinationPosition, VerticalForce(ballProjectileHeight), chipForce);
     }
 
+    /// <summary>
+    /// Performs right-footed chip shot
+    /// </summary>
     public void ChipRight(Vector3 destinationPosition, string ballProjectileHeight)
     {
         GameObject selfPlayer = this.gameObject;
@@ -677,6 +719,9 @@ public class ActionAPI : NetworkBehaviour
         SetMoveBallValues(destinationPosition, VerticalForce(ballProjectileHeight), chipForce);
     }
 
+    /// <summary>
+    /// Performs forward chip shot
+    /// </summary>
     public void ChipFront(Vector3 destinationPosition, string ballProjectileHeight)
     {
         stopMovement = true;
@@ -686,6 +731,11 @@ public class ActionAPI : NetworkBehaviour
         SetMoveBallValues(destinationPosition, VerticalForce(ballProjectileHeight), chipForce);
     }
 
+    /// <summary>
+    /// Shoots ball towards goal with zone-based targeting system
+    /// </summary>
+    /// <param name="destinationPosition">Base goal position</param>
+    /// <param name="destinationZone">Target zone within goal (e.g., "left-top", "center-middle")</param>
     public void Shoot(Vector3 destinationPosition, string destinationZone)
     {
         stopMovement = true;
@@ -705,7 +755,7 @@ public class ActionAPI : NetworkBehaviour
         string ballProjectileHeight = "low";
         float horizontalOffset = (goalWidth / 6.0f);
 
-        
+        // Adjust position and height based on target zone
         switch (destinationZone)
         {
             case "left-top":
@@ -747,14 +797,12 @@ public class ActionAPI : NetworkBehaviour
         }
 
         Debug.Log("destination position: " + destinationPosition);
-
-        // Debug.Log("ballmotionvector: " + ballMotionVector);
-        //TODO: change this with animation event
-        // StartCoroutine(MoveBallAfterAnimationhalfway(destinationPosition, ballProjectileHeight, shootForce));
         SetMoveBallValues(destinationPosition, VerticalForce(ballProjectileHeight), shootForce);
-        
     }
 
+    /// <summary>
+    /// Performs throw-in with specified trajectory
+    /// </summary>
     public void BallThrow(Vector3 destinationPosition, string ballProjectileHeight)
     {
         stopMovement = true;
@@ -765,8 +813,10 @@ public class ActionAPI : NetworkBehaviour
     }
     #endregion
 
-    #region GoalKeeper SingletonMethods
-
+    #region Goalkeeper Singleton Methods
+    /// <summary>
+    /// Goalkeeper idle state while holding ball
+    /// </summary>
     public void IdleWithBallInHand()
     {
         GameObject selfPlayer = this.gameObject;
@@ -775,6 +825,9 @@ public class ActionAPI : NetworkBehaviour
         selfPlayer.GetComponent<Animator>().SetFloat("positionY", 1f);
     }
 
+    /// <summary>
+    /// Goalkeeper body block to the left
+    /// </summary>
     public void BodyBlockLeftSide()
     {
         GameObject selfPlayer = this.gameObject;
@@ -782,6 +835,10 @@ public class ActionAPI : NetworkBehaviour
         SetAnimController("GoalKeeper");
         selfPlayer.GetComponent<Animator>().SetTrigger("BodyBlockLeftSide");
     }
+
+    /// <summary>
+    /// Goalkeeper body block to the right
+    /// </summary>
     public void BodyBlockRightSide()
     {
         GameObject selfPlayer = this.gameObject;
@@ -789,6 +846,10 @@ public class ActionAPI : NetworkBehaviour
         SetAnimController("GoalKeeper");
         selfPlayer.GetComponent<Animator>().SetTrigger("BodyBlockRightSide");
     }
+
+    /// <summary>
+    /// Goalkeeper catches ground ball
+    /// </summary>
     public void CatchGroundBall()
     {
         GameObject selfPlayer = this.gameObject;
@@ -796,6 +857,10 @@ public class ActionAPI : NetworkBehaviour
         SetAnimController("GoalKeeper");
         selfPlayer.GetComponent<Animator>().SetTrigger("CatchGroundBall");
     }
+
+    /// <summary>
+    /// Goalkeeper catches ball in the air
+    /// </summary>
     public void CatchBallInTheAir()
     {
         GameObject selfPlayer = this.gameObject;
@@ -804,18 +869,20 @@ public class ActionAPI : NetworkBehaviour
         selfPlayer.GetComponent<Animator>().SetTrigger("CatchBallInTheAir");
     }
 
-    //methods for Goalkeeper movement (lefty or right)
-
+    /// <summary>
+    /// Goalkeeper catches slow-moving ball
+    /// </summary>
     public void CatchSlowBall()
     {
         GameObject selfPlayer = this.gameObject;
         stopMovement = true;
         SetAnimController("GoalKeeper");
         selfPlayer.GetComponent<Animator>().SetTrigger("CatchSlowBall");
-        //-> Ball Interation 
-        //StartCoroutine(Trigger(transitionTo + "CatchSlowBall"));
-
     }
+
+    /// <summary>
+    /// Goalkeeper performs drop kick
+    /// </summary>
     public void DropKickShot(Vector3 destinationPosition, string ballProjectileHeight)
     {
         stopMovement = true;
@@ -824,6 +891,10 @@ public class ActionAPI : NetworkBehaviour
 
         SetMoveBallValues(destinationPosition, VerticalForce(ballProjectileHeight), airPassForce);
     }
+
+    /// <summary>
+    /// Goalkeeper performs overhand throw
+    /// </summary>
     public void OverHandThrow(Vector3 destinationPosition, string ballProjectileHeight)
     {
         stopMovement = true;
@@ -832,6 +903,10 @@ public class ActionAPI : NetworkBehaviour
 
         SetMoveBallValues(destinationPosition, VerticalForce(ballProjectileHeight), airPassForce);
     }
+
+    /// <summary>
+    /// Goalkeeper performs rolling ball pass along ground
+    /// </summary>
     public void RollingBallPass(Vector3 destinationPosition)
     {
         stopMovement = true;
@@ -840,6 +915,10 @@ public class ActionAPI : NetworkBehaviour
 
         SetMoveBallValues(destinationPosition, 0, weakPassForce);
     }
+
+    /// <summary>
+    /// Goalkeeper places ball and performs long pass
+    /// </summary>
     public void PlacingAndLongPass(Vector3 destinationPosition, string ballProjectileHeight)
     {
         stopMovement = true;
@@ -848,6 +927,10 @@ public class ActionAPI : NetworkBehaviour
 
         SetMoveBallValues(destinationPosition, VerticalForce(ballProjectileHeight), airPassForce);
     }
+
+    /// <summary>
+    /// Goalkeeper places ball and performs short pass
+    /// </summary>
     public void PlacingAndShortPass(Vector3 destinationPosition)
     {
         stopMovement = true;
@@ -861,14 +944,12 @@ public class ActionAPI : NetworkBehaviour
     #endregion
 
     #region Helper Coroutines
-    
-    
+    /// <summary>
+    /// Main movement helper that handles AI pathfinding
+    /// </summary>
     IEnumerator MoveToPosHelper(Vector3 destinationPosition, bool lookAt)
     {
-        // Debug.Log("here");
-
         GameObject selfPlayer = this.gameObject;
-
         selfPlayer.GetComponent<RichAI>().maxSpeed = playerRunningSpeed;
 
         yield return new WaitForSeconds(0.1f);
@@ -876,9 +957,6 @@ public class ActionAPI : NetworkBehaviour
         AIDestinationSetter dest = selfPlayer.GetComponent<AIDestinationSetter>();
         RichAI aiNav = selfPlayer.GetComponent<RichAI>();
 
-        // Set Destination 
-        // dest.target.position = destinationPosition;
-        // StartCoroutine(Move(agent, character, destinationPosition));
         if (!lookAt)
         {
             StartCoroutine(Move2(dest, aiNav, destinationPosition));
@@ -888,29 +966,20 @@ public class ActionAPI : NetworkBehaviour
             StartCoroutine(Move3(dest, aiNav, destinationPosition));
         }
 
-        // Debug.Log("Here 3");
-        
-        //SetAnimController(selfPlayer, "Movement");
-        //StartCoroutine(MovementLerp(selfPlayer, destinationPosition, lookAt));
         yield return null;
         
         if (stopMovement)
         {
-            // Debug.Log("in here123");
             dest.target.localPosition = Vector3.zero;
             stopMovement = false;
             selfPlayer.GetComponent<Animator>().SetFloat("VelZ", 0);
             selfPlayer.GetComponent<Animator>().SetFloat("VelX", 0);
-            // selfPlayer.GetComponent<Animator>().SetFloat("Forward", 0);
-            // selfPlayer.GetComponent<NavMeshAgent>().enabled = false; // Deactivate Agent 
-            // selfPlayer.GetComponentInChildren<NavMeshObstacle>().enabled = true;
-            // StopCoroutine(Move(agent, character, destinationPosition));
-            // StopCoroutine(MoveToPosHelper(destinationPosition, lookAt));
         }
     }
     
-    
-    //TODO: This assumes that we are having the player look towards the position they're running, add more functionality to run towards position without looking
+    /// <summary>
+    /// Standard movement without looking at destination
+    /// </summary>
     IEnumerator Move2(AIDestinationSetter destSetter, RichAI aiNav, Vector3 Destiny)
     {
         GameObject selfPlayer = this.gameObject;
@@ -922,17 +991,10 @@ public class ActionAPI : NetworkBehaviour
             while (destSetter.target.position != this.gameObject.transform.position)
             {
                 StartCoroutine(hI.SetIsMoving(true));
-            
-                // normalize speed then *2 for anim values
                 float velz = aiNav.velocity.magnitude;
-            
-                // Debug.LogError(velz);
                 selfPlayer.GetComponent<Animator>().SetFloat("VelZ", velz);
-
-                // yield return StartCoroutine(MovementLerp2(Destiny));
                 yield return null;
             }
-
             StartCoroutine(hI.SetIsMoving(false));
         }
         else
@@ -941,25 +1003,17 @@ public class ActionAPI : NetworkBehaviour
             while (destSetter.target.position != this.gameObject.transform.position)
             {
                 StartCoroutine(pI.SetIsMoving(true));
-            
-                // normalize speed then *2 for anim values
                 float velz = aiNav.velocity.magnitude;
-            
-                // Debug.LogError(velz);
                 selfPlayer.GetComponent<Animator>().SetFloat("VelZ", velz);
-
-                // yield return StartCoroutine(MovementLerp2(Destiny));
                 yield return null;
             }
-
             StartCoroutine(pI.SetIsMoving(false));
         }
-        
-        
-        // selfPlayer.GetComponent<NavMeshAgent>().enabled = false; // Deactivate Agent 
-        // selfPlayer.GetComponentInChildren<NavMeshObstacle>().enabled = true;
     }
     
+    /// <summary>
+    /// Movement while looking at ball
+    /// </summary>
     IEnumerator Move3(AIDestinationSetter destSetter, RichAI aiNav, Vector3 Destiny)
     {
         aiNav.updateRotation = false;
@@ -986,17 +1040,10 @@ public class ActionAPI : NetworkBehaviour
             while (destSetter.target.position != this.gameObject.transform.position)
             {
                 StartCoroutine(hI.SetIsMoving(true));
-            
-                // normalize speed then *2 for anim values
                 float velz = aiNav.velocity.magnitude;
-            
-                // Debug.LogError(velz);
                 selfPlayer.GetComponent<Animator>().SetFloat("VelZ", velz);
-
-                // yield return StartCoroutine(MovementLerp2(Destiny));
                 yield return null;
             }
-
             StartCoroutine(hI.SetIsMoving(false));
         }
         else
@@ -1005,46 +1052,34 @@ public class ActionAPI : NetworkBehaviour
             while (destSetter.target.position != this.gameObject.transform.position)
             {
                 StartCoroutine(pI.SetIsMoving(true));
-            
-                // normalize speed then *2 for anim values
                 float velz = aiNav.velocity.magnitude;
-            
-                // Debug.LogError(velz);
                 selfPlayer.GetComponent<Animator>().SetFloat("VelZ", velz);
-
-                // yield return StartCoroutine(MovementLerp2(Destiny));
                 yield return null;
             }
-
             StartCoroutine(pI.SetIsMoving(false));
         }
         aiNav.updateRotation = true;
         yield return null;
-
-        // selfPlayer.GetComponent<NavMeshAgent>().enabled = false; // Deactivate Agent 
-        // selfPlayer.GetComponentInChildren<NavMeshObstacle>().enabled = true;
     }
     
+    /// <summary>
+    /// Movement with constant forward velocity (legacy method)
+    /// </summary>
     IEnumerator Move4(AIDestinationSetter destSetter, RichAI aiNav, Vector3 Destiny)
     {
         GameObject selfPlayer = this.gameObject;
         destSetter.target.position = Destiny;
         while (destSetter.target.position != this.gameObject.transform.position)
         {
-            // normalize speed then *2 for anim values
             float velz = aiNav.velocity.magnitude / playerRunningSpeed * 2;
-            
-            // Debug.LogError(velz);
             selfPlayer.GetComponent<Animator>().SetFloat("VelZ", 1);
-
-            // yield return StartCoroutine(MovementLerp2(Destiny));
             yield return null;
         }
-        
-        // selfPlayer.GetComponent<NavMeshAgent>().enabled = false; // Deactivate Agent 
-        // selfPlayer.GetComponentInChildren<NavMeshObstacle>().enabled = true;
     }
     
+    /// <summary>
+    /// Legacy movement method with parabolic velocity curves
+    /// </summary>
     private IEnumerator MovementLerp2(Vector3 final)
     {
         GameObject selfPlayer = this.gameObject;
@@ -1062,40 +1097,17 @@ public class ActionAPI : NetworkBehaviour
         int xSign = 0;
         int zSign = 0;
 
+        // Determine movement direction based on relative quadrant
         switch (quadrant)
         {
-            case 0.5f:
-                xSign = 1;
-                zSign = 0;
-                break;
-            case 1.0f:
-                xSign = 1;
-                zSign = 1;
-                break;
-            case 1.5f:
-                xSign = 0;
-                zSign = 1;
-                break;
-            case 2.0f:
-                xSign = -1;
-                zSign = 1;
-                break;
-            case 2.5f:
-                xSign = -1;
-                zSign = 0;
-                break;
-            case 3.0f:
-                xSign = -1;
-                zSign = -1;
-                break;
-            case 3.5f:
-                xSign = 0;
-                zSign = -1;
-                break;
-            case 4.0f:
-                xSign = 1;
-                zSign = -1;
-                break;
+            case 0.5f: xSign = 1; zSign = 0; break;
+            case 1.0f: xSign = 1; zSign = 1; break;
+            case 1.5f: xSign = 0; zSign = 1; break;
+            case 2.0f: xSign = -1; zSign = 1; break;
+            case 2.5f: xSign = -1; zSign = 0; break;
+            case 3.0f: xSign = -1; zSign = -1; break;
+            case 3.5f: xSign = 0; zSign = -1; break;
+            case 4.0f: xSign = 1; zSign = -1; break;
         }
 
         Debug.Log(xSign + ", " + zSign);
@@ -1105,10 +1117,10 @@ public class ActionAPI : NetworkBehaviour
 
         while (timeElapsed < timeDuration)
         {
-
             float UpdatedDistanceX = Mathf.Abs(init.x - transform.position.x);
             float UpdatedDistanceZ = Mathf.Abs(init.z - transform.position.z);
 
+            // Calculate parabolic velocity curves
             float transitionValueZ = zSign;
             if (transitionValueZ != 0)
                 transitionValueZ *= (8f * (distanceZ * (UpdatedDistanceZ) - Mathf.Pow(UpdatedDistanceZ, 2)) /
@@ -1124,7 +1136,6 @@ public class ActionAPI : NetworkBehaviour
             timeElapsed += Time.deltaTime;
             yield return null;
 
-            //Condition to Stop Continuous Movement
             if (stopMovement)
             {
                 stopMovement = false;
@@ -1137,6 +1148,9 @@ public class ActionAPI : NetworkBehaviour
         yield return null;
     }
 
+    /// <summary>
+    /// Legacy movement with optional look-at functionality
+    /// </summary>
     private IEnumerator MovementLerp(Vector3 final, bool lookAt)
     {
         GameObject selfPlayer = this.gameObject;
@@ -1195,7 +1209,6 @@ public class ActionAPI : NetworkBehaviour
                 timeElapsed += Time.deltaTime;
                 yield return null;
 
-                //Condition to Stop Continuous Movement
                 if (stopMovement)
                 {
                     stopMovement = false;
@@ -1224,7 +1237,6 @@ public class ActionAPI : NetworkBehaviour
                 timeElapsed += Time.deltaTime;
                 yield return null;
 
-                //Condition to Stop Continuous Movement
                 if (stopMovement)
                 {
                     stopMovement = false;
@@ -1237,11 +1249,14 @@ public class ActionAPI : NetworkBehaviour
         yield return null;
     }
 
+    /// <summary>
+    /// Dribbling movement with ball control
+    /// </summary>
     private IEnumerator DribbleLerp(Vector3 final)
     {
         GameObject selfPlayer = this.gameObject;
         Vector3 init = selfPlayer.transform.position;
-        final.y = init.y; // Don't Update Y Coordinate
+        final.y = init.y;
         StartCoroutine(LookTowards(final, null));
 
         float timeElapsed = 0;
@@ -1262,31 +1277,31 @@ public class ActionAPI : NetworkBehaviour
             timeElapsed += Time.deltaTime;
             yield return null;
 
-            //Condition to Stop Continuous Movement
             if (stopMovement)
             {
-                // stopMovement = false;
                 selfPlayer.GetComponent<Animator>().SetFloat("VelZ", 0);
                 StopCoroutine(DribbleLerp(final));
             }
         }
     }
 
+    /// <summary>
+    /// Header animation with ball trajectory calculation
+    /// </summary>
     private IEnumerator BallHeader(Vector3 final, float aerialOffset)
     {
         GameObject selfPlayer = this.gameObject;
         Vector3 init = selfPlayer.transform.position;
-        //Vector3 final = finalObj.transform.position;
         Vector2 unitVector = new(selfPlayer.transform.forward.x, selfPlayer.transform.forward.z);
 
-        Vector2 objectAPosition = new(init.x, init.z); ;
-        Vector2 objectBPosition = new(final.x, final.z); ;
+        Vector2 objectAPosition = new(init.x, init.z);
+        Vector2 objectBPosition = new(final.x, final.z);
 
         Vector2 shiftedObjectBPosition = objectBPosition - objectAPosition;
 
         float angle = Mathf.Atan2(unitVector.x, unitVector.y);
 
-        // rotate object B wrt object A
+        // Rotate object B relative to object A
         float rotatedXB = shiftedObjectBPosition.x * Mathf.Cos(angle) - shiftedObjectBPosition.y * Mathf.Sin(angle);
         float rotatedYB = shiftedObjectBPosition.x * Mathf.Sin(angle) + shiftedObjectBPosition.y * Mathf.Cos(angle);
 
@@ -1294,11 +1309,9 @@ public class ActionAPI : NetworkBehaviour
         float velZ = Mathf.Cos(newAngle);
         float velX = Mathf.Sin(newAngle);
 
-        // plays animation
+        // Set animation parameters
         selfPlayer.GetComponent<Animator>().SetFloat("VelZ", velZ);
         selfPlayer.GetComponent<Animator>().SetFloat("VelX", velX);
-
-        // yield return new WaitForSeconds(1.1f);
         
         SetMoveBallValues(final, aerialOffset, airPassForce);
 
@@ -1306,31 +1319,34 @@ public class ActionAPI : NetworkBehaviour
 
         selfPlayer.GetComponent<Animator>().SetFloat("VelZ", 0);
         selfPlayer.GetComponent<Animator>().SetFloat("VelX", 0);
-
     }
-
     #endregion
 
     #region Helper Methods
-
+    /// <summary>
+    /// Sets parameters for ball movement (called by animation events)
+    /// </summary>
     void SetMoveBallValues(Vector3 finalPos, float aerialOffset, float forceMagnitude)
     {
-        // Debug.LogError(finalPos);
         this.finalPos = finalPos;
         this.aerialOffset = aerialOffset;
         this.forceMagnitude = forceMagnitude;
-        // RPC_SetMoveBallValues(finalPos, aerialOffset, forceMagnitude);
     }
     
+    /// <summary>
+    /// Network RPC for setting ball movement values across all clients
+    /// </summary>
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
     public void RPC_SetMoveBallValues(Vector3 finalPos, float aerialOffset, float forceMagnitude)
     {
-        // Debug.LogError(finalPos);
         this.finalPos = finalPos;
         this.aerialOffset = aerialOffset;
         this.forceMagnitude = forceMagnitude;
     }
 
+    /// <summary>
+    /// Calculates wait time based on current animation length and speed
+    /// </summary>
     private float WaitTime()
     {
         float animationLength = GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).length;
@@ -1339,11 +1355,17 @@ public class ActionAPI : NetworkBehaviour
         return delay;
     }
 
+    /// <summary>
+    /// Coroutine that waits for current animation to complete
+    /// </summary>
     IEnumerator WaitForAnimation()
     {
         yield return new WaitForSeconds(WaitTime());
     }
 
+    /// <summary>
+    /// Sets the animator controller for the player
+    /// </summary>
     public void SetAnimController(string controllerHashCode)
     {
         GameObject selfPlayer = this.gameObject;
@@ -1355,6 +1377,9 @@ public class ActionAPI : NetworkBehaviour
         }
     }
 
+    /// <summary>
+    /// Network RPC for setting animator controller across all clients
+    /// </summary>
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
     public void RPC_SetAnimController(string controllerHashCode)
     {
@@ -1375,21 +1400,23 @@ public class ActionAPI : NetworkBehaviour
         }
     }
 
+    /// <summary>
+    /// Calculates which quadrant the destination is relative to the player's forward direction
+    /// </summary>
     private float RelativeQuadrant(Vector3 init, Vector3 final, Vector2 unitVector)
     {
-        // Shift the origin to object A
-        Vector2 objectAPosition = new(init.x, init.z); ;
-        Vector2 objectBPosition = new(final.x, final.z); ;
+        Vector2 objectAPosition = new(init.x, init.z);
+        Vector2 objectBPosition = new(final.x, final.z);
 
         Vector2 shiftedObjectBPosition = objectBPosition - objectAPosition;
 
         float angle = Mathf.Atan2(unitVector.x, unitVector.y);
 
-        // rotate object B wrt object A
+        // Rotate object B relative to object A
         float rotatedXB = shiftedObjectBPosition.x * Mathf.Cos(angle) - shiftedObjectBPosition.y * Mathf.Sin(angle);
         float rotatedYB = shiftedObjectBPosition.x * Mathf.Sin(angle) + shiftedObjectBPosition.y * Mathf.Cos(angle);
 
-        // Determine the quadrant of object B
+        // Determine quadrant
         float quadrant = 0.5f;
         if (rotatedXB > 0 && rotatedYB == 0)
             quadrant = 0.5f;
@@ -1411,7 +1438,10 @@ public class ActionAPI : NetworkBehaviour
         return quadrant;
     }
 
-    // called from animation event
+    /// <summary>
+    /// Applies physics force to move the ball (called from animation events)
+    /// Handles ball possession transfer and creates annotations for AI analysis
+    /// </summary>
     public void MoveBall()
     {
         if (Runner.IsClient)
@@ -1435,6 +1465,7 @@ public class ActionAPI : NetworkBehaviour
             }
         }
         
+        // Release ball possession
         if (pI)
         {
             pI.LosePossession();
@@ -1449,7 +1480,8 @@ public class ActionAPI : NetworkBehaviour
         Vector3 ballMotionVector = finalPos - soccerBall.transform.position;
         Vector3 forceDirection = new(ballMotionVector.x, aerialOffset, ballMotionVector.z);
         Debug.Log("force vector: " + forceDirection);
-        // if pass is close, multiply by some more force sice it's slow. band-aid fix. look for better way to do this
+        
+        // Apply extra force for short passes to compensate for reduced power
         if (forceDirection.magnitude < 5f)
         {
             soccerBall.GetComponent<Rigidbody>().AddForce(forceDirection * forceMagnitude * forceFactor * 1.5f);
@@ -1461,25 +1493,25 @@ public class ActionAPI : NetworkBehaviour
         Debug.Log("in moveball");
         Debug.Log("force:" + forceDirection * forceMagnitude * forceFactor);
         
-        // find closest opponent within 0.1m of the ball. if there is an opponent, then the ball was passed to them (for non-human player only)
+        // Create pass annotations for AI analysis (non-human players only)
         if (pI)
         {
             GameObject closestPlayer = FindClosestPlayerToFinalPos(finalPos);
-        if (closestPlayer != null)
-        {
-            AnnotationManager annotationManager = GameObject.FindGameObjectWithTag("ProgramSynthesisManager").GetComponent<AnnotationManager>();
-            
-            annotationManager.CreatePassAnnotation(this.gameObject, closestPlayer);
-        } else if (closestPlayer == null)
-        {
-            AnnotationManager annotationManager = GameObject.FindGameObjectWithTag("ProgramSynthesisManager").GetComponent<AnnotationManager>();
-            
-            annotationManager.CreateThroughPassAnnotation(this.gameObject, finalPos);
-        }
-
+            if (closestPlayer != null)
+            {
+                AnnotationManager annotationManager = GameObject.FindGameObjectWithTag("ProgramSynthesisManager").GetComponent<AnnotationManager>();
+                annotationManager.CreatePassAnnotation(this.gameObject, closestPlayer);
+            } else if (closestPlayer == null)
+            {
+                AnnotationManager annotationManager = GameObject.FindGameObjectWithTag("ProgramSynthesisManager").GetComponent<AnnotationManager>();
+                annotationManager.CreateThroughPassAnnotation(this.gameObject, finalPos);
+            }
         }
     }
 
+    /// <summary>
+    /// Finds the closest player to the ball's destination position for pass annotation
+    /// </summary>
     public GameObject FindClosestPlayerToFinalPos(Vector3 pos)
     {
         ObjectsList objectList = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<ObjectsList>();
@@ -1504,6 +1536,7 @@ public class ActionAPI : NetworkBehaviour
             }
         }
         
+        // Only return player if they're very close to the destination (successful pass)
         if (closestDistanceSqr < 0.1f)
         {
             return bestTarget;
@@ -1514,66 +1547,57 @@ public class ActionAPI : NetworkBehaviour
         }
     }
     
-    // set already in animation. mainly for pass and shoot animations (called from animation event)
+    /// <summary>
+    /// Sets animation flag to true (called from animation events)
+    /// </summary>
     public void SetAlreadyInAnimationTrue()
     {
         alreadyInAnimation = true;
     }
     
+    /// <summary>
+    /// Sets animation flag to false (called from animation events)
+    /// </summary>
     public void SetAlreadyInAnimationFalse()
     {
         alreadyInAnimation = false;
     }
 
+    /// <summary>
+    /// Temporary disable of ball trigger collider to prevent immediate re-possession
+    /// </summary>
     private IEnumerator BallTriggerColliderDebounce(GameObject ballTriggerCollider)
     {
         yield return new WaitForSeconds(3f);
         ballTriggerCollider.SetActive(true);
     }
 
+    /// <summary>
+    /// Smoothly rotates player to look at destination, then triggers specified animation
+    /// </summary>
     private IEnumerator LookTowards(Vector3 destinationPosition, string keyCode)
     {
-        // GameObject selfPlayer = this.gameObject;
-        // Vector3 init = selfPlayer.transform.position;
-        // Vector2 finalFacingDirection = new(destinationPosition.x - init.x, destinationPosition.z - init.z);
-        // Vector2 initialFacingDirection = new(selfPlayer.transform.forward.x, selfPlayer.transform.forward.z);
-        //
-        // // Debug.LogError(finalFacingDirection);
-        // // Debug.LogError(selfPlayer.transform.forward.x);
-        // // Debug.LogError(selfPlayer.transform.forward.z);
-        //
-        // float angle = Vector2.Angle(initialFacingDirection, finalFacingDirection);
-        // Vector3 normal = Vector3.Cross(initialFacingDirection, finalFacingDirection);
-        // // float rotationDirection = Mathf.Sign(Vector2.Dot(initialFacingDirection, finalFacingDirection));
-        // float rotationDirection = Mathf.Sign(Vector3.Dot(normal, Vector3.up));
-        // // Debug.LogError(finalFacingDirection);
-        // // Debug.LogError(rotationDirection);
-        // // Debug.LogError(angle);
-        
         GameObject selfPlayer = this.gameObject;
         Vector3 fromVector = selfPlayer.transform.forward;
         Vector3 toVector = destinationPosition - selfPlayer.transform.position;
         
-        // Create a float to store the angle between the facing of the player and the direction it's traveling.
+        // Calculate angle and rotation direction
         float angle = Vector3.Angle(fromVector, toVector);
-        // Find the cross product of the two vectors (this will point up if the velocity is to the right of forward).
         Vector3 normal = Vector3.Cross(fromVector, toVector);
-        // The dot product of the normal with the upVector will be positive if they point in the same direction.
         float rotationDirection = Mathf.Sign(Vector3.Dot(normal, Vector3.up));
 
-        // Debug.LogError(angle);
-        // Debug.LogError(rotationDirection);
-        // yield return StartCoroutine(RotateCoroutine2(angle, rotationDuration));
         yield return StartCoroutine(RotateCoroutine(angle, rotationDirection, rotationDuration / 2f));
 
-        // play animation after rotating
+        // Trigger animation after rotation completes
         if (keyCode != null)
         {
             selfPlayer.GetComponent<Animator>().SetTrigger(keyCode);
         }
     }
     
-
+    /// <summary>
+    /// Smoothly rotates player over specified duration
+    /// </summary>
     private IEnumerator RotateCoroutine(float angle, float rotationDirection, float duration)
     {
         GameObject selfPlayer = this.gameObject;
@@ -1582,16 +1606,13 @@ public class ActionAPI : NetworkBehaviour
 
         while(currentRotation < angle)
         {
-            // Calculate the incremental rotation for this frame
             float rotationIncrement = rotationPerSecond * Time.deltaTime;
             currentRotation += rotationIncrement;
 
             if (rotationDirection == -1)
-                selfPlayer.transform.Rotate(Vector3.down, rotationIncrement); //selfPlayer.transform.Rotate(Vector3.up, rotationIncrement);
+                selfPlayer.transform.Rotate(Vector3.down, rotationIncrement);
             else if (rotationDirection == 1)
                 selfPlayer.transform.Rotate(Vector3.up, rotationIncrement);
-
-            // Debug.LogError(selfPlayer.transform.rotation.eulerAngles);
             
             yield return null;
         }
@@ -1599,12 +1620,18 @@ public class ActionAPI : NetworkBehaviour
         yield return null;
     }
 
+    /// <summary>
+    /// Legacy method for delayed ball movement (no longer used)
+    /// </summary>
     IEnumerator MoveBallAfterAnimationhalfway(Vector3 destinationPosition, string ballProjectileHeight,float shootForce)
     {
         yield return new WaitForSeconds(1f);
         SetMoveBallValues(destinationPosition, VerticalForce(ballProjectileHeight), shootForce);
     }
 
+    /// <summary>
+    /// Converts string height description to vertical force value
+    /// </summary>
     private float VerticalForce(string ballProjectileHeight)
     {
         float verticalForce = 0.0f;
@@ -1616,6 +1643,5 @@ public class ActionAPI : NetworkBehaviour
 
         return verticalForce * verticalForceFactor;
     }
-
     #endregion
 }

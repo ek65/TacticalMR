@@ -9,59 +9,199 @@ using System;
 using Fusion;
 using Pathfinding;
 
-// TODO: Rename script, this is the player logic script
+/// <summary>
+/// Interface for AI-controlled player objects in the soccer simulation.
+/// Handles ball possession, movement, team allegiance, and communication with Scenic simulation system.
+/// Implements IObjectInterface to receive movement commands from the simulation engine.
+/// </summary>
 public class PlayerInterface : NetworkBehaviour, IObjectInterface
 {
+    #region Network Properties
     [Networked, OnChangedRender(nameof(UpdateGameObjectName))]
     public NetworkString<_32> ObjName { get; set; }
     
-    public bool enemy;
-    public bool ally;
-    public bool self;
-    public Renderer shirt;
-    public float speed;
-    public GameObject ball;
-    public Vector3 ballOnTheGround;
-    public Vector3 targetPosition;
-    public float force;
-    public float distToBall;
-    public GameObject goal;
-    public bool isMoving;
-    // public bool ballPossession;
     [Networked] public NetworkBool ballPossession { get; set; }
-    public Transform ballPosition;
-    private KeyboardInput keyboardInput;
-    private JSONToLLM jsonToLLM;
-
-    // public Vector3 currVelocity => this.GetComponent<RichAI>().velocity;
+    
     [Networked] public Vector3 currVelocity { get; set; }
-    private RichAI richAI;
-
-    private bool canPossessBall = true;
-    public bool canKickBall = true;
-    BallOwnership ballOwnership;
     
-    private int localTick;  // NOTE: This is not the true tick and is what we will use to internally record a timestep.
-
-    public ActionAPI actionAPI;
-    public FloatingText floatingBehaviorText;
-    public FloatingText floatingNameText;
-    // public string behavior = "Idle";
     [Networked] public NetworkString<_32> behavior { get; set; }
-    public string currAction = "No Action"; // just for debugging to see what actions function is being called
+    #endregion
+
+    #region Team Allegiance Properties
+    /// <summary>
+    /// Whether this player is on the opposing team
+    /// </summary>
+    public bool enemy;
     
+    /// <summary>
+    /// Whether this player is on the allied team
+    /// </summary>
+    public bool ally;
+    
+    /// <summary>
+    /// Whether this player represents the human player
+    /// </summary>
+    public bool self;
+    
+    /// <summary>
+    /// Renderer for team shirt colors
+    /// </summary>
+    public Renderer shirt;
+    #endregion
+
+    #region Game Object References
+    /// <summary>
+    /// Reference to the soccer ball
+    /// </summary>
+    public GameObject ball;
+    
+    /// <summary>
+    /// Reference to the goal object
+    /// </summary>
+    public GameObject goal;
+    
+    /// <summary>
+    /// Position where ball attaches when possessed
+    /// </summary>
+    public Transform ballPosition;
+    
+    /// <summary>
+    /// Reference to ActionAPI for executing actions
+    /// </summary>
+    public ActionAPI actionAPI;
+    
+    /// <summary>
+    /// UI text for displaying current behavior
+    /// </summary>
+    public FloatingText floatingBehaviorText;
+    
+    /// <summary>
+    /// UI text for displaying player name
+    /// </summary>
+    public FloatingText floatingNameText;
+    #endregion
+
+    #region Robot/Factory Properties
     [Space(10)] 
     [Header("For robot only")]
     
+    /// <summary>
+    /// Whether this is a robot player (for factory scenarios)
+    /// </summary>
     public bool isRobot;
-    public Transform objectPosition;
-    public bool objectPossession;
-    public GameObject grabbedObject;
     
+    /// <summary>
+    /// Position where objects are held
+    /// </summary>
+    public Transform objectPosition;
+    
+    /// <summary>
+    /// Whether currently holding an object
+    /// </summary>
+    public bool objectPossession;
+    
+    /// <summary>
+    /// Reference to currently held object
+    /// </summary>
+    public GameObject grabbedObject;
+    #endregion
+
+    #region Game State Properties
+    /// <summary>
+    /// Player movement speed
+    /// </summary>
+    public float speed;
+    
+    /// <summary>
+    /// Ball position projected to ground level
+    /// </summary>
+    public Vector3 ballOnTheGround;
+    
+    /// <summary>
+    /// Target position for movement
+    /// </summary>
+    public Vector3 targetPosition;
+    
+    /// <summary>
+    /// Force applied to ball
+    /// </summary>
+    public float force;
+    
+    /// <summary>
+    /// Distance to ball in world units
+    /// </summary>
+    public float distToBall;
+    
+    /// <summary>
+    /// Whether player is currently moving
+    /// </summary>
+    public bool isMoving;
+    
+    /// <summary>
+    /// Whether player can kick ball (debounce system)
+    /// </summary>
+    public bool canKickBall = true;
+    
+    /// <summary>
+    /// Current action being performed (for debugging)
+    /// </summary>
+    public string currAction = "No Action";
+    #endregion
+
+    #region Private Fields
+    private bool canPossessBall = true;
+    private int localTick;
+    private KeyboardInput keyboardInput;
+    private JSONToLLM jsonToLLM;
+    private RichAI richAI;
     private ProgramSynthesisManager programSynthesisManager;
     private AnnotationManager annotationManager;
-    
+    #endregion
+
+    #region Component References
+    BallOwnership ballOwnership;
+    #endregion
+
+    #region Unity Lifecycle
     private void Start()
+    {
+        InitializeTeamColors();
+        InitializeReferences();
+        RegisterPlayer();
+        
+        localTick = -1;
+        ballPossession = false;
+        
+        floatingNameText.SetText2(this.gameObject.name);
+    }
+
+    void Update()
+    {
+        UpdateReferences();
+        UpdateBallTracking();
+        HandleMovementStop();
+        HandlePathfindingRadius();
+    }
+    
+    private void LateUpdate()
+    {
+        // Reset AI destination if not actively moving to position
+        if (this.GetComponent<AIDestinationSetter>())
+        {
+            AIDestinationSetter dest = this.GetComponent<AIDestinationSetter>();
+            if (currAction != "MoveToPos" && dest.target != null)
+            {
+                dest.target.localPosition = Vector3.zero;
+            }
+        }
+    }
+    #endregion
+
+    #region Initialization Methods
+    /// <summary>
+    /// Sets up team colors based on allegiance
+    /// </summary>
+    private void InitializeTeamColors()
     {
         if (enemy)
         {
@@ -75,7 +215,13 @@ public class PlayerInterface : NetworkBehaviour, IObjectInterface
         {
             shirt.material.SetColor("_Color", Color.yellow);
         }
-        localTick = -1;
+    }
+
+    /// <summary>
+    /// Initializes component references
+    /// </summary>
+    private void InitializeReferences()
+    {
         if (ball == null)
         {
             ball = GameObject.FindGameObjectWithTag("ball");
@@ -84,25 +230,31 @@ public class PlayerInterface : NetworkBehaviour, IObjectInterface
         {
             goal = GameObject.FindGameObjectWithTag("goal");
         }
-
-        ballPossession = false;
         
         ballOwnership = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<BallOwnership>();
-        
-        floatingNameText.SetText2(this.gameObject.name);
-        
-        ObjectsList objectList = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<ObjectsList>();
-        objectList.scenicPlayers.Add(this.gameObject);
-        
         programSynthesisManager = GameObject.FindGameObjectWithTag("ProgramSynthesisManager").GetComponent<ProgramSynthesisManager>();
         annotationManager = GameObject.FindGameObjectWithTag("ProgramSynthesisManager").GetComponent<AnnotationManager>();
     }
 
-    // Update is called once per frame
-    void Update()
+    /// <summary>
+    /// Registers player in the object list
+    /// </summary>
+    private void RegisterPlayer()
+    {
+        ObjectsList objectList = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<ObjectsList>();
+        objectList.scenicPlayers.Add(this.gameObject);
+    }
+    #endregion
+
+    #region Update Methods
+    /// <summary>
+    /// Updates component references if they become null
+    /// </summary>
+    private void UpdateReferences()
     {
         keyboardInput = GameObject.FindGameObjectWithTag("keyboard").GetComponent<KeyboardInput>();
         jsonToLLM = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<JSONToLLM>();
+        
         if (ball == null)
         {
             ball = GameObject.FindGameObjectWithTag("ball");
@@ -111,7 +263,13 @@ public class PlayerInterface : NetworkBehaviour, IObjectInterface
         {
             goal = GameObject.FindGameObjectWithTag("goal");
         }
+    }
 
+    /// <summary>
+    /// Updates ball tracking and distance calculations
+    /// </summary>
+    private void UpdateBallTracking()
+    {
         if (ball)
         {
             ballOnTheGround.x = ball.transform.position.x;
@@ -119,13 +277,24 @@ public class PlayerInterface : NetworkBehaviour, IObjectInterface
             ballOnTheGround.z = ball.transform.position.z;
             distToBall = Vector3.Distance(transform.position, ballOnTheGround);
         }
+    }
 
+    /// <summary>
+    /// Handles movement stop requests
+    /// </summary>
+    private void HandleMovementStop()
+    {
         if (actionAPI.stopMovement == true)
         {
             actionAPI.Idle();
         }
-        
-        // Set RichAI radius to .1 when moving to avoid weird pathing behavior
+    }
+
+    /// <summary>
+    /// Adjusts pathfinding radius based on movement state
+    /// </summary>
+    private void HandlePathfindingRadius()
+    {
         if (this.GetComponent<RichAI>() != null)
         {
             RichAI aiNav = this.GetComponent<RichAI>();
@@ -139,20 +308,9 @@ public class PlayerInterface : NetworkBehaviour, IObjectInterface
             }
         }
     }
-    
-    private void LateUpdate()
-    {
-        // make sure ai target position is set back to 0 if behavior is not "MoveTo"
-        if (this.GetComponent<AIDestinationSetter>())
-        {
-            AIDestinationSetter dest = this.GetComponent<AIDestinationSetter>();
-            if (currAction != "MoveToPos" && dest.target != null)
-            {
-                dest.target.localPosition = Vector3.zero;
-            }
-        }
-    }
-    
+    #endregion
+
+    #region Network Methods
     public override void Spawned() {
         if (Object.HasStateAuthority) {
             behavior = "Idle";
@@ -161,7 +319,7 @@ public class PlayerInterface : NetworkBehaviour, IObjectInterface
     }
     
     public override void FixedUpdateNetwork() {
-        // Only update the velocity on the state-authoritative instance.
+        // Update velocity on state-authoritative instance only
         if (Object.HasStateAuthority && richAI != null) {
             currVelocity = richAI.velocity;
         }
@@ -174,7 +332,7 @@ public class PlayerInterface : NetworkBehaviour, IObjectInterface
     
     public void SetObjectName(string newName)
     {
-        ObjName = newName; // This will trigger OnNameChanged() on all clients
+        ObjName = newName;
     }
 
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
@@ -201,8 +359,12 @@ public class PlayerInterface : NetworkBehaviour, IObjectInterface
             objectList.offensePlayers.Add(this.gameObject);
         }
     }
-    
-    // For ball possession
+    #endregion
+
+    #region Ball Possession System
+    /// <summary>
+    /// Handles collision detection for ball possession
+    /// </summary>
     private void OnTriggerEnter(Collider other)
     {
         GameManager gm = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
@@ -216,6 +378,9 @@ public class PlayerInterface : NetworkBehaviour, IObjectInterface
         }
     }
     
+    /// <summary>
+    /// Takes possession of the ball
+    /// </summary>
     private void GainPossession(GameObject other)
     {
         int layerIgnoreBallCollision = LayerMask.NameToLayer("PlayerBall");
@@ -231,6 +396,9 @@ public class PlayerInterface : NetworkBehaviour, IObjectInterface
         actionAPI.ReceiveBall(other.transform.position);
     }
     
+    /// <summary>
+    /// Forcibly takes possession from another player
+    /// </summary>
     public void ForciblyGainPossession()
     {
         if (ballOwnership.heldByScenic && canPossessBall && distToBall < 2f)
@@ -248,16 +416,9 @@ public class PlayerInterface : NetworkBehaviour, IObjectInterface
         }
     }
     
-    private void LogIntercept()
-    {
-        annotationManager.CreateInterceptAnnotation(this.gameObject);
-    }
-    
-    private void LogReceiveBall()
-    {
-        annotationManager.CreateReceivePassAnnotation(this.gameObject);
-    }
-    
+    /// <summary>
+    /// Releases ball possession
+    /// </summary>
     public void LosePossession()
     {
         StartCoroutine(PossessionDebounce());
@@ -268,6 +429,9 @@ public class PlayerInterface : NetworkBehaviour, IObjectInterface
         ballOwnership.SetBallOwner(null);
     }
     
+    /// <summary>
+    /// Prevents immediate re-possession after losing ball
+    /// </summary>
     private IEnumerator PossessionDebounce()
     {
         canPossessBall = false;
@@ -276,29 +440,62 @@ public class PlayerInterface : NetworkBehaviour, IObjectInterface
         this.gameObject.layer = LayerMask.NameToLayer("Default");
     }
     
+    /// <summary>
+    /// Prevents rapid consecutive kicks
+    /// </summary>
     public IEnumerator KickDebounce()
     {
         canKickBall = false;
         yield return new WaitForSeconds(2.5f);
         canKickBall = true;
     }
+    #endregion
 
+    #region Utility Methods
+    /// <summary>
+    /// Sets movement state with synchronization delay
+    /// </summary>
     public IEnumerator SetIsMoving(bool isMoving)
     {
         yield return new WaitForSeconds(0.05f);
         this.isMoving = isMoving;
     }
+    #endregion
+
+    #region Logging Methods
+    /// <summary>
+    /// Logs interception action for AI analysis
+    /// </summary>
+    private void LogIntercept()
+    {
+        annotationManager.CreateInterceptAnnotation(this.gameObject);
+    }
     
+    /// <summary>
+    /// Logs ball reception for AI analysis
+    /// </summary>
+    private void LogReceiveBall()
+    {
+        annotationManager.CreateReceivePassAnnotation(this.gameObject);
+    }
+    #endregion
+
+    #region IObjectInterface Implementation
+    /// <summary>
+    /// Applies movement data from Scenic simulation using reflection to invoke action methods.
+    /// Handles behavior updates and animation state management.
+    /// </summary>
+    /// <param name="data">Movement data containing action function, arguments, and behavior state</param>
     public void ApplyMovement(ScenicMovementData data)
     {
         localTick += 1;
-        // Debug.Log(GetComponent<Rigidbody>().velocity);
+        // Skip first few ticks for initialization
         if (localTick < 4)
         {
             return;
         }
         
-        // if player is already in kick animation, dont update behavior text yet
+        // Update behavior text if not currently in animation
         if (!actionAPI.alreadyInAnimation)
         {
             if (data.behavior == " " || data.behavior == "" || data.behavior == "Idle")
@@ -327,7 +524,7 @@ public class PlayerInterface : NetworkBehaviour, IObjectInterface
         {
             currAction = data.actionFunc;
             
-            // check for if player already kicked recently, skip this action
+            // Skip kick actions if recently kicked (debounce)
             if (currAction == "GroundPassFast" || currAction == "Shoot")
             {
                 if (!canKickBall)
@@ -336,20 +533,15 @@ public class PlayerInterface : NetworkBehaviour, IObjectInterface
                 }
             }
             
+            // Use reflection to invoke the specified action method
             Type type = actionAPI.GetType();
             MethodInfo method = type.GetMethod(data.actionFunc);
-            // Debug.Log("here12");
-            // Debug.Log(data.actionFunc);
-            // Debug.Log(data.actionArgs.ToArray().Length);
-            // foreach (var v in data.actionArgs.ToArray())
-            // {
-            //     Debug.Log(v);
-            // }
             method.Invoke(actionAPI, data.actionArgs.ToArray());
         }
-        else //idle
+        else // Default to idle state
         {
             actionAPI.stopMovement = true;
         }
     }
+    #endregion
 }

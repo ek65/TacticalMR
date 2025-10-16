@@ -1,38 +1,62 @@
 using UnityEngine;
 using System.Collections;
 
+/// <summary>
+/// Advanced soccer ball physics system with intelligent destination seeking and realistic ground behavior.
+/// Provides guided ball movement toward destinations while maintaining natural rolling physics.
+/// Handles ground detection, bounce prevention, possession checking, and smooth stopping mechanics.
+/// Integrates with ball ownership system to respect player possession and prevent conflicting movement.
+/// </summary>
 [RequireComponent(typeof(Rigidbody))]
 public class SoccerBall : MonoBehaviour
 {
+    [Header("Destination Control")]
+    [Tooltip("Target position for the ball to move toward")]
     public Vector3 destination;
-    [Tooltip("How close (in meters) before we consider ourselves 'there'")]
+    
+    [Tooltip("Distance threshold for considering destination reached")]
     public float stopDistance = 0.3f;
-    [Tooltip("Minimum velocity threshold - below this, the ball stops")]
+    
+    [Tooltip("Velocity threshold below which ball stops moving")]
     public float minVelocityThreshold = 0.1f;
+
+    [Header("Movement Guidance")]
     [Tooltip("Force applied to guide ball toward destination")]
     public float guidanceForce = 3f;
-    [Tooltip("How often to apply guidance correction (in seconds)")]
+    
+    [Tooltip("Interval between guidance force applications")]
     public float guidanceInterval = 0.1f;
+    
     [Tooltip("Maximum distance before applying strong correction")]
     public float maxDeviationDistance = 2f;
-    [Tooltip("Ground layer mask for ground detection")]
-    public LayerMask groundLayerMask = 1; // Default layer
+
+    [Header("Ground Interaction")]
+    [Tooltip("Layer mask for ground detection raycasting")]
+    public LayerMask groundLayerMask = 1;
+    
     [Tooltip("Height above ground to maintain")]
     public float groundOffset = 0.25f;
-    [Tooltip("Maximum upward velocity allowed")]
+    
+    [Tooltip("Maximum upward velocity allowed (prevents excessive bouncing)")]
     public float maxUpwardVelocity = 2f;
 
-    Rigidbody _rb;
-    float _stopDistanceSqr;
-    Vector3 _lastDestination;
-    bool _hasDestination;
-    float _lastGuidanceTime;
-    Vector3 _initialDirection;
-    Vector3 _lastValidPosition;
-    float _groundHeight;
-    bool _isGrounded;
-    BallOwnership _ballOwnership;
+    [Header("Internal State")]
+    private Rigidbody _rb;
+    private BallOwnership _ballOwnership;
+    private float _stopDistanceSqr;
+    private Vector3 _lastDestination;
+    private bool _hasDestination;
+    private float _lastGuidanceTime;
+    private Vector3 _initialDirection;
+    private Vector3 _lastValidPosition;
+    private float _groundHeight;
+    private bool _isGrounded;
 
+    #region Initialization
+
+    /// <summary>
+    /// Initialize ball components and calculate derived values
+    /// </summary>
     void Awake()
     {
         _rb = GetComponent<Rigidbody>();
@@ -41,25 +65,50 @@ public class SoccerBall : MonoBehaviour
         FindGroundHeight();
     }
 
+    #endregion
+
+    #region Core Update Loop
+
+    /// <summary>
+    /// Main physics update loop handling ground management and destination seeking
+    /// Processes ball movement, ownership checks, and guidance application
+    /// </summary>
     void FixedUpdate()
     {
-        // Always manage ground position and bouncing
+        // Always manage ground position and prevent excessive bouncing
         ManageGroundPosition();
 
-        // Check if someone has ball possession - if so, stop destination seeking
+        // Check for ball possession - halt destination seeking if owned
         if (_ballOwnership != null && _ballOwnership.ballOwner != null)
         {
-            // Someone has possession - clear destination and stop guidance
             if (_hasDestination)
             {
                 destination = Vector3.zero;
                 _hasDestination = false;
                 Debug.Log($"Ball possession gained by {_ballOwnership.ballOwner.name} - destination cleared");
             }
-            return; // Don't process destination logic
+            return;
         }
 
-        // Check if destination has changed or been set for the first time
+        // Handle destination changes and updates
+        HandleDestinationChanges();
+
+        // Process destination seeking if active
+        if (_hasDestination)
+        {
+            ProcessDestinationSeeking();
+        }
+    }
+
+    #endregion
+
+    #region Destination Management
+
+    /// <summary>
+    /// Handle destination updates and initialization
+    /// </summary>
+    private void HandleDestinationChanges()
+    {
         if (destination != _lastDestination)
         {
             if (destination != Vector3.zero)
@@ -74,23 +123,23 @@ public class SoccerBall : MonoBehaviour
                 _hasDestination = false;
             }
         }
+    }
 
-        // if no destination set, bail
-        if (!_hasDestination) return;
-
-        // horizontal delta (ignore Y for stopping calculation)
+    /// <summary>
+    /// Process movement toward destination with intelligent stopping
+    /// </summary>
+    private void ProcessDestinationSeeking()
+    {
+        // Calculate horizontal distance to destination (ignore Y for stopping)
         Vector3 delta = destination - transform.position;
         Vector3 horizontalDelta = new Vector3(delta.x, 0f, delta.z);
         float distanceToDestination = horizontalDelta.magnitude;
 
-        // Get current horizontal velocity
         Vector3 horizontalVelocity = new Vector3(_rb.linearVelocity.x, 0f, _rb.linearVelocity.z);
         float currentSpeed = horizontalVelocity.magnitude;
 
-        // Check if we should stop
+        // Check stopping conditions
         bool shouldStop = CheckIfShouldStop(horizontalDelta, currentSpeed, distanceToDestination);
-        
-        // Also check if we've overshot the destination
         bool hasOvershot = CheckIfOvershot(horizontalDelta, currentSpeed, distanceToDestination);
         
         if (shouldStop || hasOvershot)
@@ -99,15 +148,23 @@ public class SoccerBall : MonoBehaviour
             return;
         }
 
-        // Apply gentle guidance to keep ball on track (less aggressive)
+        // Apply guidance to maintain course
         ApplyGentleGuidance(horizontalDelta, distanceToDestination);
     }
 
+    #endregion
+
+    #region Ground Management
+
+    /// <summary>
+    /// Manage ball ground positioning and prevent excessive bouncing
+    /// Maintains consistent height above ground while preserving rolling physics
+    /// </summary>
     void ManageGroundPosition()
     {
         FindGroundHeight();
         
-        // Only intervene if ball is bouncing upward significantly
+        // Limit excessive upward velocity
         if (_rb.linearVelocity.y > maxUpwardVelocity)
         {
             Vector3 vel = _rb.linearVelocity;
@@ -115,25 +172,25 @@ public class SoccerBall : MonoBehaviour
             _rb.linearVelocity = vel;
         }
 
-        // Check if we're significantly above ground
+        // Calculate height adjustment needs
         float currentHeight = transform.position.y;
         float targetHeight = _groundHeight + groundOffset;
         float heightDifference = currentHeight - targetHeight;
         
-        // Only snap to ground if we're way too high or if we're falling and close to ground
+        // Handle different height scenarios
         if (heightDifference > groundOffset * 2f && _rb.linearVelocity.y <= 0)
         {
-            // Ball is falling from high - let physics handle it but prepare to stop bounce
+            // Ball falling from high - let physics handle naturally
             _isGrounded = false;
         }
         else if (heightDifference < -0.05f || (heightDifference > 0.05f && heightDifference < 0.15f && _rb.linearVelocity.y <= 0))
         {
-            // Gently adjust position only if needed - don't constantly override
+            // Gently adjust position to maintain proper ground height
             Vector3 pos = transform.position;
-            pos.y = Mathf.Lerp(pos.y, targetHeight, Time.fixedDeltaTime * 5f); // Gentle lerp instead of snap
+            pos.y = Mathf.Lerp(pos.y, targetHeight, Time.fixedDeltaTime * 5f);
             transform.position = pos;
             
-            // Only stop upward velocity, preserve horizontal motion for rolling
+            // Stop upward velocity while preserving horizontal motion
             if (_rb.linearVelocity.y > 0.1f)
             {
                 Vector3 vel = _rb.linearVelocity;
@@ -149,9 +206,11 @@ public class SoccerBall : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Raycast to find current ground height beneath the ball
+    /// </summary>
     void FindGroundHeight()
     {
-        // Raycast down to find ground height
         RaycastHit hit;
         if (Physics.Raycast(transform.position + Vector3.up * 2f, Vector3.down, out hit, 10f, groundLayerMask))
         {
@@ -159,11 +218,22 @@ public class SoccerBall : MonoBehaviour
         }
         else
         {
-            // Fallback to current Y position if no ground found
+            // Fallback if no ground detected
             _groundHeight = transform.position.y - groundOffset;
         }
     }
 
+    #endregion
+
+    #region Movement Decision Logic
+
+    /// <summary>
+    /// Determine if the ball should stop based on distance and velocity
+    /// </summary>
+    /// <param name="horizontalDelta">Horizontal vector to destination</param>
+    /// <param name="currentSpeed">Current horizontal speed</param>
+    /// <param name="distanceToDestination">Distance to destination</param>
+    /// <returns>True if ball should stop</returns>
     bool CheckIfShouldStop(Vector3 horizontalDelta, float currentSpeed, float distanceToDestination)
     {
         // Stop if very close to destination
@@ -172,20 +242,20 @@ public class SoccerBall : MonoBehaviour
             return true;
         }
 
-        // Stop if moving very slowly and reasonably close
+        // Stop if moving slowly and reasonably close
         if (currentSpeed < minVelocityThreshold && distanceToDestination <= stopDistance * 2f)
         {
             return true;
         }
 
-        // Predict overshoot - if we'll be closer to destination after moving backwards
+        // Predict and prevent overshoot
         if (currentSpeed > 0.1f)
         {
             Vector3 nextFramePosition = transform.position + new Vector3(_rb.linearVelocity.x, 0f, _rb.linearVelocity.z) * Time.fixedDeltaTime;
             Vector3 nextFrameDelta = destination - nextFramePosition;
             nextFrameDelta.y = 0f;
             
-            // If next frame we'll be farther from destination, stop now
+            // Stop if next frame will be farther from destination
             if (nextFrameDelta.magnitude > distanceToDestination && distanceToDestination <= stopDistance * 1.5f)
             {
                 return true;
@@ -195,29 +265,33 @@ public class SoccerBall : MonoBehaviour
         return false;
     }
 
+    /// <summary>
+    /// Check if the ball has overshot its destination
+    /// </summary>
+    /// <param name="horizontalDelta">Horizontal vector to destination</param>
+    /// <param name="currentSpeed">Current horizontal speed</param>
+    /// <param name="distanceToDestination">Distance to destination</param>
+    /// <returns>True if ball has overshot</returns>
     bool CheckIfOvershot(Vector3 horizontalDelta, float currentSpeed, float distanceToDestination)
     {
-        // Only check for overshoot if we're moving and reasonably close to destination
+        // Only check for overshoot when moving and close to destination
         if (currentSpeed < 0.1f || distanceToDestination > stopDistance * 3f)
         {
             return false;
         }
 
-        // Get horizontal velocity
         Vector3 horizontalVelocity = new Vector3(_rb.linearVelocity.x, 0f, _rb.linearVelocity.z);
         
-        // Check if we're moving away from the destination
-        // Dot product will be negative if velocity is pointing away from destination
+        // Check if moving away from destination (negative dot product)
         float dotProduct = Vector3.Dot(horizontalVelocity.normalized, horizontalDelta.normalized);
         
-        // If we're moving away from destination and we're close, we've overshot
         if (dotProduct < -0.3f && distanceToDestination <= stopDistance * 2f)
         {
             Debug.Log($"Ball overshot destination! Distance: {distanceToDestination:F3}, Dot: {dotProduct:F3}");
             return true;
         }
 
-        // Additional check: if we're very close and moving fast in any direction, stop
+        // Additional check for high speed when very close
         if (distanceToDestination <= stopDistance * 0.5f && currentSpeed > minVelocityThreshold * 2f)
         {
             Debug.Log($"Ball very close to destination with high speed - stopping to prevent overshoot");
@@ -227,61 +301,72 @@ public class SoccerBall : MonoBehaviour
         return false;
     }
 
+    #endregion
+
+    #region Movement Forces
+
+    /// <summary>
+    /// Apply gentle guidance forces to keep ball on course toward destination
+    /// Uses reduced force to maintain natural physics while providing directional guidance
+    /// </summary>
+    /// <param name="horizontalDelta">Vector toward destination</param>
+    /// <param name="distanceToDestination">Distance to destination</param>
     void ApplyGentleGuidance(Vector3 horizontalDelta, float distanceToDestination)
     {
-        // Only apply guidance at intervals and when grounded to avoid over-correction
+        // Only apply guidance at intervals and when grounded
         if (Time.time - _lastGuidanceTime < guidanceInterval || !_isGrounded)
             return;
 
         _lastGuidanceTime = Time.time;
 
-        // Calculate desired direction
         Vector3 desiredDirection = horizontalDelta.normalized;
-        
-        // Current horizontal velocity direction
         Vector3 currentHorizontalVelocity = new Vector3(_rb.linearVelocity.x, 0f, _rb.linearVelocity.z);
         Vector3 currentDirection = currentHorizontalVelocity.normalized;
 
-        // Only apply gentle guidance - much less aggressive than before
-        float gentleForce = guidanceForce * 0.3f; // Reduced force
+        // Calculate gentle guidance force
+        float gentleForce = guidanceForce * 0.3f; // Reduced for subtlety
         
-        // If we're far from destination, apply slightly more force
+        // Increase force if far from destination
         if (distanceToDestination > maxDeviationDistance)
         {
             gentleForce = guidanceForce * 0.6f;
         }
 
-        // Apply gentle guidance force toward destination (horizontal only)
         Vector3 guidanceForceVector = desiredDirection * gentleForce;
         
-        // If we're moving in wrong direction, apply gentle correction
+        // Apply gentle braking if moving in wrong direction
         if (Vector3.Dot(currentDirection, desiredDirection) < 0f && currentHorizontalVelocity.magnitude > 1f)
         {
-            // Apply gentle braking force
             Vector3 brakingForce = -currentHorizontalVelocity.normalized * gentleForce;
             _rb.AddForce(brakingForce, ForceMode.Force);
         }
         
-        // Apply guidance toward destination - use ForceMode.Force to preserve natural physics
+        // Apply directional guidance
         _rb.AddForce(guidanceForceVector, ForceMode.Force);
-        
-        // Don't interfere with angular velocity - let natural rolling physics work
     }
 
+    #endregion
+
+    #region Stopping Mechanics
+
+    /// <summary>
+    /// Force ball to stop at destination with precise positioning
+    /// Snaps to destination and eliminates all motion to prevent drift
+    /// </summary>
     void ForceStopAtDestination()
     {
-        // Snap to destination (keep ground height)
+        // Snap to destination position
         Vector3 pos = transform.position;
         pos.x = destination.x;
         pos.z = destination.z;
         pos.y = _groundHeight + groundOffset;
         transform.position = pos;
 
-        // Kill all motion completely - ensure no residual velocity
+        // Eliminate all motion
         _rb.linearVelocity = Vector3.zero;
         _rb.angularVelocity = Vector3.zero;
         
-        // Briefly make kinematic to prevent any physics interference, then restore
+        // Temporarily make kinematic to prevent physics interference
         StartCoroutine(TemporaryKinematic());
 
         // Clear destination
@@ -291,36 +376,47 @@ public class SoccerBall : MonoBehaviour
         Debug.Log($"Ball forced to stop at destination: {pos}");
     }
     
-    // Temporarily make the ball kinematic to prevent any physics from moving it
+    /// <summary>
+    /// Temporarily disable physics to ensure clean stopping
+    /// </summary>
+    /// <returns>Coroutine enumerator</returns>
     IEnumerator TemporaryKinematic()
     {
         bool wasKinematic = _rb.isKinematic;
         _rb.isKinematic = true;
         
-        // Wait a few physics frames to ensure everything settles
+        // Wait for physics to settle
         for (int i = 0; i < 3; i++)
         {
             yield return new WaitForFixedUpdate();
         }
         
-        // Restore original kinematic state
+        // Restore physics state
         _rb.isKinematic = wasKinematic;
         
-        // Ensure velocity is still zero after restoring physics
+        // Ensure complete stillness
         _rb.linearVelocity = Vector3.zero;
         _rb.angularVelocity = Vector3.zero;
     }
 
-    // Handle collisions to prevent bouncing
+    #endregion
+
+    #region Collision Handling
+
+    /// <summary>
+    /// Handle collisions to prevent bouncing while maintaining rolling physics
+    /// Distinguishes between ground and obstacle collisions
+    /// </summary>
+    /// <param name="collision">Collision data</param>
     void OnCollisionEnter(Collision collision)
     {
         if (!_hasDestination) return;
 
-        // Check if this is a ground collision
+        // Identify ground collisions
         bool isGroundCollision = false;
         foreach (ContactPoint contact in collision.contacts)
         {
-            if (Vector3.Dot(contact.normal, Vector3.up) > 0.7f) // Surface is mostly horizontal
+            if (Vector3.Dot(contact.normal, Vector3.up) > 0.7f)
             {
                 isGroundCollision = true;
                 break;
@@ -329,17 +425,15 @@ public class SoccerBall : MonoBehaviour
 
         if (isGroundCollision)
         {
-            // Stop vertical velocity to prevent bouncing but keep horizontal movement and spin
+            // Stop vertical velocity but preserve horizontal movement
             Vector3 vel = _rb.linearVelocity;
             vel.y = 0f;
             _rb.linearVelocity = vel;
-            // Don't touch angular velocity - let the ball spin naturally!
             _isGrounded = true;
-            
             return;
         }
 
-        // For other collisions (walls, players, etc.), apply gentle correction only if close to destination
+        // Handle obstacle collisions
         Vector3 horizontalDelta = new Vector3(destination.x - transform.position.x, 0f, destination.z - transform.position.z);
         if (horizontalDelta.magnitude <= stopDistance * 2f)
         {
@@ -347,15 +441,23 @@ public class SoccerBall : MonoBehaviour
             return;
         }
 
-        // Reduce velocity after non-ground collision but maintain some spin
+        // Reduce velocity after non-ground collision
         _rb.linearVelocity *= 0.8f;
-        _rb.angularVelocity *= 0.9f; // Slight reduction but keep spinning
+        _rb.angularVelocity *= 0.9f;
     }
 
-    // Public method to set destination and reset tracking
+    #endregion
+
+    #region Public Interface
+
+    /// <summary>
+    /// Set new destination and initialize tracking parameters
+    /// Adds natural rolling motion based on movement direction
+    /// </summary>
+    /// <param name="newDestination">Target position for ball movement</param>
     public void SetDestination(Vector3 newDestination)
     {
-        // Don't set destination if someone already has ball possession
+        // Prevent destination setting if ball is owned
         if (_ballOwnership != null && _ballOwnership.ballOwner != null)
         {
             Debug.Log($"Cannot set destination - ball is owned by {_ballOwnership.ballOwner.name}");
@@ -367,60 +469,75 @@ public class SoccerBall : MonoBehaviour
         _lastDestination = newDestination;
         _initialDirection = (destination - transform.position).normalized;
         _lastValidPosition = transform.position;
-        _lastGuidanceTime = 0f; // Allow immediate guidance
-        FindGroundHeight(); // Update ground height for new destination
+        _lastGuidanceTime = 0f;
+        FindGroundHeight();
         
-        // Add natural rolling angular velocity based on horizontal movement
+        // Add realistic rolling motion
         StartCoroutine(AddRollingMotion());
     }
     
-    // Add realistic rolling motion to the ball
+    /// <summary>
+    /// Add realistic rolling angular velocity based on horizontal movement
+    /// </summary>
+    /// <returns>Coroutine enumerator</returns>
     IEnumerator AddRollingMotion()
     {
-        // Wait a frame to let the initial force be applied
         yield return new WaitForFixedUpdate();
         
-        // Calculate rolling angular velocity based on horizontal movement
         Vector3 horizontalVelocity = new Vector3(_rb.linearVelocity.x, 0f, _rb.linearVelocity.z);
         if (horizontalVelocity.magnitude > 0.1f)
         {
-            // Calculate proper rolling angular velocity (v = ωr, so ω = v/r)
+            // Calculate proper rolling based on ball radius (v = ωr, so ω = v/r)
             float ballRadius = GetComponent<SphereCollider>().radius * transform.localScale.x;
             float angularSpeed = horizontalVelocity.magnitude / ballRadius;
             
-            // Direction of rotation (perpendicular to movement direction)
+            // Rotation axis perpendicular to movement
             Vector3 rotationAxis = Vector3.Cross(Vector3.up, horizontalVelocity.normalized);
             Vector3 angularVelocity = rotationAxis * angularSpeed;
             
-            // Apply the angular velocity
             _rb.angularVelocity = angularVelocity;
         }
     }
 
-    // Public method to clear destination
+    /// <summary>
+    /// Clear current destination and stop seeking behavior
+    /// </summary>
     public void ClearDestination()
     {
         destination = Vector3.zero;
         _hasDestination = false;
     }
 
-    // Public method to check if ball has an owner
+    /// <summary>
+    /// Check if ball currently has an owner
+    /// </summary>
+    /// <returns>True if ball is owned by a player</returns>
     public bool HasOwner()
     {
         return _ballOwnership != null && _ballOwnership.ballOwner != null;
     }
 
-    // Public method to get current ball owner
+    /// <summary>
+    /// Get the current ball owner
+    /// </summary>
+    /// <returns>GameObject of ball owner, or null if unowned</returns>
     public GameObject GetBallOwner()
     {
         return _ballOwnership != null ? _ballOwnership.ballOwner : null;
     }
 
+    #endregion
+
+    #region Debug Visualization
+
+    /// <summary>
+    /// Draw debug gizmos for destination and ground detection
+    /// </summary>
     void OnDrawGizmosSelected()
     {
         if (_hasDestination)
         {
-            // Draw destination
+            // Draw destination sphere
             Gizmos.color = Color.red;
             Gizmos.DrawWireSphere(destination, stopDistance);
             
@@ -428,11 +545,13 @@ public class SoccerBall : MonoBehaviour
             Gizmos.color = Color.yellow;
             Gizmos.DrawLine(transform.position, destination);
             
-            // Draw ground level
+            // Draw ground level indicator
             Gizmos.color = Color.green;
             Vector3 groundPos = transform.position;
             groundPos.y = _groundHeight;
             Gizmos.DrawWireCube(groundPos, new Vector3(1f, 0.02f, 1f));
         }
     }
+
+    #endregion
 }
