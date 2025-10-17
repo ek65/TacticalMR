@@ -26,6 +26,11 @@ namespace OpenAI.Samples.Chat
     [RequireComponent(typeof(StreamAudioSource))]
     public class ChatBehaviour : MonoBehaviour
     {
+        // === Structured Output wiring ===
+        [SerializeField] private bool useStructuredOutput = true;
+        [SerializeField, Tooltip("Where to spawn prefabs & apply attributes/behaviors.")]
+        private ScenarioPlanExecutor planExecutor;
+        
         [SerializeField]
         private OpenAIConfiguration configuration;
 
@@ -53,9 +58,22 @@ namespace OpenAI.Samples.Chat
         [SerializeField]
         private Voice voice;
 
-        [SerializeField]
-        [TextArea(3, 10)]
-        private string systemPrompt = "You are a helpful assistant.\n- If an image is requested then use \"![Image](output.jpg)\" to display it.\n- When performing function calls, use the defaults unless explicitly told to use a specific value.\n- Images should always be generated in base64.";
+        // Force STRICT JSON output for scenario planning.
+        private string systemPrompt =
+            "You are a scenario planner for a Unity simulation. " +
+            "Output ONLY raw, minified JSON that matches this schema EXACTLY (no markdown, no commentary): " +
+            "{ \"objects\": [ { " +
+            "\"prefab\":\"string\", " +
+            "\"name\":\"string(optional)\", " +
+            "\"position\":[x,y,z], " +
+            "\"rotation\":[x,y,z], " +
+            "\"scale\":[x,y,z], " +
+            "\"attributes\":[{\"key\":\"string\",\"value\":\"string\"}], " +
+            "\"behaviors\":[{\"name\":\"string\",\"parameters\":{\"param\":\"value\"}}] } ] } " +
+            "Rules: " +
+            "- Always return an 'objects' array (can be empty). " +
+            "- Missing transforms default to position [0,0,5], rotation [0,0,0], scale [1,1,1]. " +
+            "- Never include explanations.";
 
         private OpenAIClient openAI;
 
@@ -125,7 +143,17 @@ namespace OpenAI.Samples.Chat
 
             try
             {
-                var request = new ChatRequest(conversation.Messages, tools: assistantTools);
+                var messages = conversation.Messages;
+                if (useStructuredOutput)
+                {
+                    // Ensure the very first message is the structured system prompt (prepend only once).
+                    if (messages.Count == 0 || messages[0].Role != Role.System)
+                    {
+                        conversation.AppendMessage(new Message(Role.System, systemPrompt));
+                    }
+                }
+                
+                var request = new ChatRequest(messages, tools: assistantTools);
                 var response = await openAI.ChatEndpoint.StreamCompletionAsync(request, resultHandler: deltaResponse =>
                 {
                     if (deltaResponse?.FirstChoice?.Delta == null) { return; }
@@ -141,7 +169,25 @@ namespace OpenAI.Samples.Chat
                     assistantMessageContent.text += response.ToString().Replace("![Image](output.jpg)", string.Empty);
                 }
 
-                await GenerateSpeechAsync(response, destroyCancellationToken);
+                // await GenerateSpeechAsync(response, destroyCancellationToken);
+                
+                // === Structured Output → Execute Plan ===
+                if (useStructuredOutput && planExecutor != null)
+                {
+                    // Get the final assistant text as a string
+                    var finalText = response.ToString();
+                    finalText = finalText.Replace("![Image](output.jpg)", string.Empty);
+                    finalText = StripCodeFences(finalText).Trim();
+
+                    if (ScenarioPlanParser.TryParse(finalText, out var plan, out var parseError))
+                    {
+                        planExecutor.Apply(plan);
+                    }
+                    else
+                    {
+                        UnityEngine.Debug.LogWarning($"Structured JSON parse failed: {parseError}\nRaw: {finalText}");
+                    }
+                }
             }
             catch (Exception e)
             {
@@ -338,5 +384,18 @@ namespace OpenAI.Samples.Chat
                 recordButton.interactable = true;
             }
         }
+        
+        private static string StripCodeFences(string s)
+        {
+            if (string.IsNullOrWhiteSpace(s)) return s;
+            s = s.Trim();
+            if (s.StartsWith("```"))
+            {
+                s = System.Text.RegularExpressions.Regex.Replace(s, "^```(json)?\\s*", "");
+                s = System.Text.RegularExpressions.Regex.Replace(s, "\\s*```$", "");
+            }
+            return s.Trim();
+        }
+
     }
 }
