@@ -82,7 +82,23 @@ public class GroundSelection : MonoBehaviour, IPointerClickHandler, IPointerEnte
             {
                 if (raycastHit.transform.gameObject.CompareTag("Ground"))
                 {
-                    groundHighlighter.transform.position = raycastHit.point;
+                    
+                    if (groundHighlighter.TryGetComponent<Fusion.NetworkObject>(out var no) &&
+                        groundHighlighter.TryGetComponent<Fusion.NetworkTransform>(out var nt))
+                    {
+                        if (no.HasStateAuthority)
+                        {
+                            // Updates both the Transform and the replicated state immediately,
+                            // so NT won't overwrite you later this frame.
+                            nt.Teleport(raycastHit.point, groundHighlighter.transform.rotation);
+                        }
+                        // else: don't move it here; send the point to the authority (RPC/Networked var)
+                    }
+                    else
+                    {
+                        // Non-networked fallback
+                        groundHighlighter.transform.position = raycastHit.point;
+                    }
                 }
             }
         }

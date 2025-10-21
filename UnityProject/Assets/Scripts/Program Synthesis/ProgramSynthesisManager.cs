@@ -54,8 +54,14 @@ public class ProgramSynthesisManager : NetworkBehaviour
     {
         timelineManager = GameObject.FindGameObjectWithTag("TimelineManager").GetComponent<TimelineManager>();
         jsonToLLM = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<JSONToLLM>();
-        countdownText = GameObject.FindGameObjectWithTag("countdown").GetComponent<TextMeshProUGUI>();
-        chatBehaviour = GameObject.FindGameObjectWithTag("Character").GetComponent<OldChatBehaviour>();
+        if (GameObject.FindGameObjectWithTag("countdown"))
+        {
+            countdownText = GameObject.FindGameObjectWithTag("countdown").GetComponent<TextMeshProUGUI>();
+        }
+        if (GameObject.FindGameObjectWithTag("Character"))
+        {
+            chatBehaviour = GameObject.FindGameObjectWithTag("Character").GetComponent<OldChatBehaviour>();
+        }
         jsonDirectory = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<JSONDirectory>();
         gameManager = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
 #if UNITY_EDITOR

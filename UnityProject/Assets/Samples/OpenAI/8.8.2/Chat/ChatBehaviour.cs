@@ -169,6 +169,8 @@ namespace OpenAI.Samples.Chat
                     assistantMessageContent.text += response.ToString().Replace("![Image](output.jpg)", string.Empty);
                 }
 
+                Debug.Log("Final Assistant Response: " + response);
+
                 // await GenerateSpeechAsync(response, destroyCancellationToken);
                 
                 // === Structured Output → Execute Plan ===

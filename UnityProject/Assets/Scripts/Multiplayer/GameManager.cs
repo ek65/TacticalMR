@@ -7,6 +7,7 @@ using Fusion.Sockets;
 using Oculus.Interaction;
 using Oculus.Platform;
 using Oculus.Platform.Models;
+using UnityEngine.InputSystem.UI;
 using UnityEngine.SceneManagement;
 
 /// <summary>
@@ -26,6 +27,8 @@ public class GameManager : MonoBehaviour, INetworkRunnerCallbacks
 
 	[Tooltip("If this is checked, runs in single-player mode with observer camera and Scenic enabled.")]
 	public bool laptopMode;
+
+	public bool noPlayer;
 
 	public GameObject _ObserverCamera;
 	
@@ -50,12 +53,13 @@ public class GameManager : MonoBehaviour, INetworkRunnerCallbacks
 		{
 			// Disable oculus pointer interaction
 			_pointableCanvasModule.enabled = false;
+			_pointableCanvasModule.gameObject.GetComponent<InputSystemUIInputModule>().enabled = true;
 			
 			isHost = true;
 			Debug.Log("Running in Laptop Mode (Single Player)");
 			
 			// Enable Scenic communication (like host)
-			ZMQManagerObject.SetActive(true);
+			// ZMQManagerObject.SetActive(true);
 			
 			// Enable Observer Camera (like client)
 			_ObserverCamera.SetActive(true);
@@ -71,7 +75,7 @@ public class GameManager : MonoBehaviour, INetworkRunnerCallbacks
 			Debug.Log("We are the host");
 			
 			// enable `ZMQManager` to listen to Scenic
-			ZMQManagerObject.SetActive(true);
+			// ZMQManagerObject.SetActive(true);
 			
 			// disable the Observer Camera
 			_ObserverCamera.SetActive(false);
@@ -179,6 +183,10 @@ public class GameManager : MonoBehaviour, INetworkRunnerCallbacks
 	
 	public void OnPlayerJoined(NetworkRunner runner, PlayerRef player)
 	{
+		if (noPlayer)
+		{
+			return;
+		}
 		if (runner.IsServer)
 		{
 			Debug.Log($"Player joined: {player.PlayerId}");
