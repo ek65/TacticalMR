@@ -3109,7 +3109,7 @@ GameObject:
   - component: {fileID: 2379413047207016367}
   - component: {fileID: -3191101133536556187}
   m_Layer: 0
-  m_Name: player.scenic
+  m_Name: player.scenic 1
   m_TagString: player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3207,8 +3207,8 @@ MonoBehaviour:
     _length: 0
     _data:
       Data: 0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-  enemy: 0
-  ally: 1
+  enemy: 1
+  ally: 0
   self: 0
   shirt: {fileID: 8665160898560163737}
   ball: {fileID: 0}
@@ -3409,7 +3409,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   replayIdentity:
-    id: 46915
+    id: 27730
   replayObject:
     reference: {fileID: 5886457986238108556}
   replayBodyPosition: 6
@@ -3434,7 +3434,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   instantiateIdentity: 1
   replayIdentity:
-    id: 10504
+    id: 24076
   prefabIdentity:
     id: 16648
   observedComponents:
@@ -3458,7 +3458,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   replayIdentity:
-    id: 7062
+    id: 32286
   replayObject:
     reference: {fileID: 5886457986238108556}
   replayPosition: 23
@@ -3482,7 +3482,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   replayIdentity:
-    id: 22301
+    id: 8315
   replayObject:
     reference: {fileID: 5886457986238108556}
   replayRootBonePosition: 23
@@ -3824,7 +3824,7 @@ MonoBehaviour:
   m_Script: {fileID: -1552182283, guid: e725a070cec140c4caffb81624c8c787, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  SortKey: 2579925609
+  SortKey: 43586706
   ObjectInterest: 1
   Flags: 2305
   NestedObjects: []

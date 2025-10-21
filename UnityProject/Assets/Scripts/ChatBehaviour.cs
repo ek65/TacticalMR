@@ -20,12 +20,23 @@ using Utilities.Encoding.Wav;
 using Utilities.Extensions;
 using Utilities.WebRequestRest;
 using Debug = UnityEngine.Debug;
+using System.Linq;
+using System.Reflection;
+using Newtonsoft.Json.Linq;
 
 namespace OpenAI.Samples.Chat
 {
     [RequireComponent(typeof(StreamAudioSource))]
     public class ChatBehaviour : MonoBehaviour
     {
+        public static ChatBehaviour Instance { get; private set; }
+
+        [Header("Click capture (hint only)")]
+        [SerializeField] private bool includeClickHints = true;
+        private readonly List<Vector3> pendingClickPositions = new();
+        [SerializeField] private bool includeSelectionHints = true;
+        private readonly List<string> pendingSelectedObjects = new(); // store stable names/ids
+
         // === Structured Output wiring ===
         [SerializeField] private bool useStructuredOutput = true;
         [SerializeField, Tooltip("Where to spawn prefabs & apply attributes/behaviors.")]
@@ -101,6 +112,8 @@ namespace OpenAI.Samples.Chat
 
         private void Awake()
         {
+            Instance = this;
+            
             OnValidate();
             openAI = new OpenAIClient(configuration)
             {
@@ -109,7 +122,21 @@ namespace OpenAI.Samples.Chat
             RecordingManager.EnableDebug = enableDebug;
 
             assistantTools.Add(Tool.GetOrCreateTool(openAI.ImagesEndPoint, nameof(ImagesEndpoint.GenerateImageAsync)));
-            conversation.AppendMessage(new Message(Role.System, systemPrompt));
+            conversation.AppendMessage(new Message(Role.System, systemPrompt +
+                                                                " Additional rules:" +
+                                                                " (1) If the user message includes [clicked_positions:...] and/or [selected_objects:...]," +
+                                                                " treat them as HINTS to resolve deictic references like 'this one' or 'here'." +
+                                                                " (2) When assigning behaviors to already-spawned objects, identify them by a stable name from selected_objects when available."
+            ));
+            var catalogJson = ActionCatalog.BuildJson();
+            conversation.AppendMessage(new Message(
+                Role.System,
+                "AllowedActionCatalog=" + catalogJson +
+                " Rules: The only actions that objects can take are provided here, based on the entire list of action functions. " +
+                "Use only 'name' values in this catalog for 'actions[].func'. " +
+                "Map Vector3 as {\"x\":float,\"y\":float,\"z\":float}. " +
+                "Do not invent functions not listed here."
+            ));
             inputField.onSubmit.AddListener(SubmitChat);
             submitButton.onClick.AddListener(SubmitChat);
             recordButton.onClick.AddListener(ToggleRecording);
@@ -292,7 +319,7 @@ namespace OpenAI.Samples.Chat
         {
             text = text.Replace("![Image](output.jpg)", string.Empty);
             if (string.IsNullOrWhiteSpace(text)) { return; }
-            var request = new SpeechRequest(input: text, model: Model.TTS_1, voice: voice, responseFormat: SpeechResponseFormat.PCM);
+            var request = new SpeechRequest(input: text, model: OpenAI.Models.Model.TTS_1, voice: voice, responseFormat: SpeechResponseFormat.PCM);
             var stopwatch = Stopwatch.StartNew();
             var speechClip = await openAI.AudioEndpoint.GetSpeechAsync(request, partialClip =>
             {
@@ -347,6 +374,9 @@ namespace OpenAI.Samples.Chat
             }
             else
             {
+                pendingClickPositions.Clear(); // <— start fresh for this utterance
+                pendingSelectedObjects.Clear();
+                
                 inputField.interactable = false;
                 // ReSharper disable once MethodSupportsCancellation
                 RecordingManager.StartRecording<WavEncoder>(callback: ProcessRecording);
@@ -372,8 +402,13 @@ namespace OpenAI.Samples.Chat
                 {
                     Debug.Log(userInput);
                 }
+                
+                // Build hint: [["x","y","z"], ...] (minified) — HINT ONLY
+                string hintSuffix = BuildClickHintSuffix();
 
-                inputField.text = userInput;
+                inputField.text = string.IsNullOrWhiteSpace(hintSuffix) ? userInput : $"{userInput}\n{hintSuffix}";
+
+                // inputField.text = userInput;
                 SubmitChat();
             }
             catch (Exception e)
@@ -387,6 +422,28 @@ namespace OpenAI.Samples.Chat
             }
         }
         
+        private string BuildClickHintSuffix()
+        {
+            var chunks = new List<string>();
+
+            if (includeClickHints && pendingClickPositions.Count > 0)
+            {
+                var arr = pendingClickPositions.Select(v => new[] { v.x, v.y, v.z }).ToArray();
+                string posPayload = JsonConvert.SerializeObject(arr, Formatting.None);
+                chunks.Add($"[clicked_positions:{posPayload}]");
+            }
+
+            if (includeSelectionHints && pendingSelectedObjects.Count > 0)
+            {
+                // keep it simple: a flat array of names
+                var uniq = pendingSelectedObjects.Distinct().ToArray();
+                string selPayload = JsonConvert.SerializeObject(uniq, Formatting.None);
+                chunks.Add($"[selected_objects:{selPayload}]");
+            }
+
+            return chunks.Count == 0 ? null : string.Join("\n", chunks);
+        }
+        
         private static string StripCodeFences(string s)
         {
             if (string.IsNullOrWhiteSpace(s)) return s;
@@ -398,6 +455,87 @@ namespace OpenAI.Samples.Chat
             }
             return s.Trim();
         }
+        
+        public void RegisterClick(Vector3 worldPosition)
+        {
+            pendingClickPositions.Add(worldPosition);
+        }
+        
+        public void RegisterSelectedObject(GameObject go)
+        {
+            if (go == null) return;
 
+            // Prefer a stable, human-readable identifier the LLM can also emit in JSON.
+            // 1) If the object has PlayerInterface with a Networked name, use that
+            var pi = go.GetComponent<PlayerInterface>();
+            if (pi != null)
+            {
+                var nameNet = pi.ObjName.ToString();
+                if (!string.IsNullOrWhiteSpace(nameNet))
+                {
+                    pendingSelectedObjects.Add(nameNet);
+                    return;
+                }
+            }
+
+            // 2) Else fall back to GameObject.name (works for ball/goal, etc.)
+            pendingSelectedObjects.Add(go.name);
+        }
+
+    }
+    
+    static class ActionCatalog
+    {
+        // Types we expose cleanly to the LLM
+        private static readonly HashSet<string> _disallowNames = new(StringComparer.OrdinalIgnoreCase)
+        {
+            // Unity lifecycle & internal helpers you don’t want the model to call
+            "Start","Update","Awake","OnEnable","OnDisable","FixedUpdate","LateUpdate"
+        };
+
+        public static string BuildJson()
+        {
+            var t = typeof(ActionAPI);
+            var methods = t.GetMethods(BindingFlags.Instance | BindingFlags.Public);
+            var actions = new JArray();
+
+            foreach (var m in methods)
+            {
+                if (_disallowNames.Contains(m.Name)) continue;
+                if (m.IsSpecialName) continue;          // property getters/setters
+                if (m.Name.StartsWith("RPC_", StringComparison.Ordinal)) continue;
+
+                // Optional: allow only void-returning methods
+                if (m.ReturnType != typeof(void)) continue;
+
+                var pList = new JArray();
+                foreach (var p in m.GetParameters())
+                {
+                    pList.Add(new JObject {
+                        ["name"] = p.Name,
+                        ["type"] = PrettyType(p.ParameterType)
+                    });
+                }
+
+                actions.Add(new JObject {
+                    ["name"] = m.Name,
+                    ["params"] = pList
+                });
+            }
+
+            var root = new JObject { ["actions"] = actions };
+            return root.ToString(Newtonsoft.Json.Formatting.None);
+        }
+
+        private static string PrettyType(Type t)
+        {
+            if (t == typeof(UnityEngine.Vector3)) return "Vector3{x,y,z}";
+            if (t == typeof(float)) return "float";
+            if (t == typeof(int)) return "int";
+            if (t == typeof(bool)) return "bool";
+            if (t == typeof(string)) return "string";
+            // Extend as needed (Vector2, Quaternion as Euler, etc.)
+            return t.Name;
+        }
     }
 }

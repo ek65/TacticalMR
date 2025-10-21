@@ -220,7 +220,7 @@ GameObject:
   - component: {fileID: 56096349}
   - component: {fileID: 56096348}
   m_Layer: 0
-  m_Name: Scenario
+  m_Name: ScenarioPlanner
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -239,8 +239,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   prefabs:
+  - key: Player
+    prefab: {fileID: 8665160898893140854, guid: 628e99de29b674f91a016f980650e5ac, type: 3}
+  - key: Teammate
+    prefab: {fileID: 8665160898893140854, guid: 54b6364f34d7b4fe4a525f86c0b5ec19, type: 3}
+  - key: Opponent
+    prefab: {fileID: 8665160898893140854, guid: f6cdb88553e6648bca2a27aad7d49ea4, type: 3}
   - key: Ball
     prefab: {fileID: 321828648448824057, guid: 1877ba92793064e2fb12bfc5089a165e, type: 3}
+  - key: Goal
+    prefab: {fileID: 8569473564287769086, guid: 48239b15e16424d6e8bfaabe75713086, type: 3}
   parentForSpawns: {fileID: 824716317}
 --- !u!4 &56096349
 Transform:
@@ -409,6 +417,146 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_HorizontalFit: 0
   m_VerticalFit: 2
+--- !u!1 &263777783
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 263777786}
+  - component: {fileID: 263777785}
+  - component: {fileID: 263777784}
+  m_Layer: 0
+  m_Name: A*
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &263777784
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 263777783}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1764de1de43cc4d19af52679d3eaae06, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  version: 1073741824
+  desiredSimulationFPS: 20
+  workerThreads: 2
+  doubleBuffering: 0
+  hardCollisions: 1
+  symmetryBreakingBias: 0.2
+  movementPlane: 0
+  useNavmeshAsObstacle: 0
+  drawQuadtree: 0
+--- !u!114 &263777785
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 263777783}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 78396926cbbfc4ac3b48fc5fc34a87d1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  version: 1073741824
+  data:
+    dataString: UEsDBBQAAAgIAACAn+sW8JoJawIAANIEAAALACQAZ3JhcGgwLmpzb24KACAAAAAAAAEAGAAAgD7V3rGdAQCAPtXesZ0BAIA+1d6xnQF1VF1vmzAU/SsRz1sUQiGhj0u67mFtp1BpVac93JgLWDV2ZpukadT/vmtjUjp1Txbn3HO/fMwpYg1oYBb1BkremehyMv80iZiSVnX6Bp6vtFZ6QFGIgr8gfc6mDjiAeIKtwG/I68aGqAFcCd5ufWhKaAvPhVA7p01m/fdVWeN3lLVtCMw8yOUGa65kqOJBLLlV+p4LDGg8XxJsA/BASJ6PgEcXkjmkM+hkbqgKhEGCdqi/wxH1jSp5xRlYKub4X7+JLHmL0hBCrCsUrQcgWUfEb4E91Vp1srzXsEdtYMsFt0cX+jNM7eI0CtyDtNcadk3R6QoYnlOqW2U3+Kfj2scyJQQy10aB1nJZu25OI3gQ+raNk+yao+HMFAylY06v/2Dz9YAKPyqYJwdMoj2IzinmaTZxtIU6kH58DYZ8QBtcUXFeumqXE6s7HHM3aJp3Gz0z96g1cPkhpRFHyWwf2bumhd1aHaSBdido/K9kRm+4JCzHNbIZEq3RAhfBaEqu+i2de5KdEG4wray/2X7sZ2dCQo/hfHGnX0ClNMPyi7tRs0JJNT5QTPM8yxd5kmb/1QZjBmWcT5dpki6XcUgxnyZxnqazNA4ZkmS6zJLlhU9kGnVwE9x1lhaAb2tyxC3d/kpJ2XthvPdBFvz1JpMIGo0t6GDNnRTHh8eRDKVz6S3sW9KuOm+5N23d8fK9V6I0q/J0kWGWXOSzNFl8TqoqTi9mrKwW23helpGfgktuOYgflF/YYdP03uWoMWh9xg0yus+Jfx3Oz6WGwzV/adXIIlxWqmBkG3nX5ziPTT4AQfsur/x/YfRqotNr9PoXUEsDBBQAAAgIAACAn+uqB2g8bgAAAHkAAAAJACQAbWV0YS5qc29uCgAgAAAAAAABABgAAIA+1d6xnQEAgD7V3rGdAQCAPtXesZ0Bq1YqSy0qzszPU7JSMNUz1rPQUVBKL0osyCgGChiCOKWZKSB2tJKpWZqlqblZqpmxiaWBqbG5rnFamqGpiUFySpp5kqFRSopSLFB9SWVBql9ibipET0BiSUZaZl5KZl66XlBqcmJxiTvIcKXYWgBQSwECLQAUAAAICAAAgJ/rFvCaCWsCAADSBAAACwAkAAAAAAAAAAAAAAAAAAAAZ3JhcGgwLmpzb24KACAAAAAAAAEAGAAAgD7V3rGdAQCAPtXesZ0BAIA+1d6xnQFQSwECLQAUAAAICAAAgJ/rqgdoPG4AAAB5AAAACQAkAAAAAAAAAAAAAAC4AgAAbWV0YS5qc29uCgAgAAAAAAABABgAAIA+1d6xnQEAgD7V3rGdAQCAPtXesZ0BUEsFBgAAAAACAAIAuAAAAHEDAAAAAA==
+    file_cachedStartup: {fileID: 0}
+    cacheStartup: 0
+  showNavGraphs: 1
+  showUnwalkableNodes: 1
+  debugMode: 0
+  debugFloor: 0
+  debugRoof: 1
+  manualDebugFloorRoof: 0
+  showSearchTree: 0
+  unwalkableNodeDebugSize: 0.3
+  logPathResults: 0
+  maxNearestNodeDistance: 100
+  scanOnStartup: 1
+  fullGetNearestSearch: 0
+  prioritizeGraphs: 0
+  prioritizeGraphsLimit: 1
+  colorSettings:
+    _SolidColor: {r: 0.11764706, g: 0.4, b: 0.7882353, a: 0.9}
+    _UnwalkableNode: {r: 1, g: 0, b: 0, a: 0.5}
+    _BoundsHandles: {r: 0.29, g: 0.454, b: 0.741, a: 0.9}
+    _ConnectionLowLerp: {r: 0, g: 1, b: 0, a: 0.5}
+    _ConnectionHighLerp: {r: 1, g: 0, b: 0, a: 0.5}
+    _MeshEdgeColor: {r: 0, g: 0, b: 0, a: 0.5}
+    _AreaColors: []
+  tagNames:
+  - Basic Ground
+  - 1
+  - 2
+  - 3
+  - 4
+  - 5
+  - 6
+  - 7
+  - 8
+  - 9
+  - 10
+  - 11
+  - 12
+  - 13
+  - 14
+  - 15
+  - 16
+  - 17
+  - 18
+  - 19
+  - 20
+  - 21
+  - 22
+  - 23
+  - 24
+  - 25
+  - 26
+  - 27
+  - 28
+  - 29
+  - 30
+  - 31
+  heuristic: 2
+  heuristicScale: 1
+  threadCount: 1
+  maxFrameTime: 10
+  batchGraphUpdates: 0
+  graphUpdateBatchingInterval: 0.2
+  navmeshUpdates:
+    updateInterval: 0
+  euclideanEmbedding:
+    mode: 0
+    seed: 0
+    pivotPointRoot: {fileID: 0}
+    spreadOutCount: 1
+  showGraphs: 1
+--- !u!4 &263777786
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 263777783}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &303342888
 GameObject:
   m_ObjectHideFlags: 0
@@ -3714,6 +3862,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8118c6f8d6de5487bbe0ba1d429feacd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  includeClickHints: 1
+  includeSelectionHints: 1
   useStructuredOutput: 1
   planExecutor: {fileID: 56096348}
   configuration: {fileID: 0}
@@ -4341,3 +4491,4 @@ SceneRoots:
   - {fileID: 303342893}
   - {fileID: 1154223047}
   - {fileID: 1218600039}
+  - {fileID: 263777786}

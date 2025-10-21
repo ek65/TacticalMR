@@ -102,6 +102,7 @@ public class ActionAPI : NetworkBehaviour
     /// <param name="lookAt">Whether to look at destination while moving</param>
     public void MoveToPos(Vector3 destinationPosition, float speed = 2f, bool lookAt = false)
     {
+        Debug.Log("IN MOVETOPOS: " + destinationPosition);
         GameManager gm = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
         if (gm.isHost)
         {

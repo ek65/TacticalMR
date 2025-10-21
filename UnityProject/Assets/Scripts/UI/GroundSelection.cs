@@ -5,6 +5,7 @@ using Fusion;
 using Oculus.Interaction;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using OpenAI.Samples.Chat;
 
 /// <summary>
 /// Manages ground position selection and highlighting for both desktop and VR platforms.
@@ -268,6 +269,9 @@ public class GroundSelection : MonoBehaviour, IPointerClickHandler, IPointerEnte
         GameObject go = Instantiate(newGroundHighlighter, raycastHit.point, Quaternion.identity);
         placedGroundHighlighter = go;
         go.GetComponent<Collider>().enabled = true;
+        
+        // record a hint click for the next mic submission
+        ChatBehaviour.Instance?.RegisterClick(raycastHit.point);
     }
 
     /// <summary>

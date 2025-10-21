@@ -185,6 +185,7 @@ public class GameManager : MonoBehaviour, INetworkRunnerCallbacks
 	{
 		if (noPlayer)
 		{
+			noPlayer = false;
 			return;
 		}
 		if (runner.IsServer)

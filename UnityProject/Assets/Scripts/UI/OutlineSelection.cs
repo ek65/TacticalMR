@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Fusion;
+using OpenAI.Samples.Chat;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -31,6 +32,8 @@ public class OutlineSelection : NetworkBehaviour, IPointerClickHandler, IPointer
         if (programSynthesisManager.canClick)
         {
             // stayOutlined = !stayOutlined;
+            
+            ChatBehaviour.Instance?.RegisterSelectedObject(this.gameObject);
             keyboardInput.HandleAnnotationClick();
         }
     }

@@ -18,6 +18,8 @@ public class SceneObject
     [JsonProperty("scale")]      public float[] Scale;    // [x,y,z]
     [JsonProperty("attributes")] public List<AttrKV> Attributes = new();
     [JsonProperty("behaviors")]  public List<BehaviorSpec> Behaviors = new();
+    [JsonProperty("ref")]        public string Ref;
+    [JsonProperty("actions")]    public List<ActionCall> Actions = new();
 }
 
 [Serializable]
@@ -32,6 +34,13 @@ public class BehaviorSpec
 {
     [JsonProperty("name")]       public string Name;
     [JsonProperty("parameters")] public Dictionary<string, object> Parameters = new();
+}
+
+[Serializable]
+public class ActionCall
+{
+    [JsonProperty("func")] public string Func;              // e.g., "MoveToPos"
+    [JsonProperty("args")] public List<object> Args = new(); // numbers or {x,y,z} etc.
 }
 
 public static class ScenarioPlanParser
