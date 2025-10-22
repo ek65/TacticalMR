@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using Fusion;
 
@@ -9,7 +10,8 @@ public class TestAction : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        actionAPI.MoveToPos(new Vector3(0,0,1));
+        // wait for 1 seconds
+        StartCoroutine(TakeAction());
     }
 
     // Update is called once per frame
@@ -24,4 +26,10 @@ public class TestAction : MonoBehaviour
     //     // If you’re moving relative to the parent, use localPosition instead.
     //     // targetChild.localPosition = new Vector3(0f, 0f, 1f);
     // }
+
+    public IEnumerator TakeAction()
+    {
+        yield return new WaitForSeconds(1);
+        actionAPI.MoveToPos(new Vector3(0,0,1));
+    }
 }

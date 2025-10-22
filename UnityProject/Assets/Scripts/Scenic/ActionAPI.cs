@@ -988,16 +988,16 @@ public class ActionAPI : NetworkBehaviour
         if (this.gameObject.CompareTag("human"))
         {
             HumanInterface hI = this.gameObject.GetComponent<HumanInterface>();
+            StartCoroutine(hI.SetIsMoving(true));
             while (destSetter.target.position != this.gameObject.transform.position)
             {
-                StartCoroutine(hI.SetIsMoving(true));
                 float velz = aiNav.velocity.magnitude;
                 selfPlayer.GetComponent<Animator>().SetFloat("VelZ", velz);
                 yield return null;
                 destSetter.target.position = Destiny;
             }
 
-            // destSetter.target.localPosition = Vector3.zero;
+            stopMovement = true;
             
             StartCoroutine(hI.SetIsMoving(false));
         }
@@ -1007,14 +1007,13 @@ public class ActionAPI : NetworkBehaviour
             StartCoroutine(pI.SetIsMoving(true));
             while (destSetter.target.position != this.gameObject.transform.position)
             {
-                // StartCoroutine(pI.SetIsMoving(true));
                 float velz = aiNav.velocity.magnitude;
                 selfPlayer.GetComponent<Animator>().SetFloat("VelZ", velz);
                 yield return null;
-                // destSetter.target.position = Destiny;
+                destSetter.target.position = Destiny;
             }
-            
-            // destSetter.target.localPosition = Vector3.zero;
+
+            stopMovement = true;
             
             StartCoroutine(pI.SetIsMoving(false));
         }
@@ -1052,7 +1051,9 @@ public class ActionAPI : NetworkBehaviour
                 float velz = aiNav.velocity.magnitude;
                 selfPlayer.GetComponent<Animator>().SetFloat("VelZ", velz);
                 yield return null;
+                destSetter.target.position = Destiny;
             }
+            stopMovement = true;
             StartCoroutine(hI.SetIsMoving(false));
         }
         else
@@ -1064,11 +1065,12 @@ public class ActionAPI : NetworkBehaviour
                 float velz = aiNav.velocity.magnitude;
                 selfPlayer.GetComponent<Animator>().SetFloat("VelZ", velz);
                 yield return null;
+                destSetter.target.position = Destiny;
             }
+            stopMovement = true;
             StartCoroutine(pI.SetIsMoving(false));
         }
         aiNav.updateRotation = true;
-        yield return null;
     }
     
     /// <summary>
