@@ -186,14 +186,14 @@ public class PlayerInterface : NetworkBehaviour, IObjectInterface
     private void LateUpdate()
     {
         // Reset AI destination if not actively moving to position
-        if (this.GetComponent<AIDestinationSetter>())
-        {
-            AIDestinationSetter dest = this.GetComponent<AIDestinationSetter>();
-            if (currAction != "MoveToPos" && dest.target != null)
-            {
-                dest.target.localPosition = Vector3.zero;
-            }
-        }
+        // if (this.GetComponent<AIDestinationSetter>())
+        // {
+        //     AIDestinationSetter dest = this.GetComponent<AIDestinationSetter>();
+        //     if (currAction != "MoveToPos" && dest.target != null)
+        //     {
+        //         dest.target.localPosition = Vector3.zero;
+        //     }
+        // }
     }
     #endregion
 

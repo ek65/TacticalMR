@@ -102,7 +102,6 @@ public class ActionAPI : NetworkBehaviour
     /// <param name="lookAt">Whether to look at destination while moving</param>
     public void MoveToPos(Vector3 destinationPosition, float speed = 2f, bool lookAt = false)
     {
-        Debug.Log("IN MOVETOPOS: " + destinationPosition);
         GameManager gm = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
         if (gm.isHost)
         {
@@ -995,19 +994,28 @@ public class ActionAPI : NetworkBehaviour
                 float velz = aiNav.velocity.magnitude;
                 selfPlayer.GetComponent<Animator>().SetFloat("VelZ", velz);
                 yield return null;
+                destSetter.target.position = Destiny;
             }
+
+            // destSetter.target.localPosition = Vector3.zero;
+            
             StartCoroutine(hI.SetIsMoving(false));
         }
         else
         {
             PlayerInterface pI = this.gameObject.GetComponent<PlayerInterface>();
+            StartCoroutine(pI.SetIsMoving(true));
             while (destSetter.target.position != this.gameObject.transform.position)
             {
-                StartCoroutine(pI.SetIsMoving(true));
+                // StartCoroutine(pI.SetIsMoving(true));
                 float velz = aiNav.velocity.magnitude;
                 selfPlayer.GetComponent<Animator>().SetFloat("VelZ", velz);
                 yield return null;
+                // destSetter.target.position = Destiny;
             }
+            
+            // destSetter.target.localPosition = Vector3.zero;
+            
             StartCoroutine(pI.SetIsMoving(false));
         }
     }
