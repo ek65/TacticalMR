@@ -41,6 +41,10 @@ namespace OpenAI.Samples.Chat
         [SerializeField] private bool useStructuredOutput = true;
         [SerializeField, Tooltip("Where to spawn prefabs & apply attributes/behaviors.")]
         private ScenarioPlanExecutor planExecutor;
+        [SerializeField, Tooltip("Memory system that records all LLM responses with timestamps.")]
+        private ScenarioMemory scenarioMemory;
+        
+        private TimelineManager timelineManager;
         
         [SerializeField]
         private OpenAIConfiguration configuration;
@@ -75,7 +79,7 @@ namespace OpenAI.Samples.Chat
             "Output ONLY raw, minified JSON that matches this schema EXACTLY (no markdown, no commentary): " +
             "{ \"objects\": [ { " +
             "\"prefab\":\"string\", " +
-            "\"name\":\"string(optional)\", " +
+            "\"name\":\"string(REQUIRED)\", " +
             "\"position\":[x,y,z], " +
             "\"rotation\":[x,y,z], " +
             "\"scale\":[x,y,z], " +
@@ -83,7 +87,7 @@ namespace OpenAI.Samples.Chat
             "\"behaviors\":[{\"name\":\"string\",\"parameters\":{\"param\":\"value\"}}] } ] } " +
             "Rules: " +
             "- Always return an 'objects' array (can be empty). " +
-            "- Missing transforms default to position [0,0,5], rotation [0,0,0], scale [1,1,1]. " +
+            "- Every object MUST have a unique 'name' field. " +
             "- Never include explanations.";
 
         private OpenAIClient openAI;
@@ -120,6 +124,13 @@ namespace OpenAI.Samples.Chat
                 EnableDebug = enableDebug
             };
             RecordingManager.EnableDebug = enableDebug;
+
+            // Initialize TimelineManager reference
+            timelineManager = GameObject.FindGameObjectWithTag("TimelineManager")?.GetComponent<TimelineManager>();
+            if (timelineManager == null)
+            {
+                Debug.LogWarning("TimelineManager not found. Pause during recording will not work.");
+            }
 
             assistantTools.Add(Tool.GetOrCreateTool(openAI.ImagesEndPoint, nameof(ImagesEndpoint.GenerateImageAsync)));
             conversation.AppendMessage(new Message(Role.System, systemPrompt +
@@ -210,7 +221,14 @@ namespace OpenAI.Samples.Chat
 
                     if (ScenarioPlanParser.TryParse(finalText, out var plan, out var parseError))
                     {
+                        // Execute the plan
                         planExecutor.Apply(plan);
+                        
+                        // Record the plan in memory for replay
+                        if (scenarioMemory != null)
+                        {
+                            scenarioMemory.RecordScenarioPlan(plan);
+                        }
                     }
                     else
                     {
@@ -371,11 +389,22 @@ namespace OpenAI.Samples.Chat
             if (RecordingManager.IsRecording)
             {
                 RecordingManager.EndRecording();
+                // Note: Timeline will be unpaused after transcription completes in ProcessRecording
             }
             else
             {
                 pendingClickPositions.Clear(); // <— start fresh for this utterance
                 pendingSelectedObjects.Clear();
+                
+                // Pause the timeline during voice recording to prevent time from advancing
+                if (timelineManager != null)
+                {
+                    timelineManager.Paused = true;
+                    if (enableDebug)
+                    {
+                        Debug.Log("Timeline paused for voice recording");
+                    }
+                }
                 
                 inputField.interactable = false;
                 // ReSharper disable once MethodSupportsCancellation
@@ -415,10 +444,30 @@ namespace OpenAI.Samples.Chat
             {
                 Debug.LogError(e);
                 inputField.interactable = true;
+                
+                // Unpause timeline even on error
+                if (timelineManager != null)
+                {
+                    timelineManager.Paused = false;
+                    if (enableDebug)
+                    {
+                        Debug.Log("Timeline unpaused (error recovery)");
+                    }
+                }
             }
             finally
             {
                 recordButton.interactable = true;
+                
+                // Unpause the timeline after transcription and chat submission
+                if (timelineManager != null)
+                {
+                    timelineManager.Paused = false;
+                    if (enableDebug)
+                    {
+                        Debug.Log("Timeline unpaused after voice recording");
+                    }
+                }
             }
         }
         

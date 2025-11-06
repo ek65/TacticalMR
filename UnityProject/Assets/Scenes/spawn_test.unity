@@ -352,9 +352,10 @@ GameObject:
   m_Component:
   - component: {fileID: 56096349}
   - component: {fileID: 56096348}
+  - component: {fileID: 56096350}
   m_Layer: 0
-  m_Name: ScenarioPlanner
-  m_TagString: Untagged
+  m_Name: ScenarioCreationManager
+  m_TagString: ScenarioCreationManager
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -398,6 +399,22 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &56096350
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 56096347}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1a4115bfd91a841e8b1cb8ca43c8fc6e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  isRecording: 0
+  isPlayback: 0
+  currentRecordingTime: 0
+  recordedEvents: []
 --- !u!1 &147708602
 GameObject:
   m_ObjectHideFlags: 0
@@ -4175,9 +4192,29 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 2528622604762805073, guid: 193f3021cb5d548d38e4220283104448, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2528622604762805084, guid: 193f3021cb5d548d38e4220283104448, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2528622605865382745, guid: 193f3021cb5d548d38e4220283104448, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 2607144131683494911, guid: 193f3021cb5d548d38e4220283104448, type: 3}
       propertyPath: m_Name
       value: Managers (1)
+      objectReference: {fileID: 0}
+    - target: {fileID: 2691267423697974434, guid: 193f3021cb5d548d38e4220283104448, type: 3}
+      propertyPath: currentScenario
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3027062690555862689, guid: 193f3021cb5d548d38e4220283104448, type: 3}
+      propertyPath: m_Enabled
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3069906339913350561, guid: 193f3021cb5d548d38e4220283104448, type: 3}
       propertyPath: isHost
@@ -4292,8 +4329,16 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 9111481745092360566, guid: 193f3021cb5d548d38e4220283104448, type: 3}
+      propertyPath: m_Name
+      value: ScenarioTypeManager
+      objectReference: {fileID: 0}
+    - target: {fileID: 9111481745092360566, guid: 193f3021cb5d548d38e4220283104448, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 9111481745092360566, guid: 193f3021cb5d548d38e4220283104448, type: 3}
+      propertyPath: m_TagString
+      value: ScenarioTypeManager
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -5366,6 +5411,7 @@ MonoBehaviour:
   includeSelectionHints: 1
   useStructuredOutput: 1
   planExecutor: {fileID: 56096348}
+  scenarioMemory: {fileID: 56096350}
   configuration: {fileID: 0}
   enableDebug: 1
   submitButton: {fileID: 1094024334}
@@ -6392,7 +6438,6 @@ SceneRoots:
   - {fileID: 1358986986}
   - {fileID: 464292043}
   - {fileID: 1411251223}
-  - {fileID: 56096349}
   - {fileID: 824716317}
   - {fileID: 691888432}
   - {fileID: 1475035451}
@@ -6400,4 +6445,5 @@ SceneRoots:
   - {fileID: 303342893}
   - {fileID: 1154223047}
   - {fileID: 1218600039}
+  - {fileID: 56096349}
   - {fileID: 263777786}

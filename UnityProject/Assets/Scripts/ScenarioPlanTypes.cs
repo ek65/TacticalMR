@@ -12,7 +12,8 @@ public class ScenarioPlan
 public class SceneObject
 {
     [JsonProperty("prefab")]     public string Prefab;
-    [JsonProperty("name")]       public string Name; // optional
+    [JsonProperty("name")]       
+    [JsonRequired]               public string Name; // REQUIRED - every object must have a name
     [JsonProperty("position")]   public float[] Position; // [x,y,z]
     [JsonProperty("rotation")]   public float[] Rotation; // [x,y,z]
     [JsonProperty("scale")]      public float[] Scale;    // [x,y,z]

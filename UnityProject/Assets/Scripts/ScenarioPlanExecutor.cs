@@ -163,9 +163,10 @@ public class ScenarioPlanExecutor : MonoBehaviour
         var prefab = FindPrefab(spec.Prefab);
         if (!prefab) throw new Exception($"Prefab '{spec.Prefab}' not found.");
 
-        var pos = ToVector3(spec.Position, new Vector3(0, 0, 5));
-        var rot = Quaternion.Euler(ToVector3(spec.Rotation, Vector3.zero));
-        var scl = ToVector3(spec.Scale, Vector3.one);
+        // LLM always provides proper values - no fallbacks needed
+        var pos = ToVector3(spec.Position);
+        var rot = Quaternion.Euler(ToVector3(spec.Rotation));
+        var scl = ToVector3(spec.Scale);
 
         GameObject go;
 
@@ -180,23 +181,22 @@ public class ScenarioPlanExecutor : MonoBehaviour
 
         go.transform.localScale = scl;
 
-        // Name setting for networked objects:
-        // Prefer the component's own network-safe naming API (e.g., SetObjectName / RPC)
-        if (!string.IsNullOrWhiteSpace(spec.Name))
-        {
-            var pI = go.GetComponent<PlayerInterface>();
-            var gI = go.GetComponent<GoalInterface>();
-            var bI = go.GetComponent<BallInterface>();
+        // Name is required - set it via network-safe APIs
+        if (string.IsNullOrWhiteSpace(spec.Name))
+            throw new Exception("Name is required for all objects.");
 
-            if (pI != null)
-                pI.SetObjectName(spec.Name);     // your components already do this post-Spawned
-            else if (gI != null)
-                gI.SetObjectName(spec.Name);
-            else if (bI != null)
-                bI.SetObjectName(spec.Name);
-            else
-                go.name = Normalize(spec.Name);  // non-networked / generic case
-        }
+        var pI = go.GetComponent<PlayerInterface>();
+        var gI = go.GetComponent<GoalInterface>();
+        var bI = go.GetComponent<BallInterface>();
+
+        if (pI != null)
+            pI.SetObjectName(spec.Name);
+        else if (gI != null)
+            gI.SetObjectName(spec.Name);
+        else if (bI != null)
+            bI.SetObjectName(spec.Name);
+        else
+            go.name = Normalize(spec.Name);
 
         ApplyAttributes(go, spec.Attributes);
         ApplyBehaviorsOrActions(go, spec.Behaviors);
@@ -295,8 +295,12 @@ public class ScenarioPlanExecutor : MonoBehaviour
     private GameObject FindPrefab(string key)
         => prefabs.FirstOrDefault(p => string.Equals(p.key, key, StringComparison.OrdinalIgnoreCase))?.prefab;
 
-    private static Vector3 ToVector3(float[] arr, Vector3 fallback)
-        => (arr == null || arr.Length != 3) ? fallback : new Vector3(arr[0], arr[1], arr[2]);
+    private static Vector3 ToVector3(float[] arr)
+    {
+        if (arr == null || arr.Length != 3)
+            throw new Exception("Invalid array for Vector3 conversion - must have exactly 3 elements");
+        return new Vector3(arr[0], arr[1], arr[2]);
+    }
 
     private static void ApplyAttributes(GameObject go, List<AttrKV> attrs)
     {

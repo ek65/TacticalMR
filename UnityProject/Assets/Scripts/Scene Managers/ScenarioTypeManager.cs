@@ -7,7 +7,7 @@ using UnityEngine;
 /// Provides a centralized system for configuring game rules, mechanics, and environments
 /// based on the current simulation type being run.
 /// </summary>
-public class ScenarioManager : MonoBehaviour
+public class ScenarioTypeManager : MonoBehaviour
 {
     #region Enums
     /// <summary>
@@ -17,6 +17,7 @@ public class ScenarioManager : MonoBehaviour
     {
         Soccer,
         Factory,
+        SoccerScenarioCreation
     }
     #endregion
 
