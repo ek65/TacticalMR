@@ -342,6 +342,23 @@ behavior MoveToRobot(v, lookAtTarget = None, distance = 0.5, status=""):
 #         # print(f"sample: {sample}")
 #     do Idle() for 1 seconds
 
+behavior PickUp():
+    take PickUpAction()
+    do Idle() for 2 seconds
+    take StopAction()
+
+behavior PutDown():
+    take PutDownAction()
+    take StopAction()
+
+behavior Packaging():
+    take PackagingAction()
+    take StopAction()
+
+behavior RaiseHand():
+    take RaiseHandAction()
+    take StopAction()
+
 # -------------------------------
 
 import numpy as np
