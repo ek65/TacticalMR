@@ -127,6 +127,7 @@ public class JSONToLLM : NetworkBehaviour
         public List<Position> position = new List<Position>();
         public List<Velocity> velocity = new List<Velocity>();
         public List<bool> ballPossession = new List<bool>();
+        public List<bool> handRaised = new List<bool>();
         public string behavior;
         public List<Orientation> orientation = new List<Orientation>();
     }

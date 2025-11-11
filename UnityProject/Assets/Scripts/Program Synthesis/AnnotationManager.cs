@@ -654,5 +654,120 @@ public class AnnotationManager : NetworkBehaviour
         Debug.Log($"Added edge annotation for transition {selectedTransitionId}, key {clickOrder}");
         clickOrder++;
     }
+    
+    public void CreatePickUpAnnotation(GameObject closestObject)
+    {
+        int eventID = clickOrder;
+        float eventTime = jsonToLLM.time;
+            
+        var pointDict = new Dictionary<string, float>
+        {
+            { "x", closestObject.transform.position.x },
+            { "y", closestObject.transform.position.y }
+        };
+        
+        annotation.Add(eventID, new Dictionary<string, object>
+        {
+            { "type", "Pick Up" },
+            { "player", this.name },
+            { "object", closestObject.name },
+            { "at", pointDict }
+        });
+
+        annotationDescriptions.Add(eventID, $"({this.name} picked up {closestObject.name})");
+        annotationTimes.Add(eventID, eventTime);
+        Debug.Log($"Pick Up action recorded with ID {eventID}, from player: {this.name} for object: {closestObject.name} at time: {eventTime}");
+        clickOrder++; 
+    }
+    
+    public void CreatePutDownAnnotation(GameObject o)
+    {
+        int eventID = clickOrder;
+        float eventTime = jsonToLLM.time;
+        
+        var pointDict = new Dictionary<string, float>
+        {
+            { "x", o.transform.position.x },
+            { "y", o.transform.position.y }
+        };
+
+        annotation.Add(eventID, new Dictionary<string, object>
+        {
+            { "type", "Put Down" },
+            { "player", this.name },
+            { "object", o.name },
+            { "at", pointDict }
+        });
+
+        annotationDescriptions.Add(eventID, $"({this.name} put down {o.name})");
+        annotationTimes.Add(eventID, eventTime);
+        Debug.Log(
+            $"Put Down action recorded with ID {eventID}, from player: {this.name} for object: {o.name} at time: {eventTime}");
+        clickOrder++;
+    }
+    
+    public void CreateReceivedItemAnnotation(GameObject o, GameObject receivedPlayer)
+    {
+        int eventID = clickOrder;
+        float eventTime = jsonToLLM.time;
+
+        annotation.Add(eventID, new Dictionary<string, object>
+        {
+            { "type", "Received Item" },
+            { "player", receivedPlayer.name },
+            { "object", o.name },
+            { "from", this.name }
+        });
+        annotationDescriptions.Add(eventID, $"({receivedPlayer.name} received {o.name}) from {this.name}");
+        annotationTimes.Add(eventID, eventTime);
+        Debug.Log(
+            $"Received Item action recorded with ID {eventID}, for player: {receivedPlayer.name} for object: {o.name} at time: {eventTime}");
+        clickOrder++;
+    }
+    
+    public void CreatePackagingAnnotation(GameObject o)
+    {
+        int eventID = clickOrder;
+        float eventTime = jsonToLLM.time;
+
+        var pointDict = new Dictionary<string, float>
+        {
+            { "x", o.transform.position.x },
+            { "y", o.transform.position.y }
+        };
+        
+        annotation.Add(eventID, new Dictionary<string, object>
+        {
+            { "type", "Packaging" },
+            { "player", this.name },
+            { "object", o.name },
+            { "at", pointDict }
+        });
+
+        annotationDescriptions.Add(eventID, $"({this.name} packaged {o.name})");
+        annotationTimes.Add(eventID, eventTime);
+        Debug.Log(
+            $"Packaging action recorded with ID {eventID}, from player: {this.name} for object: {o.name} at time: {eventTime}");
+        clickOrder++;
+    }
+    
+    public void CreateRaiseHandAnnotation()
+    {
+        int eventID = clickOrder;
+        float eventTime = jsonToLLM.time;
+
+        annotation.Add(eventID, new Dictionary<string, object>
+        {
+            { "type", "Raise Hand" },
+            { "player", this.name }
+        });
+
+        annotationDescriptions.Add(eventID, $"({this.name} raised hand)");
+        annotationTimes.Add(eventID, eventTime);
+        Debug.Log(
+            $"Raise Hand action recorded with ID {eventID}, from player: {this.name} at time: {eventTime}");
+        clickOrder++;
+    }
+    
     #endregion
 }

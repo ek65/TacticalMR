@@ -176,6 +176,8 @@ public class HumanInterface : NetworkBehaviour, IObjectInterface
     /// </summary>
     public GameObject grabbedObject;
     
+    public bool handRaised;
+    
     /// <summary>
     /// Current action being performed (for debugging)
     /// </summary>

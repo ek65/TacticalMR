@@ -104,6 +104,8 @@ public class PlayerInterface : NetworkBehaviour, IObjectInterface
     /// Reference to currently held object
     /// </summary>
     public GameObject grabbedObject;
+    
+    public bool handRaised;
     #endregion
 
     #region Game State Properties

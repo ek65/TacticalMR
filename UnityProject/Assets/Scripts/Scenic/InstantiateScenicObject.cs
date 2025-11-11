@@ -71,10 +71,10 @@ public class InstantiateScenicObject
     private void AddScenicObject(Vector3 pos, Quaternion rot, string modelType, Color color, string name)
     {
         GameObject addedGameObject = null;
+        NetworkRunner runner = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>()._runner;
         
         if (modelType == "Ball")
         {
-            NetworkRunner runner = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>()._runner;
             NetworkObject temp = runner.Spawn(objectList.modelList["soccer_ball"], pos, Quaternion.identity);
             addedGameObject = temp.gameObject;
             
@@ -84,7 +84,6 @@ public class InstantiateScenicObject
         }
         else if (modelType == "goal")
         {
-            NetworkRunner runner = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>()._runner;
             NetworkObject temp = runner.Spawn(objectList.modelList["goal"], pos, rot);
             addedGameObject = temp.gameObject;
             
@@ -94,7 +93,6 @@ public class InstantiateScenicObject
         }
         else if (modelType == "line")
         {
-            NetworkRunner runner = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>()._runner;
             NetworkObject temp = runner.Spawn(objectList.modelList["line"], pos, rot);
             addedGameObject = temp.gameObject;
             
@@ -104,8 +102,6 @@ public class InstantiateScenicObject
         }
         else if (modelType == "Player" || modelType == "Robot")
         {
-            NetworkRunner runner = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>()._runner;
-            
             if (modelType == "Player")
             {
                 NetworkObject temp = runner.Spawn(objectList.modelList["player.scenic"], pos, rot);
@@ -128,7 +124,7 @@ public class InstantiateScenicObject
             } 
             else if (modelType == "Robot")
             {
-                NetworkObject temp = runner.Spawn(objectList.modelList["player.scenic2"], pos, rot);
+                NetworkObject temp = runner.Spawn(objectList.modelList["player.robot"], pos, rot);
                 addedGameObject = temp.gameObject;
                 
                 PlayerInterface pI = addedGameObject.GetComponent<PlayerInterface>();
@@ -137,7 +133,7 @@ public class InstantiateScenicObject
 
             Debug.Log("Added Scenic Player");
         }
-        else if (modelType == "Human" || modelType == "Coach")
+        else if (modelType == "Human" || modelType == "Coach" || modelType == "RobotCoach")
         {
             // Handle human player creation/repositioning
             if (objectList.humanPlayers.Count == 0)
@@ -148,22 +144,24 @@ public class InstantiateScenicObject
                     // Choose VR or standard human based on game manager settings
                     if (GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>().laptopMode)
                     {
-                        addedGameObject = MonoBehaviour.Instantiate(objectList.modelList["player.human"], pos, rot);
+                        NetworkObject temp = runner.Spawn(objectList.modelList["player.human"], pos, rot);
+                        addedGameObject = temp.gameObject;
                     }
                     else
                     {
-                        addedGameObject = MonoBehaviour.Instantiate(objectList.modelList["player.human VR"], pos, rot);
+                        NetworkObject temp = runner.Spawn(objectList.modelList["player.human VR"], pos, rot);
+                        addedGameObject = temp.gameObject;
                     }
                 } 
                 else if (modelType == "Coach")
                 {
-                    NetworkRunner runner = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>()._runner;
                     NetworkObject temp = runner.Spawn(objectList.modelList["player.coach"], pos, rot);
                     addedGameObject = temp.gameObject;
                 }
                 else if (modelType == "RobotCoach")
                 {
-                    addedGameObject = MonoBehaviour.Instantiate(objectList.modelList["player.robot"], pos, rot);
+                    NetworkObject temp = runner.Spawn(objectList.modelList["player.robotcoach"], pos, rot);
+                    addedGameObject = temp.gameObject;
                 }
                 
                 // Configure human interface
@@ -194,7 +192,13 @@ public class InstantiateScenicObject
                 }
             }
         }
-        
+        else // misc objects
+        {
+            NetworkObject temp = runner.Spawn(objectList.modelList[modelType], pos, rot);
+            addedGameObject = temp.gameObject;
+            addedGameObject.name = name;
+            objectList.scenicObjects.Add(addedGameObject);
+        }
         // Publish object creation event for other systems to respond
         if (Publish != null)
         {
