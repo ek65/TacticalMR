@@ -100,28 +100,38 @@ public class ActionAPI : NetworkBehaviour
     /// <param name="destinationPosition">Target world position</param>
     /// <param name="speed">Movement speed multiplier</param>
     /// <param name="lookAt">Whether to look at destination while moving</param>
-    public void MoveToPos(Vector3 destinationPosition, float speed = 2f, bool lookAt = false)
+    public void MoveToPos(Vector3 destinationPosition)
     {
         GameManager gm = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
         if (gm.isHost)
         {
             RPC_SetAnimController("Movement");
         }
-        StartCoroutine(MoveToPosHelper(destinationPosition, lookAt));
+        StartCoroutine(MoveToPosHelper(destinationPosition, false));
     }
     
-    /// <summary>
-    /// Moves player using factory-specific movement controller (for industrial scenarios)
-    /// </summary>
-    public void FactoryMoveToPos(Vector3 destinationPosition, float speed = 1f, bool lookAt = false)
-    {
-        GameManager gm = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
-        if (gm.isHost)
-        {
-            RPC_SetAnimController("FactoryMovement");
-        }
-        StartCoroutine(MoveToPosHelper(destinationPosition, lookAt));
-    }
+    // public void MoveToPos(Vector3 destinationPosition, float speed = 2f, bool lookAt = false)
+    // {
+    //     GameManager gm = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
+    //     if (gm.isHost)
+    //     {
+    //         RPC_SetAnimController("Movement");
+    //     }
+    //     StartCoroutine(MoveToPosHelper(destinationPosition, lookAt));
+    // }
+    
+    // /// <summary>
+    // /// Moves player using factory-specific movement controller (for industrial scenarios)
+    // /// </summary>
+    // public void FactoryMoveToPos(Vector3 destinationPosition, float speed = 1f, bool lookAt = false)
+    // {
+    //     GameManager gm = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
+    //     if (gm.isHost)
+    //     {
+    //         RPC_SetAnimController("FactoryMovement");
+    //     }
+    //     StartCoroutine(MoveToPosHelper(destinationPosition, lookAt));
+    // }
     
     /// <summary>
     /// Moves to position while continuously looking at the ball

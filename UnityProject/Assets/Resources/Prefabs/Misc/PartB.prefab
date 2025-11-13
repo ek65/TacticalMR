@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 184526748355475825}
   - component: {fileID: 2841316932224882386}
   - component: {fileID: 6444747149600915341}
+  - component: {fileID: -893464854588347229}
   m_Layer: 0
   m_Name: PartB
   m_TagString: Grabbable
@@ -59,6 +60,9 @@ MeshRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
   m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -105,3 +109,21 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.3923047, y: 0.61110497, z: 0.37310547}
   m_Center: {x: 0, y: 0.30555248, z: 0}
+--- !u!114 &-893464854588347229
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3437975599100059729}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1552182283, guid: e725a070cec140c4caffb81624c8c787, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  SortKey: 960423259
+  ObjectInterest: 1
+  Flags: 262145
+  NestedObjects: []
+  NetworkedBehaviours: []
+  ForceRemoteRenderTimeframe: 0

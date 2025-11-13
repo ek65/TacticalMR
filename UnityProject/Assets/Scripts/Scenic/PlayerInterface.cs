@@ -169,7 +169,7 @@ public class PlayerInterface : NetworkBehaviour, IObjectInterface
     {
         InitializeTeamColors();
         InitializeReferences();
-        RegisterPlayer();
+        // RegisterPlayer();
         
         localTick = -1;
         ballPossession = false;
@@ -340,25 +340,33 @@ public class PlayerInterface : NetworkBehaviour, IObjectInterface
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
     public void RPC_InstantiateValues(bool isAlly = false)
     {
-        if (isAlly)
+        if (ScenarioTypeManager.ScenarioType.FactoryScenarioCreation == ScenarioTypeManager.Instance.currentScenario)
         {
-            ally = true;
-            enemy = false;
-            
-            shirt.material.SetColor("_Color", Color.blue);
-            
             ObjectsList objectList = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<ObjectsList>();
             objectList.defensePlayers.Add(this.gameObject);
         }
-        else
+        else if (ScenarioTypeManager.ScenarioType.Soccer == ScenarioTypeManager.Instance.currentScenario)
         {
-            ally = false;
-            enemy = true;
+            if (isAlly)
+            {
+                ally = true;
+                enemy = false;
             
-            shirt.material.SetColor("_Color", Color.red);
+                shirt.material.SetColor("_Color", Color.blue);
             
-            ObjectsList objectList = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<ObjectsList>();
-            objectList.offensePlayers.Add(this.gameObject);
+                ObjectsList objectList = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<ObjectsList>();
+                objectList.defensePlayers.Add(this.gameObject);
+            }
+            else
+            {
+                ally = false;
+                enemy = true;
+            
+                shirt.material.SetColor("_Color", Color.red);
+            
+                ObjectsList objectList = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<ObjectsList>();
+                objectList.offensePlayers.Add(this.gameObject);
+            }
         }
     }
     #endregion

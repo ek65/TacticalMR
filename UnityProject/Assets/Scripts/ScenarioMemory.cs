@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using Newtonsoft.Json;
 
 /// <summary>
 /// Central memory system that records and replays scenario creation.
@@ -96,6 +97,7 @@ public class ScenarioMemory : MonoBehaviour
         isRecording = true;
         currentRecordingTime = 0f;
         recordedEvents.Clear();
+        sceneObjects.Clear();
         
         Debug.Log("Started recording scenario");
     }
@@ -127,6 +129,7 @@ public class ScenarioMemory : MonoBehaviour
     /// <summary>
     /// Record a new scenario plan from the LLM response.
     /// Stores the plan with the current timestamp and updates scene state.
+    /// IMPORTANT: Creates a deep copy to prevent cross-contamination between events.
     /// </summary>
     /// <param name="plan">The scenario plan returned by the LLM</param>
     public void RecordScenarioPlan(ScenarioPlan plan)
@@ -149,25 +152,41 @@ public class ScenarioMemory : MonoBehaviour
             return;
         }
 
-        // Create event with current timestamp
+        // CRITICAL: Create a deep copy of the plan so that future modifications
+        // to sceneObjects don't affect this recorded event
+        ScenarioPlan planCopy = DeepCopyPlan(plan);
+
+        // Create event with current timestamp using the COPY
         ScenarioEvent scenarioEvent = new ScenarioEvent
         {
             timestamp = currentRecordingTime,
-            plan = plan,
-            eventDescription = GenerateEventDescription(plan)
+            plan = planCopy,
+            eventDescription = GenerateEventDescription(planCopy)
         };
 
         recordedEvents.Add(scenarioEvent);
         
-        // Update our internal scene state
+        // Update our internal scene state with the ORIGINAL plan
+        // (We could also use the copy here, doesn't matter since we're replacing)
         UpdateSceneState(plan);
 
         Debug.Log($"Recorded event at t={currentRecordingTime:F2}s: {scenarioEvent.eventDescription}");
     }
 
     /// <summary>
+    /// Create a deep copy of a ScenarioPlan to prevent reference sharing
+    /// </summary>
+    private ScenarioPlan DeepCopyPlan(ScenarioPlan plan)
+    {
+        // Use JSON serialization for deep copy
+        string json = JsonConvert.SerializeObject(plan);
+        return JsonConvert.DeserializeObject<ScenarioPlan>(json);
+    }
+
+    /// <summary>
     /// Update the internal scene state based on a scenario plan.
-    /// Tracks what objects exist and their current behaviors/attributes.
+    /// Tracks what objects exist and their current state.
+    /// Does NOT accumulate actions - each event is independent.
     /// </summary>
     /// <param name="plan">The plan to integrate into scene state</param>
     private void UpdateSceneState(ScenarioPlan plan)
@@ -180,64 +199,31 @@ public class ScenarioMemory : MonoBehaviour
                 continue;
             }
 
-            // Update or add object to scene state
+            // Check if object already exists
             if (sceneObjects.ContainsKey(obj.Name))
             {
-                // Object already exists - merge/update behaviors and attributes
-                var existing = sceneObjects[obj.Name];
-                
-                // Add new behaviors (avoiding duplicates by name)
-                if (obj.Behaviors != null)
-                {
-                    foreach (var behavior in obj.Behaviors)
-                    {
-                        var existingBehavior = existing.Behaviors.FirstOrDefault(b => 
-                            string.Equals(b.Name, behavior.Name, StringComparison.OrdinalIgnoreCase));
-                        
-                        if (existingBehavior != null)
-                        {
-                            // Update existing behavior parameters
-                            existingBehavior.Parameters = behavior.Parameters;
-                        }
-                        else
-                        {
-                            // Add new behavior
-                            existing.Behaviors.Add(behavior);
-                        }
-                    }
-                }
-
-                // Update attributes
-                if (obj.Attributes != null)
-                {
-                    foreach (var attr in obj.Attributes)
-                    {
-                        var existingAttr = existing.Attributes.FirstOrDefault(a => 
-                            string.Equals(a.Key, attr.Key, StringComparison.OrdinalIgnoreCase));
-                        
-                        if (existingAttr != null)
-                        {
-                            existingAttr.Value = attr.Value;
-                        }
-                        else
-                        {
-                            existing.Attributes.Add(attr);
-                        }
-                    }
-                }
-
-                // Update actions
-                if (obj.Actions != null && obj.Actions.Count > 0)
-                {
-                    existing.Actions.AddRange(obj.Actions);
-                }
+                // Object exists - this is just an action update
+                // We don't need to do anything special here since each event is independent
+                // Just track that this object exists
+                Debug.Log($"[ScenarioMemory] Object '{obj.Name}' already tracked");
             }
             else
             {
                 // New object - add to scene state
-                sceneObjects[obj.Name] = obj;
+                // Store a deep copy so future events don't modify this
+                sceneObjects[obj.Name] = DeepCopySceneObject(obj);
+                Debug.Log($"[ScenarioMemory] Now tracking new object '{obj.Name}'");
             }
         }
+    }
+
+    /// <summary>
+    /// Create a deep copy of a SceneObject
+    /// </summary>
+    private SceneObject DeepCopySceneObject(SceneObject obj)
+    {
+        string json = JsonConvert.SerializeObject(obj);
+        return JsonConvert.DeserializeObject<SceneObject>(json);
     }
 
     /// <summary>
@@ -248,17 +234,20 @@ public class ScenarioMemory : MonoBehaviour
         if (plan.Objects.Count == 1)
         {
             var obj = plan.Objects[0];
-            if (!string.IsNullOrWhiteSpace(obj.Prefab))
+            
+            // Check if this object already exists in our tracked scene state
+            bool isExistingObject = sceneObjects.ContainsKey(obj.Name);
+            
+            // If prefab is present AND object doesn't exist yet = spawn
+            if (!string.IsNullOrWhiteSpace(obj.Prefab) && !isExistingObject)
             {
                 return $"Spawned {obj.Name} ({obj.Prefab})";
             }
-            else if (obj.Behaviors != null && obj.Behaviors.Count > 0)
-            {
-                return $"Added behaviors to {obj.Name}";
-            }
+            // If object exists OR prefab is missing = actions
             else if (obj.Actions != null && obj.Actions.Count > 0)
             {
-                return $"Executed actions on {obj.Name}";
+                var actionNames = string.Join(", ", obj.Actions.Select(a => a.Name));
+                return $"Executed actions on {obj.Name}: {actionNames}";
             }
         }
         
@@ -350,9 +339,8 @@ public class ScenarioMemory : MonoBehaviour
     private void ClearScene()
     {
         // Find and destroy all spawned objects
-        // This assumes spawned objects are tagged or parented in a specific way
         
-        // Clear goals only if it exists
+        // Clear goals
         var goals = GameObject.FindGameObjectsWithTag("goal");
         foreach (var goal in goals)
         {
@@ -371,9 +359,13 @@ public class ScenarioMemory : MonoBehaviour
         players = players.Concat(GameObject.FindGameObjectsWithTag("human")).ToArray();
         foreach (var player in players)
         {
-            // // Don't destroy the human player
-            // if (player.CompareTag("human")) continue;
             Destroy(player);
+        }
+        
+        var objects = GameObject.FindGameObjectsWithTag("Grabbable").ToArray();
+        foreach (var obj in objects)
+        {
+            Destroy(obj);
         }
 
         Debug.Log("Scene cleared for playback");
@@ -423,12 +415,12 @@ public class ScenarioMemory : MonoBehaviour
         foreach (var kvp in sceneObjects)
         {
             var obj = kvp.Value;
-            Debug.Log($"  - {obj.Name} ({obj.Prefab}): {obj.Behaviors.Count} behaviors, {obj.Attributes.Count} attributes");
+            Debug.Log($"  - {obj.Name} ({obj.Prefab})");
         }
     }
 
     /// <summary>
-    /// Print all recorded events with timestamps.
+    /// Print all recorded events with timestamps and their actions.
     /// </summary>
     [ContextMenu("Debug: Print Recorded Events")]
     public void DebugPrintRecordedEvents()
@@ -437,7 +429,16 @@ public class ScenarioMemory : MonoBehaviour
         for (int i = 0; i < recordedEvents.Count; i++)
         {
             var evt = recordedEvents[i];
-            Debug.Log($"{i + 1}. t={evt.timestamp:F2}s - {evt.eventDescription}");
+            Debug.Log($"{i}. t={evt.timestamp:F2}s - {evt.eventDescription}");
+            
+            // Print each object and its actions in this event
+            foreach (var obj in evt.plan.Objects)
+            {
+                string actionsStr = obj.Actions != null && obj.Actions.Count > 0 
+                    ? string.Join(", ", obj.Actions.Select(a => a.Name))
+                    : "none";
+                Debug.Log($"   Object: {obj.Name}, Actions: {actionsStr}");
+            }
         }
     }
 

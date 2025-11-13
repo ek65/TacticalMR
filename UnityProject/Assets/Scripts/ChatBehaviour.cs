@@ -83,8 +83,7 @@ namespace OpenAI.Samples.Chat
             "\"position\":[x,y,z], " +
             "\"rotation\":[x,y,z], " +
             "\"scale\":[x,y,z], " +
-            "\"attributes\":[{\"key\":\"string\",\"value\":\"string\"}], " +
-            "\"behaviors\":[{\"name\":\"string\",\"parameters\":{\"param\":\"value\"}}] } ] } " +
+            "\"actions\":[{\"name\":\"string\",\"parameters\":{\"paramName\":\"value\"}}] } ] } " +
             "Rules: " +
             "- Always return an 'objects' array (can be empty). " +
             "- Every object MUST have a unique 'name' field. " +
@@ -134,15 +133,22 @@ namespace OpenAI.Samples.Chat
 
             assistantTools.Add(Tool.GetOrCreateTool(openAI.ImagesEndPoint, nameof(ImagesEndpoint.GenerateImageAsync)));
             conversation.AppendMessage(new Message(Role.System, systemPrompt +
-                                                                " Additional rules:" +
-                                                                " (1) If the user message includes [clicked_positions:...] and/or [selected_objects:...]," +
-                                                                " treat them as HINTS to resolve deictic references like 'this one' or 'here'." +
-                                                                " (2) When assigning behaviors to already-spawned objects, identify them by a stable name from selected_objects when available."
+                                                                " Rules:\n- Always return an 'objects' array (can be empty).\n- Every object MUST have a unique 'name' field.\n- Never include explanations.\n\nSPAWNING NEW OBJECTS:\n- Include: 'prefab', 'name', 'position', 'rotation', 'scale'\n- Use clicked_positions for placement\n\nUPDATING EXISTING OBJECTS:\n- Include ONLY: 'name' and 'actions'\n- DO NOT include: 'prefab', 'position', 'rotation', 'scale'\n- If [selected_objects] contains the object name, it EXISTS - do not spawn it again\n\nAdditional rules: \n(1) If the user message includes [clicked_positions:...] and/or [selected_objects:...], treat them as HINTS to resolve deictic references like 'this one' or 'here'. \n(2) When assigning behaviors to already-spawned objects, identify them by a stable name from selected_objects when available.\");"
             ));
-            var catalogJson = ActionCatalog.BuildJson();
+            // Constrain LLM to only use configured prefabs
+            var validPrefabs = planExecutor.GetValidPrefabKeys();
+            var prefabListJson = JsonConvert.SerializeObject(validPrefabs, Formatting.None);
             conversation.AppendMessage(new Message(
                 Role.System,
-                "AllowedActionCatalog=" + catalogJson +
+                "AllowedPrefabs=" + prefabListJson +
+                " Rules: You can ONLY spawn objects using these prefab keys. " +
+                "Use these exact strings (case-insensitive) for the 'prefab' field. " +
+                "Do not invent or use any prefab names not in this list."
+            ));
+            var actionCatalogJson = ActionCatalog.BuildJson();
+            conversation.AppendMessage(new Message(
+                Role.System,
+                "AllowedActionCatalog=" + actionCatalogJson +
                 " Rules: The only actions that objects can take are provided here, based on the entire list of action functions. " +
                 "Use only 'name' values in this catalog for 'actions[].func'. " +
                 "Map Vector3 as {\"x\":float,\"y\":float,\"z\":float}. " +

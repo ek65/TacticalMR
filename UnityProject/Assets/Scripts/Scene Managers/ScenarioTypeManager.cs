@@ -9,6 +9,21 @@ using UnityEngine;
 /// </summary>
 public class ScenarioTypeManager : MonoBehaviour
 {
+    // Create singleton instance
+    public static ScenarioTypeManager Instance { get; private set; }
+    private void Awake()
+    {
+        if (Instance == null)
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+    }
+
     #region Enums
     /// <summary>
     /// Available scenario types for the simulation
@@ -17,7 +32,8 @@ public class ScenarioTypeManager : MonoBehaviour
     {
         Soccer,
         Factory,
-        SoccerScenarioCreation
+        SoccerScenarioCreation,
+        FactoryScenarioCreation
     }
     #endregion
 
@@ -53,6 +69,14 @@ public class ScenarioTypeManager : MonoBehaviour
             case ScenarioType.Factory:
                 EnableFactoryScenario();
                 break;
+            
+            case ScenarioType.SoccerScenarioCreation:
+                EnableSoccerScenarioCreation();
+                break;
+            
+            case ScenarioType.FactoryScenarioCreation:
+                EnableFactoryScenarioCreation();
+                break;
 
             default:
                 Debug.LogWarning("Unknown scenario selected!");
@@ -75,6 +99,18 @@ public class ScenarioTypeManager : MonoBehaviour
     /// Configures systems and mechanics for factory simulation
     /// </summary>
     private void EnableFactoryScenario()
+    {
+        Debug.Log("Factory scenario activated!");
+        // Configure factory-specific game mechanics, UI, and objects
+    }
+    
+    private void EnableSoccerScenarioCreation()
+    {
+        Debug.Log("Factory scenario activated!");
+        // Configure factory-specific game mechanics, UI, and objects
+    }
+    
+    private void EnableFactoryScenarioCreation()
     {
         Debug.Log("Factory scenario activated!");
         // Configure factory-specific game mechanics, UI, and objects

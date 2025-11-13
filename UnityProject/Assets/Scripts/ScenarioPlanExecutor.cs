@@ -20,6 +20,17 @@ public class ScenarioPlanExecutor : MonoBehaviour
     {
         public string key;        // e.g., "Cube"
         public GameObject prefab; // assign in Inspector
+        // public string description;
+    }
+    
+    /// <summary>
+    /// Get list of valid prefab keys for LLM constraint
+    /// </summary>
+    public List<string> GetValidPrefabKeys()
+    {
+        return prefabs.Where(p => p.prefab != null && !string.IsNullOrWhiteSpace(p.key))
+            .Select(p => p.key)
+            .ToList();
     }
     
     private static string Normalize(string s)
@@ -66,23 +77,22 @@ public class ScenarioPlanExecutor : MonoBehaviour
             {
                 GameObject target = null;
 
-                // **Key rule**: if a Name exists and we can find it, target it (ignore prefab)
+                // If a Name exists and we can find it, target it (ignore prefab)
                 if (!string.IsNullOrWhiteSpace(obj.Name))
                     target = FindExistingByName(obj.Name);
 
                 if (target == null)
                 {
-                    // no existing with that name — only now we consider spawning
-                    target = SpawnAndConfigure(obj);         // sets name once, registers
+                    // No existing object - spawn new one
+                    target = SpawnAndConfigure(obj);
                 }
                 else
                 {
-                    // applying to existing — DO NOT rename here
-                    ApplyAttributes(target, obj.Attributes);
-                    ApplyBehaviorsOrActions(target, obj.Behaviors);  // see section 2B from earlier
+                    // Applying to existing object - execute actions
+                    ApplyActions(target, obj.Actions);
                 }
 
-                // keep registry fresh
+                // Keep registry fresh
                 if (target)
                 {
                     var key = Normalize(target.name);
@@ -97,62 +107,80 @@ public class ScenarioPlanExecutor : MonoBehaviour
         }
     }
     
-    private void ApplyBehaviorsOrActions(GameObject go, List<BehaviorSpec> behaviors)
+    /// <summary>
+    /// Execute actions on a GameObject by calling methods on its ActionAPI component
+    /// </summary>
+    private void ApplyActions(GameObject go, List<ActionCall> actions)
     {
-        if (behaviors == null) return;
+        if (actions == null || actions.Count == 0) return;
 
-        var api = go.GetComponent<ActionAPI>(); // may be null for some prefabs
-        foreach (var b in behaviors)
+        var api = go.GetComponent<ActionAPI>();
+        if (api == null)
         {
-            if (string.IsNullOrWhiteSpace(b?.Name)) continue;
+            Debug.LogWarning($"No ActionAPI on '{go.name}' - cannot execute actions");
+            return;
+        }
+        
+        foreach (var action in actions)
+        {
+            if (string.IsNullOrWhiteSpace(action?.Name)) continue;
+            
+            Debug.Log($"[Executor] Executing action '{action.Name}' on '{go.name}'");
 
-            bool invokedAction = false;
-            if (api != null)
+            // Find the method on ActionAPI
+            var method = typeof(ActionAPI).GetMethod(action.Name, BindingFlags.Instance | BindingFlags.Public | BindingFlags.IgnoreCase);
+            if (method == null)
             {
-                // Try ActionAPI method first
-                var m = typeof(ActionAPI).GetMethod(b.Name, BindingFlags.Instance | BindingFlags.Public | BindingFlags.IgnoreCase);
-                if (m != null)
-                {
-                    var parms = m.GetParameters();
-                    var finalArgs = new object[parms.Length];
-
-                    for (int i = 0; i < parms.Length; i++)
-                    {
-                        object src = null;
-                        if (b.Parameters != null)
-                        {
-                            // common keys e.g. "destinationPosition","speed","lookAt"
-                            // but we also accept positional [0],[1],[2] if you choose later
-                            var p = parms[i];
-                            b.Parameters.TryGetValue(p.Name, out src);
-                        }
-                        finalArgs[i] = ConvertArg(src, parms[i].ParameterType);
-                    }
-
-                    m.Invoke(api, finalArgs);
-                    invokedAction = true;
-                }
+                Debug.LogWarning($"[Executor] Action method '{action.Name}' not found on ActionAPI");
+                continue;
             }
 
-            if (!invokedAction)
+            // Get method parameters
+            var parms = method.GetParameters();
+            var finalArgs = new object[parms.Length];
+
+            Debug.Log($"[Executor] Method '{action.Name}' has {parms.Length} parameters");
+
+            // Map parameters by name
+            for (int i = 0; i < parms.Length; i++)
             {
-                // Fallback to your existing "add component by type name" path
-                var type = Type.GetType(b.Name) ?? FindTypeInAssemblies(b.Name);
-                if (type == null || !typeof(Component).IsAssignableFrom(type))
+                var param = parms[i];
+                object src = null;
+                
+                if (action.Parameters != null && action.Parameters.TryGetValue(param.Name, out src))
                 {
-                    Debug.LogWarning($"Behavior '{b.Name}' not found as ActionAPI method or Component.");
-                    continue;
+                    Debug.Log($"[Executor]   Param '{param.Name}': {src} (raw type: {src?.GetType().Name})");
                 }
-                var comp = go.GetComponent(type) ?? go.AddComponent(type);
-                ApplyParameters(comp, b.Parameters);
+                else
+                {
+                    // Parameter not provided - use default value if available
+                    if (param.HasDefaultValue)
+                    {
+                        finalArgs[i] = param.DefaultValue;
+                        Debug.Log($"[Executor]   Param '{param.Name}': using default value {param.DefaultValue}");
+                        continue;
+                    }
+                    else
+                    {
+                        Debug.LogWarning($"[Executor]   Param '{param.Name}': not provided and no default value");
+                    }
+                }
+                
+                finalArgs[i] = ConvertArg(src, param.ParameterType);
+                Debug.Log($"[Executor]   Converted to: {finalArgs[i]} (type: {finalArgs[i]?.GetType().Name})");
+            }
+
+            // Invoke the method
+            try
+            {
+                method.Invoke(api, finalArgs);
+                Debug.Log($"[Executor] ✓ Successfully invoked '{action.Name}' on '{go.name}'");
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"[Executor] Failed to invoke '{action.Name}': {e.Message}\n{e.StackTrace}");
             }
         }
-    }
-    
-    private void ConfigureExisting(GameObject go, SceneObject spec)
-    {
-        ApplyAttributes(go, spec.Attributes); // already in your file
-        ApplyBehaviorsOrActions(go, spec.Behaviors); // new helper below
     }
 
     private GameObject SpawnAndConfigure(SceneObject spec)
@@ -163,7 +191,6 @@ public class ScenarioPlanExecutor : MonoBehaviour
         var prefab = FindPrefab(spec.Prefab);
         if (!prefab) throw new Exception($"Prefab '{spec.Prefab}' not found.");
 
-        // LLM always provides proper values - no fallbacks needed
         var pos = ToVector3(spec.Position);
         var rot = Quaternion.Euler(ToVector3(spec.Rotation));
         var scl = ToVector3(spec.Scale);
@@ -176,15 +203,14 @@ public class ScenarioPlanExecutor : MonoBehaviour
         var netObj = runner.Spawn(prefab, pos, rot);
         go = netObj.gameObject;
 
-        // optional: organize under parent without breaking networking
         if (parentForSpawns) go.transform.SetParent(parentForSpawns, true);
-
         go.transform.localScale = scl;
 
-        // Name is required - set it via network-safe APIs
+        // Name is required
         if (string.IsNullOrWhiteSpace(spec.Name))
             throw new Exception("Name is required for all objects.");
 
+        // Set name via network-safe APIs
         var pI = go.GetComponent<PlayerInterface>();
         var gI = go.GetComponent<GoalInterface>();
         var bI = go.GetComponent<BallInterface>();
@@ -198,8 +224,8 @@ public class ScenarioPlanExecutor : MonoBehaviour
         else
             go.name = Normalize(spec.Name);
 
-        ApplyAttributes(go, spec.Attributes);
-        ApplyBehaviorsOrActions(go, spec.Behaviors);
+        // Execute any initial actions
+        ApplyActions(go, spec.Actions);
 
         var key = Normalize(go.name);
         if (!string.IsNullOrEmpty(key)) nameRegistry[key] = go;
@@ -207,89 +233,77 @@ public class ScenarioPlanExecutor : MonoBehaviour
         return go;
     }
     
-    // resolve "ref" to an existing GO
-    private GameObject ResolveTargets(string reference)
-    {
-        if (string.IsNullOrWhiteSpace(reference)) return null;
-
-        // Prefer registry
-        if (nameRegistry.TryGetValue(reference, out var regGo) && regGo) return regGo;
-
-        // Fallback: Unity Find (name) or tag
-        var byName = GameObject.Find(reference);
-        if (byName) return byName;
-
-        try { return GameObject.FindGameObjectWithTag(reference); } catch { }
-
-        return null;
-    }
-    
-    // reflect into ActionAPI and call methods by name with converted args
-    private void ExecuteActions(GameObject target, List<ActionCall> actions)
-    {
-        var api = target.GetComponent<ActionAPI>();
-        if (!api)
-        {
-            Debug.LogWarning($"No ActionAPI on '{target.name}', cannot run actions.");
-            return;
-        }
-
-        var type = api.GetType();
-        foreach (var call in actions)
-        {
-            if (string.IsNullOrWhiteSpace(call.Func)) continue;
-
-            var method = type.GetMethod(call.Func, BindingFlags.Instance | BindingFlags.Public | BindingFlags.IgnoreCase);
-            if (method == null)
-            {
-                Debug.LogWarning($"Action '{call.Func}' not found on ActionAPI.");
-                continue;
-            }
-
-            var parms = method.GetParameters();
-            var finalArgs = new object[parms.Length];
-
-            for (int i = 0; i < parms.Length; i++)
-            {
-                object src = i < call.Args.Count ? call.Args[i] : null;
-                finalArgs[i] = ConvertArg(src, parms[i].ParameterType);
-            }
-
-            method.Invoke(api, finalArgs);
-        }
-    }
-    
     // JSON → C# argument conversion (numbers, strings, Vector3)
     private object ConvertArg(object val, Type targetType)
     {
+        if (val == null) 
+        {
+            Debug.Log($"[ConvertArg] Value is null, returning default for {targetType.Name}");
+            return targetType.IsValueType ? Activator.CreateInstance(targetType) : null;
+        }
+        
+        // Handle Vector3 conversion
         if (targetType == typeof(Vector3))
         {
-            // Accept {x:..,y:..,z:..} or [x,y,z]
+            Debug.Log($"[ConvertArg] Converting to Vector3 from {val.GetType().Name}");
+            
+            // Handle JObject (from JSON deserialization)
             if (val is JObject jobj)
             {
                 float x = jobj["x"]?.ToObject<float>() ?? 0f;
                 float y = jobj["y"]?.ToObject<float>() ?? 0f;
                 float z = jobj["z"]?.ToObject<float>() ?? 0f;
+                Debug.Log($"[ConvertArg] JObject -> Vector3({x}, {y}, {z})");
                 return new Vector3(x, y, z);
             }
+            
+            // Handle Dictionary<string, object>
+            if (val is Dictionary<string, object> dict)
+            {
+                float x = dict.ContainsKey("x") ? Convert.ToSingle(dict["x"]) : 0f;
+                float y = dict.ContainsKey("y") ? Convert.ToSingle(dict["y"]) : 0f;
+                float z = dict.ContainsKey("z") ? Convert.ToSingle(dict["z"]) : 0f;
+                Debug.Log($"[ConvertArg] Dictionary -> Vector3({x}, {y}, {z})");
+                return new Vector3(x, y, z);
+            }
+            
+            // Handle JArray [x,y,z]
             if (val is JArray jarr && jarr.Count == 3)
             {
-                return new Vector3(jarr[0].ToObject<float>(), jarr[1].ToObject<float>(), jarr[2].ToObject<float>());
+                var result = new Vector3(jarr[0].ToObject<float>(), jarr[1].ToObject<float>(), jarr[2].ToObject<float>());
+                Debug.Log($"[ConvertArg] JArray -> Vector3({result})");
+                return result;
             }
+            
+            Debug.LogWarning($"[ConvertArg] Could not convert {val.GetType().Name} to Vector3");
         }
 
+        // Handle primitive type conversions
         if (val is IConvertible)
         {
-            try { return Convert.ChangeType(val, targetType); } catch { }
+            try { 
+                var result = Convert.ChangeType(val, targetType);
+                Debug.Log($"[ConvertArg] IConvertible conversion successful: {result}");
+                return result;
+            } 
+            catch (Exception e) { 
+                Debug.LogWarning($"[ConvertArg] IConvertible conversion failed: {e.Message}");
+            }
         }
 
         // Fallback: try JSON re-hydration
         try
         {
             var token = val as JToken ?? JToken.FromObject(val);
-            return token.ToObject(targetType);
+            var result = token.ToObject(targetType);
+            Debug.Log($"[ConvertArg] JSON rehydration successful: {result}");
+            return result;
         }
-        catch { return targetType.IsValueType ? Activator.CreateInstance(targetType) : null; }
+        catch (Exception e) 
+        { 
+            Debug.LogWarning($"[ConvertArg] JSON rehydration failed: {e.Message}");
+            return targetType.IsValueType ? Activator.CreateInstance(targetType) : null; 
+        }
     }
 
     private GameObject FindPrefab(string key)
@@ -300,33 +314,6 @@ public class ScenarioPlanExecutor : MonoBehaviour
         if (arr == null || arr.Length != 3)
             throw new Exception("Invalid array for Vector3 conversion - must have exactly 3 elements");
         return new Vector3(arr[0], arr[1], arr[2]);
-    }
-
-    private static void ApplyAttributes(GameObject go, List<AttrKV> attrs)
-    {
-        if (attrs == null) return;
-        foreach (var a in attrs)
-        {
-            if (string.IsNullOrWhiteSpace(a?.Key)) continue;
-            switch (a.Key.ToLowerInvariant())
-            {
-                case "color":
-                    if (TryParseColor(a.Value, out var color))
-                    {
-                        var r = go.GetComponentInChildren<Renderer>();
-                        if (r && r.material) r.material.color = color;
-                    }
-                    break;
-                case "tag":
-                    if (!string.IsNullOrEmpty(a.Value)) go.tag = a.Value;
-                    break;
-                case "layer":
-                    if (int.TryParse(a.Value, out var layer)) go.layer = layer;
-                    break;
-                default:
-                    break;
-            }
-        }
     }
 
     private static bool TryParseColor(string value, out Color c)

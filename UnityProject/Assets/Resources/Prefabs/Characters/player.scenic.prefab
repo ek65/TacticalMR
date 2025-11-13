@@ -18,7 +18,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1178881003
 Transform:
   m_ObjectHideFlags: 0
@@ -3221,6 +3221,7 @@ MonoBehaviour:
   objectPosition: {fileID: 0}
   objectPossession: 0
   grabbedObject: {fileID: 0}
+  handRaised: 0
   speed: 3
   ballOnTheGround: {x: 0, y: 0, z: 0}
   targetPosition: {x: 0, y: 0, z: 0}
