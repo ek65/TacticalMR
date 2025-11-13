@@ -405,7 +405,7 @@ namespace OpenAI.Samples.Chat
                 // Pause the timeline during voice recording to prevent time from advancing
                 if (timelineManager != null)
                 {
-                    timelineManager.Paused = true;
+                    timelineManager.Pause();
                     if (enableDebug)
                     {
                         Debug.Log("Timeline paused for voice recording");
@@ -433,6 +433,16 @@ namespace OpenAI.Samples.Chat
                 var request = new AudioTranscriptionRequest(clip, temperature: 0.1f, language: "en");
                 var userInput = await openAI.AudioEndpoint.CreateTranscriptionTextAsync(request, destroyCancellationToken);
 
+                // using var request = new AudioTranscriptionRequest(clip, responseFormat: AudioResponseFormat.Verbose_Json, timestampGranularity: TimestampGranularity.Word, temperature: 0.1f, language: "en");
+                // var response = await openAI.AudioEndpoint.CreateTranscriptionJsonAsync(request);
+                //
+                // foreach (var word in response.Words)
+                // {
+                //     Debug.LogError($"[{word.Start}-{word.End}] \"{word.Word}\"");
+                // }
+                //
+                // var userInput = response.Text;
+                
                 if (enableDebug)
                 {
                     Debug.Log(userInput);
@@ -454,7 +464,7 @@ namespace OpenAI.Samples.Chat
                 // Unpause timeline even on error
                 if (timelineManager != null)
                 {
-                    timelineManager.Paused = false;
+                    timelineManager.Unpause();
                     if (enableDebug)
                     {
                         Debug.Log("Timeline unpaused (error recovery)");
@@ -468,7 +478,7 @@ namespace OpenAI.Samples.Chat
                 // Unpause the timeline after transcription and chat submission
                 if (timelineManager != null)
                 {
-                    timelineManager.Paused = false;
+                    timelineManager.Unpause();
                     if (enableDebug)
                     {
                         Debug.Log("Timeline unpaused after voice recording");
