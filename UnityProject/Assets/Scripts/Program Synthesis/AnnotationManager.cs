@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Fusion;
 using TMPro;
 using UnityEngine;
@@ -446,6 +447,9 @@ public class AnnotationManager : NetworkBehaviour
             
         float pauseTime = Time.time - segmentStartTime;
         annotationTimes.Add(clickOrder, pauseTime);
+        
+        // Insert annotation marker into token stream
+        InsertAnnotationMarkerIntoTokens(clickOrder, pauseTime);
             
         Debug.Log($"Added PauseAction annotation at {pauseTime:F2}s, key {clickOrder}");
         clickOrder++;
@@ -453,6 +457,7 @@ public class AnnotationManager : NetworkBehaviour
 
     /// <summary>
     /// Creates annotation for object click/selection events
+    /// Uses jsonToLLM.time as the global time reference for consistency with tokens
     /// </summary>
     public void CreateObjectClickAnnotation(GameObject clickedObject, float segmentStartTime)
     {
@@ -460,25 +465,60 @@ public class AnnotationManager : NetworkBehaviour
         annotationDescriptions.Add(clickOrder, GetDescriptionAnnotation(clickedObject));
         objectToKey[clickedObject] = clickOrder;
 
-        float annotationRelativeTime = Time.time - segmentStartTime;
-        annotationTimes.Add(clickOrder, annotationRelativeTime);
+        // Use jsonToLLM.time as the global time reference
+        // This ensures annotations and tokens are on the same timeline
+        float annotationTime = jsonToLLM.time;
+        annotationTimes.Add(clickOrder, annotationTime);
+        
+        // Insert annotation marker into token stream
+        InsertAnnotationMarkerIntoTokens(clickOrder, annotationTime);
 
-        Debug.Log($"Added {clickedObject.name} to annotations at {annotationRelativeTime:F2}s, key {clickOrder}");
+        Debug.Log($"Added {clickedObject.name} to annotations at {annotationTime:F2}s (jsonToLLM.time), key {clickOrder}");
         clickOrder++;
     }
     
     /// <summary>
+    /// Inserts an annotation marker into the token dictionary at the exact annotation timestamp
+    /// This ensures [0], [1], [2] markers appear at the same time as stored in clickTimes
+    /// </summary>
+    private void InsertAnnotationMarkerIntoTokens(int annotationId, float annotationTime)
+    {
+        if (jsonToLLM == null || jsonToLLM.tokenDictionary == null)
+        {
+            Debug.LogWarning("Cannot insert annotation marker - jsonToLLM or tokenDictionary is null");
+            return;
+        }
+
+        string marker = $"[{annotationId}]";
+        
+        // Always insert at the exact annotation time to match clickTimes
+        if (!jsonToLLM.tokenDictionary.ContainsKey(annotationTime))
+        {
+            jsonToLLM.tokenDictionary[annotationTime] = new List<object>();
+        }
+        jsonToLLM.tokenDictionary[annotationTime].Add(marker);
+        
+        Debug.Log($"Inserted annotation marker {marker} at time {annotationTime:F3}s");
+    }
+
+    /// <summary>
     /// Creates annotation for position click events
+    /// Uses jsonToLLM.time as the global time reference for consistency with tokens
     /// </summary>
     public void CreatePositionClickAnnotation(Vector3 clickedPosition, float segmentStartTime)
     {
         annotation.Add(clickOrder, clickedPosition);
         annotationDescriptions.Add(clickOrder, $"(Position at {clickedPosition})");
 
-        float annotationRelativeTime = Time.time - segmentStartTime;
-        annotationTimes.Add(clickOrder, annotationRelativeTime);
+        // Use jsonToLLM.time as the global time reference
+        // This ensures annotations and tokens are on the same timeline
+        float annotationTime = jsonToLLM.time;
+        annotationTimes.Add(clickOrder, annotationTime);
+        
+        // Insert annotation marker into token stream at the exact same time
+        InsertAnnotationMarkerIntoTokens(clickOrder, annotationTime);
 
-        Debug.Log($"Added position {clickedPosition} to annotations at {annotationRelativeTime:F2}s, key {clickOrder}");
+        Debug.Log($"Added position {clickedPosition} to annotations at {annotationTime:F2}s, key {clickOrder}");
         clickOrder++;
     }
 
@@ -499,6 +539,9 @@ public class AnnotationManager : NetworkBehaviour
         annotationDescriptions.Add(eventID, $"(Coach told {teammate.name} to pass the ball)");
         annotationTimes.Add(eventID, eventTime);
         
+        // Insert annotation marker into token stream
+        InsertAnnotationMarkerIntoTokens(eventID, eventTime);
+        
         Debug.Log($"Added trigger pass to annotations at {eventTime:F2}s, key {eventID}");
         clickOrder++;
     }
@@ -518,6 +561,10 @@ public class AnnotationManager : NetworkBehaviour
         });
 
         annotationTimes.Add(interceptID, interceptTime);
+        
+        // Insert annotation marker into token stream
+        InsertAnnotationMarkerIntoTokens(interceptID, interceptTime);
+        
         Debug.Log($"Intercept action recorded with ID {interceptID} at time: {interceptTime}");
         clickOrder++; 
     }
@@ -540,6 +587,9 @@ public class AnnotationManager : NetworkBehaviour
         annotationDescriptions.Add(passID, $"({player.name} passed to {closestPlayerInDirection.name})");
         annotationTimes.Add(passID, passTime);
         
+        // Insert annotation marker into token stream
+        InsertAnnotationMarkerIntoTokens(passID, passTime);
+        
         Debug.Log($"Pass action recorded with ID {passID}, from: {player.name} to: {closestPlayerInDirection.name} at time: {passTime}");
         clickOrder++;
     }
@@ -561,6 +611,9 @@ public class AnnotationManager : NetworkBehaviour
 
         annotationDescriptions.Add(shootID, $"({player.name} shot towards Goal)");
         annotationTimes.Add(shootID, shootTime);
+        
+        // Insert annotation marker into token stream
+        InsertAnnotationMarkerIntoTokens(shootID, shootTime);
         
         Debug.Log($"Shoot goal action recorded with ID {shootID}, from: {player.name} at time: {shootTime}");
         clickOrder++; 
@@ -590,6 +643,9 @@ public class AnnotationManager : NetworkBehaviour
         annotationDescriptions.Add(passID, $"({player.name} passed to position: {pointDict})");
         annotationTimes.Add(passID, passTime);
         
+        // Insert annotation marker into token stream
+        InsertAnnotationMarkerIntoTokens(passID, passTime);
+        
         Debug.Log($"Through Pass action recorded with ID {passID} at time: {passTime}");
         clickOrder++; 
     }
@@ -611,6 +667,9 @@ public class AnnotationManager : NetworkBehaviour
         annotationDescriptions.Add(receiveBallID, $"({player.gameObject.name} received the ball)");
         annotationTimes.Add(receiveBallID, receiveBallTime);
         
+        // Insert annotation marker into token stream
+        InsertAnnotationMarkerIntoTokens(receiveBallID, receiveBallTime);
+        
         Debug.Log($"ReceiveBall action recorded with ID {receiveBallID} at time: {receiveBallTime}");
         clickOrder++;
     }
@@ -627,9 +686,13 @@ public class AnnotationManager : NetworkBehaviour
             { "description", descriptionText.text }
         };
         
-        annotationTimes.Add(clickOrder, Time.time - programSynthesisManager.segmentStartTime);
+        float annotationTime = Time.time - programSynthesisManager.segmentStartTime;
+        annotationTimes.Add(clickOrder, annotationTime);
         annotation.Add(clickOrder, nodeAnnotation);
         annotationDescriptions.Add(clickOrder, $"Node annotation: State {selectedStateId}");
+        
+        // Insert annotation marker into token stream
+        InsertAnnotationMarkerIntoTokens(clickOrder, annotationTime);
         
         Debug.Log($"Added node annotation for state {selectedStateId}, key {clickOrder}");
         clickOrder++;
@@ -647,9 +710,13 @@ public class AnnotationManager : NetworkBehaviour
             { "description", descriptionText.text }
         };
         
-        annotationTimes.Add(clickOrder, Time.time - programSynthesisManager.segmentStartTime);
+        float annotationTime = Time.time - programSynthesisManager.segmentStartTime;
+        annotationTimes.Add(clickOrder, annotationTime);
         annotation.Add(clickOrder, edgeAnnotation);
         annotationDescriptions.Add(clickOrder, $"Edge annotation: Transition {selectedTransitionId}");
+        
+        // Insert annotation marker into token stream
+        InsertAnnotationMarkerIntoTokens(clickOrder, annotationTime);
         
         Debug.Log($"Added edge annotation for transition {selectedTransitionId}, key {clickOrder}");
         clickOrder++;
@@ -676,6 +743,10 @@ public class AnnotationManager : NetworkBehaviour
 
         annotationDescriptions.Add(eventID, $"({this.name} picked up {closestObject.name})");
         annotationTimes.Add(eventID, eventTime);
+        
+        // Insert annotation marker into token stream
+        InsertAnnotationMarkerIntoTokens(eventID, eventTime);
+        
         Debug.Log($"Pick Up action recorded with ID {eventID}, from player: {this.name} for object: {closestObject.name} at time: {eventTime}");
         clickOrder++; 
     }
@@ -701,6 +772,10 @@ public class AnnotationManager : NetworkBehaviour
 
         annotationDescriptions.Add(eventID, $"({this.name} put down {o.name})");
         annotationTimes.Add(eventID, eventTime);
+        
+        // Insert annotation marker into token stream
+        InsertAnnotationMarkerIntoTokens(eventID, eventTime);
+        
         Debug.Log(
             $"Put Down action recorded with ID {eventID}, from player: {this.name} for object: {o.name} at time: {eventTime}");
         clickOrder++;
@@ -720,6 +795,10 @@ public class AnnotationManager : NetworkBehaviour
         });
         annotationDescriptions.Add(eventID, $"({receivedPlayer.name} received {o.name}) from {this.name}");
         annotationTimes.Add(eventID, eventTime);
+        
+        // Insert annotation marker into token stream
+        InsertAnnotationMarkerIntoTokens(eventID, eventTime);
+        
         Debug.Log(
             $"Received Item action recorded with ID {eventID}, for player: {receivedPlayer.name} for object: {o.name} at time: {eventTime}");
         clickOrder++;
@@ -746,6 +825,10 @@ public class AnnotationManager : NetworkBehaviour
 
         annotationDescriptions.Add(eventID, $"({this.name} packaged {o.name})");
         annotationTimes.Add(eventID, eventTime);
+        
+        // Insert annotation marker into token stream
+        InsertAnnotationMarkerIntoTokens(eventID, eventTime);
+        
         Debug.Log(
             $"Packaging action recorded with ID {eventID}, from player: {this.name} for object: {o.name} at time: {eventTime}");
         clickOrder++;
@@ -764,6 +847,10 @@ public class AnnotationManager : NetworkBehaviour
 
         annotationDescriptions.Add(eventID, $"({this.name} raised hand)");
         annotationTimes.Add(eventID, eventTime);
+        
+        // Insert annotation marker into token stream
+        InsertAnnotationMarkerIntoTokens(eventID, eventTime);
+        
         Debug.Log(
             $"Raise Hand action recorded with ID {eventID}, from player: {this.name} at time: {eventTime}");
         clickOrder++;

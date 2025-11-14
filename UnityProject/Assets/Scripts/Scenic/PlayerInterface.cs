@@ -169,7 +169,7 @@ public class PlayerInterface : NetworkBehaviour, IObjectInterface
     {
         InitializeTeamColors();
         InitializeReferences();
-        // RegisterPlayer();
+        RegisterPlayer();
         
         localTick = -1;
         ballPossession = false;
@@ -244,7 +244,11 @@ public class PlayerInterface : NetworkBehaviour, IObjectInterface
     private void RegisterPlayer()
     {
         ObjectsList objectList = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<ObjectsList>();
-        objectList.scenicPlayers.Add(this.gameObject);
+        if (this.gameObject != null && !objectList.scenicPlayers.Contains(this.gameObject))
+        {
+            objectList.scenicPlayers.Add(this.gameObject);
+        }
+        
     }
     #endregion
 

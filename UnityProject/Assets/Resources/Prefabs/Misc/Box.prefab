@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 4124648067813974895}
   - component: {fileID: 6806512257368053126}
   - component: {fileID: 4586432844106301983}
+  - component: {fileID: 8895583583011893916}
   - component: {fileID: -8749350377832958700}
   m_Layer: 0
   m_Name: Box
@@ -109,6 +110,22 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.5090246, y: 0.29999998, z: 0.59999996}
   m_Center: {x: -0.0000006109476, y: 0.14999999, z: 0}
+--- !u!114 &8895583583011893916
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4895442411042966845}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 02cb5327c1dda4441bcf75356f62d180, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _ObjName:
+    _length: 0
+    _data:
+      Data: 0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 --- !u!114 &-8749350377832958700
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -125,5 +142,6 @@ MonoBehaviour:
   ObjectInterest: 1
   Flags: 262145
   NestedObjects: []
-  NetworkedBehaviours: []
+  NetworkedBehaviours:
+  - {fileID: 8895583583011893916}
   ForceRemoteRenderTimeframe: 0

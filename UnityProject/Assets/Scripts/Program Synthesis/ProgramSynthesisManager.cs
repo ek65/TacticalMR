@@ -273,12 +273,20 @@ public class ProgramSynthesisManager : NetworkBehaviour
         segmentStartTime = Time.time;
 
         // Start audio recording for host/laptop mode
+        // NOTE: Audio recording is now handled by ChatBehaviour.cs for FactoryScenarioCreation mode
+        // We don't start recordAudio here to avoid mic conflicts
         if (gm.isHost || gm.laptopMode)
         {
-            if (recordAudio != null)
+            if (recordAudio != null && ScenarioTypeManager.Instance != null && 
+                ScenarioTypeManager.Instance.currentScenario != ScenarioTypeManager.ScenarioType.FactoryScenarioCreation)
             {
                 recordAudio.StartRecording();
                 Debug.Log("Audio recording started with the segment.");
+            }
+            else if (ScenarioTypeManager.Instance != null && 
+                     ScenarioTypeManager.Instance.currentScenario == ScenarioTypeManager.ScenarioType.FactoryScenarioCreation)
+            {
+                Debug.Log("FactoryScenarioCreation mode: Audio handled by ChatBehaviour");
             }
             else
             {
@@ -344,13 +352,21 @@ public class ProgramSynthesisManager : NetworkBehaviour
         recordingDot.SetActive(false);
         
         // Stop audio recording for host/laptop mode
+        // NOTE: Audio recording is now handled by ChatBehaviour.cs for FactoryScenarioCreation mode
         GameManager gm = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
         if (gm.isHost || gm.laptopMode)
         {
-            if (recordAudio != null && Microphone.IsRecording(null))
+            if (recordAudio != null && Microphone.IsRecording(null) && 
+                ScenarioTypeManager.Instance != null && 
+                ScenarioTypeManager.Instance.currentScenario != ScenarioTypeManager.ScenarioType.FactoryScenarioCreation)
             {
                 recordAudio.StopRecording();
                 Debug.Log("Audio recording stopped with the segment.");
+            }
+            else if (ScenarioTypeManager.Instance != null && 
+                     ScenarioTypeManager.Instance.currentScenario == ScenarioTypeManager.ScenarioType.FactoryScenarioCreation)
+            {
+                Debug.Log("FactoryScenarioCreation mode: Audio stop handled by ChatBehaviour");
             }
         }
 

@@ -44,7 +44,7 @@ public class JSONToLLM : NetworkBehaviour
     
     [Header("Network Synchronization")]
     public NetworkBool isTranscriptionComplete = false;
-    private bool laptopModeTranscriptionComplete = false;
+    public bool laptopModeTranscriptionComplete = false;
     public int totalChunksSent = 0;
     public int totalChunksReceived = 0;
     private bool clientHasReceivedAllData = false;
@@ -289,6 +289,38 @@ public class JSONToLLM : NetworkBehaviour
     }
 
     /// <summary>
+    /// Get the correct name for an object, prioritizing PlayerInterface networked name
+    /// </summary>
+    private string GetObjectName(GameObject obj)
+    {
+        if (obj == null) return "";
+        
+        // Try to get networked name from PlayerInterface first
+        var playerInterface = obj.GetComponent<PlayerInterface>();
+        if (playerInterface != null && !string.IsNullOrEmpty(playerInterface.ObjName.ToString()))
+        {
+            return playerInterface.ObjName.ToString();
+        }
+        
+        // Try GoalInterface
+        var goalInterface = obj.GetComponent<GoalInterface>();
+        if (goalInterface != null && !string.IsNullOrEmpty(goalInterface.ObjName.ToString()))
+        {
+            return goalInterface.ObjName.ToString();
+        }
+        
+        // Try BallInterface
+        var ballInterface = obj.GetComponent<BallInterface>();
+        if (ballInterface != null && !string.IsNullOrEmpty(ballInterface.ObjName.ToString()))
+        {
+            return ballInterface.ObjName.ToString();
+        }
+        
+        // Fall back to GameObject.name
+        return obj.name;
+    }
+
+    /// <summary>
     /// Populate the current segment with scene object data
     /// Collects position, velocity, and state data for all tracked objects
     /// </summary>
@@ -298,39 +330,56 @@ public class JSONToLLM : NetworkBehaviour
         {
             return;
         }
-        
-        // Process defense players
-        foreach (GameObject currPlayer in objectsList.defensePlayers)
-        {
-            AddOrUpdatePlayer(currPlayer, "Teammate");
-        }
-        
-        // Process offense players
-        foreach (GameObject currPlayer in objectsList.offensePlayers)
-        {
-            AddOrUpdatePlayer(currPlayer, "Opponent");
-        }
-        
-        // Process coach/human players
-        foreach (GameObject humanPlayer in objectsList.humanPlayers)
-        {
-            AddOrUpdatePlayer(humanPlayer, "Coach", "expert");
-        }
 
-        // Process ball object
-        var ballData = (Ball)myRootSegment.objects.Find(obj => obj is Ball);
-        if (ballData == null)
+        if (ScenarioTypeManager.Instance.currentScenario == ScenarioTypeManager.ScenarioType.FactoryScenarioCreation)
         {
-            ballData = new Ball { id = "ball" };
-            myRootSegment.objects.Add(ballData);
+            foreach (GameObject player in objectsList.scenicPlayers)
+            {
+                string objectName = GetObjectName(player);
+                AddOrUpdatePlayer(player, objectName);
+            }
+            foreach (GameObject obj in objectsList.scenicObjects)
+            {
+                string objectName = GetObjectName(obj);
+                AddOrUpdatePlayer(obj, objectName);
+            }
         }
-
-        // Process goal object
-        Goal goalData2 = (Goal)myRootSegment.objects.Find(obj => obj is Goal g && g.id == "goal");
-        if (goalData2 == null)
+        
+        if (ScenarioTypeManager.Instance.currentScenario == ScenarioTypeManager.ScenarioType.Soccer)
         {
-            goalData2 = new Goal { id = "goal" };
-            myRootSegment.objects.Add(goalData2);
+            // Process defense players
+            foreach (GameObject currPlayer in objectsList.defensePlayers)
+            {
+                AddOrUpdatePlayer(currPlayer, "Teammate");
+            }
+        
+            // Process offense players
+            foreach (GameObject currPlayer in objectsList.offensePlayers)
+            {
+                AddOrUpdatePlayer(currPlayer, "Opponent");
+            }
+        
+            // Process coach/human players
+            foreach (GameObject humanPlayer in objectsList.humanPlayers)
+            {
+                AddOrUpdatePlayer(humanPlayer, "Coach", "expert");
+            }
+
+            // Process ball object
+            var ballData = (Ball)myRootSegment.objects.Find(obj => obj is Ball);
+            if (ballData == null)
+            {
+                ballData = new Ball { id = "ball" };
+                myRootSegment.objects.Add(ballData);
+            }
+
+            // Process goal object
+            Goal goalData2 = (Goal)myRootSegment.objects.Find(obj => obj is Goal g && g.id == "goal");
+            if (goalData2 == null)
+            {
+                goalData2 = new Goal { id = "goal" };
+                myRootSegment.objects.Add(goalData2);
+            }
         }
     }
     
@@ -338,18 +387,21 @@ public class JSONToLLM : NetworkBehaviour
     /// Add or update player data in the current segment
     /// </summary>
     /// <param name="playerGO">Player GameObject to process</param>
-    /// <param name="type">Player type (Teammate, Opponent, Coach)</param>
+    /// <param name="type">Player type (Teammate, Opponent, Coach) or object name for FactoryScenarioCreation</param>
     /// <param name="behaviorOverride">Optional behavior override</param>
     private void AddOrUpdatePlayer(GameObject playerGO, string type, string behaviorOverride = null)
     {
+        // Get the correct object name (networked name if available)
+        string objectName = GetObjectName(playerGO);
+        
         var existingPlayer = (Player)myRootSegment.objects
-            .Find(obj => obj is Player p && p.id == playerGO.name);
+            .Find(obj => obj is Player p && p.id == objectName);
 
         if (existingPlayer == null)
         {
             existingPlayer = new Player
             {
-                id = playerGO.name,
+                id = objectName,
                 behavior = (behaviorOverride != null) 
                     ? behaviorOverride
                     : playerGO.GetComponent<PlayerInterface>().behavior.Value,
@@ -752,18 +804,42 @@ public class JSONToLLM : NetworkBehaviour
 
     /// <summary>
     /// Build a complete sentence from the token dictionary
-    /// Concatenates all tokens in chronological order
+    /// Concatenates all tokens in chronological order with proper spacing
     /// </summary>
     private string BuildSentenceFromTokens()
     {
         var sortedTokens = tokenDictionary.OrderBy(kvp => kvp.Key);
     
         StringBuilder sb = new StringBuilder();
+        bool lastWasSpace = false;
+        
         foreach (var kvp in sortedTokens)
         {
             foreach (var tokenObj in kvp.Value)
             {
-                sb.Append(tokenObj.ToString());
+                string token = tokenObj.ToString();
+                
+                // Check if this is an annotation marker like [0], [1], etc.
+                bool isAnnotationMarker = token.StartsWith("[") && token.EndsWith("]") && 
+                                         token.Length > 2 && token.Length <= 5;
+                
+                // Add space before token if:
+                // - StringBuilder is not empty
+                // - Last character wasn't already a space
+                // - This token doesn't start with punctuation or is an annotation marker
+                if (sb.Length > 0 && !lastWasSpace && !token.StartsWith(" "))
+                {
+                    // Don't add space before certain punctuation
+                    if (!token.StartsWith(",") && !token.StartsWith(".") && 
+                        !token.StartsWith("!") && !token.StartsWith("?") &&
+                        !token.StartsWith(";") && !token.StartsWith(":"))
+                    {
+                        sb.Append(" ");
+                    }
+                }
+                
+                sb.Append(token);
+                lastWasSpace = token.EndsWith(" ");
             }
         }
     

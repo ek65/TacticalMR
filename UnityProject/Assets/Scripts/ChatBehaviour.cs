@@ -45,6 +45,9 @@ namespace OpenAI.Samples.Chat
         private ScenarioMemory scenarioMemory;
         
         private TimelineManager timelineManager;
+        private ProgramSynthesisManager programSynthesisManager;
+        private JSONToLLM jsonToLLM;
+        private bool isRecordingForProgramSynthesis = false;
         
         [SerializeField]
         private OpenAIConfiguration configuration;
@@ -129,6 +132,20 @@ namespace OpenAI.Samples.Chat
             if (timelineManager == null)
             {
                 Debug.LogWarning("TimelineManager not found. Pause during recording will not work.");
+            }
+
+            // Initialize ProgramSynthesisManager reference
+            programSynthesisManager = GameObject.FindGameObjectWithTag("ProgramSynthesisManager")?.GetComponent<ProgramSynthesisManager>();
+            if (programSynthesisManager == null)
+            {
+                Debug.LogWarning("ProgramSynthesisManager not found. Program synthesis recording will not work.");
+            }
+
+            // Initialize JSONToLLM reference
+            jsonToLLM = GameObject.FindGameObjectWithTag("ScenicManager")?.GetComponent<JSONToLLM>();
+            if (jsonToLLM == null)
+            {
+                Debug.LogWarning("JSONToLLM not found. Token timing will not work.");
             }
 
             assistantTools.Add(Tool.GetOrCreateTool(openAI.ImagesEndPoint, nameof(ImagesEndpoint.GenerateImageAsync)));
@@ -396,6 +413,7 @@ namespace OpenAI.Samples.Chat
             {
                 RecordingManager.EndRecording();
                 // Note: Timeline will be unpaused after transcription completes in ProcessRecording
+                // DO NOT stop program synthesis here - it continues until spacebar
             }
             else
             {
@@ -409,6 +427,22 @@ namespace OpenAI.Samples.Chat
                     if (enableDebug)
                     {
                         Debug.Log("Timeline paused for voice recording");
+                    }
+                }
+                
+                // Start program synthesis recording ONLY on first mic press
+                if (!isRecordingForProgramSynthesis && 
+                    ScenarioTypeManager.Instance != null && 
+                    ScenarioTypeManager.Instance.currentScenario == ScenarioTypeManager.ScenarioType.FactoryScenarioCreation)
+                {
+                    if (programSynthesisManager != null && !programSynthesisManager.segmentStarted)
+                    {
+                        programSynthesisManager.HandleSegment();
+                        isRecordingForProgramSynthesis = true;
+                        if (enableDebug)
+                        {
+                            Debug.Log("Started program synthesis recording (will continue until spacebar)");
+                        }
                     }
                 }
                 
@@ -430,18 +464,55 @@ namespace OpenAI.Samples.Chat
             try
             {
                 recordButton.interactable = false;
-                var request = new AudioTranscriptionRequest(clip, temperature: 0.1f, language: "en");
-                var userInput = await openAI.AudioEndpoint.CreateTranscriptionTextAsync(request, destroyCancellationToken);
-
-                // using var request = new AudioTranscriptionRequest(clip, responseFormat: AudioResponseFormat.Verbose_Json, timestampGranularity: TimestampGranularity.Word, temperature: 0.1f, language: "en");
-                // var response = await openAI.AudioEndpoint.CreateTranscriptionJsonAsync(request);
-                //
-                // foreach (var word in response.Words)
-                // {
-                //     Debug.LogError($"[{word.Start}-{word.End}] \"{word.Word}\"");
-                // }
-                //
-                // var userInput = response.Text;
+                
+                // Use verbose JSON response with word timestamps if in FactoryScenarioCreation mode
+                string userInput;
+                if (ScenarioTypeManager.Instance != null && 
+                    ScenarioTypeManager.Instance.currentScenario == ScenarioTypeManager.ScenarioType.FactoryScenarioCreation &&
+                    jsonToLLM != null)
+                {
+                    using var verboseRequest = new AudioTranscriptionRequest(clip, responseFormat: AudioResponseFormat.Verbose_Json, timestampGranularity: TimestampGranularity.Word, temperature: 0.1f, language: "en");
+                    var response = await openAI.AudioEndpoint.CreateTranscriptionJsonAsync(verboseRequest, destroyCancellationToken);
+                    
+                    // Use jsonToLLM.time as the global time reference
+                    // This is the same timeline used by annotations, ensuring synchronization
+                    float baseTime = jsonToLLM.time;
+                    
+                    if (enableDebug)
+                    {
+                        Debug.Log($"Using jsonToLLM.time = {baseTime:F3}s as base for token timestamps");
+                    }
+                    
+                    // Populate token dictionary with word timestamps
+                    if (response.Words != null && response.Words.Any())
+                    {
+                        foreach (var word in response.Words)
+                        {
+                            // Calculate timestamp: current global time + word offset within audio
+                            // Whisper provides timestamps relative to the audio clip start
+                            float timestamp = baseTime + (float)word.Start;
+                            
+                            if (!jsonToLLM.tokenDictionary.ContainsKey(timestamp))
+                            {
+                                jsonToLLM.tokenDictionary[timestamp] = new List<object>();
+                            }
+                            jsonToLLM.tokenDictionary[timestamp].Add(word.Word);
+                            
+                            if (enableDebug)
+                            {
+                                Debug.Log($"[{timestamp:F3}] \"{word.Word}\"");
+                            }
+                        }
+                    }
+                    
+                    userInput = response.Text;
+                }
+                else
+                {
+                    // Regular transcription without timestamps
+                    var request = new AudioTranscriptionRequest(clip, temperature: 0.1f, language: "en");
+                    userInput = await openAI.AudioEndpoint.CreateTranscriptionTextAsync(request, destroyCancellationToken);
+                }
                 
                 if (enableDebug)
                 {
@@ -545,6 +616,18 @@ namespace OpenAI.Samples.Chat
 
             // 2) Else fall back to GameObject.name (works for ball/goal, etc.)
             pendingSelectedObjects.Add(go.name);
+        }
+
+        /// <summary>
+        /// Reset program synthesis recording flag (called when spacebar stops recording)
+        /// </summary>
+        public void ResetProgramSynthesisRecording()
+        {
+            isRecordingForProgramSynthesis = false;
+            if (enableDebug)
+            {
+                Debug.Log("Reset program synthesis recording flag");
+            }
         }
 
     }

@@ -40,6 +40,9 @@ public class ScenarioMemory : MonoBehaviour
     private TimelineManager timelineManager;
     private ScenarioPlanExecutor executor;
     private GameManager gameManager;
+    private ProgramSynthesisManager programSynthesisManager;
+    private OpenAI.Samples.Chat.ChatBehaviour chatBehaviour;
+    private JSONToLLM jsonToLLM;
 
     #region Initialization
 
@@ -48,10 +51,28 @@ public class ScenarioMemory : MonoBehaviour
         timelineManager = GameObject.FindGameObjectWithTag("TimelineManager").GetComponent<TimelineManager>();
         executor = GetComponent<ScenarioPlanExecutor>();
         gameManager = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
+        programSynthesisManager = GameObject.FindGameObjectWithTag("ProgramSynthesisManager")?.GetComponent<ProgramSynthesisManager>();
+        chatBehaviour = FindObjectOfType<OpenAI.Samples.Chat.ChatBehaviour>();
+        jsonToLLM = GameObject.FindGameObjectWithTag("ScenicManager")?.GetComponent<JSONToLLM>();
 
         if (executor == null)
         {
             Debug.LogError("ScenarioPlanExecutor not found on same GameObject as ScenarioMemory!");
+        }
+        
+        if (programSynthesisManager == null)
+        {
+            Debug.LogWarning("ProgramSynthesisManager not found. Integrated recording will not work.");
+        }
+
+        if (chatBehaviour == null)
+        {
+            Debug.LogWarning("ChatBehaviour not found. Cannot reset program synthesis flag.");
+        }
+
+        if (jsonToLLM == null)
+        {
+            Debug.LogWarning("JSONToLLM not found. Transcription complete flag cannot be set.");
         }
 
         Debug.Log("ScenarioMemory initialized");
@@ -105,6 +126,7 @@ public class ScenarioMemory : MonoBehaviour
     /// <summary>
     /// Stop recording and begin playback from the start.
     /// Resets the scene and replays all recorded events.
+    /// Also stops program synthesis recording if in FactoryScenarioCreation mode.
     /// </summary>
     public void StopRecordingAndStartPlayback()
     {
@@ -118,8 +140,31 @@ public class ScenarioMemory : MonoBehaviour
         
         Debug.Log($"Stopped recording. Total events: {recordedEvents.Count}");
         
+        // Stop program synthesis recording if in FactoryScenarioCreation mode
+        if (ScenarioTypeManager.Instance != null && 
+            ScenarioTypeManager.Instance.currentScenario == ScenarioTypeManager.ScenarioType.FactoryScenarioCreation &&
+            programSynthesisManager != null &&
+            programSynthesisManager.segmentStarted)
+        {
+            programSynthesisManager.HandleSegment();
+            Debug.Log("Stopped program synthesis recording via spacebar");
+            
+            // Reset the flag in ChatBehaviour
+            if (chatBehaviour != null)
+            {
+                chatBehaviour.ResetProgramSynthesisRecording();
+            }
+            
+            // Set transcription complete flag since all tokens are already in dictionary
+            if (jsonToLLM != null && gameManager.laptopMode)
+            {
+                jsonToLLM.laptopModeTranscriptionComplete = true;
+                Debug.Log("Set laptopModeTranscriptionComplete = true (all ChatGPT tokens already collected)");
+            }
+        }
+        
         // Start playback
-        StartPlayback();
+        // StartPlayback();
     }
 
     #endregion
