@@ -159,6 +159,19 @@ public class JSONToLLM : NetworkBehaviour
     }
 
     /// <summary>
+    /// Represents misc objects in the scene (boxes, items, etc.)
+    /// </summary>
+    [System.Serializable]
+    public class MiscObject
+    {
+        public string id;
+        public string type;
+        public List<Position> position = new List<Position>();
+        public List<Velocity> velocity = new List<Velocity>();
+        public List<Orientation> orientation = new List<Orientation>();
+    }
+
+    /// <summary>
     /// Root container for a single segment's data
     /// </summary>
     [System.Serializable]
@@ -333,15 +346,19 @@ public class JSONToLLM : NetworkBehaviour
 
         if (ScenarioTypeManager.Instance.currentScenario == ScenarioTypeManager.ScenarioType.FactoryScenarioCreation)
         {
+            // Process players (Human, Robot, etc.)
             foreach (GameObject player in objectsList.scenicPlayers)
             {
                 string objectName = GetObjectName(player);
                 AddOrUpdatePlayer(player, objectName);
             }
+            
+            // Process misc objects (Box, etc.)
             foreach (GameObject obj in objectsList.scenicObjects)
             {
                 string objectName = GetObjectName(obj);
-                AddOrUpdatePlayer(obj, objectName);
+                
+                AddOrUpdateMiscObject(obj, objectName);
             }
         }
         
@@ -394,6 +411,9 @@ public class JSONToLLM : NetworkBehaviour
         // Get the correct object name (networked name if available)
         string objectName = GetObjectName(playerGO);
         
+        // Clean the type name (remove trailing numbers)
+        string cleanType = GetCleanTypeName(type);
+        
         var existingPlayer = (Player)myRootSegment.objects
             .Find(obj => obj is Player p && p.id == objectName);
 
@@ -405,9 +425,48 @@ public class JSONToLLM : NetworkBehaviour
                 behavior = (behaviorOverride != null) 
                     ? behaviorOverride
                     : playerGO.GetComponent<PlayerInterface>().behavior.Value,
-                type = type
+                type = cleanType
             };
             myRootSegment.objects.Add(existingPlayer);
+        }
+    }
+    
+    /// <summary>
+    /// Get clean type name by removing trailing numbers (e.g., "Human1" -> "Human", "Robot1" -> "Robot")
+    /// </summary>
+    private string GetCleanTypeName(string name)
+    {
+        if (string.IsNullOrEmpty(name)) return name;
+        
+        // Remove trailing digits
+        int i = name.Length - 1;
+        while (i >= 0 && char.IsDigit(name[i]))
+        {
+            i--;
+        }
+        
+        return name.Substring(0, i + 1);
+    }
+    
+    /// <summary>
+    /// Add or update a misc object (box, item, etc.) in the scene
+    /// </summary>
+    private void AddOrUpdateMiscObject(GameObject obj, string objectName)
+    {
+        var existingObj = (MiscObject)myRootSegment.objects
+            .Find(o => o is MiscObject m && m.id == objectName);
+
+        if (existingObj == null)
+        {
+            // Get clean type name without numbers
+            string cleanType = GetCleanTypeName(objectName);
+            
+            existingObj = new MiscObject
+            {
+                id = objectName,
+                type = cleanType
+            };
+            myRootSegment.objects.Add(existingObj);
         }
     }
     

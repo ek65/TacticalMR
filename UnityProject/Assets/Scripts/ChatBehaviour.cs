@@ -37,6 +37,9 @@ namespace OpenAI.Samples.Chat
         [SerializeField] private bool includeSelectionHints = true;
         private readonly List<string> pendingSelectedObjects = new(); // store stable names/ids
 
+        // Track recording start time for proper timestamp alignment
+        private float recordingStartTime = 0f;
+
         // === Structured Output wiring ===
         [SerializeField] private bool useStructuredOutput = true;
         [SerializeField, Tooltip("Where to spawn prefabs & apply attributes/behaviors.")]
@@ -446,6 +449,18 @@ namespace OpenAI.Samples.Chat
                     }
                 }
                 
+                // Capture recording start time for timestamp alignment
+                if (ScenarioTypeManager.Instance != null && 
+                    ScenarioTypeManager.Instance.currentScenario == ScenarioTypeManager.ScenarioType.FactoryScenarioCreation &&
+                    jsonToLLM != null)
+                {
+                    recordingStartTime = jsonToLLM.time;
+                    if (enableDebug)
+                    {
+                        Debug.Log($"Recording started at jsonToLLM.time = {recordingStartTime:F3}s");
+                    }
+                }
+                
                 inputField.interactable = false;
                 // ReSharper disable once MethodSupportsCancellation
                 RecordingManager.StartRecording<WavEncoder>(callback: ProcessRecording);
@@ -474,13 +489,13 @@ namespace OpenAI.Samples.Chat
                     using var verboseRequest = new AudioTranscriptionRequest(clip, responseFormat: AudioResponseFormat.Verbose_Json, timestampGranularity: TimestampGranularity.Word, temperature: 0.1f, language: "en");
                     var response = await openAI.AudioEndpoint.CreateTranscriptionJsonAsync(verboseRequest, destroyCancellationToken);
                     
-                    // Use jsonToLLM.time as the global time reference
-                    // This is the same timeline used by annotations, ensuring synchronization
-                    float baseTime = jsonToLLM.time;
+                    // Use recording start time as the base for word timestamps
+                    // This ensures words align with annotations that were created during recording
+                    float baseTime = recordingStartTime;
                     
                     if (enableDebug)
                     {
-                        Debug.Log($"Using jsonToLLM.time = {baseTime:F3}s as base for token timestamps");
+                        Debug.Log($"Using recordingStartTime = {baseTime:F3}s as base for token timestamps");
                     }
                     
                     // Populate token dictionary with word timestamps
@@ -488,7 +503,7 @@ namespace OpenAI.Samples.Chat
                     {
                         foreach (var word in response.Words)
                         {
-                            // Calculate timestamp: current global time + word offset within audio
+                            // Calculate timestamp: recording start time + word offset within audio
                             // Whisper provides timestamps relative to the audio clip start
                             float timestamp = baseTime + (float)word.Start;
                             
@@ -500,7 +515,7 @@ namespace OpenAI.Samples.Chat
                             
                             if (enableDebug)
                             {
-                                Debug.Log($"[{timestamp:F3}] \"{word.Word}\"");
+                                Debug.Log($"[{timestamp:F3}] \"{word.Word}\" (word.Start={word.Start:F3}, baseTime={baseTime:F3})");
                             }
                         }
                     }
