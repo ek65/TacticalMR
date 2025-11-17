@@ -39,6 +39,9 @@ public class ProgramSynthesisManager : NetworkBehaviour
     public bool canClick = true;
     public float segmentStartTime = 0f;
     
+    [Header("Processing State")]
+    public bool isProcessingComplete = true; // True when not processing, false during file processing
+    
     [Header("Interaction Modes")]
     private bool isAnnotationMode = false;
     private bool isPositionMode = false;
@@ -376,6 +379,7 @@ public class ProgramSynthesisManager : NetworkBehaviour
         groundSelection.ClearGroundHighlights();
 
         // Start file processing pipeline
+        isProcessingComplete = false; // Mark that we're starting processing
         StartCoroutine(ChainedCoroutines());
     }
 
@@ -460,6 +464,10 @@ public class ProgramSynthesisManager : NetworkBehaviour
             }
         }
 #endif
+        
+        // Mark processing as complete
+        isProcessingComplete = true;
+        Debug.Log("File processing complete - ready for playback");
     }
 
     /// <summary>

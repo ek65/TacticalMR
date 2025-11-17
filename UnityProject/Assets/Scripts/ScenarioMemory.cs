@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Fusion;
@@ -91,10 +92,27 @@ public class ScenarioMemory : MonoBehaviour
             currentRecordingTime += Time.deltaTime;
         }
 
-        // Handle spacebar to stop recording and start playback
-        if (Input.GetKeyDown(KeyCode.Space) && isRecording)
+        // Handle spacebar to stop recording and start playback, or replay after completion
+        if (Input.GetKeyDown(KeyCode.Space))
         {
-            StopRecordingAndStartPlayback();
+            if (isRecording)
+            {
+                // Currently recording - stop and start playback
+                StopRecordingAndStartPlayback();
+            }
+            else if (!isPlayback && recordedEvents.Count > 0)
+            {
+                // Playback finished - replay the scenario
+                Debug.Log("Replaying scenario (spacebar pressed)...");
+                RestartPlayback();
+            }
+        }
+
+        // Handle R key to replay scenario after playback completes
+        if (Input.GetKeyDown(KeyCode.R) && !isRecording && !isPlayback && recordedEvents.Count > 0)
+        {
+            Debug.Log("Replaying scenario (R key pressed)...");
+            RestartPlayback();
         }
 
         // Handle playback
@@ -164,8 +182,43 @@ public class ScenarioMemory : MonoBehaviour
             }
         }
         
-        // Start playback
-        // StartPlayback();
+        // Start playback after processing completes
+        StartCoroutine(WaitForProcessingAndStartPlayback());
+    }
+
+    /// <summary>
+    /// Coroutine that waits for file processing (JSON, video, transcription) to complete,
+    /// then starts playback. This ensures all data is saved before playback begins.
+    /// </summary>
+    private IEnumerator WaitForProcessingAndStartPlayback()
+    {
+        if (programSynthesisManager == null)
+        {
+            Debug.LogWarning("ProgramSynthesisManager not available - starting playback immediately");
+            StartPlayback();
+            yield break;
+        }
+
+        Debug.Log("Waiting for file processing to complete before starting playback...");
+        
+        // Wait until processing is complete
+        float timeout = 30f; // 30 second timeout
+        float startTime = Time.time;
+        
+        while (!programSynthesisManager.isProcessingComplete)
+        {
+            // Check for timeout
+            if (Time.time - startTime > timeout)
+            {
+                Debug.LogError("Timeout waiting for file processing! Starting playback anyway.");
+                break;
+            }
+            
+            yield return new WaitForSeconds(0.1f); // Check every 100ms
+        }
+        
+        Debug.Log("File processing complete - starting playback now");
+        StartPlayback();
     }
 
     #endregion
@@ -327,6 +380,30 @@ public class ScenarioMemory : MonoBehaviour
     }
 
     /// <summary>
+    /// Restart playback from the beginning.
+    /// This allows replaying the recorded scenario multiple times.
+    /// </summary>
+    public void RestartPlayback()
+    {
+        if (recordedEvents.Count == 0)
+        {
+            Debug.LogWarning("No events to replay!");
+            return;
+        }
+
+        // Stop current playback if running
+        if (isPlayback)
+        {
+            StopPlayback();
+        }
+
+        Debug.Log("Restarting playback from beginning");
+        
+        // Start fresh playback
+        StartPlayback();
+    }
+
+    /// <summary>
     /// Update playback state each frame.
     /// Executes recorded events when their timestamp is reached.
     /// </summary>
@@ -336,7 +413,7 @@ public class ScenarioMemory : MonoBehaviour
         {
             // Playback complete
             isPlayback = false;
-            Debug.Log("Playback complete");
+            Debug.Log("Playback complete. Press R to replay the scenario.");
             return;
         }
 
@@ -390,12 +467,17 @@ public class ScenarioMemory : MonoBehaviour
             Debug.LogError("NetworkRunner not found! Cannot clear networked objects.");
             return;
         }
+        
         // Find and destroy all spawned objects
+        
+        ObjectsList objectsList = GameObject.FindGameObjectWithTag("ScenicManager").GetComponent<ObjectsList>();
         
         // Clear goals
         var goals = GameObject.FindGameObjectsWithTag("goal");
         foreach (var goal in goals)
         {
+            objectsList.goalObject = null;
+            objectsList.scenicObjects.Remove(goal);
             runner.Despawn(goal.GetComponent<NetworkObject>());
         }
 
@@ -403,6 +485,8 @@ public class ScenarioMemory : MonoBehaviour
         var balls = GameObject.FindGameObjectsWithTag("ball");
         foreach (var ball in balls)
         {
+            objectsList.ballObject = null;
+            objectsList.scenicObjects.Remove(ball);
             runner.Despawn(ball.GetComponent<NetworkObject>());
         }
 
@@ -411,12 +495,14 @@ public class ScenarioMemory : MonoBehaviour
         players = players.Concat(GameObject.FindGameObjectsWithTag("human")).ToArray();
         foreach (var player in players)
         {
+            objectsList.scenicPlayers.Remove(player);
             runner.Despawn(player.GetComponent<NetworkObject>());
         }
         
         var objects = GameObject.FindGameObjectsWithTag("Grabbable").ToArray();
         foreach (var obj in objects)
         {
+            objectsList.scenicObjects.Remove(obj);
             runner.Despawn(obj.GetComponent<NetworkObject>());
         }
 
