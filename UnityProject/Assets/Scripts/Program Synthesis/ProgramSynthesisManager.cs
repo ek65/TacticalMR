@@ -310,7 +310,7 @@ public class ProgramSynthesisManager : NetworkBehaviour
         }
         jsonDirectory.InstantiateDemoFolders();
         
-        Debug.Log("Started new segment recording. Video will auto-start in FixedUpdate.");
+        Debug.Log("Started new segment recording. Video will auto-start in JSONToLLM's FixedUpdate.");
 #endif
     }
 

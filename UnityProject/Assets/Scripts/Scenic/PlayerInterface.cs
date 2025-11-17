@@ -22,6 +22,8 @@ public class PlayerInterface : NetworkBehaviour, IObjectInterface
     
     [Networked] public NetworkBool ballPossession { get; set; }
     
+    [Networked] public NetworkBool handRaised { get; set; }
+    
     [Networked] public Vector3 currVelocity { get; set; }
     
     [Networked] public NetworkString<_32> behavior { get; set; }
@@ -104,8 +106,6 @@ public class PlayerInterface : NetworkBehaviour, IObjectInterface
     /// Reference to currently held object
     /// </summary>
     public GameObject grabbedObject;
-    
-    public bool handRaised;
     #endregion
 
     #region Game State Properties

@@ -397,7 +397,7 @@ public class ActionAPI : NetworkBehaviour
         annotationManager.CreateRaiseHandAnnotation(this.gameObject);
     }
 
-    private IEnumerator ChangeObjectColorAfterDelay(GameObject targetObject, Color color, float delay)
+    private IEnumerator PackagingCoroutine(GameObject targetObject, Color color, float delay)
     {
         yield return new WaitForSeconds(delay);
         Renderer objRenderer = targetObject.GetComponent<Renderer>();
@@ -410,6 +410,8 @@ public class ActionAPI : NetworkBehaviour
         {
             Debug.LogError("Target object does not have a Renderer component.");
         }
+
+        targetObject.GetComponent<BoxInterface>().isFinishedPackaging = true;
         Debug.Log("Finished packaging the object");
     }
 
@@ -1609,7 +1611,7 @@ public class ActionAPI : NetworkBehaviour
 
         if (closestObject != null)
         {
-            StartCoroutine(ChangeObjectColorAfterDelay(closestObject, Color.magenta, 2f));
+            StartCoroutine(PackagingCoroutine(closestObject, Color.magenta, 2f));
             StartCoroutine(LookTowards(closestObject.transform.position, "Packaging"));
             LogPackaging(closestObject);
         }

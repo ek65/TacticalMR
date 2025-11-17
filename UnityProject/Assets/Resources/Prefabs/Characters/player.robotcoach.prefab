@@ -2091,6 +2091,8 @@ MonoBehaviour:
       Data: 0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
   _ballPossession:
     _value: 0
+  _handRaised:
+    _value: 0
   _behavior:
     _length: 0
     _data:
@@ -2120,7 +2122,6 @@ MonoBehaviour:
   closestPlayerInDirection: {fileID: 0}
   objectPossession: 0
   grabbedObject: {fileID: 0}
-  handRaised: 0
   currAction: No Action
   ally: 0
   circleObjects: []
@@ -2498,7 +2499,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4578892383467444653}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6e039ec90476343b783a3a5a556e617d, type: 3}
   m_Name: 

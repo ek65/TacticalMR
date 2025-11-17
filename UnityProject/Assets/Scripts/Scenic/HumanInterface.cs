@@ -25,6 +25,8 @@ public class HumanInterface : NetworkBehaviour, IObjectInterface
     
     [Networked] public NetworkBool ballPossession { get; set; }
     
+    [Networked] public NetworkBool handRaised { get; set; }
+    
     [Networked] public NetworkString<_32> behavior { get; set; }
     #endregion
 
@@ -175,8 +177,6 @@ public class HumanInterface : NetworkBehaviour, IObjectInterface
     /// Currently held object reference
     /// </summary>
     public GameObject grabbedObject;
-    
-    public bool handRaised;
     
     /// <summary>
     /// Current action being performed (for debugging)

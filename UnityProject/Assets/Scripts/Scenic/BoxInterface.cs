@@ -14,6 +14,8 @@ public class BoxInterface : NetworkBehaviour
     #region Network Properties
     [Networked, OnChangedRender(nameof(UpdateGameObjectName))]
     public NetworkString<_32> ObjName { get; set; }
+    
+    [Networked] public NetworkBool isFinishedPackaging { get; set; }
     #endregion
 
     private void Start()

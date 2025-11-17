@@ -3806,6 +3806,8 @@ MonoBehaviour:
       Data: 0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
   _ballPossession:
     _value: 0
+  _handRaised:
+    _value: 0
   _currVelocity: {x: 0, y: 0, z: 0}
   _behavior:
     _length: 0
@@ -3825,7 +3827,6 @@ MonoBehaviour:
   objectPosition: {fileID: 8665160898920370539}
   objectPossession: 0
   grabbedObject: {fileID: 0}
-  handRaised: 0
   speed: 3
   ballOnTheGround: {x: 0, y: 0, z: 0}
   targetPosition: {x: 0, y: 0, z: 0}
@@ -3910,7 +3911,7 @@ MonoBehaviour:
   groundMask:
     serializedVersion: 2
     m_Bits: 4294967295
-  endReachedDistance: 0.1
+  endReachedDistance: 2.5
   whenCloseToDestination: 0
   rvoDensityBehavior:
     enabled: 0
@@ -4207,7 +4208,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8665160898893140854}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6e039ec90476343b783a3a5a556e617d, type: 3}
   m_Name: 
