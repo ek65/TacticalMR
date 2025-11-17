@@ -1,0 +1,42 @@
+{
+  "states": [
+    {
+      "id": 1,
+      "name": "MoveTo(target0(), False)",
+      "description": "Move to Box2 to pick it up"
+    },
+    {
+      "id": 2,
+      "name": "PickUp()",
+      "description": "Pick up Box2"
+    },
+    {
+      "id": 3,
+      "name": "MoveTo(target1(), False)",
+      "description": "Move to Human1 to deliver Box2"
+    }
+  ],
+  "transitions": [
+    {
+      "id": 1001,
+      "from": 0,
+      "to": 1,
+      "condition": "after 3 seconds, then precondition_1()",
+      "description": "Wait until Coach raises hand to signal package complete"
+    },
+    {
+      "id": 1002,
+      "from": 1,
+      "to": 2,
+      "condition": "after Idle('Wait until arrived at Box2'), then precondition_2() and precondition_3()",
+      "description": "Wait until arrived at Box2 and until I have picked up Box2"
+    },
+    {
+      "id": 1003,
+      "from": 2,
+      "to": 3,
+      "condition": true,
+      "description": "Move to Human1 to deliver Box2"
+    }
+  ]
+}

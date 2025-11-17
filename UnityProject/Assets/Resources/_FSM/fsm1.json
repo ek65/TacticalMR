@@ -1,0 +1,30 @@
+{
+  "states": [
+    {
+      "id": 1,
+      "name": "Packaging()",
+      "description": "Human packages box in front of them"
+    },
+    {
+      "id": 2,
+      "name": "RaiseHand()",
+      "description": "Raise hand to signal packaging complete"
+    }
+  ],
+  "transitions": [
+    {
+      "id": 1001,
+      "from": 0,
+      "to": 1,
+      "condition": "after 3 seconds",
+      "description": "Initial Transition"
+    },
+    {
+      "id": 1002,
+      "from": 1,
+      "to": 2,
+      "condition": "precondition_0()",
+      "description": "Wait until Human finishes packaging Box1"
+    }
+  ]
+}
