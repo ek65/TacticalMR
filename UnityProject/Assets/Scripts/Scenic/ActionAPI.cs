@@ -322,7 +322,7 @@ public class ActionAPI : NetworkBehaviour
     public void LogPickUp(GameObject closestObject)
     {
         AnnotationManager annotationManager = GameObject.FindGameObjectWithTag("ProgramSynthesisManager").GetComponent<AnnotationManager>();
-        annotationManager.CreatePickUpAnnotation(closestObject);
+        annotationManager.CreatePickUpAnnotation(this.gameObject, closestObject);
     }
 
     public void PutDown()
@@ -337,13 +337,13 @@ public class ActionAPI : NetworkBehaviour
     public void LogPutDown(GameObject o)
     {
         AnnotationManager annotationManager = GameObject.FindGameObjectWithTag("ProgramSynthesisManager").GetComponent<AnnotationManager>();
-        annotationManager.CreatePutDownAnnotation(o);
+        annotationManager.CreatePutDownAnnotation(this.gameObject, o);
     }
 
     public void LogReceivedItem(GameObject o, GameObject receivedPlayer)
     {
         AnnotationManager annotationManager = GameObject.FindGameObjectWithTag("ProgramSynthesisManager").GetComponent<AnnotationManager>();
-        annotationManager.CreateReceivedItemAnnotation(o, receivedPlayer);
+        annotationManager.CreateReceivedItemAnnotation(this.gameObject, o, receivedPlayer);
     }
 
     public void Packaging()
@@ -357,7 +357,7 @@ public class ActionAPI : NetworkBehaviour
     public void LogPackaging(GameObject o)
     {
         AnnotationManager annotationManager = GameObject.FindGameObjectWithTag("ProgramSynthesisManager").GetComponent<AnnotationManager>();
-        annotationManager.CreatePackagingAnnotation(o);
+        annotationManager.CreatePackagingAnnotation(this.gameObject, o);
     }
 
     // set in animation event
@@ -394,7 +394,7 @@ public class ActionAPI : NetworkBehaviour
     public void LogRaiseHand()
     {
         AnnotationManager annotationManager = GameObject.FindGameObjectWithTag("ProgramSynthesisManager").GetComponent<AnnotationManager>();
-        annotationManager.CreateRaiseHandAnnotation();
+        annotationManager.CreateRaiseHandAnnotation(this.gameObject);
     }
 
     private IEnumerator ChangeObjectColorAfterDelay(GameObject targetObject, Color color, float delay)

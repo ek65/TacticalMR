@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Fusion;
 using UnityEngine;
 using Newtonsoft.Json;
 
@@ -383,20 +384,26 @@ public class ScenarioMemory : MonoBehaviour
     /// </summary>
     private void ClearScene()
     {
+        NetworkRunner runner = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>()._runner;
+        if (runner == null)
+        {
+            Debug.LogError("NetworkRunner not found! Cannot clear networked objects.");
+            return;
+        }
         // Find and destroy all spawned objects
         
         // Clear goals
         var goals = GameObject.FindGameObjectsWithTag("goal");
         foreach (var goal in goals)
         {
-            Destroy(goal);
+            runner.Despawn(goal.GetComponent<NetworkObject>());
         }
 
         // Clear balls
         var balls = GameObject.FindGameObjectsWithTag("ball");
         foreach (var ball in balls)
         {
-            Destroy(ball);
+            runner.Despawn(ball.GetComponent<NetworkObject>());
         }
 
         // Clear players/opponents/teammates
@@ -404,13 +411,13 @@ public class ScenarioMemory : MonoBehaviour
         players = players.Concat(GameObject.FindGameObjectsWithTag("human")).ToArray();
         foreach (var player in players)
         {
-            Destroy(player);
+            runner.Despawn(player.GetComponent<NetworkObject>());
         }
         
         var objects = GameObject.FindGameObjectsWithTag("Grabbable").ToArray();
         foreach (var obj in objects)
         {
-            Destroy(obj);
+            runner.Despawn(obj.GetComponent<NetworkObject>());
         }
 
         Debug.Log("Scene cleared for playback");

@@ -722,7 +722,7 @@ public class AnnotationManager : NetworkBehaviour
         clickOrder++;
     }
     
-    public void CreatePickUpAnnotation(GameObject closestObject)
+    public void CreatePickUpAnnotation(GameObject player, GameObject closestObject)
     {
         int eventID = clickOrder;
         float eventTime = jsonToLLM.time;
@@ -736,22 +736,22 @@ public class AnnotationManager : NetworkBehaviour
         annotation.Add(eventID, new Dictionary<string, object>
         {
             { "type", "Pick Up" },
-            { "player", this.name },
+            { "player", player.name },
             { "object", closestObject.name },
             { "at", pointDict }
         });
 
-        annotationDescriptions.Add(eventID, $"({this.name} picked up {closestObject.name})");
+        annotationDescriptions.Add(eventID, $"({player.name} picked up {closestObject.name})");
         annotationTimes.Add(eventID, eventTime);
         
         // Insert annotation marker into token stream
         InsertAnnotationMarkerIntoTokens(eventID, eventTime);
         
-        Debug.Log($"Pick Up action recorded with ID {eventID}, from player: {this.name} for object: {closestObject.name} at time: {eventTime}");
+        Debug.Log($"Pick Up action recorded with ID {eventID}, from player: {player.name} for object: {closestObject.name} at time: {eventTime}");
         clickOrder++; 
     }
     
-    public void CreatePutDownAnnotation(GameObject o)
+    public void CreatePutDownAnnotation(GameObject player, GameObject o)
     {
         int eventID = clickOrder;
         float eventTime = jsonToLLM.time;
@@ -765,23 +765,23 @@ public class AnnotationManager : NetworkBehaviour
         annotation.Add(eventID, new Dictionary<string, object>
         {
             { "type", "Put Down" },
-            { "player", this.name },
+            { "player", player.name },
             { "object", o.name },
             { "at", pointDict }
         });
 
-        annotationDescriptions.Add(eventID, $"({this.name} put down {o.name})");
+        annotationDescriptions.Add(eventID, $"({player.name} put down {o.name})");
         annotationTimes.Add(eventID, eventTime);
         
         // Insert annotation marker into token stream
         InsertAnnotationMarkerIntoTokens(eventID, eventTime);
         
         Debug.Log(
-            $"Put Down action recorded with ID {eventID}, from player: {this.name} for object: {o.name} at time: {eventTime}");
+            $"Put Down action recorded with ID {eventID}, from player: {player.name} for object: {o.name} at time: {eventTime}");
         clickOrder++;
     }
     
-    public void CreateReceivedItemAnnotation(GameObject o, GameObject receivedPlayer)
+    public void CreateReceivedItemAnnotation(GameObject player, GameObject o, GameObject receivedPlayer)
     {
         int eventID = clickOrder;
         float eventTime = jsonToLLM.time;
@@ -791,9 +791,9 @@ public class AnnotationManager : NetworkBehaviour
             { "type", "Received Item" },
             { "player", receivedPlayer.name },
             { "object", o.name },
-            { "from", this.name }
+            { "from", player.name }
         });
-        annotationDescriptions.Add(eventID, $"({receivedPlayer.name} received {o.name}) from {this.name}");
+        annotationDescriptions.Add(eventID, $"({receivedPlayer.name} received {o.name}) from {player.name}");
         annotationTimes.Add(eventID, eventTime);
         
         // Insert annotation marker into token stream
@@ -804,7 +804,7 @@ public class AnnotationManager : NetworkBehaviour
         clickOrder++;
     }
     
-    public void CreatePackagingAnnotation(GameObject o)
+    public void CreatePackagingAnnotation(GameObject player, GameObject o)
     {
         int eventID = clickOrder;
         float eventTime = jsonToLLM.time;
@@ -818,23 +818,23 @@ public class AnnotationManager : NetworkBehaviour
         annotation.Add(eventID, new Dictionary<string, object>
         {
             { "type", "Packaging" },
-            { "player", this.name },
+            { "player", player.name },
             { "object", o.name },
             { "at", pointDict }
         });
 
-        annotationDescriptions.Add(eventID, $"({this.name} packaged {o.name})");
+        annotationDescriptions.Add(eventID, $"({player.name} packaged {o.name})");
         annotationTimes.Add(eventID, eventTime);
         
         // Insert annotation marker into token stream
         InsertAnnotationMarkerIntoTokens(eventID, eventTime);
         
         Debug.Log(
-            $"Packaging action recorded with ID {eventID}, from player: {this.name} for object: {o.name} at time: {eventTime}");
+            $"Packaging action recorded with ID {eventID}, from player: {player.name} for object: {o.name} at time: {eventTime}");
         clickOrder++;
     }
     
-    public void CreateRaiseHandAnnotation()
+    public void CreateRaiseHandAnnotation(GameObject player)
     {
         int eventID = clickOrder;
         float eventTime = jsonToLLM.time;
@@ -842,17 +842,17 @@ public class AnnotationManager : NetworkBehaviour
         annotation.Add(eventID, new Dictionary<string, object>
         {
             { "type", "Raise Hand" },
-            { "player", this.name }
+            { "player", player.name }
         });
 
-        annotationDescriptions.Add(eventID, $"({this.name} raised hand)");
+        annotationDescriptions.Add(eventID, $"({player.name} raised hand)");
         annotationTimes.Add(eventID, eventTime);
         
         // Insert annotation marker into token stream
         InsertAnnotationMarkerIntoTokens(eventID, eventTime);
         
         Debug.Log(
-            $"Raise Hand action recorded with ID {eventID}, from player: {this.name} at time: {eventTime}");
+            $"Raise Hand action recorded with ID {eventID}, from player: {player.name} at time: {eventTime}");
         clickOrder++;
     }
     
