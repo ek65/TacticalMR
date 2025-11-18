@@ -114,6 +114,17 @@ class Coach(Human):
     systemControlled : True
     name: "Coach"
 
+class RobotCoach(RobotHuman):
+    systemControlled : False
+
+class Box(UnityObject):
+    gameObjectType : "Box"
+    name: "Box"
+    width : 0.1
+    length : 0.1
+    height : 0.1
+    isPackaged : False
+
 class AIAgent(UnityObject):
     gameObjectType : "aiAgent"
     width : 1.0
@@ -129,6 +140,16 @@ class Robot(UnityObject):
     length : 1.0
     height : 1.0
     name : "Robot"
+    handRaised : False
+
+class RobotHuman(UnityObject):
+    gameObjectType : "RobotCoach"
+    team : "blue"
+    width : 1.0
+    length : 1.0
+    height : 1.0
+    name : "RobotHuman"
+    handRaised : False
 
 class NPC(UnityObject):
     gameObjectType : "npc"

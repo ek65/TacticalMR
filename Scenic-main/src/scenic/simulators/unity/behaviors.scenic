@@ -349,14 +349,17 @@ behavior PickUp():
 
 behavior PutDown():
     take PutDownAction()
+    do Idle() for 2 seconds
     take StopAction()
 
 behavior Packaging():
     take PackagingAction()
+    do Idle() for 4 seconds
     take StopAction()
 
 behavior RaiseHand():
     take RaiseHandAction()
+    do Idle() for 1 seconds
     take StopAction()
 
 # -------------------------------
@@ -436,6 +439,15 @@ def sample_from(dist, _min=0.4):
     #     col = random.randint(0, column_num - 1)
     #     coord = (row, col)
 
+    # Check if dist is a DistanceTo constraint object with a sample method
+    if hasattr(dist, 'sample') and callable(getattr(dist, 'sample')):
+        sample = dist.sample()
+        print(f"Sampled directly from constraint: {sample}")
+        return sample
+
+    # Otherwise, use the grid-based sampling
+    # print(dist)
+
     max_val = dist.max()
     if max_val > 0:
         dist = dist / max_val
@@ -477,7 +489,50 @@ def sample_from(dist, _min=0.4):
 #            sample = sample_from(dist)
 #    do Idle() for 1 seconds
 
+# Soccer MoveTo
+# behavior MoveTo(param, doPass: bool = False):
+#     # --- try the “param is a distribution” path ---
+#     try:
+#         sample  = sample_from(param)
+#         print(f"MoveTo: sample is {sample}")
+#         dynamic = False  # Changed to False to prevent re-sampling
+#         dist    = param
+#     # if sample_from isn’t defined for this type, assume it’s already a goal
+#     except Exception:
+#         scene = simulation()
 
+#         if checkIfString(param):
+#             param = [obj for obj in scene.objects if obj.name.lower() == param.lower()][0].position # converts string into object reference
+#             sample  = param
+#             dynamic = False
+#         else:
+#             sample  = param
+#             dynamic = False
+
+#     print("MoveTo: sample is ", sample)
+#     # only set these values if coach called moveTo
+#     if (self == ego and self.gameObjectType == "Coach"):
+#         # set xMark to the sample position
+#         ego.xMark = sample
+#         #print(f"MoveTo: xMark set to {ego.xMark}")
+#         # set triggerPass to doPass
+#         ego.triggerPass = doPass
+#         print(f"MoveTo: triggerPass set to {ego.triggerPass}")
+
+#     dt = 0.2
+#     # loop until we get within 0.5 units of our current target
+#     while (distance from self to sample) > 0.5:
+#         do MoveToBehavior(sample) for dt seconds
+#         # Removed re-sampling logic to prevent zig-zagging
+#         # The agent will now stick to the initially sampled target
+#         # # if it was a distribution, re-sample whenever we leave its support
+#         # if dynamic and not bool_sample(location(sample), dist):
+#         #     sample = sample_from(dist)
+
+#     # once we’ve arrived, pause for a bit
+#     do Idle() for 1 seconds
+
+# Factory MoveTo
 behavior MoveTo(param, doPass: bool = False):
     # --- try the “param is a distribution” path ---
     try:
@@ -490,7 +545,7 @@ behavior MoveTo(param, doPass: bool = False):
         scene = simulation()
 
         if checkIfString(param):
-            param = [obj for obj in scene.objects if obj.name.lower() == param][0].position # converts string into object reference
+            param = [obj for obj in scene.objects if obj.name.lower() == param.lower()][0].position # converts string into object reference
             sample  = param
             dynamic = False
         else:
@@ -499,7 +554,7 @@ behavior MoveTo(param, doPass: bool = False):
 
     print("MoveTo: sample is ", sample)
     # only set these values if coach called moveTo
-    if (self == ego):
+    if (self == ego and self.gameObjectType == "Coach"):
         # set xMark to the sample position
         ego.xMark = sample
         #print(f"MoveTo: xMark set to {ego.xMark}")
@@ -508,8 +563,8 @@ behavior MoveTo(param, doPass: bool = False):
         print(f"MoveTo: triggerPass set to {ego.triggerPass}")
 
     dt = 0.2
-    # loop until we get within 0.5 units of our current target
-    while (distance from self to sample) > 0.5:
+    # loop until we get within 2.5 units of our current target
+    while (distance from self to sample) > 2.5:
         do MoveToBehavior(sample) for dt seconds
         # Removed re-sampling logic to prevent zig-zagging
         # The agent will now stick to the initially sampled target
@@ -520,8 +575,8 @@ behavior MoveTo(param, doPass: bool = False):
     # once we’ve arrived, pause for a bit
     do Idle() for 1 seconds
 
-behavior StopAndReceiveBall():
-    do Idle() until self.gameObject.ballPossession
+# behavior StopAndReceiveBall():
+#     do Idle() until self.gameObject.ballPossession
 
 # behavior WaitForConditionWithTimeout(condition, timeout_seconds=5):
 #     """

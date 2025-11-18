@@ -168,7 +168,9 @@ class UnityMessageServer:
             game_object = gameObject(position, rotation)
             obj.gameObject = game_object
             #We will only have one human for now, call it 'ego' in the dict
-            if (obj.systemControlled):
+            if obj.gameObjectType == "RobotCoach":
+                obj.gameObject.model = Model(1,1, (255,255,0,1), "RobotCoach")
+            elif (obj.gameObjectType == "human" and obj.systemControlled):
                 obj.gameObject.model = Model(1,1, (255,255,0,1), "Coach")
             else:
                 obj.gameObject.model = Model(1,1, (255,255,0,1), "Human")
@@ -424,6 +426,8 @@ class gameObject:
     stopButton : bool
     pause:bool
     ballPossession : bool
+    handRaised : bool
+    isPackaged : bool
     isMoving : bool
     xMark : Vector
     triggerPass : bool
@@ -445,6 +449,8 @@ class gameObject:
         self.stopButton = False
         self.pause = False
         self.ballPossession = False
+        self.handRaised = False
+        self.isPackaged = False
         self.isMoving = False
         self.xMark = Vector(0,0,0)
         self.triggerPass = False
@@ -497,6 +503,8 @@ class gameObject:
         self.stopButton = data.movement_data.stopButton
         self.pause = data.movement_data.pause
         self.ballPossession = data.movement_data.ballPossession
+        self.handRaised = data.movement_data.handRaised
+        self.isPackaged = data.movement_data.isPackaged
         self.isMoving = data.movement_data.isMoving
         self.xMark = self.toVector3(data.movement_data.xMark)
         self.triggerPass = data.movement_data.triggerPass
@@ -652,6 +660,8 @@ class MovementData:
     stopButton: bool
     pause: bool
     ballPossession: bool
+    handRaised: bool
+    isPackaged: bool
     isMoving: bool
     xMark: UnityVector3
     triggerPass: bool
@@ -669,13 +679,15 @@ class MovementData:
         stopButton = from_bool(obj.get("stopButton"))
         pause = from_bool(obj.get("pause"))
         ballPossession = from_bool(obj.get("ballPossession"))
+        handRaised = from_bool(obj.get("handRaised"))
+        isPackaged = from_bool(obj.get("isPackaged"))
         isMoving = from_bool(obj.get("isMoving"))
         xMark = UnityVector3.from_dict(obj.get("xMark"))
         triggerPass = from_bool(obj.get("triggerPass"))
         heldByHuman = from_bool(obj.get("heldByHuman"))
         heldByScenic = from_bool(obj.get("heldByScenic"))
         behavior = obj.get("behavior")
-        return MovementData(transform, speed, velocity, angular_velocity, rotation, stopButton, pause, ballPossession, isMoving, xMark, triggerPass, heldByHuman, heldByScenic, behavior)
+        return MovementData(transform, speed, velocity, angular_velocity, rotation, stopButton, pause, ballPossession, handRaised, isPackaged, isMoving, xMark, triggerPass, heldByHuman, heldByScenic, behavior)
 
     def to_dict(self) -> dict:
         result: dict = {}
@@ -687,6 +699,8 @@ class MovementData:
         result["stopButton"] = from_bool(self.stopButton)
         result["pause"] = from_bool(self.pause)
         result["ballPossession"] = from_bool(self.ballPossession)
+        result["handRaised"] = from_bool(self.handRaised)
+        result["isPackaged"] = from_bool(self.isPackaged)
         result["isMoving"] = from_bool(self.isMoving)
         result["xMark"] = to_class(UnityVector3, self.xMark)
         result["triggerPass"] = from_bool(self.triggerPass)
