@@ -61,7 +61,7 @@ public class ObjectsList : NetworkBehaviour
         models.AddRange(Resources.LoadAll<GameObject>("Prefabs/Balls"));
         models.AddRange(Resources.LoadAll<GameObject>("Prefabs/Characters"));
         models.AddRange(Resources.LoadAll<GameObject>("Prefabs/Goal"));
-        // models.AddRange(Resources.LoadAll<GameObject>("Prefabs/Misc Models"));
+        models.AddRange(Resources.LoadAll<GameObject>("Prefabs/Misc"));
         // models.AddRange(Resources.LoadAll<GameObject>("Prefabs/Env Models"));
         foreach (GameObject obj in models)
         {

@@ -216,6 +216,13 @@ public class JSONStatusMaker : MonoBehaviour
     {
         Vector3ToJsonClass(obj.transform.position, oData.movementData.transform);
         QuaternionToJsonClass(obj.transform.rotation, oData.movementData.rotation);
+        
+        // if this object is a box, get isPackaged state
+        BoxInterface bI = obj.GetComponent<BoxInterface>();
+        if (bI != null)
+        {
+            oData.movementData.isPackaged = bI.isPackaged;
+        }
     }
 
     /// <summary>
@@ -315,6 +322,7 @@ public class JSONStatusMaker : MonoBehaviour
             pause = false;
             ballPossession = false;
             handRaised = false;
+            isPackaged = false;
             isMoving = false;
             xMark = new Vector3Json();
             triggerPass = false;
@@ -332,6 +340,7 @@ public class JSONStatusMaker : MonoBehaviour
         public bool pause { get; set; }
         public bool ballPossession { get; set; }
         public bool handRaised { get; set; }
+        public bool isPackaged { get; set; }
         public bool isMoving { get; set; }
         public Vector3Json xMark { get; set; }
         public bool triggerPass { get; set; }

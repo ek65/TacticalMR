@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Fusion;
+using Oculus.Interaction.PoseDetection;
 using TMPro;
 using UnityEngine;
 
@@ -407,7 +408,7 @@ public class AnnotationManager : NetworkBehaviour
                 {
                     { "id", id.ToString() },
                     { "type", "Point" },
-                    { "point", new { x = vector.x, y = vector.z } }
+                    { "point", new { x = vector.x, y = vector.y, z = vector.z } }
                 });
             }
             else if (value is Dictionary<string, object> dictValue)
@@ -730,7 +731,8 @@ public class AnnotationManager : NetworkBehaviour
         var pointDict = new Dictionary<string, float>
         {
             { "x", closestObject.transform.position.x },
-            { "y", closestObject.transform.position.y }
+            { "y", closestObject.transform.position.y },
+            { "z", closestObject.transform.position.z}
         };
         
         annotation.Add(eventID, new Dictionary<string, object>
@@ -759,7 +761,8 @@ public class AnnotationManager : NetworkBehaviour
         var pointDict = new Dictionary<string, float>
         {
             { "x", o.transform.position.x },
-            { "y", o.transform.position.y }
+            { "y", o.transform.position.y },
+            { "z", o.transform.position.z}
         };
 
         annotation.Add(eventID, new Dictionary<string, object>
@@ -812,7 +815,8 @@ public class AnnotationManager : NetworkBehaviour
         var pointDict = new Dictionary<string, float>
         {
             { "x", o.transform.position.x },
-            { "y", o.transform.position.y }
+            { "y", o.transform.position.y },
+            { "z", o.transform.position.z}
         };
         
         annotation.Add(eventID, new Dictionary<string, object>

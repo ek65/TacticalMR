@@ -451,6 +451,12 @@ public class JSONToLLM : NetworkBehaviour
             i--;
         }
         
+        // Remove trailing underscores as well
+        while (i >= 0 && name[i] == '_')
+        {
+            i--;
+        }
+        
         return name.Substring(0, i + 1);
     }
     

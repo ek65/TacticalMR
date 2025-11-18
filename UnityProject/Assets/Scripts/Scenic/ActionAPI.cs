@@ -411,7 +411,7 @@ public class ActionAPI : NetworkBehaviour
             Debug.LogError("Target object does not have a Renderer component.");
         }
 
-        targetObject.GetComponent<BoxInterface>().isFinishedPackaging = true;
+        targetObject.GetComponent<BoxInterface>().isPackaged = true;
         Debug.Log("Finished packaging the object");
     }
 
