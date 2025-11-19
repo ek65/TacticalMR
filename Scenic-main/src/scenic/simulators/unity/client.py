@@ -246,7 +246,7 @@ class UnityMessageServer:
                     k += 1
 
     def getProperties(self, obj, properties):
-        if obj.gameObjectType == "player":
+        if obj.gameObjectType == "player" or obj.gameObjectType == "robot":
             prevPosition = obj.position
             game_object = obj.gameObject
             stored_game_object = self.ScenicPlayers[int(game_object.tag)]
@@ -276,7 +276,7 @@ class UnityMessageServer:
             )
 
             return values
-        elif obj.gameObjectType == "human":
+        elif obj.gameObjectType == "human" or obj.gameObjectType == "RobotCoach":
             prevPosition = obj.position
             game_object = obj.gameObject
             #change when we implement more human players
