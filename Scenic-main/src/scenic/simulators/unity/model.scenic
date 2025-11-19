@@ -114,9 +114,6 @@ class Coach(Human):
     systemControlled : True
     name: "Coach"
 
-class RobotCoach(RobotHuman):
-    systemControlled : False
-
 class Box(UnityObject):
     gameObjectType : "Box"
     name: "Box"
@@ -150,6 +147,9 @@ class RobotHuman(UnityObject):
     height : 1.0
     name : "RobotHuman"
     handRaised : False
+
+class RobotCoach(RobotHuman):
+    systemControlled : False
 
 class NPC(UnityObject):
     gameObjectType : "npc"

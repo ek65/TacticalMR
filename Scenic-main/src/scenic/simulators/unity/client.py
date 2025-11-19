@@ -143,22 +143,25 @@ class UnityMessageServer:
         #set control true and reset match
         raise NotImplementedError
     def spawnObject(self, obj, position, rotation):
-        if obj.gameObjectType == "player":
+        if obj.gameObjectType == "player" or obj.gameObjectType == "robot":
             # print(position)
             game_object = gameObject(position, rotation)
             obj.gameObject = game_object
-            obj.gameObject.model = Model(3,1, (255,255,255,1), "Player")
-            if obj.team == "red":
-                game_object.ChangeColor((255,0,0,1))
-            elif obj.team == "blue":
-                game_object.ChangeColor((0,0,255,1))
+            if (obj.gameObjectType == "player"):
+                obj.gameObject.model = Model(3,1, (255,255,255,1), "Player")
+                if obj.team == "red":
+                    game_object.ChangeColor((255,0,0,1))
+                elif obj.team == "blue":
+                    game_object.ChangeColor((0,0,255,1))
+            elif (obj.gameObjectType == "robot"):
+                obj.gameObject.model = Model(2,1, (255,255,255,1), "Robot")
             game_object.name = obj.name
             self.sendData.addToQueue(obj.gameObject)
             self.sendData.control, self.sendData.addObject = True, True
             self.ScenicPlayers.append(game_object)
             game_object.tag = len(self.ScenicPlayers) - 1
             return game_object
-        elif obj.gameObjectType == "human":
+        elif obj.gameObjectType == "human" or obj.gameObjectType == "RobotCoach": 
             #I will just use indices to mark players. This will only work for one human player
             #position and rotation should not do anything
             tag = "ego"
@@ -174,8 +177,10 @@ class UnityMessageServer:
                 obj.gameObject.model = Model(1,1, (255,255,0,1), "Coach")
             else:
                 obj.gameObject.model = Model(1,1, (255,255,0,1), "Human")
+                
             if obj.team == "blue":
                 game_object.ChangeColor((0,0,255,1))
+            game_object.name = obj.name
             self.sendData.addToQueue(obj.gameObject)
             self.sendData.control, self.sendData.addObject = True, True
             self.HumanPlayers[tag] = game_object
@@ -199,6 +204,7 @@ class UnityMessageServer:
             if obj.gameObjectType is None or obj.gameObjectType == "":
                 obj.gameObjectType = "empty"
             obj.gameObject.model = Model(1,1, (255,255,255,1), obj.gameObjectType)
+            game_object.name = obj.name
             self.sendData.addToQueue(obj.gameObject)
             self.sendData.control, self.sendData.addObject = True, True
             self.objects.append(obj.gameObject)
