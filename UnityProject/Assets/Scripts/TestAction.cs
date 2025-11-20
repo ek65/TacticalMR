@@ -11,7 +11,7 @@ public class TestAction : MonoBehaviour
     void Start()
     {
         // wait for 1 seconds
-        StartCoroutine(TakeAction());
+        StartCoroutine(Speak());
     }
 
     // Update is called once per frame
@@ -31,5 +31,11 @@ public class TestAction : MonoBehaviour
     {
         yield return new WaitForSeconds(1);
         actionAPI.MoveToPos(new Vector3(0,0,1));
+    }
+    
+    public IEnumerator Speak()
+    {
+        yield return new WaitForSeconds(1);
+        actionAPI.Speak("Wait until Coach raises hand to signal package complete");
     }
 }

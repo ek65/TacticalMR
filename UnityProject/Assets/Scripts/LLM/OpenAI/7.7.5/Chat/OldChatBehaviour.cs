@@ -257,9 +257,9 @@ namespace Old.OpenAI.Samples.Chat
             foreach (string sentence in sentences)
             {
                 var request = new SpeechRequest(sentence, Model.TTS_1);
-                var (clipPath, clip) = await openAI.AudioEndpoint.CreateSpeechAsync(request, destroyCancellationToken);
+                var speechClip = await openAI.AudioEndpoint.GetSpeechAsync(request, cancellationToken: destroyCancellationToken);
 
-                clips[i] = clip;
+                clips[i] = speechClip.AudioClip;
                 i++;
 
                 if (initAudio)
@@ -270,7 +270,7 @@ namespace Old.OpenAI.Samples.Chat
 
                 if (enableDebug)
                 {
-                    Debug.Log(clipPath);
+                    Debug.Log(speechClip.CachePath);
                 }
             }
         }
