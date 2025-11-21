@@ -146,6 +146,8 @@ class CompositeConstraint(Constraint):
         print(f"DEBUG: CompositeConstraint.dist() called with op={self.op}")
         d1 = self.left.dist(scene, ego)
         d2 = self.right.dist(scene, ego)
+        if isinstance(d1, Vector) and isinstance(d2, Vector):
+            return (d1 + d2) / 2
         if self.op == 'AND':
             return np.exp(np.log(d1) + np.log(d2))
         else:
@@ -697,16 +699,15 @@ class DistanceTo(Constraint):
         self.max = args.get('max', None)
         self.operator = args.get('operator', None)
 
-        # if self.min is not None:
-        #     self.minAvg = self.min.get('avg', None)
-        # else:
-        #     self.minAvg = {'avg': 0.0, 'std': 0.0}
+        if self.min is not None:
+            self.minAvg = self.min.get('avg', None)
+        else:
+            self.minAvg = {'avg': 0.0, 'std': 0.0}
         # if self.max is not None:
         #     self.maxAvg = self.max.get('avg', None)
         # else:
         #     self.maxAvg = {'avg': 3.0, 'std': 1.0}
-        self.minAvg = {'avg': 0.0, 'std': 0.0}
-        self.maxAvg = {'avg': 0.1, 'std': 0.1}
+        self.maxAvg = 3.0
 
     def dist(self, scene, ego=False):
         """
@@ -739,7 +740,7 @@ class DistanceTo(Constraint):
         
         # Return a marker that indicates this is a direct position constraint
         # We'll use a special attribute to signal this
-        return self
+        return self._ref_position
     
     def sample(self):
         """
