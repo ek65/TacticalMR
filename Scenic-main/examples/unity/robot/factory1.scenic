@@ -7,8 +7,8 @@ from scenic.core.regions import MeshVolumeRegion
 import random
 ####HEADER ENDS####
 
-A1target_0 = DistanceTo({'from': 'Robot1', 'to': 'Box2', 'min': None, 'max': {'avg': 0.1, 'std': 0.5}, 'operator': 'less_than'})
-A1target_1 = DistanceTo({'from': 'Robot1', 'to': {'x': -4, 'y': 6}, 'min': None, 'max': {'avg': 0.1, 'std': 0.5}, 'operator': 'less_than'})
+A1target_0 = DistanceTo({'from': 'Robot1', 'to': 'Box2', 'min': None, 'max': {'avg': 2.0, 'std': 0.5}, 'operator': 'less_than'})
+A1target_1 = DistanceTo({'from': 'Robot1', 'to': 'Human1', 'min': None, 'max': {'avg': 2.0, 'std': 0.5}, 'operator': 'less_than'})
 
 A1precondition_0 = IsPackaged({'obj': 'Box1'})
 A1precondition_1 = HandRaised({'player': 'Human1'})
@@ -56,49 +56,50 @@ behavior RobotBehavior():
     # Always start by idling for 3 seconds
     do Idle() for 3 seconds
 
-    # do Speak("Wait until Coach raises hand to signal package complete")
-    do Idle() until precondition_1()
-    print("here0")
+    # # do Speak("Wait until Coach raises hand to signal package complete")
+    # do Idle() until precondition_1()
+    # print("here0")
 
-    # do Speak("Move to Box2 to pick it up")
-    do MoveTo(target0(), False)
-    print("here1")
+    # # do Speak("Move to Box2 to pick it up")
+    # do MoveTo(target0(), False)
+    # print("here1")
 
-    # do Idle("Wait until arrived at Box2")
-    do Idle() until precondition_2()
-    print("here2")
+    # # # do Idle("Wait until arrived at Box2")
+    # do Idle() until precondition_2()
+    # print("here2")
 
-    # do Speak("Pick up Box2")
-    do PickUp()
-    print("here3")
+    # # # do Speak("Pick up Box2")
+    # do PickUp()
+    # print("here3")
 
-    # do Speak("Wait until I have picked up Box2")
-    # do Idle() until precondition_3()
-    do Idle() until True # make example showing that this should always be true after PickUp
+    # # # do Speak("Wait until I have picked up Box2")
+    # # do Idle() until precondition_3()
+    # do Idle() until True # make example showing that this should always be true after PickUp
 
-    # do Speak("Move to Human1 to deliver Box2")
+    # # do Speak("Move to Human1 to deliver Box2")
     do MoveTo(target1(), False)
+    print("here4")
 
-    # do Speak("Wait until arrived at Human1")
-    do Idle() until precondition_3()
+    # # do Speak("Wait until arrived at Human1")
+    # do Idle() until precondition_3()
 
-    # do Speak("Deliver Box2 to Human1")
-    do PutDown()
+    # # # do Speak("Deliver Box2 to Human1")
+    # do PutDown()
 
-    do Idle()
+    # do Idle()
 
-ego = new Robot at (-2, -1.5, 0),
+ego = new Robot at (-2, -6.5, 0),
         with behavior RobotBehavior(),
         with name "Robot1"
 
-human = new Player at (-3, 7, 0),
+human = new Player at (-3, 2, 0),
         with behavior HumanBehavior(),
         with name "Human1"
 
-box1 = new Box at (-4, 7, 1),
+box1 = new Box at (-4, 2, 1),
         with name "Box1"
 
-box2 = new Box at (-3, -1.5, 1),
+box2 = new Box at (-3, -6.5, 1),
         with name "Box2"
 
 terminate when (ego.gameObject.stopButton)

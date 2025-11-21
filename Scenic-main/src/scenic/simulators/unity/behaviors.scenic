@@ -440,11 +440,11 @@ def sample_from(dist, _min=0.4):
     #     coord = (row, col)
 
     # Check if dist is a DistanceTo constraint object with a sample method
-    if hasattr(dist, 'sample') and callable(getattr(dist, 'sample')):
-        print('AVG VECTOR', dist)
-        sample = dist #.sample()
-        print(f"SAMPLED directly from constraint: {sample}")
-        return sample
+    # if hasattr(dist, 'sample') and callable(getattr(dist, 'sample')):
+    #     print('AVG VECTOR', dist)
+    #     sample = dist #.sample()
+    #     print(f"SAMPLED directly from constraint: {sample}")
+    #     return sample
 
     # Otherwise, use the grid-based sampling
     # print(dist)
@@ -473,7 +473,7 @@ def sample_from(dist, _min=0.4):
     x, y = int(coord[1]), int(coord[0])
     #print('real sampled', x, y)
     sample = Vector(x - cols / 2, rows / 2 - y)
-    print("Sample: ", sample)
+    print(f"Sample: {sample} (from grid cell ({x}, {y}))")
     #print('Sampled', sample)
 
     return sample

@@ -146,8 +146,6 @@ class CompositeConstraint(Constraint):
         print(f"DEBUG: CompositeConstraint.dist() called with op={self.op}")
         d1 = self.left.dist(scene, ego)
         d2 = self.right.dist(scene, ego)
-        if isinstance(d1, Vector) and isinstance(d2, Vector):
-            return (d1 + d2) / 2
         if self.op == 'AND':
             return np.exp(np.log(d1) + np.log(d2))
         else:
@@ -574,123 +572,6 @@ class HasPath(Constraint):
     
 
 # MARK: DistanceTo  
-# class DistanceTo(Constraint):
-#     def __init__(self, args):
-#         self.fromID = args.get('from', None)
-#         self.toID = args.get('to', None)
-#         self.min = args.get('min', None)
-#         self.max = args.get('max', None)
-#         self.operator = args.get('operator', None)
-
-#         if self.min is not None:
-#             self.minAvg = self.min.get('avg', None)
-#         else:
-#             self.minAvg = {'avg': 0.0, 'std': 0.0}
-#         if self.max is not None:
-#             self.maxAvg = self.max.get('avg', None)
-#         else:
-#             self.maxAvg = {'avg': 3.0, 'std': 1.0}
-
-#     def dist(self, scene, ego=False):
-
-#         if ego and not isEgo(self.fromID):
-#             return true()
-
-#         ref = findObj(self.toID, scene.objects)
-
-#         if not ref:
-#             raise Exception(f'DistanceTo constraint requires a valid reference object (toID).')
-
-#         x, y = location(ref[0].position)
-#         distances = np.sqrt((i - y)**2 + (j - x)**2)
-
-#         # print('distance to', x, y, self.minAvg, self.maxAvg, self.operator)
-
-#         if self.operator == 'within':
-
-#             if (self.maxAvg - self.minAvg) < 1.5:
-#                 self.maxAvg = self.minAvg + 1.5
-
-#             mu = (self.minAvg + self.maxAvg) / 2.0
-#             sigma = (self.maxAvg - self.minAvg) / 2.0
-#             mask = (distances >= self.minAvg) & (distances <= self.maxAvg)
-#             bump = np.exp(-((distances - mu)**2) / (2 * sigma**2))
-#             map = np.where(mask, bump + epsilon, epsilon)
-
-#         elif self.operator == 'less_than':
-#             sigma = self.maxAvg
-#             mask = distances < self.maxAvg
-#             bump = np.exp(-(distances**2) / (2 * sigma**2))
-#             map = np.where(mask, bump + epsilon, epsilon)
-
-#         elif self.operator == 'greater_than':
-#             sigma = self.minAvg
-#             mask = distances > self.minAvg
-#             bump = np.exp(-((distances - self.minAvg)**2) / (2 * sigma**2))
-#             map = np.where(mask, bump + epsilon, epsilon)
-
-#         else:
-#             print('Invalid operator.')
-#             return false()
-
-#         # Apply player exclusion mask
-#         player_exclusion_mask = create_player_exclusion_mask(scene)
-#         map = np.where(player_exclusion_mask, map, epsilon)
-#         map *= falloff(padding=3)
-
-#         # import matplotlib.pyplot as plt
-#         # import random
-
-#         # plt.imshow(map)
-#         # rand_num = random.randint(1000, 9999)
-#         # print(f" MAP DEBUG_DIST() Saved plot with name {rand_num}")
-#         # plt.savefig(f"/Users/jdiazchao/Desktop/{rand_num}.png")
-
-#         return map
-
-# #     def dist(self, scene, ego=False):
-# #         if ego and not isEgo(self.fromID):
-# #             return True
-# # 
-# #         targets = findObj(self.toID, scene.objects)
-# #         if not targets:
-# #             return False
-# # 
-# #         sources = findObj(self.fromID, scene.objects)
-# #         if not sources:
-# #             return False
-# # 
-# #         src_x, src_y = location(sources[0].position)
-# #         tgt_x, tgt_y = location(targets[0].position)
-# # 
-# #         d = np.hypot(src_x - tgt_x, src_y - tgt_y)
-# # 
-# #         if self.operator == 'within':
-# #             return self.minAvg <= d <= self.maxAvg
-# #         elif self.operator == 'less_than':
-# #             return d < self.maxAvg
-# #         elif self.operator == 'greater_than':
-# #             return d > self.minAvg
-# #         else:
-# #             return False
-    
-#     def bool(self, scene):
-
-#         obj = findObj(self.fromID, scene.objects)
-
-#         if not obj:
-#             return false()
-
-#         dist = self.dist(scene)
-#         sample = location(obj[0].position)
-
-#         return bool_sample(sample, dist)
-
-#     def bool(self, scene):
-#             # Simply return the same boolean that .dist would
-#             return self.dist(scene)
-    
-# MARK: DistanceTo  
 class DistanceTo(Constraint):
     def __init__(self, args):
         self.fromID = args.get('from', None)
@@ -700,149 +581,137 @@ class DistanceTo(Constraint):
         self.operator = args.get('operator', None)
 
         if self.min is not None:
-            self.minAvg = self.min.get('avg', None)
+            self.minAvg = self.min.get('avg', 3.0) if isinstance(self.min, dict) else self.min
         else:
-            self.minAvg = {'avg': 0.0, 'std': 0.0}
-        # if self.max is not None:
-        #     self.maxAvg = self.max.get('avg', None)
-        # else:
-        #     self.maxAvg = {'avg': 3.0, 'std': 1.0}
-        self.maxAvg = 3.0
+            self.minAvg = 1.0
+        if self.max is not None:
+            self.maxAvg = self.max.get('avg', 3.0) if isinstance(self.max, dict) else self.max
+        else:
+            self.maxAvg = 1.0
 
     def dist(self, scene, ego=False):
-        """
-        Returns a sampled position around the target object or position.
-        For robot scenarios, this directly samples a point instead of using a grid.
-        """
-        if ego and not isEgo(self.fromID):
-            return true()
+        # print("dist1")
+        # if ego and not isEgo(self.fromID):
+        #     return true()
 
+        # print("dist2")
         # Check if toID is a dictionary with x, y coordinates (direct position)
         if isinstance(self.toID, dict) and 'x' in self.toID and 'y' in self.toID:
             # Direct position specified
             x = self.toID.get('x', 0.0)
             y = self.toID.get('y', 0.0)
             z = self.toID.get('z', 0.0)
-            ref_pos = Vector(x, y, z)
+            ref_pos = Vector(x, y)
+            x, y = location(ref_pos)
+            print('x', x)
+            print('y', y)
         else:
             # Object reference specified
             ref = findObj(self.toID, scene.objects)
-
+            print('ref_x', ref[0].position.x)
+            print('ref_y', ref[0].position.y)
+            x, y = location(ref[0].position)
+            print('ref_x', x)
+            print('ref_y', y)
             if not ref:
                 raise Exception(f'DistanceTo constraint requires a valid reference object (toID).')
 
-            ref_pos = ref[0].position
-        
-        # Store reference position for sampling
-        self._ref_position = ref_pos
-        self._max_distance = self.maxAvg if self.operator == 'less_than' else None
-        self._min_distance = self.minAvg if self.operator == 'greater_than' else None
-        
-        # Return a marker that indicates this is a direct position constraint
-        # We'll use a special attribute to signal this
-        return self._ref_position
-    
-    def sample(self):
-        """
-        Sample a position around the reference object.
-        Returns a Vector position within the specified distance.
-        """
-        import random
-        
-        if not hasattr(self, '_ref_position'):
-            raise Exception("Must call dist() before sample()")
-        
-        ref_pos = self._ref_position
-        
-        if self.operator == 'less_than':
-            # Sample uniformly within a disk of radius maxAvg
-            max_dist = self.maxAvg
-            # Random angle
-            angle = random.uniform(0, 2 * np.pi)
-            # Random radius with uniform distribution in disk
-            radius = max_dist * np.sqrt(random.uniform(0, 1))
-            
-            dx = radius * np.cos(angle)
-            dy = radius * np.sin(angle)
-            
-            sampled = Vector(ref_pos.x + dx, ref_pos.y + dy, ref_pos.z)
-            print(f"DistanceTo.sample - ref_pos: {ref_pos}, sampled: {sampled}, distance: {radius:.2f}")
-            return sampled
-            
+        # print("dist3")
+
+        distances = np.sqrt((i - y)**2 + (j - x)**2)
+
+        # print("dist4")
+        print('distance to', x, y, 'minAvg:', self.minAvg, 'maxAvg:', self.maxAvg, 'operator:', self.operator)
+
+        if self.operator == 'within':
+
+            if (self.maxAvg - self.minAvg) < 1.5:
+                self.maxAvg = self.minAvg + 1.5
+
+            mu = (self.minAvg + self.maxAvg) / 2.0
+            sigma = (self.maxAvg - self.minAvg) / 2.0
+            mask = (distances >= self.minAvg) & (distances <= self.maxAvg)
+            bump = np.exp(-((distances - mu)**2) / (2 * sigma**2))
+            map = np.where(mask, bump + epsilon, epsilon)
+
+        elif self.operator == 'less_than':
+            sigma = self.maxAvg
+            mask = distances < self.maxAvg
+            bump = np.exp(-(distances**2) / (2 * sigma**2))
+            # print('bump', bump)
+            map = np.where(mask, bump + epsilon, epsilon)
+            print('map', map)
+
         elif self.operator == 'greater_than':
-            # Sample outside a disk of radius minAvg
-            # For now, sample between minAvg and minAvg + 3
-            min_dist = self.minAvg
-            max_dist = min_dist + 3.0
-            
-            angle = random.uniform(0, 2 * np.pi)
-            radius = random.uniform(min_dist, max_dist)
-            
-            dx = radius * np.cos(angle)
-            dy = radius * np.sin(angle)
-            
-            return Vector(ref_pos.x + dx, ref_pos.y + dy, ref_pos.z)
-            
-        elif self.operator == 'within':
-            # Sample in annulus between minAvg and maxAvg
-            min_dist = self.minAvg
-            max_dist = self.maxAvg
-            
-            angle = random.uniform(0, 2 * np.pi)
-            # Uniform distribution in annulus
-            radius = np.sqrt(random.uniform(min_dist**2, max_dist**2))
-            
-            dx = radius * np.cos(angle)
-            dy = radius * np.sin(angle)
-            
-            return Vector(ref_pos.x + dx, ref_pos.y + dy, ref_pos.z)
-        
+            sigma = self.minAvg
+            mask = distances > self.minAvg
+            bump = np.exp(-((distances - self.minAvg)**2) / (2 * sigma**2))
+            map = np.where(mask, bump + epsilon, epsilon)
+
         else:
-            raise Exception(f"Unknown operator: {self.operator}")
+            print('Invalid operator.')
+            return false()
+
+        # Apply player exclusion mask
+        # player_exclusion_mask = create_player_exclusion_mask(scene)
+        # map = np.where(player_exclusion_mask, map, epsilon)
+        # map *= falloff(padding=3)
+
+        # print('map', map)
+
+        # import matplotlib.pyplot as plt
+        # import random
+
+        # plt.imshow(map)
+        # rand_num = random.randint(1000, 9999)
+        # print(f" MAP DEBUG_DIST() Saved plot with name {rand_num}")
+        # plt.savefig(f"/Users/jdiazchao/Desktop/{rand_num}.png")
+
+        return map
+
+#     def dist(self, scene, ego=False):
+#         if ego and not isEgo(self.fromID):
+#             return True
+# 
+#         targets = findObj(self.toID, scene.objects)
+#         if not targets:
+#             return False
+# 
+#         sources = findObj(self.fromID, scene.objects)
+#         if not sources:
+#             return False
+# 
+#         src_x, src_y = location(sources[0].position)
+#         tgt_x, tgt_y = location(targets[0].position)
+# 
+#         d = np.hypot(src_x - tgt_x, src_y - tgt_y)
+# 
+#         if self.operator == 'within':
+#             return self.minAvg <= d <= self.maxAvg
+#         elif self.operator == 'less_than':
+#             return d < self.maxAvg
+#         elif self.operator == 'greater_than':
+#             return d > self.minAvg
+#         else:
+#             return False
     
     def bool(self, scene):
 
         obj = findObj(self.fromID, scene.objects)
-        # print(f"DistanceTo.bool - fromID: {self.fromID}, obj: {obj}")
 
         if not obj:
-            return False
+            return false()
 
-        # Check if toID is a dictionary with x, y coordinates (direct position)
-        if isinstance(self.toID, dict) and 'x' in self.toID and 'y' in self.toID:
-            # Direct position specified
-            x = self.toID.get('x', 0.0)
-            y = self.toID.get('y', 0.0)
-            z = self.toID.get('z', 0.0)
-            ref_pos = Vector(x, y, z)
-        else:
-            # Object reference specified
-            ref = findObj(self.toID, scene.objects)
-            # print(f"DistanceTo.bool - toID: {self.toID}, ref: {ref}")
-            
-            if not ref:
-                return False
-            
-            ref_pos = ref[0].position
-        
-        # Calculate actual distance
-        obj_pos = obj[0].position
-        actual_distance = np.sqrt((obj_pos.x - ref_pos.x)**2 + (obj_pos.y - ref_pos.y)**2)
-        print(f"DistanceTo.bool - obj_pos: {obj_pos}, ref_pos: {ref_pos}, actual_distance: {actual_distance}")
-        
-        # Check based on operator
-        if self.operator == 'less_than':
-            result = actual_distance < self.maxAvg
-        elif self.operator == 'greater_than':
-            result = actual_distance > self.minAvg
-        elif self.operator == 'within':
-            result = self.minAvg <= actual_distance <= self.maxAvg
-        else:
-            result = False
-            
-        print(f"DistanceTo.bool - operator: {self.operator}, threshold: {self.maxAvg}, result: {result}")
-        return result
+        dist = self.dist(scene)
+        sample = location(obj[0].position)
+
+        return bool_sample(sample, dist)
+
+#     def bool(self, scene):
+#             # Simply return the same boolean that .dist would
+#             return self.dist(scene)
     
+
 # MARK: InZone
 class InZone(Constraint):
 
