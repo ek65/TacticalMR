@@ -697,14 +697,16 @@ class DistanceTo(Constraint):
         self.max = args.get('max', None)
         self.operator = args.get('operator', None)
 
-        if self.min is not None:
-            self.minAvg = self.min.get('avg', None)
-        else:
-            self.minAvg = {'avg': 0.0, 'std': 0.0}
-        if self.max is not None:
-            self.maxAvg = self.max.get('avg', None)
-        else:
-            self.maxAvg = {'avg': 3.0, 'std': 1.0}
+        # if self.min is not None:
+        #     self.minAvg = self.min.get('avg', None)
+        # else:
+        #     self.minAvg = {'avg': 0.0, 'std': 0.0}
+        # if self.max is not None:
+        #     self.maxAvg = self.max.get('avg', None)
+        # else:
+        #     self.maxAvg = {'avg': 3.0, 'std': 1.0}
+        self.minAvg = {'avg': 0.0, 'std': 0.0}
+        self.maxAvg = {'avg': 0.1, 'std': 0.1}
 
     def dist(self, scene, ego=False):
         """
