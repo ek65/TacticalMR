@@ -1135,3 +1135,27 @@ class IsPackaged(Constraint):
             return false()
         beh = objs[0].gameObject.isPackaged
         return True if beh else False
+    
+# MARK: IsPossessed
+class IsPossessed(Constraint):
+    def __init__(self, args):
+        self.objID = args.get('obj', None)
+
+    def dist(self, scene, ego=False):
+        if ego and not isEgo(self.objID):
+            return true()
+
+        objs = findObj(self.objID, scene.objects)
+        if not objs:
+            return false()
+
+        beh = objs[0].gameObject.isPossessed
+        print(beh)
+        return true() if beh else false()
+
+    def bool(self, scene):
+        objs = findObj(self.objID, scene.objects)
+        if not objs:
+            return false()
+        beh = objs[0].gameObject.isPossessed
+        return True if beh else False

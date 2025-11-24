@@ -121,6 +121,7 @@ class Box(UnityObject):
     length : 0.1
     height : 0.1
     isPackaged : False
+    IsPossessed : False
 
 class AIAgent(UnityObject):
     gameObjectType : "aiAgent"

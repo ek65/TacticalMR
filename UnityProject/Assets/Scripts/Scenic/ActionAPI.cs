@@ -1646,6 +1646,7 @@ public class ActionAPI : NetworkBehaviour
 
             pI.grabbedObject = null;
             pI.objectPossession = false;
+            droppedObject.GetComponent<BoxInterface>().isPossessed = false;
             
             LogPutDown(droppedObject);
             
@@ -1719,6 +1720,7 @@ public class ActionAPI : NetworkBehaviour
 
                 pI.objectPossession = true;
                 pI.grabbedObject = closestObject;
+                closestObject.GetComponent<BoxInterface>().isPossessed = true;
                 
                 LogPickUp(closestObject);
             }

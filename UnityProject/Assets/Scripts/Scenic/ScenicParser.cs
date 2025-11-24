@@ -328,6 +328,9 @@ public class ScenicParser
         [JsonProperty("isPackaged")]
         public bool IsPackaged { get; set; }
         
+        [JsonProperty("isPossessed")]
+        public bool IsPossessed { get; set; }
+        
         [JsonProperty("isMoving")]
         public bool IsMoving { get; set; }
         

@@ -434,6 +434,7 @@ class gameObject:
     ballPossession : bool
     handRaised : bool
     isPackaged : bool
+    isPossessed : bool
     isMoving : bool
     xMark : Vector
     triggerPass : bool
@@ -457,6 +458,7 @@ class gameObject:
         self.ballPossession = False
         self.handRaised = False
         self.isPackaged = False
+        self.isPossessed = False
         self.isMoving = False
         self.xMark = Vector(0,0,0)
         self.triggerPass = False
@@ -511,6 +513,7 @@ class gameObject:
         self.ballPossession = data.movement_data.ballPossession
         self.handRaised = data.movement_data.handRaised
         self.isPackaged = data.movement_data.isPackaged
+        self.isPossessed = data.movement_data.isPossessed
         self.isMoving = data.movement_data.isMoving
         self.xMark = self.toVector3(data.movement_data.xMark)
         self.triggerPass = data.movement_data.triggerPass
@@ -668,6 +671,7 @@ class MovementData:
     ballPossession: bool
     handRaised: bool
     isPackaged: bool
+    isPossessed: bool
     isMoving: bool
     xMark: UnityVector3
     triggerPass: bool
@@ -687,13 +691,14 @@ class MovementData:
         ballPossession = from_bool(obj.get("ballPossession"))
         handRaised = from_bool(obj.get("handRaised"))
         isPackaged = from_bool(obj.get("isPackaged"))
+        isPossessed = from_bool(obj.get("isPossessed"))
         isMoving = from_bool(obj.get("isMoving"))
         xMark = UnityVector3.from_dict(obj.get("xMark"))
         triggerPass = from_bool(obj.get("triggerPass"))
         heldByHuman = from_bool(obj.get("heldByHuman"))
         heldByScenic = from_bool(obj.get("heldByScenic"))
         behavior = obj.get("behavior")
-        return MovementData(transform, speed, velocity, angular_velocity, rotation, stopButton, pause, ballPossession, handRaised, isPackaged, isMoving, xMark, triggerPass, heldByHuman, heldByScenic, behavior)
+        return MovementData(transform, speed, velocity, angular_velocity, rotation, stopButton, pause, ballPossession, handRaised, isPackaged, isPossessed, isMoving, xMark, triggerPass, heldByHuman, heldByScenic, behavior)
 
     def to_dict(self) -> dict:
         result: dict = {}
@@ -707,6 +712,7 @@ class MovementData:
         result["ballPossession"] = from_bool(self.ballPossession)
         result["handRaised"] = from_bool(self.handRaised)
         result["isPackaged"] = from_bool(self.isPackaged)
+        result["isPossessed"] = from_bool(self.isPossessed)
         result["isMoving"] = from_bool(self.isMoving)
         result["xMark"] = to_class(UnityVector3, self.xMark)
         result["triggerPass"] = from_bool(self.triggerPass)

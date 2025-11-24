@@ -12,6 +12,7 @@ A1target_1 = DistanceTo({'from': 'Robot1', 'to': 'Human1', 'min': None, 'max': {
 
 A1precondition_0 = IsPackaged({'obj': 'Box1'})
 A1precondition_1 = HandRaised({'player': 'Human1'})
+A1precondition_11 = IsPossessed({'obj': 'Box2'})
 A1precondition_2 = DistanceTo({'from': 'Robot1', 'to': 'Box2', 'min': None, 'max': {'avg': 3, 'std': 0.5}, 'operator': 'less_than'})
 A1precondition_3 = DistanceTo({'from': 'Robot1', 'to': 'Human1', 'min': None, 'max': {'avg': 3, 'std': 0.5}, 'operator': 'less_than'})
 
@@ -27,6 +28,9 @@ def precondition_0():
 
 def precondition_1():
     return A1precondition_1.bool(simulation())
+
+def precondition_11():
+    return A1precondition_11.bool(simulation())
 
 def precondition_2():
     return A1precondition_2.bool(simulation())
@@ -57,23 +61,23 @@ behavior RobotBehavior():
     do Idle() for 3 seconds
 
     # # do Speak("Wait until Coach raises hand to signal package complete")
-    # do Idle() until precondition_1()
+    do Idle() until precondition_1()
     # print("here0")
 
     # # do Speak("Move to Box2 to pick it up")
-    # do MoveTo(target0(), False)
+    do MoveTo(target0(), False)
     # print("here1")
 
     # # # do Idle("Wait until arrived at Box2")
-    # do Idle() until precondition_2()
+    do Idle() until precondition_2()
     # print("here2")
 
     # # # do Speak("Pick up Box2")
-    # do PickUp()
+    do PickUp()
     # print("here3")
 
     # # # do Speak("Wait until I have picked up Box2")
-    # # do Idle() until precondition_3()
+    do Idle() until precondition_11()
     # do Idle() until True # make example showing that this should always be true after PickUp
 
     # # do Speak("Move to Human1 to deliver Box2")
@@ -81,12 +85,12 @@ behavior RobotBehavior():
     print("here4")
 
     # # do Speak("Wait until arrived at Human1")
-    # do Idle() until precondition_3()
+    do Idle() until precondition_3()
 
-    # # # do Speak("Deliver Box2 to Human1")
-    # do PutDown()
+    # # do Speak("Deliver Box2 to Human1")
+    do PutDown()
 
-    # do Idle()
+    do Idle()
 
 ego = new Robot at (-2, -6.5, 0),
         with behavior RobotBehavior(),

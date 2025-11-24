@@ -16,6 +16,7 @@ public class BoxInterface : NetworkBehaviour
     public NetworkString<_32> ObjName { get; set; }
     
     [Networked] public NetworkBool isPackaged { get; set; }
+    [Networked] public NetworkBool isPossessed { get; set; }
     #endregion
 
     private void Start()

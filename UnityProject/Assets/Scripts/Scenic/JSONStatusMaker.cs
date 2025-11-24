@@ -217,11 +217,12 @@ public class JSONStatusMaker : MonoBehaviour
         Vector3ToJsonClass(obj.transform.position, oData.movementData.transform);
         QuaternionToJsonClass(obj.transform.rotation, oData.movementData.rotation);
         
-        // if this object is a box, get isPackaged state
+        // if this object is a box, get isPackaged and isPossessed state
         BoxInterface bI = obj.GetComponent<BoxInterface>();
         if (bI != null)
         {
             oData.movementData.isPackaged = bI.isPackaged;
+            oData.movementData.isPossessed = bI.isPossessed;
         }
     }
 
@@ -323,6 +324,7 @@ public class JSONStatusMaker : MonoBehaviour
             ballPossession = false;
             handRaised = false;
             isPackaged = false;
+            isPossessed = false;
             isMoving = false;
             xMark = new Vector3Json();
             triggerPass = false;
@@ -341,6 +343,7 @@ public class JSONStatusMaker : MonoBehaviour
         public bool ballPossession { get; set; }
         public bool handRaised { get; set; }
         public bool isPackaged { get; set; }
+        public bool isPossessed { get; set; }
         public bool isMoving { get; set; }
         public Vector3Json xMark { get; set; }
         public bool triggerPass { get; set; }
