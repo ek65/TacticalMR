@@ -74,7 +74,7 @@ behavior Shoot(goal):
         goal = [obj for obj in scene.objects if obj.name.lower() == goal.lower()][0] # converts string into object reference
     take  GroundPassFastAction(goal.position, "Shoot Ball")
 
-behavior MoveToBehavior(v, lookAtTarget = None, distance = 0.2, status=""):
+behavior MoveToBehavior(v, lookAtTarget = None, distance = 1.5, status=""):
     dist = 1000
     while not (dist < distance):
         if isinstance(v, Ball):
@@ -564,8 +564,8 @@ behavior MoveTo(param, doPass: bool = False):
         print(f"MoveTo: triggerPass set to {ego.triggerPass}")
 
     dt = 0.2
-    # loop until we get within 2.5 units of our current target
-    while (distance from self to sample) > 2.5:
+    # loop until we get within 1.5 units of our current target
+    while (distance from self to sample) > 1.5:
         do MoveToBehavior(sample) for dt seconds
         # Removed re-sampling logic to prevent zig-zagging
         # The agent will now stick to the initially sampled target

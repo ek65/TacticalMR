@@ -57,6 +57,7 @@ TagManager:
   - ProgramSynthesisManager
   - ScenarioTypeManager
   - ScenarioCreationManager
+  - workstation
   layers:
   - Default
   - TransparentFX

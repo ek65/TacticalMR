@@ -327,11 +327,92 @@ public class ActionAPI : NetworkBehaviour
 
     public void PutDown()
     {
-        Vector3 putDownPosition = transform.position + transform.forward * 1f + Vector3.up * 1f;
+        StartCoroutine(PutDownCoroutine());
+    }
+
+    private IEnumerator PutDownCoroutine()
+    {
+        // 1. Find the human player (not self)
+        GameObject[] players = GameObject.FindGameObjectsWithTag("player");
+        GameObject human = null;
+        foreach (var player in players)
+        {
+            if (player != this.gameObject)
+            {
+                human = player;
+                break;
+            }
+        }
+        if (human == null)
+        {
+            Debug.LogError("No human player found for PutDown.");
+        }
+
+        // 2. Find the nearest workstation to this player
+        GameObject[] workstations = GameObject.FindGameObjectsWithTag("workstation");
+        GameObject nearestWorkstation = null;
+        float nearestDistance = float.MaxValue;
+        foreach (GameObject workstation in workstations)
+        {
+            float distance = Vector3.Distance(this.gameObject.transform.position, workstation.transform.position);
+            if (distance < nearestDistance)
+            {
+                nearestDistance = distance;
+                nearestWorkstation = workstation;
+            }
+        }
+        if (nearestWorkstation == null)
+        {
+            Debug.LogError("No workstation found for PutDown.");
+        }
+
+        // 3. Find the workstation child position furthest from the human
+        Transform furthestChild = null;
+        float maxDistance = float.MinValue;
+        foreach (Transform child in nearestWorkstation.transform)
+        {
+            float distance = Vector3.Distance(child.position, human.transform.position);
+            if (distance > maxDistance)
+            {
+                maxDistance = distance;
+                furthestChild = child;
+            }
+        }
+        if (furthestChild == null)
+        {
+            Debug.LogError("No child position found for workstation in PutDown.");
+        }
+
+        // 4. Move to the furthest child position and wait until arrival
+        Vector3 moveToPosition = furthestChild.position;
+
+        // Wait until close enough to the moveToPosition
+        while (Vector3.Distance(this.gameObject.transform.position, moveToPosition) > 1.5f)
+        {
+            MoveToPos(moveToPosition);
+            yield return null;
+        }
+
+        // 5. Find the actual putdown position (child of furthestChild)
+        Transform putDownTransform = null;
+        putDownTransform = furthestChild.GetChild(0);
+
+        Vector3 putDownPosition = Vector3.zero;
+        if (putDownTransform == null)
+        {
+            putDownPosition = transform.position + transform.forward * 1f + Vector3.up * 1f;
+            finalPos = putDownPosition;
+        }
+        else
+        {
+            putDownPosition = putDownTransform.position;
+        }
+
+        // 6. Trigger the "PutDown" animation at the putdown position
         finalPos = putDownPosition;
         SetAnimController("FactoryMovement");
         stopMovement = true;
-        StartCoroutine(LookTowards(putDownPosition, "PutDown"));
+        yield return StartCoroutine(LookTowards(putDownPosition, "PutDown"));
     }
 
     public void LogPutDown(GameObject o)
