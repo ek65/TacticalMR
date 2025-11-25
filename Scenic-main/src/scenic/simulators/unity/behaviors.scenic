@@ -5,6 +5,12 @@ model scenic.simulators.unity.model
 from scenic.core.vectors import Orientation, Vector
 from scenic.core.object_types import Point
 import random
+import matplotlib.pyplot as plt
+import random
+import os
+
+desktop = os.path.join(os.path.expanduser("~"), "Desktop")
+SAVE = False
 
 # Language: scenic (python)
 # This file defines all shared scenic behaviors. In order to use any behavior defined
@@ -535,6 +541,11 @@ def sample_from(dist, _min=0.4):
 
 # Factory MoveTo
 behavior MoveTo(param, doPass: bool = False):
+    if SAVE:
+        fname = f"{random.randint(10000, 99999)}.png"
+        path = os.path.join(desktop, fname)
+
+        plt.imsave(path, param, cmap="inferno")
     # --- try the “param is a distribution” path ---
     try:
         sample  = sample_from(param)
