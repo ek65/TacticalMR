@@ -70,6 +70,7 @@ public class FSMVisualizer1 : MonoBehaviour
     private int selectedStateId = -1;
     private int selectedTransitionId = -1;
     private bool isStateSelected = false;
+    private string selectedFSMId = ""; // Track which FSM the selected item belongs to
     // Track annotated items for highlighting
     private HashSet<int> annotatedStates = new HashSet<int>();
     private HashSet<int> annotatedTransitions = new HashSet<int>();
@@ -511,6 +512,7 @@ public class FSMVisualizer1 : MonoBehaviour
 
                 int capturedId = id;
                 string capturedDesc = s.description;
+                string capturedFSMId = fsmId; // Capture the FSM ID
                 var btn = node.GetComponent<Button>();
                 if (btn != null)
                 {
@@ -519,10 +521,11 @@ public class FSMVisualizer1 : MonoBehaviour
                         selectedStateId = capturedId;
                         selectedTransitionId = -1;
                         isStateSelected = true;
+                        selectedFSMId = capturedFSMId; // Store which FSM this node belongs to
     
                         if (descriptionText != null)
                             descriptionText.text = $"[State {capturedId}] {displayName}\n{capturedDesc}";
-                        Log($"State {capturedId} clicked: {capturedDesc}");
+                        Log($"State {capturedId} clicked in FSM '{capturedFSMId}': {capturedDesc}");
                     });
                 }
 
@@ -591,6 +594,7 @@ public class FSMVisualizer1 : MonoBehaviour
             Button btn = lineGO.GetComponent<Button>();
             // Note: We only show the description, not the condition, for cleaner visualization
             string desc = $"[Transition {trans.id}] {trans.description}";
+            string capturedFSMId = fsmId; // Capture the FSM ID
             if (btn != null)
             {
                 btn.onClick.AddListener(() =>
@@ -598,10 +602,11 @@ public class FSMVisualizer1 : MonoBehaviour
                     selectedStateId = -1;
                     selectedTransitionId = trans.id;
                     isStateSelected = false;
+                    selectedFSMId = capturedFSMId; // Store which FSM this transition belongs to
     
                     if (descriptionText != null)
                         descriptionText.text = desc;
-                    Log($"Transition {trans.id} clicked: {desc}");
+                    Log($"Transition {trans.id} clicked in FSM '{capturedFSMId}': {desc}");
                 });
             }
 
@@ -692,30 +697,40 @@ public class FSMVisualizer1 : MonoBehaviour
     
     void HighlightAnnotatedNode(int stateId)
     {
-        // Check both FSMs for the state
-        foreach (var kvp in stateNodesByFSM)
+        // Use the specific FSM ID that was selected
+        if (string.IsNullOrEmpty(selectedFSMId) || !stateNodesByFSM.ContainsKey(selectedFSMId))
         {
-            if (kvp.Value.ContainsKey(stateId))
+            LogWarning($"Cannot highlight node {stateId}: FSM '{selectedFSMId}' not found");
+            return;
+        }
+        
+        if (stateNodesByFSM[selectedFSMId].ContainsKey(stateId))
+        {
+            GameObject node = stateNodesByFSM[selectedFSMId][stateId];
+            Image nodeImage = node.GetComponent<Image>();
+            if (nodeImage != null)
             {
-                GameObject node = kvp.Value[stateId];
-                Image nodeImage = node.GetComponent<Image>();
-                if (nodeImage != null)
-                {
-                    nodeImage.color = Color.yellow;
-                }
-                return;
+                nodeImage.color = Color.yellow;
+                Log($"Highlighted node {stateId} in FSM '{selectedFSMId}'");
             }
+        }
+        else
+        {
+            LogWarning($"Node {stateId} not found in FSM '{selectedFSMId}'");
         }
     }
 
     void HighlightAnnotatedTransition(int transitionId)
     {
-        // Find transition line by name (check both FSMs)
-        GameObject transitionLine = GameObject.Find($"fsm1_UILine_{transitionId}");
-        if (transitionLine == null)
+        // Use the specific FSM ID that was selected
+        if (string.IsNullOrEmpty(selectedFSMId))
         {
-            transitionLine = GameObject.Find($"fsm2_UILine_{transitionId}");
+            LogWarning($"Cannot highlight transition {transitionId}: no FSM ID stored");
+            return;
         }
+        
+        // Find transition line by name using the specific FSM ID
+        GameObject transitionLine = GameObject.Find($"{selectedFSMId}_UILine_{transitionId}");
         
         if (transitionLine != null)
         {
@@ -725,9 +740,8 @@ public class FSMVisualizer1 : MonoBehaviour
                 lineImage.color = Color.yellow;
             }
         
-            // Also highlight the arrowhead if it exists (check both FSMs)
-            string fsmId = transitionLine.name.StartsWith("fsm1_") ? "fsm1" : "fsm2";
-            GameObject arrowHead = GameObject.Find($"{fsmId}_ArrowHead_{transitionId}");
+            // Also highlight the arrowhead using the specific FSM ID
+            GameObject arrowHead = GameObject.Find($"{selectedFSMId}_ArrowHead_{transitionId}");
             if (arrowHead != null)
             {
                 Image arrowImage = arrowHead.GetComponent<Image>();
@@ -736,6 +750,11 @@ public class FSMVisualizer1 : MonoBehaviour
                     arrowImage.color = Color.yellow;
                 }
             }
+            Log($"Highlighted transition {transitionId} in FSM '{selectedFSMId}'");
+        }
+        else
+        {
+            LogWarning($"Transition {transitionId} not found in FSM '{selectedFSMId}'");
         }
     }
     #endregion
