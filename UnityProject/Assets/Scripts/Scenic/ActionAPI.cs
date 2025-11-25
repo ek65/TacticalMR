@@ -390,7 +390,7 @@ public class ActionAPI : NetworkBehaviour
         // Wait until close enough to the moveToPosition
         RichAI aiNav = this.gameObject.GetComponent<RichAI>();
         GameManager gm = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
-        while (Vector3.Distance(this.gameObject.transform.position, moveToPosition) > 0.5f)
+        while (Vector3.Distance(this.gameObject.transform.position, moveToPosition) > 0.5f || aiNav.reachedEndOfPath == false)
         {
             aiNav.endReachedDistance = 0.5f;
             if (gm.isHost)
@@ -494,16 +494,30 @@ public class ActionAPI : NetworkBehaviour
     {
         // if player is not near the target object, move to it
         RichAI aiNav = this.gameObject.GetComponent<RichAI>();
-        while (Vector3.Distance(this.gameObject.transform.position, targetObject.transform.position) > 1.5f)
+        // while (Vector3.Distance(this.gameObject.transform.position, targetObject.transform.position) > 1.5f)
+        // {
+        //     MoveToPos(targetObject.transform.position);
+        //     yield return null;
+        // }
+
+        while (Vector3.Distance(this.gameObject.transform.position, targetObject.transform.position) > 1.5f || aiNav.reachedEndOfPath == false)
         {
+            aiNav.endReachedDistance = 1.5f;
+            RPC_SetAnimController("Movement");
             MoveToPos(targetObject.transform.position);
             yield return null;
         }
 
-        stopMovement = true;
-        SetAnimController("FactoryMovement");
+        aiNav.endReachedDistance = 1.5f;
         
+        yield return new WaitForSeconds(0.5f);
+
+        stopMovement = true;
+        RPC_SetAnimController("FactoryMovement");
+        StartCoroutine(LookTowards(targetObject.transform.position, "Packaging"));
+
         yield return new WaitForSeconds(delay);
+
         Renderer objRenderer = targetObject.GetComponent<Renderer>();
 
         if (objRenderer != null)
@@ -1643,6 +1657,7 @@ public class ActionAPI : NetworkBehaviour
     /// </summary>
     private IEnumerator LookTowards(Vector3 destinationPosition, string keyCode)
     {
+        RPC_SetAnimController("FactoryMovement");
         GameObject selfPlayer = this.gameObject;
         Vector3 fromVector = selfPlayer.transform.forward;
         Vector3 toVector = destinationPosition - selfPlayer.transform.position;
@@ -1717,12 +1732,11 @@ public class ActionAPI : NetworkBehaviour
         if (closestObject != null)
         {
             StartCoroutine(PackagingCoroutine(closestObject, Color.magenta, 2f));
-            StartCoroutine(LookTowards(closestObject.transform.position, "Packaging"));
         }
         else
         {
             Debug.LogError("No object found for Packaging.");
-            this.GetComponent<Animator>().SetTrigger("Packaging");
+            // this.GetComponent<Animator>().SetTrigger("Packaging");
         }
     }
     public void DetachBox()

@@ -169,7 +169,7 @@ namespace OpenAI.Samples.Chat
             conversation.AppendMessage(new Message(
                 Role.System,
                 "AllowedActionCatalog=" + actionCatalogJson +
-                " Rules: The only actions that objects can take are provided here, based on the entire list of action functions. " +
+                " Rules: The only actions that players/robots can take are provided here, based on the entire list of action functions. Note that objects such as boxes CANNOT take actions, only players/robots can. " +
                 "Use only 'name' values in this catalog for 'actions[].func'. " +
                 "Map Vector3 as {\"x\":float,\"y\":float,\"z\":float}. " +
                 "Do not invent functions not listed here."
@@ -411,6 +411,13 @@ namespace OpenAI.Samples.Chat
         private void ToggleRecording()
         {
             RecordingManager.EnableDebug = enableDebug;
+
+            var groundSelections = GameObject.FindGameObjectsWithTag("Ground");
+        
+            foreach (var gs in groundSelections)
+            {
+                gs.GetComponent<GroundSelection>().ClearGroundHighlights();
+            }
 
             if (RecordingManager.IsRecording)
             {

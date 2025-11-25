@@ -3903,10 +3903,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   version: 1073741824
-  radius: 0.5
+  radius: 0.1
   height: 2
   canMove: 1
-  maxSpeed: 7
+  maxSpeed: 5
   gravity: {x: NaN, y: NaN, z: NaN}
   groundMask:
     serializedVersion: 2
@@ -3929,13 +3929,13 @@ MonoBehaviour:
     sensitivity: 10
     maximumPeriod: 2
     visualizeSensitivity: 0
-  acceleration: 4
+  acceleration: 5
   rotationSpeed: 360
-  slowdownTime: 0.5
-  wallForce: 3
-  wallDist: 1
+  slowdownTime: 0
+  wallForce: 0
+  wallDist: 0
   funnelSimplification: 0
-  slowWhenNotFacingTarget: 1
+  slowWhenNotFacingTarget: 0
   preventMovingBackwards: 0
 --- !u!114 &3740510901630673340
 MonoBehaviour:
