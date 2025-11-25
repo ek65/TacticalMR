@@ -36,11 +36,12 @@ public class GroundDeselection : MonoBehaviour, IPointerClickHandler
     /// </summary>
     private void ClearGroundHighlights()
     {
-        var groundSelections = GameObject.FindGameObjectsWithTag("Ground");
+        // var groundSelections = GameObject.FindGameObjectsWithTag("Ground");
         
-        foreach (var gs in groundSelections)
-        {
-            gs.GetComponent<GroundSelection>().ClearGroundHighlights();
-        }
+        // foreach (var gs in groundSelections)
+        // {
+        //     gs.GetComponent<GroundSelection>().ClearGroundHighlights();
+        // }
+        Destroy(this.gameObject);
     }
 }

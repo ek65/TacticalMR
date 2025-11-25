@@ -332,6 +332,7 @@ public class ActionAPI : NetworkBehaviour
 
     private IEnumerator PutDownCoroutine()
     {
+        stopMovement = true;
         // 1. Find the human player (not self)
         GameObject[] players = GameObject.FindGameObjectsWithTag("player");
         GameObject human = null;
@@ -387,11 +388,19 @@ public class ActionAPI : NetworkBehaviour
         Vector3 moveToPosition = furthestChild.position;
 
         // Wait until close enough to the moveToPosition
-        while (Vector3.Distance(this.gameObject.transform.position, moveToPosition) > 1.5f)
+        RichAI aiNav = this.gameObject.GetComponent<RichAI>();
+        GameManager gm = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
+        while (Vector3.Distance(this.gameObject.transform.position, moveToPosition) > 0.5f)
         {
+            aiNav.endReachedDistance = 0.5f;
+            if (gm.isHost)
+            {
+                RPC_SetAnimController("Movement");
+            }
             MoveToPos(moveToPosition);
             yield return null;
         }
+        aiNav.endReachedDistance = 1.5f;
 
         // 5. Find the actual putdown position (child of furthestChild)
         Transform putDownTransform = null;
@@ -410,7 +419,10 @@ public class ActionAPI : NetworkBehaviour
 
         // 6. Trigger the "PutDown" animation at the putdown position
         finalPos = putDownPosition;
-        SetAnimController("FactoryMovement");
+        if (gm.isHost)
+        {
+            RPC_SetAnimController("FactoryMovement");
+        }
         stopMovement = true;
         yield return StartCoroutine(LookTowards(putDownPosition, "PutDown"));
     }
@@ -480,6 +492,17 @@ public class ActionAPI : NetworkBehaviour
 
     private IEnumerator PackagingCoroutine(GameObject targetObject, Color color, float delay)
     {
+        // if player is not near the target object, move to it
+        RichAI aiNav = this.gameObject.GetComponent<RichAI>();
+        while (Vector3.Distance(this.gameObject.transform.position, targetObject.transform.position) > 1.5f)
+        {
+            MoveToPos(targetObject.transform.position);
+            yield return null;
+        }
+
+        stopMovement = true;
+        SetAnimController("FactoryMovement");
+        
         yield return new WaitForSeconds(delay);
         Renderer objRenderer = targetObject.GetComponent<Renderer>();
 
@@ -494,6 +517,7 @@ public class ActionAPI : NetworkBehaviour
 
         targetObject.GetComponent<BoxInterface>().isPackaged = true;
         Debug.Log("Finished packaging the object");
+        LogPackaging(targetObject);
     }
 
     private GameObject FindNearestObject()
@@ -502,7 +526,7 @@ public class ActionAPI : NetworkBehaviour
         Vector3 originPosition = this.gameObject.transform.position;
 
         return grabbableObjects
-            .Where(obj => Vector3.Distance(obj.transform.position, originPosition) <= 2.5f)
+            .Where(obj => Vector3.Distance(obj.transform.position, originPosition) <= 10f && obj.GetComponent<BoxInterface>().isPackaged == false)
             .OrderBy(obj => Vector3.Distance(obj.transform.position, originPosition))
             .FirstOrDefault();
     }
@@ -1694,7 +1718,6 @@ public class ActionAPI : NetworkBehaviour
         {
             StartCoroutine(PackagingCoroutine(closestObject, Color.magenta, 2f));
             StartCoroutine(LookTowards(closestObject.transform.position, "Packaging"));
-            LogPackaging(closestObject);
         }
         else
         {
@@ -1727,7 +1750,7 @@ public class ActionAPI : NetworkBehaviour
 
             pI.grabbedObject = null;
             pI.objectPossession = false;
-            droppedObject.GetComponent<BoxInterface>().isPossessed = false;
+            StartCoroutine(TurnIsPossessedFalseAfterDelay(droppedObject, 1f));
             
             LogPutDown(droppedObject);
             
@@ -1771,6 +1794,14 @@ public class ActionAPI : NetworkBehaviour
             }
         }
     }
+
+    // coroutine to turn isPossessed true after a delay
+    private IEnumerator TurnIsPossessedFalseAfterDelay(GameObject isPossessedObject, float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        isPossessedObject.GetComponent<BoxInterface>().isPossessed = false;
+    }
+
     public void MoveBox()
     {
         if (this.GetComponent<PlayerInterface>() == true) {

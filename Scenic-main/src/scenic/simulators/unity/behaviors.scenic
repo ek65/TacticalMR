@@ -74,7 +74,7 @@ behavior Shoot(goal):
         goal = [obj for obj in scene.objects if obj.name.lower() == goal.lower()][0] # converts string into object reference
     take  GroundPassFastAction(goal.position, "Shoot Ball")
 
-behavior MoveToBehavior(v, lookAtTarget = None, distance = 1.5, status=""):
+behavior MoveToBehavior(v, lookAtTarget = None, distance = 2.5, status=""):
     dist = 1000
     while not (dist < distance):
         if isinstance(v, Ball):

@@ -126,7 +126,7 @@ class Constraint:
         return True
     
     def __and__(self, other):
-        print(f"DEBUG: __and__ called with {type(self)} and {type(other)}")
+        # print(f"DEBUG: __and__ called with {type(self)} and {type(other)}")
         return CompositeConstraint(self, other, 'AND')
     
     def __or__(self, other):
@@ -603,16 +603,16 @@ class DistanceTo(Constraint):
             z = self.toID.get('z', 0.0)
             ref_pos = Vector(x, y)
             x, y = location(ref_pos)
-            print('x', x)
-            print('y', y)
+            # print('x', x)
+            # print('y', y)
         else:
             # Object reference specified
             ref = findObj(self.toID, scene.objects)
-            print('ref_x', ref[0].position.x)
-            print('ref_y', ref[0].position.y)
+            # print('ref_x', ref[0].position.x)
+            # print('ref_y', ref[0].position.y)
             x, y = location(ref[0].position)
-            print('ref_x', x)
-            print('ref_y', y)
+            # print('ref_x', x)
+            # print('ref_y', y)
             if not ref:
                 raise Exception(f'DistanceTo constraint requires a valid reference object (toID).')
 
@@ -621,7 +621,7 @@ class DistanceTo(Constraint):
         distances = np.sqrt((i - y)**2 + (j - x)**2)
 
         # print("dist4")
-        print('distance to', x, y, 'minAvg:', self.minAvg, 'maxAvg:', self.maxAvg, 'operator:', self.operator)
+        # print('distance to', x, y, 'minAvg:', self.minAvg, 'maxAvg:', self.maxAvg, 'operator:', self.operator)
 
         if self.operator == 'within':
 
@@ -640,7 +640,7 @@ class DistanceTo(Constraint):
             bump = np.exp(-(distances**2) / (2 * sigma**2))
             # print('bump', bump)
             map = np.where(mask, bump + epsilon, epsilon)
-            print('map', map)
+            # print('map', map)
 
         elif self.operator == 'greater_than':
             sigma = self.minAvg

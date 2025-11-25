@@ -260,10 +260,10 @@ public class GroundSelection : MonoBehaviour, IPointerClickHandler, IPointerEnte
     private void PlaceGroundMarker()
     {
         // Remove existing marker
-        if (placedGroundHighlighter != null)
-        {
-            Destroy(placedGroundHighlighter);
-        }
+        // if (placedGroundHighlighter != null)
+        // {
+        //     Destroy(placedGroundHighlighter);
+        // }
         
         // Create new marker at hit point
         GameObject go = Instantiate(newGroundHighlighter, raycastHit.point, Quaternion.identity);

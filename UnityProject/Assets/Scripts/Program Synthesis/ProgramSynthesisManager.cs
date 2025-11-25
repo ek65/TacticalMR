@@ -117,9 +117,12 @@ public class ProgramSynthesisManager : NetworkBehaviour
             }
             
             // Clear UI elements and pause timeline
-            GroundSelection groundSelection = GameObject.FindGameObjectWithTag("Ground")
-                .GetComponent<GroundSelection>();
-            groundSelection.ClearGroundHighlights();
+            var groundSelections = GameObject.FindGameObjectsWithTag("Ground");
+        
+            foreach (var gs in groundSelections)
+            {
+                gs.GetComponent<GroundSelection>().ClearGroundHighlights();
+            }
         
             timelineManager.Pause();
         }
@@ -374,9 +377,12 @@ public class ProgramSynthesisManager : NetworkBehaviour
         }
 
         // Clean up UI
-        GroundSelection groundSelection = GameObject.FindGameObjectWithTag("Ground")
-            .GetComponent<GroundSelection>();
-        groundSelection.ClearGroundHighlights();
+        var groundSelections = GameObject.FindGameObjectsWithTag("Ground");
+        
+        foreach (var gs in groundSelections)
+        {
+            gs.GetComponent<GroundSelection>().ClearGroundHighlights();
+        }
 
         // Start file processing pipeline
         isProcessingComplete = false; // Mark that we're starting processing

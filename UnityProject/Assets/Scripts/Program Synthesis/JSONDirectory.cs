@@ -358,9 +358,12 @@ public class JSONDirectory : NetworkBehaviour
         yield return new WaitForSeconds(0.5f);
         
         // Clear ground highlights and reset system state
-        GroundSelection groundSelection = GameObject.FindGameObjectWithTag("Ground")
-            .GetComponent<GroundSelection>();
-        groundSelection.ClearGroundHighlights();
+        var groundSelections = GameObject.FindGameObjectsWithTag("Ground");
+        
+        foreach (var gs in groundSelections)
+        {
+            gs.GetComponent<GroundSelection>().ClearGroundHighlights();
+        }
         
         // Reset timeline and scenario state
         programSynthesisManager.timelineManager.Unpause();

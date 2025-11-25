@@ -238,7 +238,7 @@ public class TimelineManager : NetworkBehaviour
             }
         }
         
-        RPC_PauseText("PAUSED, Press A to Unpause");
+        RPC_PauseText("PAUSED, Press Space to Unpause");
         Paused = true;
         maxRewindTimeIndex = 0;
     }
