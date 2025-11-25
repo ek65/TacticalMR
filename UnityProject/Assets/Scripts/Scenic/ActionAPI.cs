@@ -500,23 +500,25 @@ public class ActionAPI : NetworkBehaviour
         //     yield return null;
         // }
 
-        while (Vector3.Distance(this.gameObject.transform.position, targetObject.transform.position) > 1.5f || aiNav.reachedEndOfPath == false)
+        Debug.LogError("here1");
+
+        while (Vector3.Distance(this.gameObject.transform.position, targetObject.transform.position) > 2f || aiNav.reachedEndOfPath == false)
         {
-            aiNav.endReachedDistance = 1.5f;
+            Debug.LogError("here2");
+            aiNav.endReachedDistance = 2f;
             RPC_SetAnimController("Movement");
             MoveToPos(targetObject.transform.position);
             yield return null;
+            Debug.LogError("here3");
         }
 
         aiNav.endReachedDistance = 1.5f;
-        
-        yield return new WaitForSeconds(0.5f);
+        Debug.LogError("here4");
+        yield return new WaitForSeconds(delay);
 
         stopMovement = true;
         RPC_SetAnimController("FactoryMovement");
         StartCoroutine(LookTowards(targetObject.transform.position, "Packaging"));
-
-        yield return new WaitForSeconds(delay);
 
         Renderer objRenderer = targetObject.GetComponent<Renderer>();
 
