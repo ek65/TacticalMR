@@ -503,8 +503,11 @@ public class ActionAPI : NetworkBehaviour
         //     yield return null;
         // }
 
-        while (Vector3.Distance(this.gameObject.transform.position, targetObject.transform.position) >= 2f)
+        // Debug.LogError("here0" + Vector3.Distance(this.gameObject.transform.position, targetObject.transform.position));
+
+        while (Vector3.Distance(this.gameObject.transform.position, targetObject.transform.position) >= 1.5f)
         {
+            // Debug.LogError("here1" + Vector3.Distance(this.gameObject.transform.position, targetObject.transform.position));
             RPC_SetAnimController("Movement");
             MoveToPos(targetObject.transform.position);
             yield return null;
@@ -1080,7 +1083,6 @@ public class ActionAPI : NetworkBehaviour
                 selfPlayer.GetComponent<Animator>().SetFloat("VelZ", velz);
                 yield return null;
                 destSetter.target.position = Destiny;
-
             }
             destSetter.target.localPosition = Vector3.zero;
 
