@@ -514,11 +514,13 @@ public class ActionAPI : NetworkBehaviour
 
         aiNav.endReachedDistance = 1.5f;
         Debug.LogError("here4");
-        yield return new WaitForSeconds(delay);
+        yield return new WaitForSeconds(1f);
 
         stopMovement = true;
         RPC_SetAnimController("FactoryMovement");
         StartCoroutine(LookTowards(targetObject.transform.position, "Packaging"));
+
+        yield return new WaitForSeconds(delay);
 
         Renderer objRenderer = targetObject.GetComponent<Renderer>();
 
