@@ -390,9 +390,9 @@ public class ActionAPI : NetworkBehaviour
         // Wait until close enough to the moveToPosition
         RichAI aiNav = this.gameObject.GetComponent<RichAI>();
         GameManager gm = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
-        while (Vector3.Distance(this.gameObject.transform.position, moveToPosition) > 0.5f || aiNav.reachedEndOfPath == false)
+        aiNav.endReachedDistance = 0.5f;
+        while (Vector3.Distance(this.gameObject.transform.position, moveToPosition) >= 0.5f)
         {
-            aiNav.endReachedDistance = 0.5f;
             if (gm.isHost)
             {
                 RPC_SetAnimController("Movement");
@@ -400,7 +400,10 @@ public class ActionAPI : NetworkBehaviour
             MoveToPos(moveToPosition);
             yield return null;
         }
-        aiNav.endReachedDistance = 1.5f;
+        aiNav.endReachedDistance = 1f;
+        // reset the destination setter to avoid pathfinding issues
+        stopMovement = true;
+        this.gameObject.GetComponent<AIDestinationSetter>().target.localPosition = Vector3.zero;
 
         // 5. Find the actual putdown position (child of furthestChild)
         Transform putDownTransform = null;
@@ -500,23 +503,18 @@ public class ActionAPI : NetworkBehaviour
         //     yield return null;
         // }
 
-        Debug.LogError("here1");
-
-        while (Vector3.Distance(this.gameObject.transform.position, targetObject.transform.position) > 2f || aiNav.reachedEndOfPath == false)
+        while (Vector3.Distance(this.gameObject.transform.position, targetObject.transform.position) >= 2f)
         {
-            Debug.LogError("here2");
-            aiNav.endReachedDistance = 2f;
             RPC_SetAnimController("Movement");
             MoveToPos(targetObject.transform.position);
             yield return null;
-            Debug.LogError("here3");
         }
-
-        aiNav.endReachedDistance = 1.5f;
-        Debug.LogError("here4");
+        
+        // reset the destination setter to avoid pathfinding issues
+        stopMovement = true;
+        // this.gameObject.GetComponent<AIDestinationSetter>().target.position = Vector3.zero;
         yield return new WaitForSeconds(1f);
 
-        stopMovement = true;
         RPC_SetAnimController("FactoryMovement");
         StartCoroutine(LookTowards(targetObject.transform.position, "Packaging"));
 
@@ -1076,13 +1074,15 @@ public class ActionAPI : NetworkBehaviour
         {
             PlayerInterface pI = this.gameObject.GetComponent<PlayerInterface>();
             StartCoroutine(pI.SetIsMoving(true));
-            while (destSetter.target.position != this.gameObject.transform.position)
+            while (Vector3.Distance(destSetter.target.position, this.gameObject.transform.position) >= 1.5f)
             {
                 float velz = aiNav.velocity.magnitude;
                 selfPlayer.GetComponent<Animator>().SetFloat("VelZ", velz);
                 yield return null;
                 destSetter.target.position = Destiny;
+
             }
+            destSetter.target.localPosition = Vector3.zero;
 
             stopMovement = true;
             

@@ -3307,7 +3307,7 @@ MonoBehaviour:
   groundMask:
     serializedVersion: 2
     m_Bits: 4294967295
-  endReachedDistance: 1.5
+  endReachedDistance: 1
   whenCloseToDestination: 0
   rvoDensityBehavior:
     enabled: 0
@@ -3325,9 +3325,9 @@ MonoBehaviour:
     sensitivity: 10
     maximumPeriod: 2
     visualizeSensitivity: 0
-  acceleration: 5
+  acceleration: 3
   rotationSpeed: 360
-  slowdownTime: 0
+  slowdownTime: 0.5
   wallForce: 0
   wallDist: 0
   funnelSimplification: 0
