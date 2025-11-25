@@ -600,7 +600,9 @@ class DistanceTo(Constraint):
             # Direct position specified
             x = self.toID.get('x', 0.0)
             y = self.toID.get('y', 0.0)
-            z = self.toID.get('z', 0.0)
+            # if 'z' in self.toID, then use it for y coordinate (this is to combat issues with synthesis if it produced a z then it likely created a 3D point)
+            if 'z' in self.toID:
+                y = self.toID.get('z', 0.0)
             ref_pos = Vector(x, y)
             x, y = location(ref_pos)
             # print('x', x)
