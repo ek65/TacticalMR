@@ -80,7 +80,7 @@ behavior Shoot(goal):
         goal = [obj for obj in scene.objects if obj.name.lower() == goal.lower()][0] # converts string into object reference
     take  GroundPassFastAction(goal.position, "Shoot Ball")
 
-behavior MoveToBehavior(v, lookAtTarget = None, distance = 2.5, status=""):
+behavior MoveToBehavior(v, lookAtTarget = None, distance = 0.5, status=""):
     dist = 1000
     while not (dist < distance):
         if isinstance(v, Ball):
@@ -349,21 +349,25 @@ behavior MoveToRobot(v, lookAtTarget = None, distance = 0.5, status=""):
 #     do Idle() for 1 seconds
 
 behavior PickUp():
+    do Idle() for 2 seconds
     take PickUpAction()
     do Idle() for 2 seconds
     take StopAction()
 
 behavior PutDown():
+    do Idle() for 2 seconds
     take PutDownAction()
     do Idle() for 2 seconds
     take StopAction()
 
 behavior Packaging():
+    do Idle() for 2 seconds
     take PackagingAction()
     do Idle() for 4 seconds
     take StopAction()
 
 behavior RaiseHand():
+    do Idle() for 2 seconds
     take RaiseHandAction()
     do Idle() for 1 seconds
     take StopAction()
@@ -541,6 +545,7 @@ def sample_from(dist, _min=0.4):
 
 # Factory MoveTo
 behavior MoveTo(param, doPass: bool = False):
+    do Idle() for 2 seconds
     if SAVE:
         fname = f"{random.randint(10000, 99999)}.png"
         path = os.path.join(desktop, fname)

@@ -2,13 +2,13 @@
   "states": [
     {
       "id": 1,
-      "name": "Packaging()",
-      "description": "Human packages box in front of them"
+      "name": "RaiseHand()",
+      "description": "Raise your hand to ask the robot for help."
     },
     {
       "id": 2,
-      "name": "RaiseHand()",
-      "description": "Raise hand to signal packaging complete"
+      "name": "Packaging()",
+      "description": "Now package the delivered box."
     }
   ],
   "transitions": [
@@ -23,8 +23,15 @@
       "id": 1002,
       "from": 1,
       "to": 2,
-      "condition": "precondition_0()",
-      "description": "Wait until Human finishes packaging Box1"
+      "condition": "\u03bb_pre_robot_at_drop()",
+      "description": "Wait until the robot is within about 1 meter of the drop area."
+    },
+    {
+      "id": 1003,
+      "from": 2,
+      "to": 2,
+      "condition": "\u03bb_pre_packaged()",
+      "description": "Wait until the box is fully packaged."
     }
   ]
 }

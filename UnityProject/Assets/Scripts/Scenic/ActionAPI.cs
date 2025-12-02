@@ -81,6 +81,16 @@ public class ActionAPI : NetworkBehaviour
                 alreadyInAnimation = false;
             }
         }
+
+        AIDestinationSetter dest = this.gameObject.GetComponent<AIDestinationSetter>();
+
+        if (stopMovement)
+        {
+            dest.target.localPosition = Vector3.zero;
+            stopMovement = false;
+            this.gameObject.GetComponent<Animator>().SetFloat("VelZ", 0);
+            this.gameObject.GetComponent<Animator>().SetFloat("VelX", 0);
+        }
     }
     #endregion
 
@@ -294,6 +304,8 @@ public class ActionAPI : NetworkBehaviour
                 .OrderBy(obj => Vector3.Distance(obj.transform.position, originPosition))
                 .FirstOrDefault();
 
+            lookAtPosition = closestObject.transform.position;
+
             if (closestObject != null)
             {
                 StartCoroutine(LookTowards(lookAtPosition, "PickUp"));
@@ -391,7 +403,8 @@ public class ActionAPI : NetworkBehaviour
         RichAI aiNav = this.gameObject.GetComponent<RichAI>();
         GameManager gm = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
         aiNav.endReachedDistance = 0.5f;
-        while (Vector3.Distance(this.gameObject.transform.position, moveToPosition) >= 0.5f)
+        var timeLimit = 3f;
+        while (Vector3.Distance(this.gameObject.transform.position, moveToPosition) >= 1f)
         {
             if (gm.isHost)
             {
@@ -399,11 +412,20 @@ public class ActionAPI : NetworkBehaviour
             }
             MoveToPos(moveToPosition);
             yield return null;
+            timeLimit -= Time.deltaTime;
+            if (timeLimit <= 0f)
+            {
+                Debug.LogError("Time limit reached for PutDown.");
+                break;
+            }
         }
         aiNav.endReachedDistance = 1f;
         // reset the destination setter to avoid pathfinding issues
         stopMovement = true;
         this.gameObject.GetComponent<AIDestinationSetter>().target.localPosition = Vector3.zero;
+        
+        // Wait a frame to ensure movement has fully stopped
+        yield return null;
 
         // 5. Find the actual putdown position (child of furthestChild)
         Transform putDownTransform = null;
@@ -505,18 +527,25 @@ public class ActionAPI : NetworkBehaviour
 
         // Debug.LogError("here0" + Vector3.Distance(this.gameObject.transform.position, targetObject.transform.position));
 
-        while (Vector3.Distance(this.gameObject.transform.position, targetObject.transform.position) >= 1.5f)
+        var timeLimit = 3f;
+        while (Vector3.Distance(this.gameObject.transform.position, targetObject.transform.position) >=1.5f)
         {
             // Debug.LogError("here1" + Vector3.Distance(this.gameObject.transform.position, targetObject.transform.position));
             RPC_SetAnimController("Movement");
             MoveToPos(targetObject.transform.position);
             yield return null;
+            timeLimit -= Time.deltaTime;
+            if (timeLimit <= 0f)
+            {
+                Debug.LogError("Time limit reached for Packaging.");
+                break;
+            }
         }
         
         // reset the destination setter to avoid pathfinding issues
         stopMovement = true;
         // this.gameObject.GetComponent<AIDestinationSetter>().target.position = Vector3.zero;
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(delay);
 
         RPC_SetAnimController("FactoryMovement");
         StartCoroutine(LookTowards(targetObject.transform.position, "Packaging"));
@@ -537,6 +566,8 @@ public class ActionAPI : NetworkBehaviour
         targetObject.GetComponent<BoxInterface>().isPackaged = true;
         Debug.Log("Finished packaging the object");
         LogPackaging(targetObject);
+        yield return new WaitForSeconds(1f);
+        stopMovement = true;
     }
 
     private GameObject FindNearestObject()
@@ -545,7 +576,7 @@ public class ActionAPI : NetworkBehaviour
         Vector3 originPosition = this.gameObject.transform.position;
 
         return grabbableObjects
-            .Where(obj => Vector3.Distance(obj.transform.position, originPosition) <= 10f && obj.GetComponent<BoxInterface>().isPackaged == false)
+            .Where(obj => Vector3.Distance(obj.transform.position, originPosition) <= 5f && obj.GetComponent<BoxInterface>().isPackaged == false)
             .OrderBy(obj => Vector3.Distance(obj.transform.position, originPosition))
             .FirstOrDefault();
     }
@@ -1016,6 +1047,8 @@ public class ActionAPI : NetworkBehaviour
     #endregion
 
     #region Helper Coroutines
+
+    private Coroutine currentMoveCoroutine;
     /// <summary>
     /// Main movement helper that handles AI pathfinding
     /// </summary>
@@ -1029,13 +1062,20 @@ public class ActionAPI : NetworkBehaviour
         AIDestinationSetter dest = selfPlayer.GetComponent<AIDestinationSetter>();
         RichAI aiNav = selfPlayer.GetComponent<RichAI>();
 
+        // stop previous movement coroutine if it exists
+        if (currentMoveCoroutine != null)
+        {
+            StopCoroutine(currentMoveCoroutine);
+            currentMoveCoroutine = null;
+        }
+
         if (!lookAt)
         {
-            StartCoroutine(Move2(dest, aiNav, destinationPosition));
+            currentMoveCoroutine = StartCoroutine(Move2(dest, aiNav, destinationPosition));
         }
         else if (lookAt)
         {
-            StartCoroutine(Move3(dest, aiNav, destinationPosition));
+            currentMoveCoroutine = StartCoroutine(Move3(dest, aiNav, destinationPosition));
         }
 
         yield return null;
@@ -1077,7 +1117,7 @@ public class ActionAPI : NetworkBehaviour
         {
             PlayerInterface pI = this.gameObject.GetComponent<PlayerInterface>();
             StartCoroutine(pI.SetIsMoving(true));
-            while (Vector3.Distance(destSetter.target.position, this.gameObject.transform.position) >= 1.5f)
+            while (Vector3.Distance(destSetter.target.position, this.gameObject.transform.position) >= 1f)
             {
                 float velz = aiNav.velocity.magnitude;
                 selfPlayer.GetComponent<Animator>().SetFloat("VelZ", velz);
@@ -1665,8 +1705,23 @@ public class ActionAPI : NetworkBehaviour
     {
         RPC_SetAnimController("FactoryMovement");
         GameObject selfPlayer = this.gameObject;
+        
+        // Disable AI rotation control to allow manual rotation
+        RichAI aiNav = selfPlayer.GetComponent<RichAI>();
+        bool wasUpdatingRotation = aiNav != null ? aiNav.updateRotation : true;
+        if (aiNav != null)
+        {
+            aiNav.updateRotation = false;
+        }
+        
+        // Flatten vectors to horizontal plane (ignore Y component for rotation)
         Vector3 fromVector = selfPlayer.transform.forward;
+        fromVector.y = 0f;
+        fromVector.Normalize();
+        
         Vector3 toVector = destinationPosition - selfPlayer.transform.position;
+        toVector.y = 0f; // Flatten to horizontal plane
+        toVector.Normalize();
         
         // Calculate angle and rotation direction
         float angle = Vector3.Angle(fromVector, toVector);
@@ -1675,10 +1730,23 @@ public class ActionAPI : NetworkBehaviour
 
         yield return StartCoroutine(RotateCoroutine(angle, rotationDirection, rotationDuration / 2f));
 
+        yield return new WaitForSeconds(rotationDuration);
+
         // Trigger animation after rotation completes
         if (keyCode != null)
         {
             selfPlayer.GetComponent<Animator>().SetTrigger(keyCode);
+        }
+
+        // wait for animation to complete before re-enabling rotation
+        // get time of animation
+        float animationTime = selfPlayer.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).length;
+        yield return new WaitForSeconds(animationTime);
+
+        // Re-enable AI rotation control if it was enabled before
+        if (aiNav != null)
+        {
+            aiNav.updateRotation = wasUpdatingRotation;
         }
     }
     
@@ -1770,6 +1838,7 @@ public class ActionAPI : NetworkBehaviour
 
             pI.grabbedObject = null;
             pI.objectPossession = false;
+            droppedObject.GetComponent<BoxCollider>().enabled = true;
             StartCoroutine(TurnIsPossessedFalseAfterDelay(droppedObject, 1f));
             
             LogPutDown(droppedObject);
@@ -1838,6 +1907,9 @@ public class ActionAPI : NetworkBehaviour
             {
                 int layerIgnoreBallCollision = LayerMask.NameToLayer("PlayerBall");
                 pI.gameObject.layer = layerIgnoreBallCollision;
+                
+                // disable box collider
+                closestObject.GetComponent<BoxCollider>().enabled = false;
 
                 closestObject.transform.position = pI.objectPosition.position;
                 closestObject.transform.SetParent(pI.objectPosition);

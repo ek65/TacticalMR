@@ -58,6 +58,7 @@ TagManager:
   - ScenarioTypeManager
   - ScenarioCreationManager
   - workstation
+  - GroundHighlight
   layers:
   - Default
   - TransparentFX

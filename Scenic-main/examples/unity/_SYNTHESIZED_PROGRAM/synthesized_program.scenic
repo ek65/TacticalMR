@@ -7,117 +7,132 @@ from scenic.core.regions import MeshVolumeRegion
 import random
 ####HEADER ENDS####
 
-A1target_move1 = HasPath({'obj1': 'Coach', 'obj2': 'LeftStriker', 'path_width': {'avg': 2, 'std': 0.2}})
-A2target_move1 = DistanceTo({'from': 'Coach', 'to': 'Defender4', 'min': {'avg': 3, 'std': 0.3}, 'max': None, 'operator': 'greater_than'})
-A3target_move1 = DistanceTo({'from': 'Coach', 'to': 'LeftStriker', 'min': {'avg': 7, 'std': 0.3}, 'max': {'avg': 13, 'std': 0.2}, 'operator': 'within'})
+# --- Targets (for Robot movement) ---
+# Stage stop (after pickup) from both demos
+A1target_stage_0 = DistanceTo({'from': 'Robot1', 'to': {'x': -1.98498821, 'y': 10.7174091}, 'min': None, 'max': {'avg': 0.8, 'std': 0.05}, 'operator': 'less_than'})
+A1target_stage_1 = DistanceTo({'from': 'Robot1', 'to': {'x': -1.98498869, 'y': 10.3888216}, 'min': None, 'max': {'avg': 0.8, 'std': 0.05}, 'operator': 'less_than'})
 
-A1precondition_pass = HasPath({'obj1': 'Coach', 'obj2': 'LeftStriker', 'path_width': {'avg': 2, 'std': 0.2}})
-A2precondition_pass = HasBallPossession({'player': 'Coach'})
+# Final drop spot updated to coach-specified location
+# CHANGED: both entries now point to (-3.142775, 11.5613346) to tightly focus the drop location.
+A1target_drop_0 = DistanceTo({'from': 'Robot1', 'to': {'x': -3.142775, 'y': 11.5613346}, 'min': None, 'max': {'avg': 0.8, 'std': 0.05}, 'operator': 'less_than'})
+A1target_drop_1 = DistanceTo({'from': 'Robot1', 'to': {'x': -3.142775, 'y': 11.5613346}, 'min': None, 'max': {'avg': 0.8, 'std': 0.05}, 'operator': 'less_than'})
 
-A1precondition_support = HasBallPossession({'player': 'LeftStriker'})
+# NEW: target to move in front of the specific box spawn location provided by coach
+A1target_box = DistanceTo({'from': 'Robot1', 'to': {'x': 0.149280369, 'y': 8.603329}, 'min': None, 'max': {'avg': 0.8, 'std': 0.05}, 'operator': 'less_than'})
 
-# Supporting position after pass (as in demo_1): X=-2.39, Y=2.76, about 4 meters from both current Coach and LeftStriker
-A1target_support = DistanceTo({'from': 'Coach', 'to': 'LeftStriker', 'min': {'avg': 3.5, 'std': 0.2}, 'max': {'avg': 5, 'std': 0.2}, 'operator': 'within'})
-# Also keep clear of nearby defender
-A2target_support = DistanceTo({'from': 'Coach', 'to': 'Defender4', 'min': {'avg': 3, 'std': 0.2}, 'max': None, 'operator': 'greater_than'})
-
-def λ_target_move1():
-    cond = A1target_move1 & A2target_move1 & A3target_move1
+def λ_target_stage():
+    # union of stage positions observed in the demonstrations
+    cond = (A1target_stage_0 | A1target_stage_1)
     return cond.dist(simulation(), ego=True)
 
-def λ_target_support():
-    cond = A1target_support & A2target_support
+def λ_target_drop():
+    # union (now redundant but preserved) pointing to coach-specified drop location
+    cond = (A1target_drop_0 | A1target_drop_1)
     return cond.dist(simulation(), ego=True)
 
-def λ_precondition_pass():
-    cond = A1precondition_pass & A2precondition_pass
+# NEW: move-to target right in front of the specified box location
+def λ_target_box():
+    cond = A1target_box
+    return cond.dist(simulation(), ego=True)
+
+# --- Preconditions / Terminations ---
+A1pre_hr = HandRaised({'player': 'Human1'})
+A1pre_possessed = IsPossessed({'obj': 'Box1'})
+A1pre_packaged = IsPackaged({'obj': 'Box1'})
+
+# human waits until robot is near the (new) drop zone (within ~1 m)
+# CHANGED: both guards point to the precise coach-specified drop coordinate.
+A1pre_robot_near_drop0 = DistanceTo({'from': 'Robot1', 'to': {'x': -3.142775, 'y': 11.5613346}, 'min': None, 'max': {'avg': 1.0, 'std': 0.1}, 'operator': 'less_than'})
+A1pre_robot_near_drop1 = DistanceTo({'from': 'Robot1', 'to': {'x': -3.142775, 'y': 11.5613346}, 'min': None, 'max': {'avg': 1.0, 'std': 0.1}, 'operator': 'less_than'})
+
+def λ_pre_hr():
+    return A1pre_hr.bool(simulation())
+
+def λ_pre_possessed():
+    return A1pre_possessed.bool(simulation())
+
+def λ_pre_packaged():
+    return A1pre_packaged.bool(simulation())
+
+def λ_pre_robot_at_drop():
+    cond = (A1pre_robot_near_drop0 | A1pre_robot_near_drop1)
     return cond.bool(simulation())
 
-def λ_precondition_support():
-    return A1precondition_support.bool(simulation())
+# Retained (unused after coach’s correction), but harmless.
+# New: ensure the box has been put down at the drop spot before packaging.
+# We wait for (robot near drop) AND (box not possessed by any agent).
+def λ_pre_box_placed_at_drop():
+    # NOTE: Using conjunction (&) and negation (~) as allowed by the API composition rules.
+    cond = (~A1pre_possessed) & (A1pre_robot_near_drop0 | A1pre_robot_near_drop1)
+    return cond.bool(simulation())
+
+# ----------------- BEHAVIORS -----------------
 
 behavior CoachBehavior():
+    # (Human is the coached agent)
     do Idle() for 3 seconds
-    do Speak("Wait 3 seconds to observe ball possession and teammates' positioning.")
-    do Speak("Move to spot with clear 2m passing lane to LeftStriker, more than 3m from Defender4.")
-    do MoveTo(λ_target_move1(), False)
-    do Speak("Wait until you have ball and passing lane to LeftStriker is clear (2m path width).")
-    do Idle() until λ_precondition_pass()
-    do Speak("Angle and lane to LeftStriker is clear; pass ball to LeftStriker.")
-    do Pass("LeftStriker")
-    do Speak("Wait until LeftStriker has the ball before supporting.")
-    do Idle() until λ_precondition_support()
-    do Speak("Move to support: 3.5-5m from LeftStriker, more than 3m from nearest defender.")
-    do MoveTo(λ_target_support(), False)
+
+    do Speak("Raise your hand to ask the robot for help.")
+    do RaiseHand()
+
+    # CHANGED: Wait exactly for robot proximity (~1 m) to the specified drop area.
+    do Speak("Wait until robot is within 1 meter of the drop spot.")
+    do Idle() until λ_pre_robot_at_drop()
+
+    do Speak("Now package the delivered box.")
+    do Packaging()
+
+    do Speak("Wait until the box is fully packaged.")
+    do Idle() until λ_pre_packaged()
+
     do Idle()
 
-####Environment Behavior START####
+behavior Agent1Behavior():
+    # (Robot behavior in the environment)
+    do Idle() for 3 seconds
 
-# Ego (center midfielder) at origin
-pi = 3.1415
-ego = new Coach at (0, 0, 0), with team "blue", with behavior CoachBehavior()
+    ## Wait for the human to raise a hand requesting help.
+    do Idle() until λ_pre_hr()
 
-# Wingers
-left_winger_angle = -90 + Uniform(0, 10)  # degrees from y-axis, 90 is positive x-axis (left), variance +/-10
-right_winger_angle = 90 + Uniform(0, 10)  # degrees from y-axis, -90 is negative x-axis (right), variance +/-10
-winger_dist = Uniform(6,8)
+    ## CHANGED: Move in front of the specified box location before picking up.
+    do MoveTo(λ_target_box())
 
-left_winger_x = winger_dist * sin(left_winger_angle * pi / 180)
-left_winger_y = winger_dist * cos(left_winger_angle * pi / 180)
-LeftWinger = new Player at (left_winger_x, left_winger_y, 0), facing toward ego, with name "LeftWinger", with team "blue"
+    ## Pick up the nearest box (requested by the human).
+    do PickUp()
 
-right_winger_x = winger_dist * sin(right_winger_angle * pi / 180)
-right_winger_y = winger_dist * cos(right_winger_angle * pi / 180)
-RightWinger = new Player at (right_winger_x, right_winger_y, 0), facing toward ego, with name "RightWinger", with team "blue"
+    ## Ensure the box is in possession before moving.
+    do Idle() until λ_pre_possessed()
 
-# Strikers
-left_striker_angle = -Uniform(8, 20)
-right_striker_angle = Uniform(8, 20)
-striker_dist = Uniform(8,10)
+    ## CHANGED: Go directly to the precise drop location near the human.
+    do Idle() until True
+    do MoveTo(λ_target_drop())
 
-left_striker_x = striker_dist * sin(left_striker_angle * pi / 180)
-left_striker_y = striker_dist * cos(left_striker_angle * pi / 180)
-LeftStriker = new Player at (left_striker_x, left_striker_y, 0), facing toward ego, with name "LeftStriker", with team "blue"
+    ## Put the box down for the human to package.
+    do PutDown()
 
-right_striker_x = striker_dist * sin(right_striker_angle * pi / 180)
-right_striker_y = striker_dist * cos(right_striker_angle * pi / 180)
-RightStriker = new Player at (right_striker_x, right_striker_y, 0), facing toward ego, with name "RightStriker", with team "blue"
+    do Idle()
 
-# Ball at ego's feet
-ball = new Ball at (0, .2, 0)
+# ----------------- SCENE INSTANTIATION -----------------
 
-# Defenders: each assigned to one attacker, at a distance and angle in front of them, facing ego
-# Helper function for defender placement
-# (Scenic doesn't support functions in .scenic, so we inline the logic)
+# Human start positions from the two demonstrations (x, z, y). y is height.
+Human1_pos0 = (-1.98498869, 11.3636265, 0)
+Human1_pos1 = (-2.04645348, 11.1822281, 0)
 
-defender1_angle = Uniform(-10, 10)
-defender1_dist = Uniform(2,4)
-defender1_x = ego.position.x + defender1_dist * sin(defender1_angle * pi / 180)
-defender1_y = ego.position.y + defender1_dist * cos(defender1_angle * pi / 180)
-defender1 = new Player at (defender1_x, defender1_y, 0), facing toward ego, with team "red", with name "defender1"
+# Robot start positions from the two demonstrations
+Robot1_pos0 = (-2.86186028, 9.35915, 0)
+Robot1_pos1 = (-2.53687024, 6.064379, 0)
 
-defender2_angle = Uniform(-30, 30)
-defender2_dist = Uniform(1,2)
-defender2_x = LeftWinger.position.x + defender2_dist * sin(defender2_angle * pi / 180)
-defender2_y = LeftWinger.position.y + defender2_dist * cos(defender2_angle * pi / 180)
-defender2 = new Player at (defender2_x, defender2_y, 0), facing toward ego, with team "red", with name "defender2"
+# Box start positions
+# CHANGED: spawn Box1 at the coach-specified location (x, z, y).
+Box1_pos0 = (0.149280369, 8.603329, 0.1975)
+Box1_pos1 = (0.149280369, 8.603329, 0.1975)
 
-defender3_angle = Uniform(-30, 30)
-defender3_dist = Uniform(1,2)
-defender3_x = RightWinger.position.x + defender3_dist * sin(defender3_angle * pi / 180)
-defender3_y = RightWinger.position.y + defender3_dist * cos(defender3_angle * pi / 180)
-defender3 = new Player at (defender3_x, defender3_y, 0), facing toward ego, with team "red", with name "defender3"
+# Instantiate agents/objects (choose uniformly between demonstrated starts; Box is deterministic here)
+ego = new Player at Uniform(Human1_pos0, Human1_pos1), with behavior CoachBehavior(), with name "Human1"
+Robot1 = new Robot at Uniform(Robot1_pos0, Robot1_pos1), with behavior Agent1Behavior(), with name "Robot1"
+Box1 = new Box at Uniform(Box1_pos0, Box1_pos1), with name "Box1"
 
-defender4_angle = Uniform(-30, 30)
-defender4_dist = Uniform(1,2)
-defender4_x = LeftStriker.position.x + defender4_dist * sin(defender4_angle * pi / 180)
-defender4_y = LeftStriker.position.y + defender4_dist * cos(defender4_angle * pi / 180)
-defender4 = new Player at (defender4_x, defender4_y, 0), facing toward ego, with team "red", with name "defender4"
-
-defender5_angle = Uniform(-30, 30)
-defender5_dist = Uniform(1,2)
-defender5_x = RightStriker.position.x + defender5_dist * sin(defender5_angle * pi / 180)
-defender5_y = RightStriker.position.y + defender5_dist * cos(defender5_angle * pi / 180)
-defender5 = new Player at (defender5_x, defender5_y, 0), facing toward ego, with team "red", with name "defender5"
-goal = new Goal at (0, 17, 0)
+# Always end the program with the following statement.
 terminate when (ego.gameObject.stopButton)
+
+####Environment Behavior START####

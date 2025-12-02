@@ -419,6 +419,14 @@ namespace OpenAI.Samples.Chat
                 gs.GetComponent<GroundSelection>().ClearGroundHighlights();
             }
 
+            var groundHighlights = GameObject.FindGameObjectsWithTag("GroundHighlight");
+        
+            foreach (var gh in groundHighlights)
+            {
+                Destroy(gh);
+            }
+
+
             if (RecordingManager.IsRecording)
             {
                 RecordingManager.EndRecording();

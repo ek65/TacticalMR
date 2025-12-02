@@ -3912,7 +3912,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 4294967295
   endReachedDistance: 1
-  whenCloseToDestination: 0
+  whenCloseToDestination: 1
   rvoDensityBehavior:
     enabled: 0
     densityThreshold: 0.5
@@ -3932,8 +3932,8 @@ MonoBehaviour:
   acceleration: 3
   rotationSpeed: 360
   slowdownTime: 0.5
-  wallForce: 0
-  wallDist: 0
+  wallForce: 3
+  wallDist: 1
   funnelSimplification: 0
   slowWhenNotFacingTarget: 0
   preventMovingBackwards: 0
@@ -3998,7 +3998,7 @@ CapsuleCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.5
+  m_Radius: 0.2
   m_Height: 2
   m_Direction: 1
   m_Center: {x: 0, y: 1, z: 0}

@@ -7,78 +7,95 @@ from scenic.core.regions import MeshVolumeRegion
 import random
 ####HEADER ENDS####
 
-# Constraint and target definitions for Coach (Robot1) and Human1
+# ===== Constraint and Target Definitions for Coach (Robot) =====
 
-# Targets for Robot1 to approach Box1 and Human1
-A1target_box = DistanceTo({'from': 'Robot1', 'to': 'Box1', 'min': None,
-                           'max': {'avg': 1.0, 'std': 0.1}, 'operator': 'less_than'})
-A2target_human = DistanceTo({'from': 'Robot1', 'to': 'Human1', 'min': None,
-                             'max': {'avg': 2.0, 'std': 0.2}, 'operator': 'less_than'})
+# Targets for the robot (ego) to approach Box1 and Human1
+A_R_target_box = DistanceTo({'from': 'Robot1', 'to': 'Box1',
+                             'min': None, 'max': {'avg': 1.0, 'std': 0.1},
+                             'operator': 'less_than'})
+A_R_target_human = DistanceTo({'from': 'Robot1', 'to': 'Human1',
+                               'min': None, 'max': {'avg': 1.2, 'std': 0.1},
+                               'operator': 'less_than'})
 
-# Preconditions and monitoring conditions
-A1pre_handRaised = HandRaised({'player': 'Human1'})
-A2pre_possessed = IsPossessed({'obj': 'Box1'})
-A3pre_packaged = IsPackaged({'obj': 'Box1'})
-A4pre_robotNearHuman = DistanceTo({'from': 'Robot1', 'to': 'Human1', 'min': None,
-                                   'max': {'avg': 2.0, 'std': 0.2}, 'operator': 'less_than'})
+# Preconditions used inside the robot behavior
+A_R_close_to_box = DistanceTo({'from': 'Robot1', 'to': 'Box1',
+                               'min': None, 'max': {'avg': 1.0, 'std': 0.1},
+                               'operator': 'less_than'})
+A_R_close_to_human = DistanceTo({'from': 'Robot1', 'to': 'Human1',
+                                 'min': None, 'max': {'avg': 1.2, 'std': 0.1},
+                                 'operator': 'less_than'})
+A_R_possessed = IsPossessed({'obj': 'Box1'})
+A_R_packaged = IsPackaged({'obj': 'Box1'})
 
-def λ_target_box():
-    cond = A1target_box
+def λ_target_R_box():
+    cond = A_R_target_box
     return cond.dist(simulation(), ego=True)
 
-def λ_target_human():
-    cond = A2target_human
+def λ_target_R_human():
+    cond = A_R_target_human
     return cond.dist(simulation(), ego=True)
 
-def λ_pre_handRaised():
-    return A1pre_handRaised.bool(simulation())
+def λ_precondition_R_closeBox():
+    return A_R_close_to_box.bool(simulation())
 
-def λ_pre_possessed():
-    return A2pre_possessed.bool(simulation())
+def λ_precondition_R_closeHuman():
+    return A_R_close_to_human.bool(simulation())
 
-def λ_pre_packaged():
-    return A3pre_packaged.bool(simulation())
+def λ_precondition_R_possessed():
+    return A_R_possessed.bool(simulation())
 
-def λ_pre_readyToPackage():
-    # Robot is close to Human1 and the box is no longer being held
-    print("A4pre_robotNearHuman", A4pre_robotNearHuman.bool(simulation()))
-    print("A2pre_possessed", A2pre_possessed.bool(simulation()))
-    cond = A4pre_robotNearHuman & ~A2pre_possessed
-    return cond.bool(simulation())
+def λ_precondition_R_notPossessed():
+    return (not A_R_possessed.bool(simulation()))
 
+def λ_precondition_R_packaged():
+    return A_R_packaged.bool(simulation())
+
+
+# ===== Constraint and Target Definitions for Human (Environment Agent) =====
+
+B_H_box_near_human = DistanceTo({'from': 'Human1', 'to': 'Box1',
+                                 'min': None, 'max': {'avg': 1.5, 'std': 0.1},
+                                 'operator': 'less_than'})
+B_H_packaged = IsPackaged({'obj': 'Box1'})
+
+def λ_precondition_H_boxNear():
+    return B_H_box_near_human.bool(simulation())
+
+def λ_precondition_H_packaged():
+    return B_H_packaged.bool(simulation())
+
+
+# ========================= Behaviors =========================
 
 behavior CoachBehavior():
     do Idle() for 3 seconds
 
-    # do Speak("Wait until Human1 raises hand asking for help.")
-    do Idle() until λ_pre_handRaised()
+    do Speak("Move next to the box within 1 meter.")
+    do MoveTo(λ_target_R_box())
 
-    # do Speak("Move within 1 meter of Box1 to retrieve it.")
-    do MoveTo(λ_target_box(), False)
+    do Speak("Wait until close enough to grab the box.")
+    do Idle() until λ_precondition_R_closeBox()
 
-    # do Speak("Pick up the nearest box on the floor.")
+    do Speak("Pick up the box now.")
     do PickUp()
 
-    print("coach here0")
-    # do Speak("Wait until Box1 is possessed by me.")
-    do Idle() until λ_pre_possessed()
+    do Speak("Wait until you are holding the box.")
+    do Idle() until λ_precondition_R_possessed()
 
-    print("coach here1")
+    do Speak("Move next to the human within 1 meter.")
+    do MoveTo(λ_target_R_human())
 
-    # do Speak("Move within 2 meters of Human1 to deliver.")
-    do MoveTo(λ_target_human(), True)
+    do Speak("Wait until you are beside the human.")
+    do Idle() until λ_precondition_R_closeHuman()
 
-    print("coach here2")
-
-    # do Speak("Put the box down in front of Human1.")
+    do Speak("Put the box down for the human.")
     do PutDown()
 
-    print("coach here3")
+    do Speak("Wait until the box is no longer in your hands.")
+    do Idle() until λ_precondition_R_notPossessed()
 
-    # do Speak("Wait until Human1 finishes packaging Box1.")
-    do Idle() until λ_pre_packaged()
-
-    print("coach here4")
+    do Speak("Wait until the human packages the box.")
+    do Idle() until λ_precondition_R_packaged()
 
     do Idle()
 
@@ -86,32 +103,40 @@ behavior CoachBehavior():
 behavior Agent1Behavior():
     do Idle() for 3 seconds
 
-    ## Raise hand to request the robot’s help.
-    do RaiseHand()
+    ## Wait until the box is close (about 1.5 m) to the human.
+    do Idle() until λ_precondition_H_boxNear()
 
-    print("here0")
-    ## Wait until robot arrives and the box is placed (near human and not held).
-    do Idle() until λ_pre_readyToPackage()
-
-    print("here1")
-
-    ## Package the delivered box.
+    ## Package the nearest box placed on the table.
     do Packaging()
 
-    print("here2")
+    ## Ensure the box has been packaged before finishing.
+    do Idle() until λ_precondition_H_packaged()
 
     do Idle()
 
 
-# Agents and objects instantiation (use positions from demonstrations)
-Human1 = new Player at Uniform((-2.639944, 6.53012657, 0.1975),
-                              (-2.67881584, 6.43111324, 0.1975)), with behavior Agent1Behavior(), with name "Human1"
+# ========================= Object Instantiation =========================
 
-ego = new Robot at Uniform((-1.79286087, -3.74339628, 0.168299451),
-                          (-1.92893577, -3.99485588, 0.163965)), with behavior CoachBehavior(), with name "Robot1"
+# Note: coordinates are given as (x, z, y)
 
-Box1 = new Box at Uniform((-3.202844, -3.6241827, 0.8430421),
-                         (-2.8524003, -1.345963, 1.30546224)), with name "Box1"
+Human = new Player at Uniform(
+            (-2.4219, 5.5018, 0.2),
+            (-2.6399, 5.5063, 0.2)
+        ), with behavior Agent1Behavior(), with name "Human1"
 
-# Always end the program with a termination condition for the simulator UI
-terminate when (ego.gameObject.stopButton)
+ego = new Robot at Uniform(
+            (2.3399, 10.0044, 0.2),
+            (1.0008, -1.1785, 0.2)
+        ), with behavior CoachBehavior(), with name "Robot1"
+
+Box1 = new Box at Uniform(
+            (0.7148, 2.3064, 0.2),
+            (-3.2955, 10.6929, 0.2)
+        ), with name "Box1"
+
+# do Speak("wait until the human either raises hand or complete packaging of the box")
+# do Idle() until (λ_precondition_H_boxNear() or λ_precondition_H_packaged())
+
+terminate when ego.gameObject.stopButton
+
+####Environment Behavior START####
