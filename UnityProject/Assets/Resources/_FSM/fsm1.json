@@ -25,6 +25,13 @@
       "to": 2,
       "condition": "\u03bb_pre_robot_at_drop()",
       "description": "Wait until the robot is within about 1 meter of the drop area."
+    },
+    {
+      "id": 1003,
+      "from": 2,
+      "to": 2,
+      "condition": "\u03bb_pre_packaged()",
+      "description": "Wait until the box is fully packaged."
     }
   ]
 }

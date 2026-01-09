@@ -1117,7 +1117,7 @@ public class ActionAPI : NetworkBehaviour
         {
             PlayerInterface pI = this.gameObject.GetComponent<PlayerInterface>();
             StartCoroutine(pI.SetIsMoving(true));
-            while (Vector3.Distance(destSetter.target.position, this.gameObject.transform.position) >= 0.5f)
+            while (Vector3.Distance(destSetter.target.position, this.gameObject.transform.position) >= 1f)
             {
                 float velz = aiNav.velocity.magnitude;
                 selfPlayer.GetComponent<Animator>().SetFloat("VelZ", velz);
