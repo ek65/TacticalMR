@@ -1006,11 +1006,11 @@ public class JSONToLLM : NetworkBehaviour
             time += 0.02f;
 #if UNITY_EDITOR
             PopulateSegment();
-            // if (!recorderManager.RecorderController.IsRecording())
-            // {
-            //     recorderManager.StartRecording();
-            //     videoIsRecording = recorderManager.RecorderController.IsRecording();
-            // }
+            if (!recorderManager.RecorderController.IsRecording())
+            {
+                recorderManager.StartRecording();
+                videoIsRecording = recorderManager.RecorderController.IsRecording();
+            }
 #endif
         }
     }
