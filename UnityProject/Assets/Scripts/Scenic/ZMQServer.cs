@@ -109,7 +109,7 @@ public class ZMQServer : MonoBehaviour
         zmqRequester.server.Dispose();
         zmqRequester.Stop();
         //Following command crashes my editor for some reason
-        // NetMQConfig.Cleanup(false); 
+        NetMQConfig.Cleanup(false); 
     }
 
     private void OnApplicationQuit()
@@ -117,7 +117,7 @@ public class ZMQServer : MonoBehaviour
         zmqRequester.server.Close();
         zmqRequester.server.Dispose();
         zmqRequester.Stop();
-        // NetMQConfig.Cleanup(); 
+        NetMQConfig.Cleanup(); 
     }
 
     private List<ScenicMovementData> ParseMovementData(ScenicParser.ScenicJson data)

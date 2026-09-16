@@ -392,7 +392,7 @@ class ScenicLoader(importlib.abc.InspectLoader):
 
     def exec_module(self, module):
         # Read source file and compile it
-        with open(self.filepath, "r") as stream:
+        with open(self.filepath, "r", encoding="utf-8") as stream:
             source = stream.read()
         with open(self.filepath, "rb") as stream:
             code, pythonSource = compileStream(
