@@ -12,6 +12,17 @@ public class ZMQServer : MonoBehaviour
 
     [SerializeField] private string port = "5555";
 
+    [Header("Traffic Logging (debug)")]
+    [Tooltip("Log messages exchanged with Scenic to the Console. A message is logged when its structure changes " +
+             "(numbers are ignored, so position/tick jitter does not count). The first message in each direction is always logged.")]
+    [SerializeField] private bool logTraffic = true;
+
+    [Tooltip("Seconds between heartbeat lines per direction while messages keep the same structure. 0 disables heartbeats.")]
+    [SerializeField] private float logHeartbeatSeconds = 10f;
+
+    [Tooltip("Max characters of each message to print. 0 = print the whole message.")]
+    [SerializeField] private int logPreviewChars = 200;
+
     private ScenicParser parser;
     // Start is called before the first frame update
     private ZMQRequester zmqRequester;
@@ -37,6 +48,7 @@ public class ZMQServer : MonoBehaviour
 
         bool isServer = true;
         zmqRequester = new ZMQRequester(ip, port, isServer);
+        zmqRequester.SetLogging(logTraffic, logHeartbeatSeconds, logPreviewChars);
         zmqRequester.Start();
         destroyed = false;
 
