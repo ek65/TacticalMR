@@ -166,9 +166,12 @@ public class HumanInterface : NetworkBehaviour, IObjectInterface
             // infoCanvas.transform.localScale = new Vector3(0.001f, 0.001f, 0.001f);
             
             t.anchoredPosition = new Vector3(t.position.x, 100);
-            
-            t2.anchoredPosition = new Vector3(250, 200);
-            t2.gameObject.SetActive(false);
+
+            if (t2 != null) // starts inactive (so not found) in the viewer scene
+            {
+                t2.anchoredPosition = new Vector3(250, 200);
+                t2.gameObject.SetActive(false);
+            }
         }
 
         // if (isViewer)

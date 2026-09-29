@@ -18,7 +18,7 @@ public class Fade : MonoBehaviour
         fadeRate = 10.0f;
         if (blackout == null)
         {
-            blackout = GameObject.FindGameObjectWithTag("MainCamera").GetComponentInChildren<Image>();
+            blackout = FindBlackout();
         }
     }
 
@@ -26,13 +26,19 @@ public class Fade : MonoBehaviour
     {
         if (blackout == null)
         {
-            blackout = GameObject.FindGameObjectWithTag("MainCamera").GetComponentInChildren<Image>();
+            blackout = FindBlackout();
         }
+    }
+
+    // Camera.main is the enabled MainCamera; the VR rigs also tag an eye anchor MainCamera, which has no blackout image
+    private static Image FindBlackout()
+    {
+        return Camera.main != null ? Camera.main.GetComponentInChildren<Image>() : null;
     }
 
     void LateUpdate()
     {
-        if (!gameObject.CompareTag("human"))
+        if (!gameObject.CompareTag("human") || blackout == null)
         {
             return;
         }
