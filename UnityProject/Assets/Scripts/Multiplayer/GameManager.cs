@@ -131,13 +131,14 @@ public class GameManager : NetworkBehaviour, INetworkRunnerCallbacks
 		_runner.ProvideInput = (laptopMode || isHost);
 		Debug.Log("we provide input: " + (laptopMode || isHost));
 
-		// Start or join (depends on gamemode) a session with a specific name
+		// Start or join (depends on gamemode) a session with a specific name.
+		// Laptop mode adopts the open scene, which may not be in Build Settings (index -1 means "no scene" to Fusion).
 		await _runner.StartGame(new StartGameArgs()
 		{
 			GameMode = mode,
 			SessionName = laptopMode ? "LaptopMode" : ("GameRoom" + sessionNum),
-			Scene = SceneManager.GetActiveScene().buildIndex,
-			SceneManager = gameObject.AddComponent<NetworkSceneManagerDefault>()
+			Scene = laptopMode ? Mathf.Max(0, SceneManager.GetActiveScene().buildIndex) : SceneManager.GetActiveScene().buildIndex,
+			SceneManager = laptopMode ? gameObject.AddComponent<LaptopModeSceneManager>() : gameObject.AddComponent<NetworkSceneManagerDefault>()
 		});
 	}
 
