@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Fusion;
+using Oculus.Interaction;
 using Old.OpenAI.Samples.Chat;
 using TMPro;
 using UnityEngine;

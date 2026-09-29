@@ -121,7 +121,7 @@ public class GroundSelection : MonoBehaviour, IPointerClickHandler, IPointerEnte
 #if UNITY_ANDROID && !UNITY_EDITOR
     public void OnRayClick()
     {
-        if (keyboardInput.canClick)
+        if (programSynthesisManager.canClick)
         {
             if (placedGroundHighlighter != null)
             {
