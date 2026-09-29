@@ -1,8 +1,10 @@
 # TacticalMR
 
+![Teaching with narrated demonstrations in mixed reality, program generation, and program editing](docs/images/overview.png)
+
 TacticalMR turns narrated demonstrations of soccer tactics into programs. A participant plays a [Scenic](https://scenic-lang.readthedocs.io/) scenario in mixed reality on a Meta Quest 3 and explains what they are doing. A laptop records the session. The [narrated_demo](https://github.com/ek65/narrated_demo) pipeline then synthesizes a Scenic program from the recordings. Finally, the participant reviews the program as a finite-state machine (FSM) and as a running simulation, and gives feedback.
 
-This branch holds the whole soccer study in one Unity 2022.3.13f1 project. You no longer switch between the `elevenlabsSoccerVR` and `soccer-main` branches or keep two clones.
+The soccer study runs in one Unity 2022.3.13f1 project, with a scene for each part:
 
 | Part of the study | Scene | Runs on |
 |---|---|---|
@@ -10,7 +12,7 @@ This branch holds the whole soccer study in one Unity 2022.3.13f1 project. You n
 | View the FSM and record feedback; run synthesized programs | `Assets/Scenes/zmq_demo_controller.unity` | Laptop's Unity Editor only (offline) |
 | View the final program in VR | `Assets/Scenes/zmq_demo_vr_viewer.unity` | Quest 3 |
 
-The factory study is on the `factory-new` branch; see [Factory study](#factory-study).
+To run the factory setup, switch to the `factory` branch; see [Factory study](#factory-study).
 
 User study tutorial: [overview_tutorial3.mp4](https://drive.google.com/file/d/1Fyzr8lflQ9z49QNBZYxYfmKwWahcZ54M/view?usp=drive_link)
 
@@ -49,7 +51,7 @@ Install the Scenic in this repository (`Scenic-main`, version 3.0.0b2), not upst
 
 ### 3. Set up Unity
 
-1. Install [Unity Hub](https://unity.com/download), then Unity **2022.3.13f1** from the [editor archive](https://unity.com/releases/editor/archive) with the **Android Build Support** module. Stay on 2022.3.13f1: an earlier Unity 6 upgrade broke the soccer setup (it's kept in the `archive/main-unity6` tag). Unity 2022.3.21+ fixes an A* bug (see [Troubleshooting](#troubleshooting)) but hasn't been tested with this project.
+1. Install [Unity Hub](https://unity.com/download), then Unity **2022.3.13f1** from the [editor archive](https://unity.com/releases/editor/archive) with the **Android Build Support** module. Use 2022.3.13f1 exactly. Unity 2022.3.21+ fixes an A* bug (see [Troubleshooting](#troubleshooting)) but hasn't been tested with this project.
 2. In Unity Hub, click **Add → Add project from disk** and select the `TacticalMR/UnityProject` folder. Open it.
 3. Go to **File → Build Settings** and click **Switch to Android**.
 4. In the **Game** tab, open the resolution dropdown (Free Aspect by default), click **+** and create a **1200 × 1080** resolution. Select it.
@@ -232,8 +234,6 @@ scenic examples/unity/_SYNTHESIZED_PROGRAM/synthesized_program.scenic -S -b
    ```
 4. The scenario plays out, and the participant watches it as a third-person viewer.
 
-The program stays in `_SYNTHESIZED_PROGRAM`, so there's no need to copy it or switch branches.
-
 ## Controls
 
 ### Quest 3 controllers
@@ -296,9 +296,9 @@ In `zmq_demo_controller`:
 
 ## Factory study
 
-The factory study is on the `factory-new` branch and uses Unity **6000.0.33f1** (no Android module needed).
+To run the factory setup, switch to the `factory` branch. It uses Unity **6000.0.33f1** (no Android module needed).
 
-1. Check out `factory-new` and open `UnityProject` in Unity 6000.0.33f1.
+1. Open `UnityProject` in Unity 6000.0.33f1.
 2. Activate your Python environment and `cd TacticalMR/Scenic-main`.
 3. Open `Scenes/factory_new.unity`. In the hierarchy, set **Managers → ScenarioManager** to **Factory**.
 4. Test it: `scenic -S -b examples/unity/robot/factory1.scenic`
@@ -451,7 +451,7 @@ graph LR
     G --> G1[FactoryMoveToPos, PickUp<br/>PutDown, Packaging]
 ```
 
-The factory actions are used on `factory-new`.
+The factory actions are used on the `factory` branch.
 
 ### Game objects
 
