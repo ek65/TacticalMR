@@ -1,7 +1,5 @@
 # TacticalMR
 
-![Teaching in VR, program synthesis and program editing](docs/images/overview.png)
-
 TacticalMR turns narrated demonstrations of soccer tactics into programs. A participant plays a [Scenic](https://scenic-lang.readthedocs.io/) scenario in mixed reality on a Meta Quest 3 and explains what they are doing. A laptop records the session. The [narrated_demo](https://github.com/ek65/narrated_demo) pipeline then synthesizes a Scenic program from the recordings. Finally, the participant reviews the program as a finite-state machine (FSM) and as a running simulation, and gives feedback.
 
 This branch holds the whole soccer study in one Unity 2022.3.13f1 project. You no longer switch between the `elevenlabsSoccerVR` and `soccer-main` branches or keep two clones.
