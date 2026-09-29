@@ -55,9 +55,9 @@ The factory study lives on the `factory-new` branch (Unity 6000.0.33f1).
 
 ## Running the soccer study
 
-Unity is the ZMQ server on port 5555. Scenic connects to `param address`, which defaults to `localhost` in `Scenic-main/src/scenic/simulators/unity/model.scenic`. For the headset, pass `--param address <headset-ip>` rather than editing `model.scenic`. Run every `scenic` command from `Scenic-main` with your environment active.
+Unity is the ZMQ server on port 5555. Scenic connects to `param address`, which defaults to `localhost` in `Scenic-main/src/scenic/simulators/unity/model.scenic`. For the headset, pass `--param address <headset-ip>` rather than editing `model.scenic`. Activate your Scenic environment (for example `conda activate ~/opt/anaconda3/envs/scenic`) and run every `scenic` command from `Scenic-main/examples/unity`.
 
-Scenarios: `examples/unity/check.scenic` (the "lure" scenario), `examples/unity/distribute.scenic` and `examples/unity/overlap.scenic`.
+Scenarios: `check.scenic` (the "lure" scenario), `distribute.scenic` and `overlap.scenic`.
 
 ### 1. Record narrated demonstrations (VR)
 
@@ -65,7 +65,7 @@ Scenarios: `examples/unity/check.scenic` (the "lure" scenario), `examples/unity/
 2. On **ZMQManager → JSON Directory**, set the participant number and drill name. Recordings go to `TacticalMR/output/participant<N>/<drill>/`.
 3. In **File → Build Settings**, set **Run Device** to your Quest 3 and tick only `Scenes/zmq_demo_vr`. Then click **Build And Run**. Rebuild whenever the headset IP changes. On the headset, the app is in Library → Unknown Sources as "TacticalMR".
 4. Press **Play** in the Unity Editor on the laptop. The laptop joins the headset's session as a spectator with a top-down view, and records the video and JSON.
-5. Run a scenario, for example: `scenic examples/unity/check.scenic -S -b --param address <headset-ip>`
+5. Run a scenario, for example: `scenic -S -b check.scenic --param address <headset-ip>`
 6. The participant pauses, starts recording, and narrates; see the controls below. Record **two** demonstrations. Each one saves a JSON file and a video.
 
 ### 2. Synthesize a program
@@ -83,7 +83,7 @@ Scenarios: `examples/unity/check.scenic` (the "lure" scenario), `examples/unity/
 ### 4. Run the synthesized program and record feedback (laptop)
 
 1. In `zmq_demo_controller`, disable **FSMCanvas** and press **Play**. The ZMQ Server IP is `localhost` in this scene.
-2. Run `scenic examples/unity/_SYNTHESIZED_PROGRAM/synthesized_program.scenic -S -b`
+2. Run `scenic -S -b _SYNTHESIZED_PROGRAM/synthesized_program.scenic`
 3. The participant watches one full run. To give feedback, press **E**, choose **No** (restart without saving), then **P** right away to pause.
 4. Press **B** to start recording, then **P** to play. Pause with **P** at any time. Press **B** to stop.
 5. Run `python v2/auto_feedback.py pilot0 --feedback`
@@ -97,7 +97,7 @@ Scenarios: `examples/unity/check.scenic` (the "lure" scenario), `examples/unity/
 
 1. Open `zmq_demo_vr_viewer` and set the ZMQ Server IP to the headset's IP, as in step 1.
 2. Build And Run with only `Scenes/zmq_demo_vr_viewer` ticked.
-3. Run `scenic examples/unity/_SYNTHESIZED_PROGRAM/synthesized_program.scenic -S -b --param address <headset-ip>`. The headset shows the program from a third-person view.
+3. Run `scenic -S -b _SYNTHESIZED_PROGRAM/synthesized_program.scenic --param address <headset-ip>`. The headset shows the program from a third-person view.
 
 ## Controls
 
