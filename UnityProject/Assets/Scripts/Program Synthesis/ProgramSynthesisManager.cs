@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Fusion;
-using Meta.WitAi.Windows;
 using Old.OpenAI.Samples.Chat;
 using TMPro;
 using UnityEngine;
