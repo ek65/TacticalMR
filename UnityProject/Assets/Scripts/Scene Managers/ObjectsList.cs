@@ -187,7 +187,10 @@ public class ObjectsList : NetworkBehaviour
 
     IEnumerator ResetRay()
     {
-        RayInteractor rayInteractor = GameObject.FindGameObjectWithTag("RightRay").GetComponent<RayInteractor>();
+        // The right controller ray only exists in VR (not in laptop mode)
+        GameObject rightRay = GameObject.FindGameObjectWithTag("RightRay");
+        if (rightRay == null) yield break;
+        RayInteractor rayInteractor = rightRay.GetComponent<RayInteractor>();
         rayInteractor.enabled = false;
         yield return new WaitForSeconds(1f);
         rayInteractor.enabled = true;

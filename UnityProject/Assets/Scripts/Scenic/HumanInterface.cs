@@ -144,8 +144,9 @@ public class HumanInterface : NetworkBehaviour, IObjectInterface
             objectList.viewerPlayer = this.gameObject;
         }
         
-        // make sure vr cam is not enabled for client
-        Camera vrCam = GameObject.Find("CenterEyeAnchor").GetComponent<Camera>();
+        // make sure vr cam is not enabled for client (there is no VR camera in laptop mode)
+        GameObject centerEye = GameObject.Find("CenterEyeAnchor");
+        Camera vrCam = centerEye != null ? centerEye.GetComponent<Camera>() : null;
         if (!gm.isHost && vrCam != null)
         {
             vrCam.enabled = false;
@@ -154,8 +155,9 @@ public class HumanInterface : NetworkBehaviour, IObjectInterface
         // find gameobject with tag "InfoCanvas" and assign the canvas object to this object's camera
         GameObject infoCanvas = GameObject.FindGameObjectWithTag("InfoCanvas");
         RectTransform t = GameObject.Find("Paused Text").GetComponent<RectTransform>();
-        RectTransform t2 = GameObject.Find("Recording Dot").GetComponent<RectTransform>();
-        if (gm.isHost && infoCanvas != null)
+        GameObject recordingDot = GameObject.Find("Recording Dot"); // starts inactive (so not found) in the desktop scene
+        RectTransform t2 = recordingDot != null ? recordingDot.GetComponent<RectTransform>() : null;
+        if (gm.isHost && infoCanvas != null && vrCam != null)
         {
             infoCanvas.GetComponent<Canvas>().worldCamera = Camera.main;
 
@@ -173,7 +175,7 @@ public class HumanInterface : NetworkBehaviour, IObjectInterface
         // {
         //     t.SetActive(false);
         // }
-        t2.gameObject.SetActive(false);
+        if (t2 != null) t2.gameObject.SetActive(false);
     }
     
     private void LateUpdate()
