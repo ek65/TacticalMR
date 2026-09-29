@@ -2688,7 +2688,9 @@ MonoBehaviour:
   _interpolationDataSource: 3
   autoIsHost: 1
   isHost: 0
+  laptopMode: 0
   _ObserverCamera: {fileID: 11567817}
+  _pointableCanvasModule: {fileID: 0}
   _runner: {fileID: 0}
   sessionNum: 0
   _playerPrefab:
@@ -5665,6 +5667,105 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1198340476
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1198340480}
+  - component: {fileID: 1198340479}
+  - component: {fileID: 1198340478}
+  - component: {fileID: 1198340477}
+  m_Layer: 0
+  m_Name: Program Synthesis Manager
+  m_TagString: ProgramSynthesisManager
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1198340477
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1198340476}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f43f020bfc88c490db1db53ce17b1c1c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _interpolationDataSource: 0
+  clickOrder: 0
+  annotationsReady: 0
+--- !u!114 &1198340478
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1198340476}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d9acfea4cfb6645d4825ec7e3eeb44b4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _interpolationDataSource: 0
+  exitScenario: {fileID: 0}
+  timelineManager: {fileID: 82555165}
+  countdownText: {fileID: 2009202505}
+  saveDemoCanvas: {fileID: 1676098600}
+  recordAudio: {fileID: 1869078693}
+  segmentStarted: 0
+  activationConditionMet: 0
+  restarting: 0
+  canClick: 1
+  segmentStartTime: 0
+  explanation: 
+  recordingDot: {fileID: 1589058439}
+--- !u!114 &1198340479
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1198340476}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1552182283, guid: e725a070cec140c4caffb81624c8c787, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ObjectInterest: 1
+  DefaultInterestGroups: []
+  DestroyWhenStateAuthorityLeaves: 0
+  AllowStateAuthorityOverride: 1
+  AoiPositionSource: {fileID: 0}
+  Flags: 2561
+  NetworkGuid:
+    RawGuidValue: 96a3497fc3a548818209edcd26a82a70
+  NestedObjects: []
+  NetworkedBehaviours:
+  - {fileID: 1198340478}
+  - {fileID: 1198340477}
+  SimulationBehaviours: []
+--- !u!4 &1198340480
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1198340476}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1234586839
 GameObject:
   m_ObjectHideFlags: 0
@@ -5806,23 +5907,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 384686566afb54528b014901628ae937, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _interpolationDataSource: 0
   moveSpeed: 4
-  exitScenario: {fileID: 0}
   timelineManager: {fileID: 82555165}
-  countdownText: {fileID: 0}
-  saveDemoCanvas: {fileID: 1676098600}
-  recordAudio: {fileID: 1869078693}
-  clickOrder: 0
-  segmentStarted: 0
-  activationConditionMet: 0
-  restarting: 0
-  canClick: 1
-  segmentStartTime: 0
   rb: {fileID: 0}
   movement: {x: 0, y: 0, z: 0}
-  explanation: 
-  recordingDot: {fileID: 1589058439}
 --- !u!4 &1297644842
 Transform:
   m_ObjectHideFlags: 0
@@ -5859,8 +5947,7 @@ MonoBehaviour:
   NetworkGuid:
     RawGuidValue: 2c31e5f19a27440c9e21028082d396a2
   NestedObjects: []
-  NetworkedBehaviours:
-  - {fileID: 1297644841}
+  NetworkedBehaviours: []
   SimulationBehaviours: []
 --- !u!1 &1335367229
 GameObject:
@@ -11582,3 +11669,4 @@ SceneRoots:
   - {fileID: 949766145}
   - {fileID: 1809962500}
   - {fileID: 82555166}
+  - {fileID: 1198340480}
