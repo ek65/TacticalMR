@@ -70,6 +70,12 @@ public class OutlineSelection : NetworkBehaviour, IPointerClickHandler, IPointer
         // {
         //     outline.enabled = false;
         // }
+        // The ray also exits when a hovered player is despawned on restart. An RPC on a despawned object throws,
+        // and the exception leaves the ray raycasting the destroyed collider every frame.
+        if (Object == null)
+        {
+            return;
+        }
         RPC_RayExit();
     }
     
