@@ -134,7 +134,10 @@ public class InstantiateScenicObject
                     // Change to "player.human VR" for VR human, otherwise "player.human"
                     if (GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>().laptopMode)
                     {
-                        addedGameObject = MonoBehaviour.Instantiate(objectList.modelList["player.human"], pos, rot);
+                        // Spawned rather than instantiated, since its RPCs (RPC_InstantiateValues below) need a network object
+                        NetworkRunner runner = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>()._runner;
+                        NetworkObject temp = runner.Spawn(objectList.modelList["player.human"], pos, rot);
+                        addedGameObject = temp.gameObject;
                     }
                     else
                     {

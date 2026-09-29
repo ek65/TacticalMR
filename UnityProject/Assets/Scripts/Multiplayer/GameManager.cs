@@ -151,8 +151,9 @@ public class GameManager : NetworkBehaviour, INetworkRunnerCallbacks
 		{
 			Debug.Log($"Player joined: {player.PlayerId}");
 		
-			// Spawn only the host's network representation
-			if (player == runner.LocalPlayer && isHost)
+			// Spawn only the host's network representation (the headset user). Laptop mode has no headset user:
+			// Scenic spawns the human or the coach, and a program's AI coach must not take over a pre-spawned avatar.
+			if (player == runner.LocalPlayer && isHost && !laptopMode)
 			{
 				Vector3 spawnPosition = new Vector3(0, 0, 0);
 				NetworkObject hostNetworkPlayer = runner.Spawn(_playerPrefab, spawnPosition, Quaternion.identity, player);
