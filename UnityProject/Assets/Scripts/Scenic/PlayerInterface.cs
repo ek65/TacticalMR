@@ -137,6 +137,14 @@ public class PlayerInterface : NetworkBehaviour, IObjectInterface
                 aiNav.radius = 0.5f;
             }
         }
+        
+        // Make sure ball is at ballPosition when player has possession (ballOwner is only set on the host)
+        if (ballOwnership.ballOwner == this.gameObject && ballPossession)
+        {
+            ball.transform.position = ballPosition.position;
+            ball.transform.SetParent(ballPosition);
+            ball.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
+        }
     }
     
     private void LateUpdate()
@@ -237,7 +245,7 @@ public class PlayerInterface : NetworkBehaviour, IObjectInterface
     
     public void ForciblyGainPossession()
     {
-        if (ballOwnership.heldByScenic && canPossessBall && distToBall < 2f)
+        if ((ballOwnership.heldByScenic || ballOwnership.heldByHuman) && canPossessBall && distToBall < 2f)
         {
             Debug.LogError(distToBall);
             LogIntercept();

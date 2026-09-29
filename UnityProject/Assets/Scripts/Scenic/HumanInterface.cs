@@ -279,6 +279,14 @@ public class HumanInterface : NetworkBehaviour, IObjectInterface
                 aiNav.radius = 0.5f;
             }
         }
+        
+        // Make sure ball is at ballPosition when player has possession (ballOwner is only set on the host)
+        if (ballOwnership.ballOwner == this.gameObject && ballPossession)
+        {
+            ball.transform.position = ballPosition.position;
+            ball.transform.SetParent(ballPosition);
+            ball.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
+        }
 
         // string currResponse = "";
         // // if (chatBehaviour.sentences.Length > 0)

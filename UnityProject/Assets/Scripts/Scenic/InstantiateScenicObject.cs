@@ -69,7 +69,7 @@ public class InstantiateScenicObject
             LineInterface lI = addedGameObject.GetComponent<LineInterface>();
             
             lI.RPC_InstantiateValues();
-            lI.SetObjectName("Goal");
+            lI.SetObjectName("Line");
         }
         // else if (tag == "aiAgent")
         // {
