@@ -109,8 +109,7 @@ public class ZMQServer : MonoBehaviour
 
     private void OnDestroy()
     {
-        zmqRequester.server.Close();
-        zmqRequester.server.Dispose();
+        // Ends the server thread, which closes its own socket (NetMQ sockets must stay on one thread)
         zmqRequester.Stop();
         // Cleanup is needed on Windows (Unity hangs on exit without it) but crashes the editor on macOS
 #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
@@ -120,8 +119,6 @@ public class ZMQServer : MonoBehaviour
 
     private void OnApplicationQuit()
     {
-        zmqRequester.server.Close();
-        zmqRequester.server.Dispose();
         zmqRequester.Stop();
 #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
         NetMQConfig.Cleanup();

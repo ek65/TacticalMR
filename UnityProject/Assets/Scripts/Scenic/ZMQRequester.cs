@@ -18,6 +18,8 @@ public class ZMQRequester : RunAbleThread
 
     public ResponseSocket server;
     TimeSpan timeout = new TimeSpan(0, 0, 0, 10, 0);
+    // Receives poll in short slices so Stop() can end the thread promptly
+    readonly TimeSpan receivePollInterval = TimeSpan.FromMilliseconds(100);
 
     // --- Throttled traffic logging (for debugging Scenic <-> Unity communication) ---
     //
@@ -126,6 +128,8 @@ public class ZMQRequester : RunAbleThread
         if (isServer)
         {
             Debug.Log("Starting Scenic/Unity Server");
+            // The socket is only used and disposed on this thread (NetMQ sockets are not thread-safe).
+            // The loops check Running so Stop() can join this thread.
             using (server = new ResponseSocket())
             {
                 server.Bind("tcp://"+ ip +":" + port);
@@ -133,25 +137,35 @@ public class ZMQRequester : RunAbleThread
                 string outMessage = null;
                 //int outNum = 0;
                 bool gotMessage = false;
-                //understand what is going on here and try to terminate socket yet still keep the same thread running 
                 // Debug.LogError("IN SERVER");
-                while (true)
+                while (Running)
                 {
                     // Debug.LogError(outData == null);
                     // Debug.LogError("IN TRUE");
                     data = null;
                     if (outData != null){
+                        gotMessage = false;
+                        double waitStart = clock.Elapsed.TotalSeconds;
                         while (Running)
                         {
                             // Debug.LogError("I am receiving");
-                            gotMessage = server.TryReceiveFrameString(timeout, out message);
+                            gotMessage = server.TryReceiveFrameString(receivePollInterval, out message);
                             if (gotMessage)
                             {
                                 LogReceived(message);
                                 data = message;
                                 break;
                             }
-                            LogWaiting();
+                            if (clock.Elapsed.TotalSeconds - waitStart >= timeout.TotalSeconds)
+                            {
+                                LogWaiting();
+                                waitStart = clock.Elapsed.TotalSeconds;
+                            }
+                        }
+                        // Stopped before Scenic sent a request: a REP socket must not reply without one
+                        if (!gotMessage)
+                        {
+                            break;
                         }
                         if (message != null)
                         {
@@ -166,7 +180,7 @@ public class ZMQRequester : RunAbleThread
                         if (!readyToCommunicate) // we dont go into this
                         {
                             bool humanReady = false;
-                            while (!humanReady)
+                            while (!humanReady && Running)
                             {
                                 if (readyToCommunicate)
                                 {
@@ -198,8 +212,13 @@ public class ZMQRequester : RunAbleThread
                     else
                     {
                         // Debug.LogError("Outdata is null. Zmq cannot load");
+                        // Paused (nothing to send): wait instead of spinning
+                        Thread.Sleep(10);
                     }
                 }
+                // Release the port now; otherwise NetMQ keeps it bound until its context is cleaned up
+                // (Windows only, see ZMQServer) or Unity reloads the scripting domain
+                server.Unbind("tcp://" + ip + ":" + port);
             }
         }
         else // Should never enter here since Unity should always be server
