@@ -112,8 +112,10 @@ public class ZMQServer : MonoBehaviour
         zmqRequester.server.Close();
         zmqRequester.server.Dispose();
         zmqRequester.Stop();
-        //Following command crashes my editor for some reason
-        NetMQConfig.Cleanup(false); 
+        // Cleanup is needed on Windows (Unity hangs on exit without it) but crashes the editor on macOS
+#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
+        NetMQConfig.Cleanup(false);
+#endif
     }
 
     private void OnApplicationQuit()
@@ -121,7 +123,9 @@ public class ZMQServer : MonoBehaviour
         zmqRequester.server.Close();
         zmqRequester.server.Dispose();
         zmqRequester.Stop();
-        NetMQConfig.Cleanup(); 
+#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
+        NetMQConfig.Cleanup();
+#endif
     }
 
     private List<ScenicMovementData> ParseMovementData(ScenicParser.ScenicJson data)
