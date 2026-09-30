@@ -76,6 +76,11 @@ A scene takes input from Scenic as long as it has the **ZMQManager** object with
    scenic examples/unity/check.scenic -S -b
    ```
    This should spawn the players and objects.
+5. To check that programs run correctly from Scenic, stop that run (Ctrl+C in the terminal, then stop and press **Play** again in Unity) and run the test program:
+   ```bash
+   scenic examples/unity/checktest.scenic -S -b
+   ```
+   A coach driven by the program should move up, get the ball and shoot at the goal (or pass back to the teammate if the defender blocks the way). It doesn't need an OpenAI key.
 
 **Unity on Windows, Scenic in WSL2:** create a `.wslconfig` file in `C:\Users\<Username>` containing the following. This makes networking mirrored between Windows and WSL2.
 ```
@@ -558,7 +563,7 @@ Other folders:
 - `Assets/Resources/_FSM/`: `fsm.json` for the FSM view.
 - `Assets/Resources/OpenAIConfiguration`: the OpenAI key.
 - `Assets/Prefabs/`: `Managers` and `ZMQManager`.
-- `Scenic-main/examples/unity/`: `check.scenic`, `distribute.scenic`, `overlap.scenic`, `user-study-program-*.scenic` and `_SYNTHESIZED_PROGRAM/`.
+- `Scenic-main/examples/unity/`: `check.scenic`, `distribute.scenic`, `overlap.scenic`, `checktest.scenic` (test program), `user-study-program-*.scenic` and `_SYNTHESIZED_PROGRAM/`.
 
 ### Scenes
 
